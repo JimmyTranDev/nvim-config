@@ -1,7 +1,7 @@
 local M = {}
 
 M.githubUsername = vim.env.GITHUB_USERNAME
-M.jiraTicketUrl = vim.env.JIRA_TICKET_URL
+M.jiraTicketUrl = vim.env.ORG_JIRA_TICKET_LINK
 M.companyGithubTeamName = vim.env.GITHUB_ORGANIZATION_NAME
 local jsonUtils = require('custom.utils.json')
 local expand = vim.fn.expand

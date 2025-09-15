@@ -15,18 +15,24 @@ local M = {}
 
 function M.createBranch(prefix)
   return function()
-    local branchDescription = inputUtils.getInputFromUser('Branch Description: ')
     local jiraTicket = inputUtils.getInputFromUser('Jira Ticket: ')
-
-    local descriptionPart = string.gsub(branchDescription, '%s+', '-')
-    local jiraTicketPart = jiraTicket == '' and '' or jiraTicket .. '_'
-    local branchName = prefix .. '/' .. jiraTicketPart .. descriptionPart
+    local branchName
+    if jiraTicket ~= '' then
+      local summary = vim.fn.system(string.format('jira issue view %s --plain --field summary', jiraTicket))
+      summary = string.gsub(summary, '%s+', '-')
+      summary = string.gsub(summary, '[^%w%-]', '')
+      branchName = string.format('%s/%s_%s', prefix, jiraTicket, summary)
+    else
+      local branchDescription = inputUtils.getInputFromUser('Branch Description: ')
+      local descriptionPart = string.gsub(branchDescription, '%s+', '-')
+      branchName = string.format('%s/%s', prefix, descriptionPart)
+    end
 
     -- Create the branch
     vim.cmd(string.format('Git checkout -b %s', branchName))
 
     -- Add all files
-    vim.cmd("TermExec5 open=0 cmd='git add .'")
+    vim.cmd("TermExec5 open=0 cmd='git add .'" )
 
     -- Commit with the branch name as the message
     vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', branchName))
@@ -58,12 +64,19 @@ end
 function M.createWorktree(prefix)
   return function()
     local jiraTicket = inputUtils.getInputFromUser('Jira Ticket: ')
-    local branchDescription = inputUtils.getInputFromUser('Branch Description: ')
-
-    local descriptionPart = string.gsub(branchDescription, '%s+', '-')
-    local jiraTicketPart = jiraTicket == '' and '' or jiraTicket .. '_'
-    local branchName = prefix .. '/' .. jiraTicketPart .. descriptionPart
-    local worktreeName = string.format('~/Programming/%s_%s', prefix, descriptionPart)
+    local branchName, worktreeName
+    if jiraTicket ~= '' then
+      local summary = vim.fn.system(string.format('jira issue view %s --plain --field summary', jiraTicket))
+      summary = string.gsub(summary, '%s+', '-')
+      summary = string.gsub(summary, '[^%w%-]', '')
+      branchName = string.format('%s/%s_%s', prefix, jiraTicket, summary)
+      worktreeName = string.format('~/Programming/%s_%s', prefix, summary)
+    else
+      local branchDescription = inputUtils.getInputFromUser('Branch Description: ')
+      local descriptionPart = string.gsub(branchDescription, '%s+', '-')
+      branchName = string.format('%s/%s', prefix, descriptionPart)
+      worktreeName = string.format('~/Programming/%s_%s', prefix, descriptionPart)
+    end
 
     vim.cmd(string.format('Git worktree add -b %s %s', branchName, worktreeName))
   end
