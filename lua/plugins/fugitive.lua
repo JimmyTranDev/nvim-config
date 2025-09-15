@@ -19,15 +19,8 @@ return {
     { mode = 'n', '<Leader>ghv', ':tabnew | term gh repo view<CR>i', desc = 'View Repo Summary', silent = true },
 
     -- SAFE
-    { mode = 'n', '<Leader>gd', ':Git diff HEAD<CR>', desc = ' Staged', silent = true },
     { mode = 'n', '<Leader>gf', ':Git fetch --prune --all<CR>', desc = '󰓦 Fetch prune', silent = true },
-    {
-      mode = 'n',
-      '<Leader>gl',
-      ':split <Bar> :terminal git --no-pager log<CR>',
-      desc = '󰈙 Log All',
-      silent = true,
-    },
+    { mode = 'n', '<Leader>gl', ':split <Bar> :terminal git --no-pager log<CR>', desc = '󰈙 Log All', silent = true },
     { mode = 'n', '<Leader>gs', ':Git status<CR>', desc = '󱖫 Status', silent = true },
     { mode = 'n', '<Leader>gv', gitActions.gitAddPatch, desc = '📝 Git add patch', silent = true },
 
@@ -36,22 +29,11 @@ return {
     { mode = 'n', '<Leader>ghH', gitActions.selectAndPopStash, desc = '📦 Select and pop stash', silent = true },
 
     -- RISKY
+    { mode = 'n', '<Leader>gS', gitActions.openGithubPullRequest, desc = ' Open GitHub PR', silent = true },
     { mode = 'n', '<Leader>gI', ':Git init<CR>', desc = '󱩵 Init', silent = true },
     { mode = 'n', '<Leader>gF', ':Git push --force-with-lease<CR>', desc = ' Push force', silent = true },
-    {
-      mode = 'n',
-      '<Leader>gH',
-      ':Git branch -D holding <Bar> Git checkout -b holding<CR>',
-      desc = '󱩵 Branch holding',
-      silent = true,
-    },
-    {
-      mode = 'n',
-      '<Leader>gM',
-      ':Git commit --amend --no-verify --no-edit<CR>',
-      desc = ' Amend',
-      silent = true,
-    },
+    { mode = 'n', '<Leader>gH', ':Git branch -D holding <Bar> Git checkout -b holding<CR>', desc = '󱩵 Branch holding', silent = true },
+    { mode = 'n', '<Leader>gM', ':Git commit --amend --no-verify --no-edit<CR>', desc = ' Amend', silent = true },
     { mode = 'n', '<Leader>gP', ':Git push<CR>', desc = ' Push', silent = true },
     { mode = 'n', '<Leader>gV', ':Git add .<CR>', desc = ' Add all', silent = true },
 
@@ -72,44 +54,14 @@ return {
     },
 
     -- RESET
-    {
-      mode = 'n',
-      '<Leader>grC',
-      ':Git reset . <BAR> :Git clean -df <BAR> Git restore .<CR>',
-      desc = 'Reset All',
-      silent = true,
-    },
+    { mode = 'n', '<Leader>grC', ':Git reset . <BAR> :Git clean -df <BAR> Git restore .<CR>', desc = 'Reset All', silent = true },
     { mode = 'n', '<Leader>grr', ':Git reset .<CR>', desc = 'Reset patch', silent = true },
     { mode = 'n', '<Leader>grT', ':Git reset -p<CR>', desc = 'Reset', silent = true },
     { mode = 'n', '<Leader>grt', ':Git restore -p<CR>', desc = 'Restore patch', silent = true },
-    {
-      mode = 'n',
-      '<Leader>grR',
-      function() require('custom.actions.git').resetToReflog() end,
-      desc = 'Reset to reflog',
-      silent = true,
-    },
-    {
-      mode = 'n',
-      '<Leader>grH',
-      function() require('custom.actions.git').resetHardToCommit() end,
-      desc = '🔥 Reset hard to commit',
-      silent = true,
-    },
-    {
-      mode = 'n',
-      '<Leader>grS',
-      function() require('custom.actions.git').resetSoftToCommit() end,
-      desc = '💿 Reset soft to commit',
-      silent = true,
-    },
-    {
-      mode = 'n',
-      '<Leader>grO',
-      ':Git reset --hard origin<CR>',
-      desc = '💥 Reset hard to origin',
-      silent = true,
-    },
+    { mode = 'n', '<Leader>grR', function() require('custom.actions.git').resetToReflog() end, desc = 'Reset to reflog', silent = true },
+    { mode = 'n', '<Leader>grH', function() require('custom.actions.git').resetHardToCommit() end, desc = '🔥 Reset hard to commit', silent = true },
+    { mode = 'n', '<Leader>grS', function() require('custom.actions.git').resetSoftToCommit() end, desc = '💿 Reset soft to commit', silent = true },
+    { mode = 'n', '<Leader>grO', ':Git reset --hard origin<CR>', desc = '💥 Reset hard to origin', silent = true },
 
     -- BRANCH
     { mode = 'n', '<Leader>gbP', ':Git pull --rebase<CR>', desc = 'Branch pull rebase', silent = true },

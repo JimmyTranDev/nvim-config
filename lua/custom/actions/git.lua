@@ -32,7 +32,7 @@ function M.createBranch(prefix)
     vim.cmd(string.format('Git checkout -b %s', branchName))
 
     -- Add all files
-    vim.cmd("TermExec5 open=0 cmd='git add .'" )
+    vim.cmd("TermExec5 open=0 cmd='git add .'")
 
     -- Commit with the branch name as the message
     vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', branchName))
@@ -56,7 +56,7 @@ function M.createBranchWithCustomCommit(prefix)
 
     local commitMessage = inputUtils.getInputFromUser('Commit Message: ')
     vim.cmd(string.format('Git checkout -b %s', branchName))
-    vim.cmd("TermExec5 open=0 cmd='git add .'" )
+    vim.cmd("TermExec5 open=0 cmd='git add .'")
     local finalCommitMessage = commitMessage ~= '' and commitMessage or branchName
     vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', finalCommitMessage))
   end
@@ -465,6 +465,45 @@ function M.gitAddPatch()
       if vim.api.nvim_win_is_valid(term_win) then vim.api.nvim_win_close(term_win, true) end
     end,
   })
+end
+
+-- =============================================================================
+-- GitHub PR Operations
+-- =============================================================================
+
+function M.openGithubPullRequest()
+  local githubUtils = require('custom.utils.github')
+
+  local branch = gitUtils.getCurrentBranchName()
+  local repo = githubUtils.getRepoName()
+  local username = vim.env.GITHUB_USERNAME or vim.env.PRI_GITHUB_USERNAME or ''
+  if not branch or branch == '' or not repo or repo == '' or username == '' then
+    vim.notify('Could not determine branch, repo, or username')
+    return
+  end
+  local handle = io.popen('gh pr list --json number,headRefName,url')
+  local prListJson = handle and handle:read('*a') or ''
+  if handle then handle:close() end
+  local prUrl = nil
+  if prListJson and prListJson ~= '' then
+    local ok, prList = pcall(vim.fn.json_decode, prListJson)
+    if ok and prList then
+      for _, pr in ipairs(prList) do
+        if pr.headRefName == branch and pr.url then
+          prUrl = pr.url
+          break
+        end
+      end
+    end
+  end
+  if prUrl then
+    fileUtils.open(prUrl)
+    vim.notify('Opened existing PR for branch: ' .. branch)
+  else
+    local url = string.format('https://github.com/%s/%s/pull/new/%s', username, repo, branch)
+    fileUtils.open(url)
+    vim.notify('Opened new PR creation page for branch: ' .. branch)
+  end
 end
 
 return M
