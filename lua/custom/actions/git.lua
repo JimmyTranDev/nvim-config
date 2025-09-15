@@ -41,21 +41,22 @@ end
 
 function M.createBranchWithCustomCommit(prefix)
   return function()
-    local branchDescription = inputUtils.getInputFromUser('Branch Description: ')
     local jiraTicket = inputUtils.getInputFromUser('Jira Ticket: ')
+    local branchName
+    if jiraTicket ~= '' then
+      local summary = vim.fn.system(string.format('jira issue view %s --plain --field summary', jiraTicket))
+      summary = string.gsub(summary, '%s+', '-')
+      summary = string.gsub(summary, '[^%w%-]', '')
+      branchName = string.format('%s/%s_%s', prefix, jiraTicket, summary)
+    else
+      local branchDescription = inputUtils.getInputFromUser('Branch Description: ')
+      local descriptionPart = string.gsub(branchDescription, '%s+', '-')
+      branchName = string.format('%s/%s', prefix, descriptionPart)
+    end
+
     local commitMessage = inputUtils.getInputFromUser('Commit Message: ')
-
-    local descriptionPart = string.gsub(branchDescription, '%s+', '-')
-    local jiraTicketPart = jiraTicket == '' and '' or jiraTicket .. '_'
-    local branchName = prefix .. '/' .. jiraTicketPart .. descriptionPart
-
-    -- Create the branch
     vim.cmd(string.format('Git checkout -b %s', branchName))
-
-    -- Add all files
-    vim.cmd("TermExec5 open=0 cmd='git add .'")
-
-    -- Commit with custom message or fallback to branch name
+    vim.cmd("TermExec5 open=0 cmd='git add .'" )
     local finalCommitMessage = commitMessage ~= '' and commitMessage or branchName
     vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', finalCommitMessage))
   end
