@@ -36,8 +36,8 @@ end
 if not is_vscode then vim.opt.cursorline = true end
 vim.o.scrolloff = 99999 -- Auto center screen
 
--- Wrapping and line display
 vim.wo.wrap = false
+vim.o.foldenable = false
 vim.wo.linebreak = true
 vim.wo.list = false
 
