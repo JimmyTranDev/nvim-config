@@ -26,16 +26,12 @@ local promptActions = require('custom.actions.prompt')
 local checkboxActions = require('custom.actions.checkbox')
 local replacementActions = require('custom.actions.replacement')
 local storageActions = require('custom.utils.storage')
+local lspActions = require('custom.actions.lsp')
 
--- =============================================================================
--- New
--- =============================================================================
 
 keymap.set('n', '<Leader>rL', todoistActions.repeatLastTodoistOptions(), { desc = '⟳ Repeat last Todoist options', silent = true })
+keymap.set('n', '<Leader>rl', lspActions.refresh_all_lsps, { desc = '🔄 Refresh all LSPs', silent = true })
 
--- =============================================================================
--- Non-Leader Key Mappings
--- =============================================================================
 
 keymap.set('n', '<C-h>', '<C-W><C-H>', { desc = 'Move to left window' })
 keymap.set('n', '<C-j>', '<C-W><C-J>', { desc = 'Move to bottom window' })
