@@ -851,7 +851,6 @@ pcall(require, 'local_config')
 -- Advanced Branch Management
 local gitActions = require('custom.actions.git')
 gitActions.createBranch('feature')()  -- Creates: feature/JIRA-123_description
-gitActions.createBranchWithCustomCommit('bugfix')() -- Custom commit workflow
 
 -- GitHub CLI Integration (40+ Git Operations)
 <leader>ghc                 " Create pull request
