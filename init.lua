@@ -22,8 +22,19 @@ require('core.commands')
 -- Status line configuration (only in regular Neovim)
 if not vscode.is_vscode() then require('core.statusline') end
 
--- Key mappings (loaded last to ensure all dependencies are available)
 require('core.keymaps')
 
--- Initialize VSCode integration
 vscode.setup()
+-- Open directly into last file (skip dashboard)
+if not vscode.is_vscode() then
+	vim.api.nvim_create_autocmd('VimEnter', {
+		callback = function()
+			if vim.fn.argc() == 0 then
+				local lastfile = vim.v.oldfiles[1]
+				if lastfile and vim.fn.filereadable(lastfile) == 1 then
+					vim.cmd('edit ' .. vim.fn.fnameescape(lastfile))
+				end
+			end
+		end,
+	})
+end

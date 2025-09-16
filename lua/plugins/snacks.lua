@@ -70,7 +70,7 @@ return {
     bigfile = { enabled = true },
     -- TODO: make dashboard work
     dashboard = {
-      enabled = true,
+      enabled = false,
       sections = {
         { section = 'header' },
         {
