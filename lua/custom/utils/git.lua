@@ -6,7 +6,7 @@ function M.getCurrentBranchName()
 end
 
 function M.getJiraTicket(branchName)
-  local jiraTicket = string.match(branchName, [[[a-zA-Z]+-[0-9]+_?]])
+  local jiraTicket = string.match(branchName, "([a-zA-Z]+%-%d+)_$") or string.match(branchName, "([a-zA-Z]+%-%d+)")
   return jiraTicket or ''
 end
 
