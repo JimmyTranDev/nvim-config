@@ -56,6 +56,14 @@ local function ins_left(component) table.insert(config.sections.lualine_c, compo
 -- Inserts a component in lualine_x at right section
 local function ins_right(component) table.insert(config.sections.lualine_x, component) end
 
+
+local function truncate_text(text)
+  if type(text) == 'string' and #text > 40 then
+    return text:sub(1, 37) .. '...'
+  end
+  return text
+end
+
 local function createLeftBubble(color, icon, component)
   local cond = component.cond
   component.color = color
@@ -67,8 +75,23 @@ local function createLeftBubble(color, icon, component)
     padding = { left = 1, right = 0 },
   })
 
+  if type(component[1]) == 'function' then
+    local orig_fn = component[1]
+    component[1] = function(...)
+      return truncate_text(orig_fn(...))
+    end
+  end
+  if component.fmt then
+    local orig_fmt = component.fmt
+    component.fmt = function(text, ...)
+      return truncate_text(orig_fmt(text, ...))
+    end
+  else
+    component.fmt = truncate_text
+  end
   ins_left(component)
 end
+
 
 local function createRightBubble(color, icon, component)
   local cond = component.cond
@@ -81,6 +104,20 @@ local function createRightBubble(color, icon, component)
     padding = { left = 1, right = 0 },
   })
 
+  if type(component[1]) == 'function' then
+    local orig_fn = component[1]
+    component[1] = function(...)
+      return truncate_text(orig_fn(...))
+    end
+  end
+  if component.fmt then
+    local orig_fmt = component.fmt
+    component.fmt = function(text, ...)
+      return truncate_text(orig_fmt(text, ...))
+    end
+  else
+    component.fmt = truncate_text
+  end
   ins_right(component)
 end
 
