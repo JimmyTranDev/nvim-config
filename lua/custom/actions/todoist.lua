@@ -13,6 +13,26 @@ local todoistPriorityOptions = {
   { name = 'Priority None', value = 'p4' },
 }
 
+
+-- Helper to get/set recent project
+local RECENT_PROJECT_FILE = vim.fn.stdpath('data') .. '/todoist_recent_project.txt'
+local function get_recent_project_id()
+  local f = io.open(RECENT_PROJECT_FILE, 'r')
+  if f then
+    local id = f:read('*l')
+    f:close()
+    return id
+  end
+  return nil
+end
+local function set_recent_project_id(id)
+  local f = io.open(RECENT_PROJECT_FILE, 'w')
+  if f then
+    f:write(id)
+    f:close()
+  end
+end
+
 function M.logTodoistTask(fallbackProjectName)
   return function()
     local taskName = inputUtils.getInputFromUser('Enter the task name: ')
@@ -21,21 +41,23 @@ function M.logTodoistTask(fallbackProjectName)
       return
     end
 
-    -- Fetch salmon projects only
     todoistUtils.get_salmon_projects(function(success, projects)
       if not success then
         vim.notify('Failed to fetch projects: ' .. projects, vim.log.levels.ERROR)
         return
       end
-
-      -- Add fallback option if projects are empty or as backup
       if #projects == 0 then
         vim.notify('No salmon projects found, using fallback', vim.log.levels.WARN)
         M.logTodoistTaskLegacy(fallbackProjectName)()
         return
       end
-
-      -- Format projects for selection
+      -- Sort projects by recent usage
+      local recent_id = get_recent_project_id()
+      table.sort(projects, function(a, b)
+        if a.id == recent_id then return true end
+        if b.id == recent_id then return false end
+        return a.name < b.name
+      end)
       local project_options = {}
       for _, project in ipairs(projects) do
         table.insert(project_options, {
@@ -44,7 +66,6 @@ function M.logTodoistTask(fallbackProjectName)
           project = project,
         })
       end
-
       vim.ui.select(project_options, {
         prompt = 'Select a project:',
         format_item = function(item) return item.name end,
@@ -53,6 +74,7 @@ function M.logTodoistTask(fallbackProjectName)
           vim.notify('No project selected', vim.log.levels.WARN)
           return
         end
+        set_recent_project_id(selected_project.id)
 
         -- Fetch sections for the selected project
         todoistUtils.get_sections(selected_project.id, function(sections_success, sections)
