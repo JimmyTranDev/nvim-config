@@ -30,10 +30,7 @@ if not vscode.is_vscode() then
 	vim.api.nvim_create_autocmd('VimEnter', {
 		callback = function()
 			if vim.fn.argc() == 0 then
-				local lastfile = vim.v.oldfiles[1]
-				if lastfile and vim.fn.filereadable(lastfile) == 1 then
-					vim.cmd('edit ' .. vim.fn.fnameescape(lastfile))
-				end
+				require('utils.recent').open_most_recent_in_cwd()
 			end
 		end,
 	})
