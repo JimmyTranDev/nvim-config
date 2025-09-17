@@ -32,23 +32,7 @@ function M.copilotChatFms()
 
   local chat = require('CopilotChat')
   chat.open()
-
-  -- Load prompts data to get the FMS prompt
-  local prompts_data = require('core.prompts')
-  local current_file = debug.getinfo(1, 'S').source:sub(2)
-  local current_dir = vim.fn.fnamemodify(current_file, ':h:h:h') -- Go up to nvim/lua
-  local prompts_file = current_dir .. '/core/prompts.json'
-
-  local file = io.open(prompts_file, 'r')
-  local fms_prompt = ''
-  if file then
-    local content = file:read('*a')
-    file:close()
-
-    local ok, json_data = pcall(vim.json.decode, content)
-    if ok then fms_prompt = json_data.copilotFmsPrompt or '' end
-  end
-
+  local fms_prompt = prompts.copilotFmsPrompt
   local query = selectedText
     .. '\n\n'
     .. fms_prompt

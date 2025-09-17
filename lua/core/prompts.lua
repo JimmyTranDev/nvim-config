@@ -36,5 +36,6 @@ M.storyGeneratePrompt = prompts_data.storyGeneratePrompt or ''
 M.testIdsPrompt = prompts_data.testIdsPrompt or ''
 M.accessibilityImproveReactPrompt = prompts_data.accessibilityImproveReactPrompt or ''
 M.langaugePrompt = prompts_data.langaugePrompt or ''
+M.copilotFmsPrompt = prompts_data.copilotFmsPrompt or ''
 
 return M
