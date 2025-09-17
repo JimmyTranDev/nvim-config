@@ -28,10 +28,8 @@ local replacementActions = require('custom.actions.replacement')
 local storageActions = require('custom.utils.storage')
 local lspActions = require('custom.actions.lsp')
 
-
 keymap.set('n', '<Leader>rL', todoistActions.repeatLastTodoistOptions(), { desc = '⟳ Repeat last Todoist options', silent = true })
 keymap.set('n', '<Leader>rl', lspActions.refresh_all_lsps, { desc = '🔄 Refresh all LSPs', silent = true })
-
 
 keymap.set('n', '<C-h>', '<C-W><C-H>', { desc = 'Move to left window' })
 keymap.set('n', '<C-j>', '<C-W><C-J>', { desc = 'Move to bottom window' })
@@ -71,7 +69,7 @@ keymap.set('n', '<Leader>;fC', ':!rm -r ' .. constants.NEOVIM_STATE_DIR .. '<CR>
 keymap.set(
   'n',
   '<Leader>;fG',
-  ':!ln -sf ~/Programming/dotfiles/etc/.github .<CR>',
+  ':!ln -sf ~/Programming/dotfiles/etc/.github/copilot-instructions.md ./.github/copilot-instructions.md<CR>',
   { desc = '🔗 Link .github from dotfiles (replace if exists)', silent = true }
 )
 keymap.set('n', '<leader>;fg', fileActions.grepInCurrentFolder, { desc = ' Grep in current folder' })
