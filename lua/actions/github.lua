@@ -9,4 +9,68 @@ M.create_draft_pr = function()
   vim.notify('Draft PR created and opened in browser', vim.log.levels.INFO)
 end
 
+-- Select repo, select PR, and open PR in browser
+local function get_repos()
+  local handle = io.popen('gh repo list --limit 30 --json name,url')
+  if not handle then return {} end
+  local output = handle:read('*a')
+  handle:close()
+  local ok, json = pcall(vim.fn.json_decode, output)
+  if not ok or not json then return {} end
+  return json
+end
+
+local function get_pulls(repo)
+  local handle = io.popen('gh pr list --repo ' .. repo .. ' --json number,title,url,state')
+  if not handle then return {} end
+  local output = handle:read('*a')
+  handle:close()
+  local ok, json = pcall(vim.fn.json_decode, output)
+  if not ok or not json then return {} end
+  return json
+end
+
+M.select_and_open_pr = function()
+  local orgs = { vim.env.PRI_GITHUB_USERNAME, vim.env.ORG_GITHUB_NAME, vim.env.ORG_GITHUB_DESIGN_NAME }
+  vim.ui.select(orgs, { prompt = 'Select organization:' }, function(selected_org)
+    if not selected_org then return end
+    local handle = io.popen('gh repo list ' .. selected_org .. ' --limit 30 --json name,url')
+    local repos = {}
+    if handle then
+      local output = handle:read('*a')
+      handle:close()
+      local ok, json = pcall(vim.fn.json_decode, output)
+      if ok and json then repos = json end
+    end
+    if #repos == 0 then
+      vim.notify('No repos found for ' .. selected_org, vim.log.levels.ERROR)
+      return
+    end
+    local repo_names = {}
+    for _, r in ipairs(repos) do table.insert(repo_names, r.name) end
+    vim.ui.select(repo_names, { prompt = 'Select repo:' }, function(selected_repo)
+      if not selected_repo then return end
+      local pulls = get_pulls(selected_org .. '/' .. selected_repo)
+      if #pulls == 0 then
+        vim.notify('No PRs found in ' .. selected_repo, vim.log.levels.INFO)
+        return
+      end
+      local pr_titles = {}
+      for _, pr in ipairs(pulls) do
+        table.insert(pr_titles, string.format('#%d %s [%s]', pr.number, pr.title, pr.state))
+      end
+      vim.ui.select(pr_titles, { prompt = 'Select PR to open:' }, function(selected_pr_title)
+        if not selected_pr_title then return end
+        for _, pr in ipairs(pulls) do
+          if selected_pr_title:find('#' .. pr.number) then
+            vim.fn.system('open ' .. pr.url)
+            vim.notify('Opened PR #' .. pr.number .. ' in browser', vim.log.levels.INFO)
+            return
+          end
+        end
+      end)
+    end)
+  end)
+end
+
 return M

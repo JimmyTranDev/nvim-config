@@ -85,11 +85,15 @@ keymap.set('n', '<leader>;wt', worktreeActions.pull_and_rebase_all, {
   silent = true,
 })
 
--- Group 3: Text & Content Operations - Text manipulation, search, and replace
 keymap.set('x', '<leader>;tr', [["zy:%s/\V<C-r>=escape(@z, '/')<CR>//gc<left><left><left>]], { desc = '🔍 Visual search replace' })
 keymap.set('n', '<leader>;tR', ':cdo %s///gc<left><left><left><left>', { desc = '🔄 CDO replace' })
 keymap.set('n', '<leader>;tt', checkboxActions.toggle, { desc = '☑️  Toggle checkbox', silent = true, noremap = true })
 keymap.set('v', '<leader>;tc', replacementActions.replace_text, { desc = '✏️  Replace text', silent = true, noremap = true })
+-- Select repo, select PR, and open PR in GitHub
+keymap.set('n', '<leader>;po', githubActions.select_and_open_pr, {
+  desc = ' Select repo & open PR in browser',
+  silent = true,
+})
 keymap.set('v', '<leader>;tC', replacementActions.replace_text_cdo, { desc = '🔄 Replace text CDO', silent = true, noremap = true })
 
 -- =============================================================================
