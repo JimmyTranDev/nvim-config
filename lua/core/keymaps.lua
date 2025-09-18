@@ -28,6 +28,7 @@ local replacementActions = require('custom.actions.replacement')
 local storageActions = require('custom.utils.storage')
 local lspActions = require('custom.actions.lsp')
 local recentUtils = require('utils.recent')
+local worktreeActions = require('actions.worktree')
 
 keymap.set('n', '<Leader>rL', todoistActions.repeatLastTodoistOptions(), { desc = '⟳ Repeat last Todoist options', silent = true })
 keymap.set('n', '<Leader>rl', lspActions.refresh_all_lsps, { desc = '🔄 Refresh all LSPs', silent = true })
@@ -58,8 +59,6 @@ keymap.set('n', '<leader>;de', languageActions.run_eslint, { desc = '🔍 Run ES
 keymap.set('n', '<leader>;dc', errorsActions.copyDiagnosticUnderCursor, { desc = '📋 Copy diagnostic' })
 keymap.set('n', '<leader>;df', languageActions.fix_and_organize_ts, { desc = '🔧 Fix and organize imports (TS)', silent = true, noremap = true })
 keymap.set('n', '<leader>;dl', languageActions.repeatLastCommand, { desc = '⟳ Repeat last command', silent = true })
-
--- Group 2: System & File Operations - File management and system tasks
 keymap.set('n', '<Leader>;fc', fileActions.saveClipboardToFile, { desc = '💾 Save clipboard to file', silent = true })
 keymap.set('n', '<Leader>;fr', fileActions.runClipboardCommand, { desc = '▶️  Run command from clipboard', silent = true })
 keymap.set('n', '<leader>;ff', fileActions.copyAllFilesInFolder, { desc = '📁 Copy all files content' })
@@ -74,6 +73,11 @@ keymap.set(
   { desc = '🔗 Link .github from dotfiles (replace if exists)', silent = true }
 )
 keymap.set('n', '<leader>;fg', fileActions.grepInCurrentFolder, { desc = ' Grep in current folder' })
+
+keymap.set('n', '<leader>;wt', worktreeActions.pull_and_rebase_all, {
+  desc = '🔄 Pull develop & rebase all worktrees',
+  silent = true,
+})
 
 -- Group 3: Text & Content Operations - Text manipulation, search, and replace
 keymap.set('x', '<leader>;tr', [["zy:%s/\V<C-r>=escape(@z, '/')<CR>//gc<left><left><left>]], { desc = '🔍 Visual search replace' })
@@ -140,7 +144,6 @@ keymap.set('n', '<Leader>W', ':wa<CR>', { desc = ' Write all', silent = true 
 keymap.set('n', '<Leader>rr', todoistActions.logTodoistTask(), { desc = '󰎞 Log task (salmon)', silent = true })
 keymap.set('n', '<Leader>rR', todoistActions.logTodoistTaskAllProjects(), { desc = '󰎞 Log task (all projects)', silent = true })
 keymap.set('n', '<Leader>rR', todoistActions.refreshTodoistCache(), { desc = '󰑓 Refresh Todoist cache', silent = true })
-
 
 keymap.set('n', '<Leader>ua', fileActions.moveFileToAsset('/Downloads'), { desc = ' Move to assets (Downloads)' })
 keymap.set('n', '<Leader>uA', fileActions.moveFileToAsset('/Desktop'), { desc = ' Move to assets (Desktop)' })
