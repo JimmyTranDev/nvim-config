@@ -27,6 +27,7 @@ local checkboxActions = require('custom.actions.checkbox')
 local replacementActions = require('custom.actions.replacement')
 local storageActions = require('custom.utils.storage')
 local lspActions = require('custom.actions.lsp')
+local recentUtils = require('utils.recent')
 
 keymap.set('n', '<Leader>rL', todoistActions.repeatLastTodoistOptions(), { desc = '⟳ Repeat last Todoist options', silent = true })
 keymap.set('n', '<Leader>rl', lspActions.refresh_all_lsps, { desc = '🔄 Refresh all LSPs', silent = true })
@@ -140,9 +141,6 @@ keymap.set('n', '<Leader>rr', todoistActions.logTodoistTask(), { desc = '󰎞 Lo
 keymap.set('n', '<Leader>rR', todoistActions.logTodoistTaskAllProjects(), { desc = '󰎞 Log task (all projects)', silent = true })
 keymap.set('n', '<Leader>rR', todoistActions.refreshTodoistCache(), { desc = '󰑓 Refresh Todoist cache', silent = true })
 
--- =============================================================================
--- Leader + u - Utility Operations
--- =============================================================================
 
 keymap.set('n', '<Leader>ua', fileActions.moveFileToAsset('/Downloads'), { desc = ' Move to assets (Downloads)' })
 keymap.set('n', '<Leader>uA', fileActions.moveFileToAsset('/Desktop'), { desc = ' Move to assets (Desktop)' })
@@ -152,6 +150,12 @@ keymap.set('n', '<Leader>ul', linkActions.openLinkedInJobs, { desc = '󰌻 Linke
 keymap.set('n', '<Leader>un', linkActions.openNpmUrl, { desc = ' Open NPM link', silent = true })
 keymap.set('n', '<Leader>uo', fileActions.openDir, { desc = ' Open directory', silent = true })
 keymap.set('n', '<Leader>uu', linkActions.openUsefulLink, { desc = ' Open useful link', silent = true })
+
+-- Open current file in VS Code at exact line (utility group)
+keymap.set('n', '<Leader>;v', recentUtils.open_in_vscode_at_line, {
+  desc = '󰨞 Open file in VS Code at line',
+  silent = true,
+})
 
 -- =============================================================================
 -- Leader + z - Plugin Management (Lazy)
