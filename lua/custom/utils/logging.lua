@@ -1,6 +1,6 @@
 local M = {}
 
-function M.logHistory(folderName, commitMessage)
+function M.logHistory(_, commitMessage)
   local notesDir = vim.fn.expand('~/Programming/notes.md')
   local message = commitMessage .. '  '
 
@@ -17,7 +17,8 @@ function M.logHistory(folderName, commitMessage)
   local title = string.format('# Week %s, %s', currentWeek, currentYear)
   local dayTitle = string.format('## %s (%s)', dayName, shortDate)
   local logFile = string.format('%s-%s.md', currentYear, currentWeek)
-  local logFilePath = string.format('%s/%s/%s', notesDir, folderName, logFile)
+  local repoName = require('custom.utils.github').getRepoName()
+  local logFilePath = string.format('%s/%s/%s', notesDir, repoName, logFile)
 
   if vim.fn.filereadable(logFilePath) == 0 then
     vim.fn.writefile({ title, '', dayTitle, message }, logFilePath)
