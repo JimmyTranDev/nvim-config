@@ -74,6 +74,12 @@ keymap.set(
 )
 keymap.set('n', '<leader>;fg', fileActions.grepInCurrentFolder, { desc = ' Grep in current folder' })
 
+local githubActions = require('actions.github')
+keymap.set('n', '<leader>;pr', githubActions.create_draft_pr, {
+  desc = ' Create draft PR (gh cli)',
+  silent = true,
+})
+
 keymap.set('n', '<leader>;wt', worktreeActions.pull_and_rebase_all, {
   desc = '🔄 Pull develop & rebase all worktrees',
   silent = true,
