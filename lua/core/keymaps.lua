@@ -157,3 +157,15 @@ map('n', '<leader>zp', ':Lazy profile<CR>', { desc = 'Lazy profile' })
 map('n', '<leader>zr', ':Lazy restore<CR>', { desc = 'Lazy restore' })
 map('n', '<leader>zu', ':Lazy update<CR>', { desc = 'Lazy update' })
 map('n', '<leader>zz', ':Lazy<CR>', { desc = 'Open Lazy' })
+
+-- =============================================================================
+-- Leader + u - File & Link Operations (Advanced)
+-- =============================================================================
+map('n', '<Leader>ua', fileActions.moveFileToAsset('/Downloads'), { desc = ' Move to assets (Downloads)' })
+map('n', '<Leader>uA', fileActions.moveFileToAsset('/Desktop'), { desc = ' Move to assets (Desktop)' })
+map('n', '<Leader>uc', fileActions.openFileWithClipboard, { desc = ' Open file from clipboard', silent = true })
+map('n', '<Leader>uj', linkActions.openJiraTicket, { desc = '󰌃 Open Jira ticket', silent = true })
+map('n', '<Leader>ul', linkActions.openLinkedInJobs, { desc = '󰌻 LinkedIn jobs', silent = true })
+map('n', '<Leader>un', linkActions.openNpmUrl, { desc = ' Open NPM link', silent = true })
+map('n', '<Leader>uo', fileActions.openDir, { desc = ' Open directory', silent = true })
+map('n', '<Leader>uu', linkActions.openUsefulLink, { desc = ' Open useful link', silent = true })
