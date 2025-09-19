@@ -11,8 +11,9 @@ return {
     'akinsho/nvim-toggleterm.lua',
   },
   keys = {
-    { mode = 'n', '<Leader>ghP', githubActions.create_draft_pr, desc = 'View Repo Summary', silent = true },
-    { mode = 'n', '<Leader>ghp', githubActions.select_and_open_pr, desc = 'View Repo Summary', silent = true },
+    { mode = 'n', '<Leader>ghc', githubActions.create_draft_pr, desc = 'View Repo Summary', silent = true },
+    { mode = 'n', '<Leader>ghP', githubActions.select_and_open_pr, desc = 'View Repo Summary', silent = true },
+    { mode = 'n', '<Leader>ghp', githubActions.open_prs_in_current_repo, desc = 'View PRs in Current Repo', silent = true },
 
     -- SAFE
     { mode = 'n', '<Leader>gf', ':Git fetch --prune --all<CR>', desc = '󰓦 Fetch prune', silent = true },
