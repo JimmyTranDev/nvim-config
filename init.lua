@@ -30,6 +30,7 @@ if not vscode.is_vscode() then
   vim.api.nvim_create_autocmd('VimEnter', {
     callback = function()
       if vim.fn.argc() == 0 then require('custom.actions.recent').open_most_recent_in_cwd() end
+      vim.loop.new_timer():start(10, 0, vim.schedule_wrap(function() vim.cmd('edit') end))
     end,
   })
 end
