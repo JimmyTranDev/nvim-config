@@ -4,17 +4,6 @@
 
 local keymap = vim.keymap
 
--- Disable default code folding keymaps
-keymap.set('n', 'za', '<Nop>')
-keymap.set('n', 'zf', '<Nop>')
-keymap.set('n', 'zR', '<Nop>')
-keymap.set('n', 'zM', '<Nop>')
-keymap.set('n', 'zA', '<Nop>')
-keymap.set('n', 'zC', '<Nop>')
-keymap.set('n', 'zO', '<Nop>')
-keymap.set('n', 'zE', '<Nop>')
-keymap.set('n', 'zV', '<Nop>')
-
 local constants = require('core.constants')
 local fileActions = require('custom.actions.files')
 local todoistActions = require('custom.actions.todoist')
@@ -25,10 +14,10 @@ local errorsActions = require('custom.actions.errors')
 local promptActions = require('custom.actions.prompt')
 local checkboxActions = require('custom.actions.checkbox')
 local replacementActions = require('custom.actions.replacement')
-local storageActions = require('custom.utils.storage')
+local storageActions = require('custom.actions.storage')
 local lspActions = require('custom.actions.lsp')
-local recentUtils = require('utils.recent')
-local worktreeActions = require('actions.worktree')
+local recentActions = require('custom.actions.recent')
+local worktreeActions = require('custom.actions.worktree')
 
 keymap.set('n', '<Leader>rL', todoistActions.repeatLastTodoistOptions(), { desc = '⟳ Repeat last Todoist options', silent = true })
 keymap.set('n', '<Leader>rl', lspActions.refresh_all_lsps, { desc = '🔄 Refresh all LSPs', silent = true })
@@ -49,51 +38,41 @@ keymap.set('v', 'ls', 'y:/<C-S-V>', { desc = 'Search selected text' })
 keymap.set('', '<S-J>', '<C-D>', { desc = 'Scroll down half page' })
 keymap.set('', '<S-K>', '<C-U>', { desc = 'Scroll up half page' })
 
--- =============================================================================
--- Leader + Semicolon (;) - Utilities and Tools
--- =============================================================================
-
--- Group 1: Development Tools - Code analysis, linting, and development utilities
+-- ===============================
+-- <leader>; Development & Code Tools
+-- ===============================
 keymap.set('n', '<leader>;da', languageActions.launch_android_emulator, { desc = '🤖 Launch Android emulator', silent = true, noremap = true })
 keymap.set('n', '<leader>;de', languageActions.run_eslint, { desc = '🔍 Run ESLint quickfix', silent = true, noremap = true })
-keymap.set('n', '<leader>;dc', errorsActions.copyDiagnosticUnderCursor, { desc = '📋 Copy diagnostic' })
+keymap.set('n', '<leader>;dc', errorsActions.copyDiagnosticUnderCursor, { desc = '📋 Copy diagnostic', silent = true, noremap = true })
 keymap.set('n', '<leader>;df', languageActions.fix_and_organize_ts, { desc = '🔧 Fix and organize imports (TS)', silent = true, noremap = true })
-keymap.set('n', '<leader>;dl', languageActions.repeatLastCommand, { desc = '⟳ Repeat last command', silent = true })
-keymap.set('n', '<Leader>;fc', fileActions.saveClipboardToFile, { desc = '💾 Save clipboard to file', silent = true })
-keymap.set('n', '<Leader>;fr', fileActions.runClipboardCommand, { desc = '▶️  Run command from clipboard', silent = true })
-keymap.set('n', '<leader>;ff', fileActions.copyAllFilesInFolder, { desc = '📁 Copy all files content' })
-keymap.set('n', '<Leader>;fS', storageActions.sync_secrets_simple, { desc = '☁️  Sync secrets to cloud', silent = true })
-keymap.set('n', '<Leader>;fI', storageActions.init_secrets_directory, { desc = '🔧 Initialize secrets directory', silent = true })
-keymap.set('n', '<Leader>;fs', function() vim.cmd('set spell!') end, { desc = '📝 Toggle spellcheck', silent = true })
-keymap.set('n', '<Leader>;fC', ':!rm -r ' .. constants.NEOVIM_STATE_DIR .. '<CR>', { desc = '🗑️  Clear swap files', silent = true })
-keymap.set(
-  'n',
-  '<Leader>;fG',
-  ':!ln -sf ~/Programming/dotfiles/etc/.github/copilot-instructions.md ./.github/copilot-instructions.md<CR>',
-  { desc = '🔗 Link .github from dotfiles (replace if exists)', silent = true }
-)
-keymap.set('n', '<leader>;fg', fileActions.grepInCurrentFolder, { desc = ' Grep in current folder' })
+keymap.set('n', '<leader>;dl', languageActions.repeatLastCommand, { desc = '⟳ Repeat last command', silent = true, noremap = true })
 
-local githubActions = require('actions.github')
-keymap.set('n', '<leader>;pr', githubActions.create_draft_pr, {
-  desc = ' Create draft PR (gh cli)',
-  silent = true,
-})
+-- ===============================
+-- <leader>; Git & GitHub Operations
+-- ===============================
+keymap.set('n', '<leader>;wt', worktreeActions.pull_and_rebase_all, { desc = '🔄 Pull develop & rebase all worktrees', silent = true, noremap = true })
 
-keymap.set('n', '<leader>;wt', worktreeActions.pull_and_rebase_all, {
-  desc = '🔄 Pull develop & rebase all worktrees',
-  silent = true,
-})
+-- ===============================
+-- <leader>; File & System Operations
+-- ===============================
+keymap.set('n', '<Leader>;fc', fileActions.saveClipboardToFile, { desc = '💾 Save clipboard to file', silent = true, noremap = true })
+keymap.set('n', '<Leader>;fr', fileActions.runClipboardCommand, { desc = '▶️  Run command from clipboard', silent = true, noremap = true })
+keymap.set('n', '<leader>;ff', fileActions.copyAllFilesInFolder, { desc = '📁 Copy all files content', silent = true, noremap = true })
+keymap.set('n', '<Leader>;fS', storageActions.sync_secrets_simple, { desc = '☁️  Sync secrets to cloud', silent = true, noremap = true })
+keymap.set('n', '<Leader>;fI', storageActions.init_secrets_directory, { desc = '🔧 Initialize secrets directory', silent = true, noremap = true })
+keymap.set('n', '<Leader>;fs', function() vim.cmd('set spell!') end, { desc = '📝 Toggle spellcheck', silent = true, noremap = true })
+keymap.set('n', '<Leader>;fC', ':!rm -r ' .. constants.NEOVIM_STATE_DIR .. '<CR>', { desc = '🗑️  Clear swap files', silent = true, noremap = true })
+keymap.set('n', '<Leader>;fG', ':!ln -sf ~/Programming/dotfiles/etc/.github/copilot-instructions.md ./.github/copilot-instructions.md<CR>', { desc = '🔗 Link .github from dotfiles (replace if exists)', silent = true, noremap = true })
+keymap.set('n', '<leader>;fg', fileActions.grepInCurrentFolder, { desc = ' Grep in current folder', silent = true, noremap = true })
+keymap.set('n', '<Leader>;v', recentActions.open_in_vscode_at_line, { desc = '󰨞 Open file in VS Code at line', silent = true, noremap = true })
 
-keymap.set('x', '<leader>;tr', [["zy:%s/\V<C-r>=escape(@z, '/')<CR>//gc<left><left><left>]], { desc = '🔍 Visual search replace' })
-keymap.set('n', '<leader>;tR', ':cdo %s///gc<left><left><left><left>', { desc = '🔄 CDO replace' })
+-- ===============================
+-- <leader>; Text & Content Operations
+-- ===============================
+keymap.set('x', '<leader>;tr', [["zy:%s/\V<C-r>=escape(@z, '/')<CR>//gc<left><left><left>]], { desc = '🔍 Visual search replace', silent = true, noremap = true })
+keymap.set('n', '<leader>;tR', ':cdo %s///gc<left><left><left><left>', { desc = '🔄 CDO replace', silent = true, noremap = true })
 keymap.set('n', '<leader>;tt', checkboxActions.toggle, { desc = '☑️  Toggle checkbox', silent = true, noremap = true })
 keymap.set('v', '<leader>;tc', replacementActions.replace_text, { desc = '✏️  Replace text', silent = true, noremap = true })
--- Select repo, select PR, and open PR in GitHub
-keymap.set('n', '<leader>;po', githubActions.select_and_open_pr, {
-  desc = ' Select repo & open PR in browser',
-  silent = true,
-})
 keymap.set('v', '<leader>;tC', replacementActions.replace_text_cdo, { desc = '🔄 Replace text CDO', silent = true, noremap = true })
 
 -- =============================================================================
@@ -165,7 +144,7 @@ keymap.set('n', '<Leader>uo', fileActions.openDir, { desc = ' Open directory', s
 keymap.set('n', '<Leader>uu', linkActions.openUsefulLink, { desc = ' Open useful link', silent = true })
 
 -- Open current file in VS Code at exact line (utility group)
-keymap.set('n', '<Leader>;v', recentUtils.open_in_vscode_at_line, {
+keymap.set('n', '<Leader>;v', recentActions.open_in_vscode_at_line, {
   desc = '󰨞 Open file in VS Code at line',
   silent = true,
 })

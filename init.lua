@@ -27,11 +27,9 @@ require('core.keymaps')
 vscode.setup()
 -- Open directly into last file (skip dashboard)
 if not vscode.is_vscode() then
-	vim.api.nvim_create_autocmd('VimEnter', {
-		callback = function()
-			if vim.fn.argc() == 0 then
-				require('utils.recent').open_most_recent_in_cwd()
-			end
-		end,
-	})
+  vim.api.nvim_create_autocmd('VimEnter', {
+    callback = function()
+      if vim.fn.argc() == 0 then require('custom.actions.recent').open_most_recent_in_cwd() end
+    end,
+  })
 end

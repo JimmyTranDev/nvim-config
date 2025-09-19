@@ -13,7 +13,6 @@ local todoistPriorityOptions = {
   { name = 'Priority None', value = 'p4' },
 }
 
-
 -- Helper to get/set recent project
 local RECENT_PROJECT_FILE = vim.fn.stdpath('data') .. '/todoist_recent_project.txt'
 local function get_recent_project_id()
@@ -273,28 +272,30 @@ function M.repeatLastTodoistOptions()
       vim.notify('No previous Todoist options to repeat', vim.log.levels.WARN)
       return
     end
-    todoistUtils.create_task_with_project(
-      last_todoist_options.taskName,
-      last_todoist_options.projectId,
-      last_todoist_options.sectionId,
-      last_todoist_options.priority,
-      last_todoist_options.deadline or '',
-      function(task_success, response)
-        if task_success then
-          vim.notify(
-            string.format(
-              "Task '%s' created in project '%s'%s",
-              last_todoist_options.taskName,
-              last_todoist_options.projectName,
-              last_todoist_options.sectionName and (' > ' .. last_todoist_options.sectionName) or ''
-            ),
-            vim.log.levels.INFO
-          )
-        else
-          vim.notify('Failed to create task: ' .. response, vim.log.levels.ERROR)
+    vim.ui.input({ prompt = 'Task name: ', default = last_todoist_options.taskName }, function(input)
+      local task_name = input or last_todoist_options.taskName
+      todoistUtils.create_task_with_project(
+        task_name,
+        last_todoist_options.projectId,
+        last_todoist_options.sectionId,
+        last_todoist_options.priority,
+        function(task_success, response)
+          if task_success then
+            vim.notify(
+              string.format(
+                "Task '%s' created in project '%s'%s",
+                last_todoist_options.taskName,
+                last_todoist_options.projectName,
+                last_todoist_options.sectionName and (' > ' .. last_todoist_options.sectionName) or ''
+              ),
+              vim.log.levels.INFO
+            )
+          else
+            vim.notify('Failed to create task: ' .. response, vim.log.levels.ERROR)
+          end
         end
-      end
-    )
+      )
+    end)
   end
 end
 

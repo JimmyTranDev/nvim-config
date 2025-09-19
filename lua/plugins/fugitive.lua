@@ -1,4 +1,5 @@
 local gitActions = require('custom.actions.git')
+local githubActions = require('custom.actions.github')
 
 return {
   'tpope/vim-fugitive',
@@ -10,13 +11,8 @@ return {
     'akinsho/nvim-toggleterm.lua',
   },
   keys = {
-    { mode = 'n', '<Leader>gho', ':!gh repo view --web<CR>', desc = 'Open Repo in Browser', silent = true },
-    { mode = 'n', '<Leader>ghp', ':!gh pr view --web<CR>', desc = 'View Current PR in Browser', silent = true },
-    { mode = 'n', '<Leader>ghc', ':!gh pr checkout ', desc = 'Checkout a PR by Number', silent = true },
-    { mode = 'n', '<Leader>ghn', ':!gh pr create -w<CR>', desc = 'Create a New PR', silent = true },
-    { mode = 'n', '<Leader>ghl', ':!gh pr list<CR>', desc = 'List PRs Interactively', silent = true },
-    { mode = 'n', '<Leader>ghi', ':!gh issue list<CR>', desc = 'List Issues Interactively', silent = true },
-    { mode = 'n', '<Leader>ghv', ':tabnew | term gh repo view<CR>i', desc = 'View Repo Summary', silent = true },
+    { mode = 'n', '<Leader>ghP', githubActions.create_draft_pr, desc = 'View Repo Summary', silent = true },
+    { mode = 'n', '<Leader>ghp', githubActions.select_and_open_pr, desc = 'View Repo Summary', silent = true },
 
     -- SAFE
     { mode = 'n', '<Leader>gf', ':Git fetch --prune --all<CR>', desc = '󰓦 Fetch prune', silent = true },
