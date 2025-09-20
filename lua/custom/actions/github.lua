@@ -9,15 +9,8 @@ function M.create_draft_pr()
   vim.notify('Draft PR created and opened in browser', vim.log.levels.INFO)
 end
 
-local function get_pulls(repo)
-  local handle = io.popen('gh pr list --repo ' .. repo .. ' --json number,title,url,state')
-  if not handle then return {} end
-  local output = handle:read('*a')
-  handle:close()
-  local ok, json = pcall(vim.fn.json_decode, output)
-  if not ok or not json then return {} end
-  return json
-end
+
+local githubUtils = require('custom.utils.github')
 
 function M.open_prs_in_current_repo()
   -- Get current repo (owner/name)
@@ -34,7 +27,7 @@ function M.open_prs_in_current_repo()
     return
   end
   local repo_full = repo_info.owner.login .. '/' .. repo_info.name
-  local pulls = get_pulls(repo_full)
+  local pulls = githubUtils.get_pulls(repo_full)
   if #pulls == 0 then
     vim.notify('No PRs found in ' .. repo_full, vim.log.levels.INFO)
     return
@@ -77,7 +70,7 @@ function M.select_and_open_pr()
     end
     vim.ui.select(repo_names, { prompt = 'Select repo:' }, function(selected_repo)
       if not selected_repo then return end
-      local pulls = get_pulls(selected_org .. '/' .. selected_repo)
+  local pulls = githubUtils.get_pulls(selected_org .. '/' .. selected_repo)
       if #pulls == 0 then
         vim.notify('No PRs found in ' .. selected_repo, vim.log.levels.INFO)
         return
