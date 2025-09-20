@@ -10,6 +10,7 @@ return {
   event = 'VeryLazy',
   config = function()
     local wk = require('which-key')
+    local colors = require('core.constants').colors
 
     -- =============================================================================
     -- Which-Key Setup Configuration
@@ -25,7 +26,7 @@ return {
         ['<tab>'] = '⇥',
         ['<bs>'] = '⌫',
       },
-      icons = {
+      icons = wk.icons or {
         breadcrumb = ' ',
         separator = ' ',
         group = '+',
@@ -72,6 +73,16 @@ return {
         },
       },
     })
+
+    -- =============================================================================
+    -- Which-Key Custom Highlights (Latte)
+    -- =============================================================================
+    vim.api.nvim_set_hl(0, 'WhichKey', { fg = colors.mauve }) -- mauve
+    vim.api.nvim_set_hl(0, 'WhichKeyGroup', { fg = colors.blue }) -- blue
+    vim.api.nvim_set_hl(0, 'WhichKeyDesc', { fg = colors.yellow }) -- yellow
+    vim.api.nvim_set_hl(0, 'WhichKeySeperator', { fg = colors.sapphire }) -- sapphire
+    vim.api.nvim_set_hl(0, 'WhichKeyFloat', { bg = colors.base }) -- base
+    vim.api.nvim_set_hl(0, 'WhichKeyBorder', { fg = colors.surface2 }) -- surface2
 
     -- =============================================================================
     -- Leader + Leader Groups (Secondary Commands)

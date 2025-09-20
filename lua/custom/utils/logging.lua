@@ -20,9 +20,7 @@ function M.logHistory(_, commitMessage)
   local repoName = require('custom.utils.github').getRepoName()
   local logDir = string.format('%s/%s', notesDir, repoName)
   local logFilePath = string.format('%s/%s', logDir, logFile)
-  if vim.fn.isdirectory(logDir) == 0 then
-    vim.fn.mkdir(logDir, 'p')
-  end
+  if vim.fn.isdirectory(logDir) == 0 then vim.fn.mkdir(logDir, 'p') end
 
   if vim.fn.filereadable(logFilePath) == 0 then
     vim.fn.writefile({ title, '', dayTitle, message }, logFilePath)
