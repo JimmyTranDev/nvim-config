@@ -77,7 +77,7 @@ map(
   { desc = '🔗 Link .github from dotfiles (replace if exists)' }
 )
 map('n', '<leader>;fg', fileActions.grepInCurrentFolder, { desc = ' Grep in current folder' })
-map('n', '<Leader>;v', recentActions.open_in_vscode_at_line, { desc = '󰨞 Open file in VS Code at line' })
+map('n', '<Leader>;v', ':CodeHere<CR>', { desc = '󰨞 Open Git root in VS Code at current line' })
 
 -- ===============================
 -- <leader>; Text & Content Operations

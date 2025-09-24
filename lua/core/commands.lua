@@ -154,6 +154,30 @@ vim.api.nvim_create_autocmd('LspProgress', {
 })
 
 -- =============================================================================
+-- VSCode Integration
+-- =============================================================================
+
+-- Open current Git root in VSCode and jump to current file+line
+vim.api.nvim_create_user_command('CodeHere', function()
+  -- Absolute path to current file and cursor line
+  local file = vim.fn.expand('%:p')
+  local line = vim.fn.line('.')
+
+  -- Find Git root (falls back to current dir if no repo)
+  local git_root = vim.fn.systemlist('git rev-parse --show-toplevel')[1]
+  if git_root == nil or git_root == '' then git_root = vim.fn.getcwd() end
+
+  -- Open VSCode with Git root as workspace
+  vim.fn.jobstart({
+    'code',
+    '--reuse-window',
+    git_root, -- set workspace folder
+    '--goto',
+    file .. ':' .. line, -- jump to same file & line
+  }, { detach = true })
+end, {})
+
+-- =============================================================================
 -- Cleanup Default Key Mappings
 -- =============================================================================
 
