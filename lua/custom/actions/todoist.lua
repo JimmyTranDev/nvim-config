@@ -76,7 +76,6 @@ local function create_task_with_navigation(taskName, projects, fallbackProjectNa
       end
 
       local section_options = { 
-        { name = '← Back to projects', id = '__back__' },
         { name = 'No section', id = nil } 
       }
       for _, section in ipairs(sections) do
@@ -85,6 +84,7 @@ local function create_task_with_navigation(taskName, projects, fallbackProjectNa
           id = section.id,
         })
       end
+      table.insert(section_options, { name = '← Back to projects', id = '__back__' })
 
       vim.ui.select(section_options, {
         prompt = 'Select a section:',
@@ -106,10 +106,11 @@ local function create_task_with_navigation(taskName, projects, fallbackProjectNa
   end
   
   select_priority = function(selected_project, selected_section)
-    local priority_options = { { name = '← Back to sections', value = '__back__' } }
+    local priority_options = {}
     for _, option in ipairs(todoistPriorityOptions) do
       table.insert(priority_options, option)
     end
+    table.insert(priority_options, { name = '← Back to sections', value = '__back__' })
 
     vim.ui.select(priority_options, {
       prompt = 'Select a priority for the task:',

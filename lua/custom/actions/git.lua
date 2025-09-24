@@ -434,7 +434,7 @@ function M.gitAddPatch()
     vim.notify('Nothing to add - working tree clean', vim.log.levels.INFO, { title = 'Git' })
     return
   end
-  
+
   -- Check if there are any unstaged changes (modified files)
   local has_unstaged = false
   for line in status:gmatch('[^\r\n]+') do
@@ -443,7 +443,7 @@ function M.gitAddPatch()
       break
     end
   end
-  
+
   if not has_unstaged then
     vim.notify('No unstaged changes to add', vim.log.levels.INFO, { title = 'Git' })
     return
