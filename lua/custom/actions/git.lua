@@ -428,6 +428,27 @@ function M.selectAndPopStash()
 end
 
 function M.gitAddPatch()
+  -- Check if there are any changes to stage
+  local status = vim.fn.system('git status --porcelain')
+  if status == '' or status == nil then
+    vim.notify('Nothing to add - working tree clean', vim.log.levels.INFO, { title = 'Git' })
+    return
+  end
+  
+  -- Check if there are any unstaged changes (modified files)
+  local has_unstaged = false
+  for line in status:gmatch('[^\r\n]+') do
+    if line:match('^.[MD]') or line:match('^??') then -- Modified, deleted, or untracked
+      has_unstaged = true
+      break
+    end
+  end
+  
+  if not has_unstaged then
+    vim.notify('No unstaged changes to add', vim.log.levels.INFO, { title = 'Git' })
+    return
+  end
+
   vim.cmd('tabnew')
   vim.cmd('terminal git add -N . && git add -p; exit')
   vim.cmd('startinsert') -- <-- This puts you in insert mode in the terminal
