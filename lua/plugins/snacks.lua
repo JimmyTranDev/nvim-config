@@ -326,6 +326,11 @@ return {
       function() Snacks.picker.git_log_file() end,
       desc = 'Git Log File',
     },
+    {
+      '<leader>fjc',
+      function() Snacks.picker.grep({ search = '<<<<<<<' }) end,
+      desc = 'Find Git Conflicts',
+    },
 
     -- Search
     {
