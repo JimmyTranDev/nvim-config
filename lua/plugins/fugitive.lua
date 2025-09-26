@@ -29,7 +29,7 @@ return {
     { mode = 'n', '<Leader>gS', gitActions.openGithubPullRequest, desc = ' Open GitHub PR', silent = true },
     { mode = 'n', '<Leader>gI', ':Git init<CR>', desc = '󱩵 Init', silent = true },
     { mode = 'n', '<Leader>gF', ':Git push --force-with-lease<CR>', desc = ' Push force', silent = true },
-    { mode = 'n', '<Leader>gH', ':Git branch -D holding <Bar> Git checkout -b holding<CR>', desc = '󱩵 Branch holding', silent = true },
+    { mode = 'n', '<Leader>gH', ':Git branch -D holding <Bar> Git branch holding<CR>', desc = '󱩵 Recreate holding branch', silent = true },
     { mode = 'n', '<Leader>gM', ':Git commit --amend --no-verify --no-edit<CR>', desc = ' Amend', silent = true },
     { mode = 'n', '<Leader>gP', ':Git push<CR>', desc = ' Push', silent = true },
     { mode = 'n', '<Leader>gV', ':Git add .<CR>', desc = ' Add all', silent = true },
