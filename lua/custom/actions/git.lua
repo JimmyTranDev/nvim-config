@@ -482,6 +482,39 @@ function M.gitAddPatch()
 end
 
 -- =============================================================================
+-- Reset Operations
+-- =============================================================================
+
+function M.resetAllWithConfirm()
+  -- Check if there are any changes to reset
+  local status = vim.fn.system('git status --porcelain')
+  if status == '' or status == nil then
+    vim.notify('Nothing to reset - working tree clean', vim.log.levels.INFO, { title = 'Git' })
+    return
+  end
+
+  -- Show what will be affected
+  local changes_count = 0
+  for _ in status:gmatch('[^\r\n]+') do
+    changes_count = changes_count + 1
+  end
+
+  -- Confirmation prompt with details
+  vim.ui.input({
+    prompt = string.format('⚠️  Reset ALL changes? This will:\n• Reset staged files\n• Clean untracked files\n• Restore modified files\n\nAffected files: %d\nType "yes" to confirm: ', changes_count),
+  }, function(confirmation)
+    if confirmation ~= 'yes' then
+      vim.notify('Reset cancelled.')
+      return
+    end
+
+    -- Execute the reset operations
+    vim.cmd("TermExec5 cmd='git reset . && git clean -df && git restore .'")
+    vim.notify(string.format('🔥 Reset ALL changes (%d files affected)', changes_count))
+  end)
+end
+
+-- =============================================================================
 -- GitHub PR Operations
 -- =============================================================================
 

@@ -52,7 +52,7 @@ return {
     },
 
     -- RESET
-    { mode = 'n', '<Leader>grC', ':Git reset . <BAR> :Git clean -df <BAR> Git restore .<CR>', desc = 'Reset All', silent = true },
+    { mode = 'n', '<Leader>grC', gitActions.resetAllWithConfirm, desc = '🔥 Reset ALL with confirm', silent = true },
     { mode = 'n', '<Leader>grr', ':Git reset .<CR>', desc = 'Reset patch', silent = true },
     { mode = 'n', '<Leader>grT', ':Git reset -p<CR>', desc = 'Reset', silent = true },
     { mode = 'n', '<Leader>grt', ':Git restore -p<CR>', desc = 'Restore patch', silent = true },
