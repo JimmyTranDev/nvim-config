@@ -159,6 +159,11 @@ vim.api.nvim_create_autocmd('LspProgress', {
 
 -- Open current Git root in VSCode and jump to current file+line
 vim.api.nvim_create_user_command('CodeHere', function()
+  require('custom.actions.git').openVSCodeNewWindow()
+end, {})
+
+-- Legacy command for reusing window (kept for compatibility)
+vim.api.nvim_create_user_command('CodeHereReuse', function()
   -- Absolute path to current file and cursor line
   local file = vim.fn.expand('%:p')
   local line = vim.fn.line('.')

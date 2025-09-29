@@ -18,6 +18,7 @@ local storageActions = require('custom.actions.storage')
 local lspActions = require('custom.actions.lsp')
 local recentActions = require('custom.actions.recent')
 local worktreeActions = require('custom.actions.worktree')
+local gitActions = require('custom.actions.git')
 
 -- Helper to set keymaps with silent and noremap by default
 local function map(mode, lhs, rhs, opts)
@@ -77,7 +78,8 @@ map(
   { desc = '🔗 Link .github from dotfiles (replace if exists)' }
 )
 map('n', '<leader>;fg', fileActions.grepInCurrentFolder, { desc = ' Grep in current folder' })
-map('n', '<Leader>;v', ':CodeHere<CR>', { desc = '󰨞 Open Git root in VS Code at current line' })
+map('n', '<Leader>;v', gitActions.openVSCodeNewWindow, { desc = '󰨞 Smart VS Code window (new/focus)' })
+map('n', '<Leader>;V', ':CodeHereReuse<CR>', { desc = '󰨞 VS Code reuse window' })
 
 -- ===============================
 -- <leader>; Text & Content Operations

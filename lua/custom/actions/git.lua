@@ -520,4 +520,44 @@ function M.openGithubPullRequest()
   end
 end
 
+-- =============================================================================
+-- VSCode Integration
+-- =============================================================================
+
+function M.openVSCodeNewWindow()
+  -- Absolute path to current file and cursor line
+  local file = vim.fn.expand('%:p')
+  local line = vim.fn.line('.')
+
+  -- Find Git root (falls back to current dir if no repo)
+  local git_root = vim.fn.systemlist('git rev-parse --show-toplevel')[1]
+  if git_root == nil or git_root == '' then git_root = vim.fn.getcwd() end
+
+  -- Check if VSCode is already open with this workspace
+  local check_cmd = string.format('ps aux | grep -v grep | grep "code.*%s"', vim.fn.shellescape(git_root))
+  local existing_process = vim.fn.system(check_cmd)
+  
+  if existing_process and existing_process ~= '' then
+    -- VSCode window already exists for this repo, focus it instead
+    vim.fn.jobstart({
+      'code',
+      '--reuse-window',
+      git_root,
+      '--goto',
+      file .. ':' .. line,
+    }, { detach = true })
+    vim.notify('📂 Focused existing VSCode window for: ' .. vim.fn.fnamemodify(git_root, ':t'))
+  else
+    -- No existing window, open new one
+    vim.fn.jobstart({
+      'code',
+      '--new-window',
+      git_root,
+      '--goto',
+      file .. ':' .. line,
+    }, { detach = true })
+    vim.notify('🆕 Opened new VSCode window for: ' .. vim.fn.fnamemodify(git_root, ':t'))
+  end
+end
+
 return M
