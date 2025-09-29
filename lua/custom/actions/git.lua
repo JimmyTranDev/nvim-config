@@ -521,6 +521,75 @@ function M.openGithubPullRequest()
 end
 
 -- =============================================================================
+-- Rebase Operations
+-- =============================================================================
+
+function M.rebaseChooseOurs()
+  -- Get current branch
+  local current_branch = vim.fn.systemlist('git branch --show-current')[1]
+  if not current_branch or current_branch == '' then
+    vim.notify('❌ Could not determine current branch', vim.log.levels.ERROR)
+    return
+  end
+
+  -- Get list of branches for rebase target
+  local handle = io.popen('git branch -a --format="%(refname:short)" | grep -v "^' .. current_branch .. '$" | head -20')
+  if not handle then
+    vim.notify('❌ Failed to get branch list', vim.log.levels.ERROR)
+    return
+  end
+
+  local branch_output = handle:read('*a')
+  handle:close()
+
+  if not branch_output or branch_output == '' then
+    vim.notify('❌ No other branches found', vim.log.levels.ERROR)
+    return
+  end
+
+  -- Parse branch entries
+  local branches = {}
+  for line in branch_output:gmatch('[^\n]+') do
+    if line ~= '' and line ~= current_branch then
+      -- Clean up remote branch names
+      local clean_branch = line:gsub('origin/', '')
+      if not vim.tbl_contains(branches, clean_branch) then
+        table.insert(branches, clean_branch)
+      end
+    end
+  end
+
+  if #branches == 0 then
+    vim.notify('❌ No valid branches to rebase onto', vim.log.levels.ERROR)
+    return
+  end
+
+  -- Show branch selection
+  vim.ui.select(branches, {
+    prompt = 'Select branch to rebase onto (will choose "ours" for all conflicts):',
+    format_item = function(item) return item end,
+  }, function(selected_branch)
+    if not selected_branch then return end
+
+    -- Confirmation prompt
+    vim.ui.input({
+      prompt = string.format('⚠️  Rebase %s onto %s (choose ours for all conflicts)? Type "yes" to confirm: ', current_branch, selected_branch),
+    }, function(confirmation)
+      if confirmation ~= 'yes' then
+        vim.notify('Rebase cancelled.')
+        return
+      end
+
+      -- Execute rebase with strategy to choose ours
+      local cmd = string.format('git rebase -X ours %s', selected_branch)
+      vim.cmd(string.format("TermExec5 cmd='%s'", cmd))
+      
+      vim.notify(string.format('🔄 Rebasing %s onto %s (choosing ours for conflicts)', current_branch, selected_branch))
+    end)
+  end)
+end
+
+-- =============================================================================
 -- VSCode Integration
 -- =============================================================================
 

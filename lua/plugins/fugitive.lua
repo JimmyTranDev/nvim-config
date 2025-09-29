@@ -65,6 +65,7 @@ return {
     { mode = 'n', '<Leader>gbP', ':Git pull --rebase<CR>', desc = 'Branch pull rebase', silent = true },
     { mode = 'n', '<Leader>gbM', ':Git pull --no-rebase<CR>', desc = 'Branch pull merge', silent = true },
     { mode = 'n', '<Leader>gbp', ':Git pull<CR>', desc = 'Branch pull', silent = true },
+    { mode = 'n', '<Leader>gbO', gitActions.rebaseChooseOurs, desc = '🔄 Rebase choose ours', silent = true },
 
     -- CREATE BRANCH
     { mode = 'n', '<Leader>gnC', gitActions.createBranch('ci'), desc = '👷 Branch CI' },
