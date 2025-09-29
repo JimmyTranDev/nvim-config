@@ -15,7 +15,7 @@ return {
     servers = {
       lua_ls = {
         filetypes = { 'lua' },
-        root_dir = require('lspconfig.util').root_pattern('.git', vim.fn.getcwd()),
+        -- root_dir will be set in the config function
         settings = {
           Lua = {
             diagnostics = {
@@ -74,6 +74,11 @@ return {
 
     local lspconfig = require('lspconfig')
     for server, config in pairs(opts.servers) do
+      -- Set root_dir for lua_ls specifically
+      if server == 'lua_ls' then
+        config.root_dir = require('lspconfig.util').root_pattern('.git', vim.fn.getcwd())
+      end
+      
       -- passing config.capabilities to blink.cmp merges with the capabilities in your
       -- `opts[server].capabilities, if you've defined it
       config.capabilities = require('blink.cmp').get_lsp_capabilities(config.capabilities)
