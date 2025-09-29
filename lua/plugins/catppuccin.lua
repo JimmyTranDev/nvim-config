@@ -4,7 +4,7 @@ return {
   priority = 1000,
   cond = function() return not require('core.vscode').is_vscode() end,
   config = function()
-    vim.cmd('colorscheme catppuccin-latte')
+    vim.cmd('colorscheme catppuccin-mocha')
     require('catppuccin').setup({
       transparent_background = false, -- disables setting the background color.
       show_end_of_buffer = false, -- shows the '~' characters after the end of buffers
