@@ -371,6 +371,22 @@ function M.stashAllChanges()
   end)
 end
 
+function M.stashKeepChanges()
+  vim.ui.input({
+    prompt = 'Stash message (optional): ',
+  }, function(message)
+    local cmd
+    if message and message ~= '' then
+      cmd = string.format('git stash push --keep-index -m "%s"', message)
+    else
+      cmd = 'git stash --keep-index'
+    end
+
+    vim.cmd(string.format("TermExec5 cmd='%s'", cmd))
+    vim.notify('📦 Changes stashed (keeping staged changes)')
+  end)
+end
+
 function M.selectAndPopStash()
   -- Get stash list
   local handle = io.popen('git stash list')

@@ -23,6 +23,7 @@ return {
 
     -- STASH OPERATIONS
     { mode = 'n', '<Leader>ghh', gitActions.stashAllChanges, desc = '📦 Stash all changes', silent = true },
+    { mode = 'n', '<Leader>ghk', gitActions.stashKeepChanges, desc = '📦 Stash keeping staged changes', silent = true },
     { mode = 'n', '<Leader>ghH', gitActions.selectAndPopStash, desc = '📦 Select and pop stash', silent = true },
 
     -- RISKY
