@@ -322,6 +322,11 @@ return {
       desc = 'Git Diff (Hunks)',
     },
     {
+      '<leader>fjD',
+      function() Snacks.picker.git_diff({ args = { 'origin/HEAD' } }) end,
+      desc = 'Git Diff vs Origin',
+    },
+    {
       '<leader>fjf',
       function() Snacks.picker.git_log_file() end,
       desc = 'Git Log File',
