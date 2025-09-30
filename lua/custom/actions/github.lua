@@ -93,4 +93,44 @@ function M.select_and_open_pr()
   end)
 end
 
+function M.open_current_commit_in_github()
+  -- Get current commit hash
+  local handle = io.popen('git rev-parse HEAD')
+  if not handle then
+    vim.notify('Failed to get current commit hash', vim.log.levels.ERROR)
+    return
+  end
+  
+  local commit_hash = handle:read('*a'):gsub('%s+', '')
+  handle:close()
+  
+  if not commit_hash or commit_hash == '' then
+    vim.notify('Could not determine current commit hash', vim.log.levels.ERROR)
+    return
+  end
+  
+  -- Get repo info
+  local repo_handle = io.popen('gh repo view --json nameWithOwner')
+  if not repo_handle then
+    vim.notify('Failed to get repo info', vim.log.levels.ERROR)
+    return
+  end
+  
+  local repo_output = repo_handle:read('*a')
+  repo_handle:close()
+  
+  local ok, repo_info = pcall(vim.fn.json_decode, repo_output)
+  if not ok or not repo_info or not repo_info.nameWithOwner then
+    vim.notify('Could not determine repository', vim.log.levels.ERROR)
+    return
+  end
+  
+  -- Construct GitHub commit URL
+  local github_url = string.format('https://github.com/%s/commit/%s', repo_info.nameWithOwner, commit_hash)
+  
+  -- Open in browser
+  vim.fn.system('open "' .. github_url .. '"')
+  vim.notify(string.format('Opened commit %s in GitHub', commit_hash:sub(1, 7)), vim.log.levels.INFO)
+end
+
 return M

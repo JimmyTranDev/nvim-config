@@ -336,6 +336,11 @@ return {
       function() Snacks.picker.grep({ search = '<<<<<<<' }) end,
       desc = 'Find Git Conflicts',
     },
+    {
+      '<leader>fjh',
+      function() require('custom.actions.github').open_current_commit_in_github() end,
+      desc = 'Open Current Commit in GitHub',
+    },
 
     -- Search
     {
