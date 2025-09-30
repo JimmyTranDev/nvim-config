@@ -19,6 +19,7 @@ local lspActions = require('custom.actions.lsp')
 local recentActions = require('custom.actions.recent')
 local worktreeActions = require('custom.actions.worktree')
 local gitActions = require('custom.actions.git')
+local themeActions = require('custom.actions.theme')
 
 -- Helper to set keymaps with silent and noremap by default
 local function map(mode, lhs, rhs, opts)
@@ -80,6 +81,11 @@ map(
 map('n', '<leader>;fg', fileActions.grepInCurrentFolder, { desc = ' Grep in current folder' })
 map('n', '<Leader>;v', gitActions.openVSCodeNewWindow, { desc = '󰨞 Smart VS Code window (new/focus)' })
 map('n', '<Leader>;V', ':CodeHereReuse<CR>', { desc = '󰨞 VS Code reuse window' })
+
+-- Theme switching
+map('n', '<Leader>;th', themeActions.switch_catppuccin_flavor, { desc = '🎨 Switch Catppuccin theme' })
+map('n', '<Leader>;tc', themeActions.cycle_catppuccin_flavor, { desc = '🔄 Cycle Catppuccin theme' })
+map('n', '<Leader>;ti', themeActions.get_current_catppuccin_info, { desc = 'ℹ️  Current theme info' })
 
 -- ===============================
 -- <leader>; Text & Content Operations

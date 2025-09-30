@@ -10,7 +10,26 @@ return {
   event = 'VeryLazy',
   config = function()
     local wk = require('which-key')
-    local colors = require('core.constants').colors
+    local link_constants = require('custom.constants.links')
+
+    -- Get current Catppuccin flavor and colors
+    local function get_catppuccin_colors()
+      local current_flavor = link_constants.catppuccin.current_flavor
+      local catppuccin = require('catppuccin.palettes').get_palette(current_flavor)
+      return catppuccin
+    end
+
+    -- Function to apply which-key highlights
+    local function apply_which_key_highlights()
+      local colors = get_catppuccin_colors()
+      
+      vim.api.nvim_set_hl(0, 'WhichKey', { fg = colors.mauve }) -- mauve
+      vim.api.nvim_set_hl(0, 'WhichKeyGroup', { fg = colors.blue }) -- blue
+      vim.api.nvim_set_hl(0, 'WhichKeyDesc', { fg = colors.yellow }) -- yellow
+      vim.api.nvim_set_hl(0, 'WhichKeySeperator', { fg = colors.sapphire }) -- sapphire
+      vim.api.nvim_set_hl(0, 'WhichKeyFloat', { bg = colors.base }) -- base
+      vim.api.nvim_set_hl(0, 'WhichKeyBorder', { fg = colors.surface2 }) -- surface2
+    end
 
     -- =============================================================================
     -- Which-Key Setup Configuration
@@ -75,14 +94,20 @@ return {
     })
 
     -- =============================================================================
-    -- Which-Key Custom Highlights (Latte)
+    -- Which-Key Custom Highlights (Dynamic Catppuccin)
     -- =============================================================================
-    vim.api.nvim_set_hl(0, 'WhichKey', { fg = colors.mauve }) -- mauve
-    vim.api.nvim_set_hl(0, 'WhichKeyGroup', { fg = colors.blue }) -- blue
-    vim.api.nvim_set_hl(0, 'WhichKeyDesc', { fg = colors.yellow }) -- yellow
-    vim.api.nvim_set_hl(0, 'WhichKeySeperator', { fg = colors.sapphire }) -- sapphire
-    vim.api.nvim_set_hl(0, 'WhichKeyFloat', { bg = colors.base }) -- base
-    vim.api.nvim_set_hl(0, 'WhichKeyBorder', { fg = colors.surface2 }) -- surface2
+    -- Apply initial highlights
+    apply_which_key_highlights()
+
+    -- Auto-refresh highlights when colorscheme changes
+    vim.api.nvim_create_autocmd('ColorScheme', {
+      pattern = 'catppuccin*',
+      callback = apply_which_key_highlights,
+      desc = 'Refresh which-key highlights when Catppuccin theme changes'
+    })
+
+    -- Export refresh function for manual use
+    _G.refresh_which_key_highlights = apply_which_key_highlights
 
     -- =============================================================================
     -- Leader + Leader Groups (Secondary Commands)

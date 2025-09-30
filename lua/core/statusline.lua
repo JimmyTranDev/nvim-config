@@ -2,8 +2,22 @@
 if vim.g.vscode then return end
 
 local lualine = require('lualine')
-local constants = require('core.constants')
-local colors = constants.colors
+local link_constants = require('custom.constants.links')
+
+-- Get current Catppuccin flavor and colors
+local function get_catppuccin_colors()
+  local current_flavor = link_constants.catppuccin.current_flavor
+  local catppuccin = require('catppuccin.palettes').get_palette(current_flavor)
+  
+  -- Map some color names for compatibility
+  catppuccin.orange = catppuccin.peach  -- Fallback for orange
+  catppuccin.cyan = catppuccin.sky      -- Fallback for cyan
+  
+  return catppuccin
+end
+
+-- Get theme colors dynamically
+local colors = get_catppuccin_colors()
 
 local conditions = {
   buffer_not_empty = function() return vim.fn.empty(vim.fn.expand('%:t')) ~= 1 end,
@@ -242,3 +256,19 @@ ins_right({
 -- )
 
 lualine.setup(config)
+
+-- Function to refresh statusline with new theme colors
+local function refresh_statusline()
+  colors = get_catppuccin_colors()
+  lualine.setup(config)
+end
+
+-- Auto-refresh when colorscheme changes
+vim.api.nvim_create_autocmd('ColorScheme', {
+  pattern = 'catppuccin*',
+  callback = refresh_statusline,
+  desc = 'Refresh statusline when Catppuccin theme changes'
+})
+
+-- Export refresh function for manual use
+_G.refresh_statusline = refresh_statusline
