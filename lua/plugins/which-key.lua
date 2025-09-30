@@ -206,6 +206,7 @@ return {
         mode = { 'n', 'v' },
         { '<leader>', group = '󱁐 Leader' },
         { '<leader>a', group = '󰚩 Avante AI' },
+        { '<leader>b', group = '󰻞 CodeCompanion' },
         { '<leader>c', group = '󰛦 TypeScript Tools' },
         { '<leader>d', group = '󱉏 Dropbar' },
         { '<leader>e', group = '󰇥 File Manager' },

@@ -13,12 +13,12 @@ return {
 
   -- Plugin keybindings (moved outside of config)
   keys = {
-    { '<leader>aa', '<cmd>CodeCompanionActions<cr>', mode = { 'n', 'v' }, desc = 'CodeCompanion actions' },
-    { '<leader>ac', '<cmd>CodeCompanionChat Add<cr>', mode = 'v', desc = 'Add selection to chat' },
-    { '<leader>at', '<cmd>CodeCompanionChat Toggle<cr>', mode = { 'n', 'v' }, desc = 'Toggle chat' },
-    { '<leader>af', '<cmd>CodeCompanionChat<cr>', mode = 'n', desc = 'Open chat' },
-    { '<leader>al', '<cmd>CodeCompanion<cr>', mode = { 'n', 'v' }, desc = 'Inline assistant' },
-    { '<leader>ap', '<cmd>CodeCompanion /<cr>', mode = { 'n', 'v' }, desc = 'Prompt library' },
+    { '<leader>ba', '<cmd>CodeCompanionActions<cr>', mode = { 'n', 'v' }, desc = 'CodeCompanion actions' },
+    { '<leader>bc', '<cmd>CodeCompanionChat Add<cr>', mode = 'v', desc = 'Add selection to chat' },
+    { '<leader>bt', '<cmd>CodeCompanionChat Toggle<cr>', mode = { 'n', 'v' }, desc = 'Toggle chat' },
+    { '<leader>bf', '<cmd>CodeCompanionChat<cr>', mode = 'n', desc = 'Open chat' },
+    { '<leader>bl', '<cmd>CodeCompanion<cr>', mode = { 'n', 'v' }, desc = 'Inline assistant' },
+    { '<leader>bp', '<cmd>CodeCompanion /<cr>', mode = { 'n', 'v' }, desc = 'Prompt library' },
   },
 
   config = function()
