@@ -73,14 +73,14 @@ return {
       ---@type "right" | "left" | "top" | "bottom"
       position = "right", -- the position of the sidebar
       wrap = true, -- similar to vim.o.wrap
-      width = 30, -- default % based on available width
+      width = 40, -- default % based on available width, increased for better visibility
       sidebar_header = {
         align = "center", -- left, center, right for title
         rounded = true,
       },
       input = {
         prefix = "> ",
-        height = 8, -- Height of the input window in vertical layout
+        height = 12, -- Height of the input window in vertical layout, increased for better visibility
       },
       edit = {
         border = "rounded",

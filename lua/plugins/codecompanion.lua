@@ -55,9 +55,12 @@ return {
         chat = {
           window = {
             layout = 'vertical',
-            width = 0.45,
-            height = 0.8,
+            width = 0.4,
+            height = 1.0,
             relative = 'editor',
+            border = 'rounded',
+            row = 0,
+            col = '100%',
             opts = {
               breakindent = true,
               cursorcolumn = false,
@@ -68,6 +71,7 @@ return {
               signcolumn = 'no',
               spell = false,
               wrap = true,
+              winhighlight = "Normal:Normal,FloatBorder:FloatBorder",
             },
           },
           intro_message = 'Welcome to CodeCompanion ✨',
