@@ -79,8 +79,6 @@ map(
   { desc = '🔗 Link .github from dotfiles (replace if exists)' }
 )
 map('n', '<leader>;fg', fileActions.grepInCurrentFolder, { desc = ' Grep in current folder' })
-map('n', '<Leader>;v', gitActions.openVSCodeNewWindow, { desc = '󰨞 Smart VS Code window (new/focus)' })
-map('n', '<Leader>;V', ':CodeHereReuse<CR>', { desc = '󰨞 VS Code reuse window' })
 
 -- Theme switching
 map('n', '<Leader>;th', themeActions.switch_catppuccin_flavor, { desc = '🎨 Switch Catppuccin theme' })

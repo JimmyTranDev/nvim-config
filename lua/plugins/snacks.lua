@@ -61,7 +61,6 @@ return {
   lazy = false,
   priority = 1000,
   event = 'UIEnter',
-  cond = function() return not require('core.vscode').is_vscode() end,
   ---@type snacks.Config
   opts = {
     -- your configuration comes here

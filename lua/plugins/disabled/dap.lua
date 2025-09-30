@@ -1,8 +1,5 @@
 return {
   'mfussenegger/nvim-dap',
-  cond = function()
-    return not require('core.vscode').is_vscode() -- VSCode has its own debugger
-  end,
   keys = {
     {
       mode = 'n',

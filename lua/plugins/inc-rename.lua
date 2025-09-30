@@ -1,8 +1,5 @@
 return {
   'smjonas/inc-rename.nvim',
-  cond = function()
-    return not require('core.vscode').is_vscode() -- VSCode has its own rename functionality
-  end,
   keys = {
     {
       mode = { 'n', 'v' },

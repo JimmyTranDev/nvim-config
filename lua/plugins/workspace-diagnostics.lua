@@ -1,8 +1,5 @@
 return {
   'artemave/workspace-diagnostics.nvim',
-  cond = function()
-    return not require('core.vscode').is_vscode() -- VSCode manages its own diagnostics
-  end,
   keys = {
     {
       mode = 'n',

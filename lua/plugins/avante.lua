@@ -3,14 +3,22 @@ return {
   event = "VeryLazy",
   lazy = false,
   version = false, -- set this if you want to always pull the latest change
-  cond = function()
-    return not require('core.vscode').is_vscode() -- VSCode has its own AI extensions
-  end,
   opts = {
     -- add any opts here
-    provider = "claude",
+    provider = "copilot",
     auto_suggestions = true,
     providers = {
+      copilot = {
+        endpoint = "https://api.githubcopilot.com",
+        model = "claude-3-5-sonnet-20241022",
+        proxy = nil, -- [protocol://]host[:port] Use this proxy
+        allow_insecure = false, -- Allow insecure server connections
+        timeout = 30000, -- Timeout in milliseconds
+        extra_request_body = {
+          temperature = 0,
+          max_tokens = 4096,
+        },
+      },
       claude = {
         endpoint = "https://api.anthropic.com",
         model = "claude-4-sonnet",

@@ -4,9 +4,6 @@ local githubActions = require('custom.actions.github')
 return {
   'tpope/vim-fugitive',
   event = 'VeryLazy',
-  cond = function()
-    return not require('core.vscode').is_vscode() -- VSCode has built-in git functionality
-  end,
   dependencies = {
     'akinsho/nvim-toggleterm.lua',
   },

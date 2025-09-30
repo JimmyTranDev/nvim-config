@@ -2,7 +2,6 @@ return {
   'catppuccin/nvim',
   name = 'catppuccin',
   priority = 1000,
-  cond = function() return not require('core.vscode').is_vscode() end,
   config = function()
     local constants = require('custom.constants.links')
     

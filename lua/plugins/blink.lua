@@ -1,9 +1,6 @@
 return {
   'saghen/blink.cmp',
   event = 'InsertEnter',
-  cond = function()
-    return not require('core.vscode').is_vscode() -- VSCode has its own completion
-  end,
   dependencies = {
     'echasnovski/mini.nvim',
   },

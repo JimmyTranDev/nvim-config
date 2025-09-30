@@ -1,9 +1,6 @@
 return {
   'lewis6991/gitsigns.nvim',
   event = { 'BufReadPre', 'BufNewFile' },
-  cond = function()
-    return not require('core.vscode').is_vscode() -- VSCode has built-in git integration
-  end,
   keys = {
     {
       mode = 'n',

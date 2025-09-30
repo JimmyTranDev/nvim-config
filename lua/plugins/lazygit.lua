@@ -1,9 +1,6 @@
 return {
   'kdheepak/lazygit.nvim',
   lazy = true,
-  cond = function()
-    return not require('core.vscode').is_vscode() -- VSCode has built-in git UI
-  end,
   cmd = {
     'LazyGit',
     'LazyGitConfig',

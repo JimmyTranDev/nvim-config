@@ -2,9 +2,6 @@ local copilotActions = require('custom.actions.copilot')
 return {
   'CopilotC-Nvim/CopilotChat.nvim',
   branch = 'main',
-  cond = function()
-    return not require('core.vscode').is_vscode() -- VSCode has its own Copilot Chat
-  end,
   dependencies = {
     { 'zbirenbaum/copilot.lua' }, -- or github/copilot.vim
     { 'nvim-lua/plenary.nvim' }, -- for curl, log wrapper

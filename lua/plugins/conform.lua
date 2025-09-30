@@ -1,9 +1,6 @@
 return {
   'stevearc/conform.nvim',
   event = 'BufWritePre',
-  cond = function()
-    return not require('core.vscode').is_vscode() -- VSCode has its own formatters
-  end,
   opts = {},
   config = function()
     require('conform').setup({

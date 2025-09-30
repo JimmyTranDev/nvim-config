@@ -2,9 +2,6 @@ return {
   'zbirenbaum/copilot.lua',
   cmd = 'Copilot',
   event = 'InsertEnter',
-  cond = function()
-    return not require('core.vscode').is_vscode() -- VSCode has its own Copilot extension
-  end,
 
   config = function()
     require('copilot').setup({

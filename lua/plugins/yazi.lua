@@ -1,9 +1,6 @@
 return {
   'mikavilpas/yazi.nvim',
   dependencies = { 'folke/snacks.nvim', lazy = true },
-  cond = function()
-    return not require('core.vscode').is_vscode() -- VSCode has its own file explorer
-  end,
   keys = {
     -- 👇 in this section, choose your own keymappings!
     {

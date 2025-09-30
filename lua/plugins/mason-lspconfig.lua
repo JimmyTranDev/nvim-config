@@ -1,9 +1,6 @@
 return {
   'williamboman/mason-lspconfig.nvim',
   event = { 'BufReadPre', 'BufNewFile' },
-  cond = function()
-    return not require('core.vscode').is_vscode() -- VSCode manages its own LSP servers
-  end,
   dependencies = {
     'saghen/blink.cmp',
     'jay-babu/mason-nvim-dap.nvim',

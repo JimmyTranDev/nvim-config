@@ -7,9 +7,6 @@ return {
     'nvim-telescope/telescope.nvim', -- Optional: For slash commands
     { 'stevearc/dressing.nvim', opts = {} }, -- Optional: Improves the default Neovim UI
   },
-  cond = function()
-    return not require('core.vscode').is_vscode() -- VSCode has its own AI extensions
-  end,
 
   -- Plugin keybindings (moved outside of config)
   keys = {

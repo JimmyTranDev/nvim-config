@@ -1,8 +1,5 @@
 return {
   'nvim-neotest/neotest',
-  cond = function()
-    return not require('core.vscode').is_vscode() -- VSCode has its own test runners
-  end,
   dependencies = {
     'nvim-lua/plenary.nvim',
     'antoinemadec/FixCursorHold.nvim',

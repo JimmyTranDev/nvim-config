@@ -1,6 +1,3 @@
--- Don't load statusline in VSCode
-if vim.g.vscode then return end
-
 local lualine = require('lualine')
 local link_constants = require('custom.constants.links')
 

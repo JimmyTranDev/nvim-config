@@ -1,8 +1,5 @@
 return {
   'folke/which-key.nvim',
-  cond = function()
-    return not require('core.vscode').is_vscode() -- VSCode has its own command palette
-  end,
   init = function()
     vim.o.timeout = true
     vim.o.timeoutlen = 300

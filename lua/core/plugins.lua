@@ -1,5 +1,3 @@
-local vscode = require('core.vscode')
-
 require('lazy').setup({
   spec = {
     { import = 'plugins' },

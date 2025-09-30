@@ -2,9 +2,6 @@ return {
   'Bekaboo/dropbar.nvim',
   -- optional, but required for fuzzy finder support
   event = { 'BufReadPost', 'BufNewFile' },
-  cond = function()
-    return not require('core.vscode').is_vscode() -- VSCode has its own breadcrumbs
-  end,
   dependencies = {
     -- 'nvim-telescope/telescope-fzf-native.nvim',
     -- build = 'make'

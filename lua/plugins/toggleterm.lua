@@ -51,9 +51,6 @@ end, { silent = true, desc = 'Npm Filter Packages by Prefix' })
 
 return {
   'akinsho/nvim-toggleterm.lua',
-  cond = function()
-    return not require('core.vscode').is_vscode() -- VSCode has its own terminal
-  end,
   keys = {
     -- Markdown Headings Picker
     { mode = 'n', '<leader>fm', grep_markdown_headings, desc = 'Find Markdown Headings', silent = true },
