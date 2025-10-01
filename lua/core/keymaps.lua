@@ -68,7 +68,6 @@ map(
   ':!ln -sf ~/Programming/dotfiles/etc/.github/copilot-instructions.md ./.github/copilot-instructions.md<CR>',
   { desc = '🔗 Link .github from dotfiles (replace if exists)' }
 )
-map('n', '<leader>;fg', fileActions.grepInCurrentFolder, { desc = ' Grep in current folder' })
 
 -- ===============================
 -- <leader>; Text & Content Operations

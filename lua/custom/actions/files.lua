@@ -115,17 +115,4 @@ function M.runClipboardCommand()
   vim.cmd(':TermExec cmd="' .. clipboard_content .. '"')
 end
 
-function M.grepInCurrentFolder()
-  local utils = require('core.utils')
-  local current_file = vim.api.nvim_buf_get_name(0)
-  local current_dir = vim.fn.fnamemodify(current_file, ':h')
-
-  local snacks = utils.safe_require('snacks')
-  if snacks and snacks.picker then
-    snacks.picker.grep({ cwd = current_dir })
-  else
-    vim.notify('Snacks picker not available', vim.log.levels.WARN)
-  end
-end
-
 return M
