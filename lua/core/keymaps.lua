@@ -26,7 +26,6 @@ local function map(mode, lhs, rhs, opts)
   keymap.set(mode, lhs, rhs, opts)
 end
 
-keymap.set('n', '<Leader>rL', todoistActions.repeatLastTodoistOptions(), { desc = '⟳ Repeat last Todoist options', silent = true })
 keymap.set('n', '<Leader>rl', lspActions.refresh_all_lsps, { desc = '🔄 Refresh all LSPs', silent = true })
 
 -- Window & Navigation

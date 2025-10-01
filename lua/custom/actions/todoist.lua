@@ -1,6 +1,3 @@
--- Store last options for repeat
-local last_todoist_options = nil
-
 local inputUtils = require('custom.utils.input')
 local todoistUtils = require('custom.utils.todoist')
 
@@ -126,17 +123,6 @@ local function create_task_with_navigation(taskName, projects, fallbackProjectNa
         return
       end
 
-      -- Store last options and create task
-      last_todoist_options = {
-        taskName = taskName,
-        projectId = selected_project.id,
-        projectName = selected_project.project.name,
-        sectionId = selected_section.id,
-        sectionName = selected_section.name,
-        priority = priorityOption.value,
-        deadline = '',
-      }
-      
       todoistUtils.create_task_with_project(
         taskName,
         selected_project.id,
@@ -222,39 +208,6 @@ function M.logTodoistTaskAllProjects(fallbackProjectName)
       end
 
       create_task_with_navigation(taskName, projects, fallbackProjectName)
-    end)
-  end
-end
-
-function M.repeatLastTodoistOptions()
-  return function()
-    if not last_todoist_options then
-      vim.notify('No previous Todoist options to repeat', vim.log.levels.WARN)
-      return
-    end
-    vim.ui.input({ prompt = 'Task name: ', default = last_todoist_options.taskName }, function(input)
-      local task_name = input or last_todoist_options.taskName
-      todoistUtils.create_task_with_project(
-        task_name,
-        last_todoist_options.projectId,
-        last_todoist_options.sectionId,
-        last_todoist_options.priority,
-        function(task_success, response)
-          if task_success then
-            vim.notify(
-              string.format(
-                "Task '%s' created in project '%s'%s",
-                last_todoist_options.taskName,
-                last_todoist_options.projectName,
-                last_todoist_options.sectionName and (' > ' .. last_todoist_options.sectionName) or ''
-              ),
-              vim.log.levels.INFO
-            )
-          else
-            vim.notify('Failed to create task: ' .. response, vim.log.levels.ERROR)
-          end
-        end
-      )
     end)
   end
 end
