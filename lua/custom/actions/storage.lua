@@ -14,12 +14,6 @@ function M.init_secrets_directory()
       name = 'prompts.json',
       content = vim.fn.json_encode({
         promptRoles = {},
-        newsPrompt = '',
-        marketStatusPrompt = '',
-        storyGeneratePrompt = '',
-        testIdsPrompt = '',
-        accessibilityImproveReactPrompt = '',
-        langaugePrompt = '',
       }),
     },
     {

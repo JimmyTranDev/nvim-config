@@ -3,10 +3,8 @@ return {
   name = 'catppuccin',
   priority = 1000,
   config = function()
-    local constants = require('custom.constants.links')
-    
     require('catppuccin').setup({
-      flavour = constants.catppuccin.current_flavor, -- Use flavor from constants
+      flavour = 'mocha', -- Default to mocha flavor
       transparent_background = false, -- disables setting the background color.
       show_end_of_buffer = false, -- shows the '~' characters after the end of buffers
       term_colors = false, -- sets terminal colors (e.g. `g:terminal_color_0`)
@@ -49,6 +47,6 @@ return {
     })
     
     -- Apply the theme
-    vim.cmd('colorscheme catppuccin-' .. constants.catppuccin.current_flavor)
+    vim.cmd('colorscheme catppuccin-mocha')
   end,
 }

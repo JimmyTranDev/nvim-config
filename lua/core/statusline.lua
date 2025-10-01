@@ -1,9 +1,9 @@
 local lualine = require('lualine')
-local link_constants = require('custom.constants.links')
 
 -- Get current Catppuccin flavor and colors
 local function get_catppuccin_colors()
-  local current_flavor = link_constants.catppuccin.current_flavor
+  -- Default to mocha flavor since we removed theme switching
+  local current_flavor = 'mocha'
   local catppuccin = require('catppuccin.palettes').get_palette(current_flavor)
   
   -- Map some color names for compatibility

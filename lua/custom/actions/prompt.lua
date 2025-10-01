@@ -43,20 +43,6 @@ function M.folderPrompt(initialQuery)
   end
 end
 
-function M.promptNews()
-  local countries = { 'Norway', 'Japan', 'Vietnam', 'Hong Kong', 'Korea' }
-  return function()
-    vim.ui.select(countries, {
-      prompt = 'Select country for news prompt: ',
-    }, function(country)
-      if country then
-        local newsPrompt = string.format(prompts.newsPrompt, country)
-        promptUtils.handlePrompt(newsPrompt)
-      end
-    end)
-  end
-end
-
 function M.promptRole(promptOptions, hasContext)
   return function()
     local selectedText = vimUtils.getSelectedTextIfVisualMode()

@@ -32,12 +32,9 @@ function M.copilotChatFms()
 
   local chat = require('CopilotChat')
   chat.open()
-  local fms_prompt = prompts.copilotFmsPrompt
   local query = selectedText
     .. '\n\n'
-    .. fms_prompt
-    .. '\n\n'
-    .. 'The text above should be replaced with the text below. The text below should be in a code block.\n'
+    .. 'Please improve or refactor the text above. The result should be in a code block.\n'
   chat.ask(query)
 end
 
