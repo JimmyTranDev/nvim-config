@@ -60,7 +60,6 @@ map('n', '<Leader>;fr', fileActions.runClipboardCommand, { desc = '▶️  Run c
 map('n', '<leader>;ff', fileActions.copyAllFilesInFolder, { desc = '📁 Copy all files content' })
 map('n', '<Leader>;fS', storageActions.sync_secrets_simple, { desc = '☁️  Sync secrets to cloud' })
 map('n', '<Leader>;fI', storageActions.init_secrets_directory, { desc = '🔧 Initialize secrets directory' })
-map('n', '<Leader>;fs', function() vim.cmd('set spell!') end, { desc = '📝 Toggle spellcheck' })
 map('n', '<Leader>;fC', ':!rm -r ' .. constants.NEOVIM_STATE_DIR .. '<CR>', { desc = '🗑️  Clear swap files' })
 map(
   'n',
