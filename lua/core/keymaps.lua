@@ -54,10 +54,6 @@ map('n', '<leader>;df', languageActions.fix_and_organize_ts, { desc = '🔧 Fix 
 map('n', '<leader>;dl', languageActions.repeatLastCommand, { desc = '⟳ Repeat last command' })
 
 -- ===============================
--- <leader>; Git & GitHub Operations
--- ===============================
-
--- ===============================
 -- <leader>; File & System Operations
 -- ===============================
 map('n', '<Leader>;fc', fileActions.saveClipboardToFile, { desc = '💾 Save clipboard to file' })
@@ -74,11 +70,6 @@ map(
   { desc = '🔗 Link .github from dotfiles (replace if exists)' }
 )
 map('n', '<leader>;fg', fileActions.grepInCurrentFolder, { desc = ' Grep in current folder' })
-
--- Theme switching
-map('n', '<Leader>;th', themeActions.switch_catppuccin_flavor, { desc = '🎨 Switch Catppuccin theme' })
-map('n', '<Leader>;tc', themeActions.cycle_catppuccin_flavor, { desc = '🔄 Cycle Catppuccin theme' })
-map('n', '<Leader>;ti', themeActions.get_current_catppuccin_info, { desc = 'ℹ️  Current theme info' })
 
 -- ===============================
 -- <leader>; Text & Content Operations

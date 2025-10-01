@@ -32,21 +32,4 @@ M.searchOptions = {
   { name = 'DuckDuckGo', url = 'https://duckduckgo.com/?q=%s', baseUrl = 'https://duckduckgo.com' },
 }
 
--- Catppuccin theme constants
-M.catppuccin = {
-  current_flavor = 'mocha', -- Default theme
-  flavors = {
-    'latte',  -- Light theme
-    'frappe', -- Dark theme with warm undertones
-    'macchiato', -- Dark theme with cool undertones  
-    'mocha',  -- Darkest theme
-  },
-  flavor_descriptions = {
-    latte = '☀️  Latte (Light)',
-    frappe = '🌅 Frappe (Dark Warm)',
-    macchiato = '🌃 Macchiato (Dark Cool)',
-    mocha = '🌙 Mocha (Darkest)',
-  }
-}
-
 return M
