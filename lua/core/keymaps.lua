@@ -16,9 +16,6 @@ local checkboxActions = require('custom.actions.checkbox')
 local replacementActions = require('custom.actions.replacement')
 local storageActions = require('custom.actions.storage')
 local lspActions = require('custom.actions.lsp')
-local recentActions = require('custom.actions.recent')
-local worktreeActions = require('custom.actions.worktree')
-local gitActions = require('custom.actions.git')
 local themeActions = require('custom.actions.theme')
 
 -- Helper to set keymaps with silent and noremap by default
@@ -60,7 +57,6 @@ map('n', '<leader>;dl', languageActions.repeatLastCommand, { desc = '⟳ Repeat 
 -- ===============================
 -- <leader>; Git & GitHub Operations
 -- ===============================
-map('n', '<leader>;wt', worktreeActions.pull_and_rebase_all, { desc = '🔄 Pull develop & rebase all worktrees' })
 
 -- ===============================
 -- <leader>; File & System Operations
