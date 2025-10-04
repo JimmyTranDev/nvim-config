@@ -64,4 +64,47 @@ function M.delete(url, headers, callback)
   end)
 end
 
+-- ChatGPT API integration
+function M.chatgpt_request(prompt, callback)
+  local api_key = vim.env.OPENAI_API_KEY
+  if not api_key then
+    vim.notify('OPENAI_API_KEY environment variable not set', vim.log.levels.ERROR)
+    callback(nil)
+    return
+  end
+  
+  local url = 'https://api.openai.com/v1/chat/completions'
+  local headers = {
+    ['Authorization'] = 'Bearer ' .. api_key,
+    ['Content-Type'] = 'application/json'
+  }
+  
+  local data = {
+    model = 'gpt-3.5-turbo',
+    messages = {
+      {
+        role = 'user',
+        content = prompt
+      }
+    },
+    max_tokens = 500,
+    temperature = 0.7
+  }
+  
+  M.post(url, data, headers, function(success, response)
+    if success and response and response.choices and response.choices[1] then
+      callback({
+        content = response.choices[1].message.content
+      })
+    else
+      local error_msg = 'ChatGPT API request failed'
+      if response and response.error then
+        error_msg = error_msg .. ': ' .. (response.error.message or 'Unknown error')
+      end
+      vim.notify(error_msg, vim.log.levels.ERROR)
+      callback(nil)
+    end
+  end)
+end
+
 return M

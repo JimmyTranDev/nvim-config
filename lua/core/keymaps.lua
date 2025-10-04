@@ -16,6 +16,7 @@ local checkboxActions = require('custom.actions.checkbox')
 local replacementActions = require('custom.actions.replacement')
 local storageActions = require('custom.actions.storage')
 local lspActions = require('custom.actions.lsp')
+local documentationActions = require('custom.actions.documentation')
 
 -- Helper to set keymaps with silent and noremap by default
 local function map(mode, lhs, rhs, opts)
@@ -51,6 +52,7 @@ map('n', '<leader>;de', languageActions.run_eslint, { desc = '🔍 Run ESLint qu
 map('n', '<leader>;dc', errorsActions.copyDiagnosticUnderCursor, { desc = '📋 Copy diagnostic' })
 map('n', '<leader>;df', languageActions.fix_and_organize_ts, { desc = '🔧 Fix and organize imports (TS)' })
 map('n', '<leader>;dl', languageActions.repeatLastCommand, { desc = '⟳ Repeat last command' })
+map('n', '<leader>;dr', documentationActions.addConventionToReadme, { desc = '📖 Add convention to README' })
 
 -- ===============================
 -- <leader>; File & System Operations
@@ -60,6 +62,7 @@ map('n', '<Leader>;fr', fileActions.runClipboardCommand, { desc = '▶️  Run c
 map('n', '<leader>;ff', fileActions.copyAllFilesInFolder, { desc = '📁 Copy all files content' })
 map('n', '<Leader>;fS', storageActions.sync_secrets_simple, { desc = '☁️  Sync secrets to cloud' })
 map('n', '<Leader>;fI', storageActions.init_secrets_directory, { desc = '🔧 Initialize secrets directory' })
+map('n', '<Leader>;fs', function() vim.cmd('set spell!') end, { desc = '📝 Toggle spellcheck' })
 map('n', '<Leader>;fC', ':!rm -r ' .. constants.NEOVIM_STATE_DIR .. '<CR>', { desc = '🗑️  Clear swap files' })
 map(
   'n',
