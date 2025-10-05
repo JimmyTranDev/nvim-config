@@ -126,22 +126,23 @@ function M.openInVSCode()
     return
   end
   
-  -- Check if VS Code is already open with this folder
-  local vscode_check = vim.fn.system('ps aux | grep -v grep | grep "Visual Studio Code" | grep "' .. git_root .. '"')
-  
-  if vscode_check ~= '' then
-    -- VS Code is already open with this folder, open the current file
-    if current_file ~= '' then
-      vim.fn.system('code "' .. current_file .. '"')
-      vim.notify('Opened current file in existing VS Code window: ' .. vim.fn.fnamemodify(current_file, ':t'), vim.log.levels.INFO)
+  -- Always try to open the current file first, then fallback to folder
+  if current_file ~= '' then
+    -- Open the specific file in VS Code
+    local result = vim.fn.system('code "' .. current_file .. '"')
+    if vim.v.shell_error == 0 then
+      vim.notify('Opened current file in VS Code: ' .. vim.fn.fnamemodify(current_file, ':t'), vim.log.levels.INFO)
     else
-      vim.fn.system('code "' .. git_root .. '"')
-      vim.notify('Focused existing VS Code window for: ' .. vim.fn.fnamemodify(git_root, ':t'), vim.log.levels.INFO)
+      vim.notify('Failed to open file in VS Code: ' .. result, vim.log.levels.ERROR)
     end
   else
-    -- Open new VS Code window with the git root folder
-    vim.fn.system('code "' .. git_root .. '"')
-    vim.notify('Opened new VS Code window for: ' .. vim.fn.fnamemodify(git_root, ':t'), vim.log.levels.INFO)
+    -- No current file, open the git root folder
+    local result = vim.fn.system('code "' .. git_root .. '"')
+    if vim.v.shell_error == 0 then
+      vim.notify('Opened git repository in VS Code: ' .. vim.fn.fnamemodify(git_root, ':t'), vim.log.levels.INFO)
+    else
+      vim.notify('Failed to open folder in VS Code: ' .. result, vim.log.levels.ERROR)
+    end
   end
 end
 
