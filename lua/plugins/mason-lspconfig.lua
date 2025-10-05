@@ -1,6 +1,5 @@
 return {
   'williamboman/mason-lspconfig.nvim',
-  event = { 'BufReadPre', 'BufNewFile' },
   dependencies = {
     'saghen/blink.cmp',
     'jay-babu/mason-nvim-dap.nvim',
@@ -8,6 +7,7 @@ return {
     'neovim/nvim-lspconfig',
     'williamboman/mason.nvim',
   },
+  lazy = false,
   opts = {
     servers = {
       lua_ls = {
@@ -75,6 +75,11 @@ return {
       if server == 'lua_ls' then
         config.root_dir = require('lspconfig.util').root_pattern('.git', vim.fn.getcwd())
       end
+      
+      -- Performance optimizations
+      config.flags = {
+        debounce_text_changes = 200, -- Increased debounce for better performance
+      }
       
       -- passing config.capabilities to blink.cmp merges with the capabilities in your
       -- `opts[server].capabilities, if you've defined it

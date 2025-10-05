@@ -1,4 +1,4 @@
 return {
   'nvim-lualine/lualine.nvim',
-  event = { 'BufReadPost', 'BufNewFile', 'BufWritePre' },
+  lazy = false, -- Load immediately for statusline
 }

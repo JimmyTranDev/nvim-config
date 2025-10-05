@@ -58,7 +58,7 @@ end
 
 return {
   'folke/snacks.nvim',
-  lazy = false,
+  lazy = true, -- Enable lazy loading
   priority = 1000,
   event = 'UIEnter',
   ---@type snacks.Config

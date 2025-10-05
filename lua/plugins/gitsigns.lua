@@ -109,14 +109,14 @@ return {
       current_line_blame_opts = {
         virt_text = true,
         virt_text_pos = 'eol', -- 'eol' | 'overlay' | 'right_align'
-        delay = 100,
+        delay = 500, -- Increased delay for better performance
         ignore_whitespace = false,
         virt_text_priority = 100,
       },
-      update_debounce = 100,
+      update_debounce = 200, -- Increased debounce for better performance
       -- fweafe
       status_formatter = nil, -- Use default
-      max_file_length = 40000, -- Disable if file is longer than this (in lines)
+      max_file_length = 20000, -- Reduced for better performance with large files
       preview_config = {
         -- Options passed to nvim_open_win
         border = 'single',

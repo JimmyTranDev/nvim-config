@@ -92,8 +92,15 @@ vim.o.ignorecase = true
 -- =============================================================================
 -- Performance and Timing
 -- =============================================================================
-vim.o.updatetime = 100 -- Faster CursorHold events (was inconsistent before)
+vim.o.updatetime = 250 -- Balanced for performance and responsiveness
 vim.o.timeoutlen = 300 -- Faster key sequence timeout
+vim.o.redrawtime = 1500 -- Increased for complex syntax highlighting
+vim.o.lazyredraw = true -- Don't redraw during macros for better performance
+
+-- Memory and buffer optimizations
+vim.o.hidden = true -- Keep buffers in memory
+vim.o.history = 1000 -- Reasonable command history
+vim.o.maxmempattern = 20000 -- Increased pattern matching memory
 
 -- =============================================================================
 -- Completion
