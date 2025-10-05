@@ -119,6 +119,9 @@ return {
       { '<leader><leader>r', group = '󰛔 Replace', mode = { 'n', 'v' } },
       { '<leader><leader>m', group = '󰈙 Manual', mode = { 'n', 'v' } },
 
+      -- Quick Access Commands
+      { '<leader>;', group = '󰓦 Quick Access', mode = { 'n', 'v' } },
+
       -- Find/Search Groups (Leader + f)
       { '<leader>f', group = '󰭎 Find', mode = { 'n', 'v' } },
       { '<leader>fb', group = '󰓩 Buffers', mode = { 'n', 'v' } },
