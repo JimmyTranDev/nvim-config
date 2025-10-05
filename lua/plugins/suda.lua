@@ -1,6 +1,6 @@
 return {
   'lambdalisue/vim-suda',
   keys = {
-    { mode = 'n', '<Leader>;fw', ':SudaWrite<CR>', desc = ' Sudo Write' },
+    { mode = 'n', '<Leader>Fw', ':SudaWrite<CR>', desc = ' Sudo Write' },
   },
-}
+} 

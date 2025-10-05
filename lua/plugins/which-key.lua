@@ -111,11 +111,13 @@ return {
     -- All Which-Key Mappings
     -- =============================================================================
     wk.add({
-      -- Secondary Leader
+      -- Secondary Leader Commands
       { '<leader><leader>', group = '󰌌 Secondary', mode = { 'n', 'v' } },
-      { '<leader><leader>b', desc = '󰃤 Debug', mode = { 'n', 'v' } },
-      { '<leader><leader>d', desc = '󰾆 Database', mode = { 'n', 'v' } },
-      { '<leader><leader>n', desc = '󰙨 Tests', mode = { 'n', 'v' } },
+      { '<leader><leader>d', group = '󰠷 Development', mode = { 'n', 'v' } },
+      { '<leader><leader>f', group = '󰉋 Files', mode = { 'n', 'v' } },
+      { '<leader><leader>t', group = '󰦅 Text', mode = { 'n', 'v' } },
+      { '<leader><leader>r', group = '󰛔 Replace', mode = { 'n', 'v' } },
+      { '<leader><leader>m', group = '󰈙 Manual', mode = { 'n', 'v' } },
 
       -- Find/Search Groups (Leader + f)
       { '<leader>f', group = '󰭎 Find', mode = { 'n', 'v' } },
@@ -147,14 +149,6 @@ return {
       { '<leader>tp', group = '󰌠 Python', mode = { 'n', 'v' } },
       { '<leader>tv', group = '󰫙 Maven', mode = { 'n', 'v' } },
       { '<leader>tx', group = '󰅗 Close', mode = { 'n', 'v' } },
-
-      -- Utility Tools (Leader + ;)
-      { '<leader>;', group = '󰦥 Utils', mode = { 'n', 'v' } },
-      { '<leader>;d', group = '󰠷 Dev', mode = { 'n', 'v' } },
-      { '<leader>;f', group = '󰉋 Files', mode = { 'n', 'v' } },
-      { '<leader>;m', group = '󰈙 Docs', mode = { 'n', 'v' } },
-      { '<leader>;r', group = '󰛔 Replace', mode = { 'n', 'v' } },
-      { '<leader>;t', group = '󰦅 Text', mode = { 'n', 'v' } },
 
       -- External Links (Leader + l)
       { '<leader>l', group = '󰌷 Links', mode = { 'n', 'v' } },
