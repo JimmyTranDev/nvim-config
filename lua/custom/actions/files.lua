@@ -115,4 +115,34 @@ function M.runClipboardCommand()
   vim.cmd(':TermExec cmd="' .. clipboard_content .. '"')
 end
 
+function M.openInVSCode()
+  local current_file = vim.fn.expand('%:p')
+  
+  -- Get the git root directory
+  local git_root = vim.fn.system('git rev-parse --show-toplevel 2>/dev/null'):gsub('\n', '')
+  
+  if vim.v.shell_error ~= 0 or git_root == '' then
+    vim.notify('Not in a git repository', vim.log.levels.WARN)
+    return
+  end
+  
+  -- Check if VS Code is already open with this folder
+  local vscode_check = vim.fn.system('ps aux | grep -v grep | grep "Visual Studio Code" | grep "' .. git_root .. '"')
+  
+  if vscode_check ~= '' then
+    -- VS Code is already open with this folder, open the current file
+    if current_file ~= '' then
+      vim.fn.system('code "' .. current_file .. '"')
+      vim.notify('Opened current file in existing VS Code window: ' .. vim.fn.fnamemodify(current_file, ':t'), vim.log.levels.INFO)
+    else
+      vim.fn.system('code "' .. git_root .. '"')
+      vim.notify('Focused existing VS Code window for: ' .. vim.fn.fnamemodify(git_root, ':t'), vim.log.levels.INFO)
+    end
+  else
+    -- Open new VS Code window with the git root folder
+    vim.fn.system('code "' .. git_root .. '"')
+    vim.notify('Opened new VS Code window for: ' .. vim.fn.fnamemodify(git_root, ':t'), vim.log.levels.INFO)
+  end
+end
+
 return M

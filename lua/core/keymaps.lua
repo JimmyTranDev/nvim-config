@@ -64,6 +64,7 @@ map('n', '<leader>;mc', documentationActions.addConventionToReadme, { desc = '�
 map('n', '<Leader>;fc', fileActions.saveClipboardToFile, { desc = '💾 Save clipboard to file' })
 map('n', '<Leader>;fr', fileActions.runClipboardCommand, { desc = '▶️  Run command from clipboard' })
 map('n', '<leader>;ff', fileActions.copyAllFilesInFolder, { desc = '📁 Copy all files content' })
+map('n', '<leader>;v', fileActions.openInVSCode, { desc = '󰨞 Open git folder in VS Code' })
 map('n', '<Leader>;fS', storageActions.sync_secrets_simple, { desc = '☁️  Sync secrets to cloud' })
 map('n', '<Leader>;fI', storageActions.init_secrets_directory, { desc = '🔧 Initialize secrets directory' })
 map('n', '<Leader>;fs', function() vim.cmd('set spell!') end, { desc = '📝 Toggle spellcheck' })
