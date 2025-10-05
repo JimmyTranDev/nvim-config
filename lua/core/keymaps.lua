@@ -81,8 +81,19 @@ map(
 map('x', '<leader>;tr', [["zy:%s/\V<C-r>=escape(@z, '/')<CR>//gc<left><left><left>]], { desc = '🔍 Visual search replace' })
 map('n', '<leader>;tR', ':cdo %s///gc<left><left><left><left>', { desc = '🔄 CDO replace' })
 map('n', '<leader>;tt', checkboxActions.toggle, { desc = '☑️  Toggle checkbox' })
-map('v', '<leader>;tc', replacementActions.replace_text, { desc = '✏️  Replace text' })
-map('v', '<leader>;tC', replacementActions.replace_text_cdo, { desc = '🔄 Replace text CDO' })
+
+-- Enhanced Replacement Operations
+map('n', '<leader>;ri', replacementActions.replace_interactive, { desc = '🎯 Interactive replace' })
+map('n', '<leader>;rb', replacementActions.replace_buffer, { desc = '📄 Replace in buffer' })
+map('n', '<leader>;rB', replacementActions.replace_buffer_all, { desc = '📄 Replace all in buffer' })
+map('n', '<leader>;rp', replacementActions.replace_buffer_prefilled, { desc = '📝 Replace in buffer (prefilled)' })
+map('n', '<leader>;rP', replacementActions.replace_buffer_all_prefilled, { desc = '📝 Replace all in buffer (prefilled)' })
+map('v', '<leader>;rs', replacementActions.replace_buffer_selected, { desc = '✂️  Replace selected in buffer' })
+map('v', '<leader>;rS', replacementActions.replace_buffer_all_selected, { desc = '✂️  Replace all selected in buffer' })
+map('n', '<leader>;rq', replacementActions.replace_quickfix, { desc = '📋 Replace in quickfix' })
+map('n', '<leader>;rQ', replacementActions.replace_quickfix_all, { desc = '📋 Replace all in quickfix' })
+map('n', '<leader>;rf', replacementActions.replace_project, { desc = '🌐 Replace in project' })
+map('n', '<leader>;rF', replacementActions.replace_project_all, { desc = '🌐 Replace all in project' })
 
 -- =============================================================================
 -- Leader + h - AI, Help, and Search Operations
