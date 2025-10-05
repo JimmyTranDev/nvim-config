@@ -66,12 +66,7 @@ map('n', '<leader><leader>fS', storageActions.sync_secrets_simple, { desc = '☁
 map('n', '<leader><leader>fI', storageActions.init_secrets_directory, { desc = '🔧 Initialize secrets directory' })
 map('n', '<leader><leader>fs', function() vim.cmd('set spell!') end, { desc = '📝 Toggle spellcheck' })
 map('n', '<leader><leader>fC', ':!rm -r ' .. constants.NEOVIM_STATE_DIR .. '<CR>', { desc = '🗑️  Clear swap files' })
-map(
-  'n',
-  '<leader><leader>fG',
-  ':!ln -sf ~/Programming/dotfiles/etc/.github/copilot-instructions.md ./.github/copilot-instructions.md<CR>',
-  { desc = '🔗 Link .github from dotfiles (replace if exists)' }
-)
+map('n', '<leader><leader>fG', fileActions.linkGithubFromDotfiles, { desc = '🔗 Link .github from dotfiles' })
 
 -- ===============================
 -- <leader><leader>t - Text & Content Operations

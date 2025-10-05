@@ -145,4 +145,21 @@ function M.openInVSCode()
   end
 end
 
+function M.linkGithubFromDotfiles()
+  local source_path = '~/Programming/dotfiles/etc/.github/copilot-instructions.md'
+  local target_path = './.github/copilot-instructions.md'
+  
+  -- Create .github directory if it doesn't exist
+  vim.fn.system('mkdir -p ./.github')
+  
+  -- Create symbolic link (replace if exists)
+  local result = vim.fn.system('ln -sf ' .. source_path .. ' ' .. target_path)
+  
+  if vim.v.shell_error == 0 then
+    vim.notify('Successfully linked .github/copilot-instructions.md from dotfiles', vim.log.levels.INFO)
+  else
+    vim.notify('Failed to link .github from dotfiles: ' .. result, vim.log.levels.ERROR)
+  end
+end
+
 return M
