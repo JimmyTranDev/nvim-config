@@ -52,7 +52,11 @@ map('n', '<leader>;de', languageActions.run_eslint, { desc = '🔍 Run ESLint qu
 map('n', '<leader>;dc', errorsActions.copyDiagnosticUnderCursor, { desc = '📋 Copy diagnostic' })
 map('n', '<leader>;df', languageActions.fix_and_organize_ts, { desc = '🔧 Fix and organize imports (TS)' })
 map('n', '<leader>;dl', languageActions.repeatLastCommand, { desc = '⟳ Repeat last command' })
-map('n', '<leader>;dr', documentationActions.addConventionToReadme, { desc = '📖 Add convention to README' })
+
+-- ===============================
+-- <leader>;m Documentation & Notes
+-- ===============================
+map('n', '<leader>;mc', documentationActions.addConventionToReadme, { desc = '📖 Add convention to README' })
 
 -- ===============================
 -- <leader>; File & System Operations
