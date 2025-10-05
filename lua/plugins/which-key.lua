@@ -18,7 +18,7 @@ return {
     -- Function to apply which-key highlights
     local function apply_which_key_highlights()
       local colors = get_catppuccin_colors()
-      
+
       vim.api.nvim_set_hl(0, 'WhichKey', { fg = colors.mauve }) -- mauve
       vim.api.nvim_set_hl(0, 'WhichKeyGroup', { fg = colors.blue }) -- blue
       vim.api.nvim_set_hl(0, 'WhichKeyDesc', { fg = colors.yellow }) -- yellow
@@ -99,7 +99,7 @@ return {
     vim.api.nvim_create_autocmd('ColorScheme', {
       pattern = 'catppuccin*',
       callback = apply_which_key_highlights,
-      desc = 'Refresh which-key highlights when Catppuccin theme changes'
+      desc = 'Refresh which-key highlights when Catppuccin theme changes',
     })
 
     -- Export refresh function for manual use
@@ -108,171 +108,117 @@ return {
     -- =============================================================================
     -- Leader + Leader Groups (Secondary Commands)
     -- =============================================================================
+    -- All Which-Key Mappings
+    -- =============================================================================
     wk.add({
-      {
-        mode = { 'n', 'v' },
-        { '<leader><leader>', group = '󰌌 Secondary' },
-        { '<leader><leader>b', desc = '󰃤 Debugger' },
-        { '<leader><leader>d', desc = '󰾆 Database' },
-        { '<leader><leader>n', desc = '󰙨 Neotest' },
-      },
-    })
+      -- Secondary Leader
+      { '<leader><leader>', group = '󰌌 Secondary', mode = { 'n', 'v' } },
+      { '<leader><leader>b', desc = '󰃤 Debug', mode = { 'n', 'v' } },
+      { '<leader><leader>d', desc = '󰾆 Database', mode = { 'n', 'v' } },
+      { '<leader><leader>n', desc = '󰙨 Tests', mode = { 'n', 'v' } },
 
-    -- =============================================================================
-    -- Telescope Sub-Groups (Leader + f)
-    -- =============================================================================
-    wk.add({
-      {
-        mode = { 'n', 'v' },
-        { '<leader>f', group = '󰭎 Telescope' },
-        { '<leader>fb', group = '󰓩 Buffers' },
-        { '<leader>fh', group = '󰋚 History' },
-        { '<leader>fj', group = '󰊢 Git' },
-        { '<leader>fl', group = '󰷈 Lists' },
-        { '<leader>fv', group = '󰕷 Vim' },
-      },
-    })
+      -- Find/Search Groups (Leader + f)
+      { '<leader>f', group = '󰭎 Find', mode = { 'n', 'v' } },
+      { '<leader>fb', group = '󰓩 Buffers', mode = { 'n', 'v' } },
+      { '<leader>fh', group = '󰋚 History', mode = { 'n', 'v' } },
+      { '<leader>fj', group = '󰊢 Git', mode = { 'n', 'v' } },
+      { '<leader>fl', group = '󰷈 Lists', mode = { 'n', 'v' } },
+      { '<leader>fv', group = '󰕷 Vim', mode = { 'n', 'v' } },
 
-    -- =============================================================================
-    -- Git Sub-Groups (Leader + g)
-    -- =============================================================================
-    wk.add({
-      {
-        mode = { 'n', 'v' },
-        { '<leader>g', group = '󰊢 Git' },
-        { '<leader>gb', group = '󰘬 Branch' },
-        { '<leader>gc', group = '󰜘 Commit' },
-        { '<leader>gC', group = '󰜘 Commit & Push' },
-        { '<leader>gn', group = '󰳴 Checkout' },
-        { '<leader>gw', group = '󰘴 Worktree' },
-        { '<leader>gy', group = '󰋫 Yolo' },
-      },
-    })
+      -- Git Operations (Leader + g)
+      { '<leader>g', group = '󰊢 Git', mode = { 'n', 'v' } },
+      { '<leader>gb', group = '󰘬 Branch', mode = { 'n', 'v' } },
+      { '<leader>gc', group = '󰜘 Commit', mode = { 'n', 'v' } },
+      { '<leader>gC', group = '󰜘 Commit & Push', mode = { 'n', 'v' } },
+      { '<leader>gn', group = '󰳴 Checkout', mode = { 'n', 'v' } },
+      { '<leader>gw', group = '󰘴 Worktree', mode = { 'n', 'v' } },
+      { '<leader>gy', group = '󰋫 Quick', mode = { 'n', 'v' } },
 
-    -- =============================================================================
-    -- Terminal Sub-Groups (Leader + t)
-    -- =============================================================================
-    wk.add({
-      {
-        mode = { 'n', 'v' },
-        { '<leader>t', group = ' Terminal' },
-        { '<leader>tc', group = '󱘗 Cargo' },
-        { '<leader>tf', group = '󰛨 Flutter' },
-        { '<leader>th', group = '󰏖 Pnpm' },
-        { '<leader>tl', group = '󰀂 Live Server' },
-        { '<leader>tM', group = '󰈙 MJML' },
-        { '<leader>tm', group = '󰍔 Markdown' },
-        { '<leader>tn', group = '󰎙 NPM' },
-        { '<leader>tnu', group = '󰏔 NPM Update' },
-        { '<leader>tp', group = '󰌠 Python' },
-        { '<leader>tv', group = '󰫙 Maven' },
-        { '<leader>tx', group = '󰅗 Close' },
-      },
-    })
+      -- Terminal Commands (Leader + t)
+      { '<leader>t', group = ' Terminal', mode = { 'n', 'v' } },
+      { '<leader>tc', group = '󱘗 Cargo', mode = { 'n', 'v' } },
+      { '<leader>tf', group = '󰛨 Flutter', mode = { 'n', 'v' } },
+      { '<leader>th', group = '󰏖 Pnpm', mode = { 'n', 'v' } },
+      { '<leader>tl', group = '󰀂 Server', mode = { 'n', 'v' } },
+      { '<leader>tM', group = '󰈙 MJML', mode = { 'n', 'v' } },
+      { '<leader>tm', group = '󰍔 Markdown', mode = { 'n', 'v' } },
+      { '<leader>tn', group = '󰎙 NPM', mode = { 'n', 'v' } },
+      { '<leader>tnu', group = '󰏔 Updates', mode = { 'n', 'v' } },
+      { '<leader>tp', group = '󰌠 Python', mode = { 'n', 'v' } },
+      { '<leader>tv', group = '󰫙 Maven', mode = { 'n', 'v' } },
+      { '<leader>tx', group = '󰅗 Close', mode = { 'n', 'v' } },
 
-    -- =============================================================================
-    -- Utility Sub-Groups (Leader + ;)
-    -- =============================================================================
-    wk.add({
-      {
-        mode = { 'n', 'v' },
-        { '<leader>;', group = '󰦥 Utilities' },
-        { '<leader>;d', group = '󰠷 Development' },
-        { '<leader>;f', group = '󰉋 Files & System' },
-        { '<leader>;t', group = '󰦅 Text Operations' },
-      },
-    })
+      -- Utility Tools (Leader + ;)
+      { '<leader>;', group = '󰦥 Utils', mode = { 'n', 'v' } },
+      { '<leader>;d', group = '󰠷 Dev', mode = { 'n', 'v' } },
+      { '<leader>;f', group = '󰉋 Files', mode = { 'n', 'v' } },
+      { '<leader>;m', group = '󰈙 Docs', mode = { 'n', 'v' } },
+      { '<leader>;r', group = '󰛔 Replace', mode = { 'n', 'v' } },
+      { '<leader>;t', group = '󰦅 Text', mode = { 'n', 'v' } },
 
-    -- =============================================================================
-    -- Links Sub-Groups (Leader + l)
-    -- =============================================================================
-    wk.add({
-      {
-        mode = { 'n', 'v' },
-        { '<leader>l', group = '󰌷 Links' },
-        { '<leader>ls', group = '󰒋 Servers' },
-      },
-    })
+      -- External Links (Leader + l)
+      { '<leader>l', group = '󰌷 Links', mode = { 'n', 'v' } },
+      { '<leader>ls', group = '󰒋 Servers', mode = { 'n', 'v' } },
 
-    -- =============================================================================
-    -- Main Leader Key Groups
-    -- =============================================================================
-    wk.add({
-      {
-        mode = { 'n', 'v' },
-        { '<leader>', group = '󱁐 Leader' },
-        { '<leader>a', group = '󰚩 Avante AI' },
-        { '<leader>b', group = '󰻞 CodeCompanion' },
-        { '<leader>c', group = '󰛦 TypeScript Tools' },
-        { '<leader>d', group = '󱉏 Dropbar' },
-        { '<leader>e', group = '󰇥 File Manager' },
-        { '<leader>E', group = '󰇥 File Manager (Root)' },
-        { '<leader>h', group = '󰋖 Help & Lookup' },
-        { '<leader>i', desc = '󰘻 Jump In' },
-        { '<leader>j', group = '󰊢 Git Signs' },
-        { '<leader>k', group = '󰘦 Copilot Chat' },
-        { '<leader>m', desc = '󰊢 Lazygit' },
-        { '<leader>o', desc = '󰘶 Jump Out' },
-        { '<leader>p', group = '󰏖 Package Info' },
-        { '<leader>q', desc = '󰩈 Quit' },
-        { '<leader>Q', desc = '󰩈 Force Quit All' },
-        { '<leader>r', group = '󰌱 Logging' },
-        { '<leader>s', group = '󰒺 Sort' },
-        { '<leader>u', group = '󰦥 Locator' },
-        { '<leader>v', group = '󰯲 Diff View' },
-        { '<leader>w', desc = '󰆓 Write File' },
-        { '<leader>W', desc = '󰆓 Write All Files' },
-        { '<leader>y', group = '󰋫 WTF' },
-        { '<leader>z', group = '󰒲 Lazy Package Manager' },
-        { '<leader><space>', desc = '󱁐 Extra Space' },
-      },
-    })
+      -- Main Leader Key Groups
+      { '<leader>', group = '󱁐 Leader', mode = { 'n', 'v' } },
+      { '<leader>a', group = '󰚩 AI', mode = { 'n', 'v' } },
+      { '<leader>b', group = '󰻞 CodeChat', mode = { 'n', 'v' } },
+      { '<leader>c', group = '󰛦 TypeScript', mode = { 'n', 'v' } },
+      { '<leader>d', group = '󱉏 Dropbar', mode = { 'n', 'v' } },
+      { '<leader>e', group = '󰇥 Explorer', mode = { 'n', 'v' } },
+      { '<leader>E', group = '󰇥 Explorer (Root)', mode = { 'n', 'v' } },
+      { '<leader>h', group = '󰚩 AI Ops', mode = { 'n', 'v' } },
+      { '<leader>i', desc = '󰘻 Jump In', mode = { 'n', 'v' } },
+      { '<leader>j', group = '󰊢 Git Hunks', mode = { 'n', 'v' } },
+      { '<leader>k', group = '󰘦 Chat', mode = { 'n', 'v' } },
+      { '<leader>m', desc = '󰊢 Lazygit', mode = { 'n', 'v' } },
+      { '<leader>o', desc = '󰘶 Jump Out', mode = { 'n', 'v' } },
+      { '<leader>p', group = '󰏖 Packages', mode = { 'n', 'v' } },
+      { '<leader>q', desc = '󰩈 Quit', mode = { 'n', 'v' } },
+      { '<leader>Q', desc = '󰩈 Force Quit', mode = { 'n', 'v' } },
+      { '<leader>r', group = '󰌱 Todoist', mode = { 'n', 'v' } },
+      { '<leader>s', group = '󰒺 Sort', mode = { 'n', 'v' } },
+      { '<leader>u', group = '󰦥 Locator', mode = { 'n', 'v' } },
+      { '<leader>v', group = '󰯲 Diff', mode = { 'n', 'v' } },
+      { '<leader>w', desc = '󰆓 Save', mode = { 'n', 'v' } },
+      { '<leader>W', desc = '󰆓 Save All', mode = { 'n', 'v' } },
+      { '<leader>y', group = '󰋫 WTF', mode = { 'n', 'v' } },
+      { '<leader>z', group = '󰒲 Lazy', mode = { 'n', 'v' } },
+      { '<leader><space>', desc = '󱁐 Extra', mode = { 'n', 'v' } },
 
-    -- =============================================================================
-    -- Non-Leader Key Groups
-    -- =============================================================================
-    wk.add({
-      {
-        mode = { 'n', 'v' },
-        { 'g', group = '󰬴 Go/Goto' },
-        { ']', group = '󰮰 Next' },
-        { '[', group = '󰮲 Previous' },
-        { '<c-w>', group = '󰖲 Windows' },
-        { 'z', group = '󰀂 Fold' },
-      },
-    })
+      -- Non-Leader Key Groups
+      { 'g', group = '󰬴 Goto', mode = { 'n', 'v' } },
+      { ']', group = '󰮯 Next', mode = { 'n', 'v' } },
+      { '[', group = '󰮲 Previous', mode = { 'n', 'v' } },
+      { '<c-w>', group = '󰖲 Windows', mode = { 'n', 'v' } },
+      { 'z', group = '󰀂 Fold', mode = { 'n', 'v' } },
 
-    -- =============================================================================
-    -- Empty Lowercase Letter Keymaps (show as "_" in which-key)
-    -- =============================================================================
-    wk.add({
-      {
-        mode = { 'n', 'v' },
-        { 'a', desc = '_' },
-        { 'b', desc = '_' },
-        { 'c', desc = '_' },
-        { 'd', desc = '_' },
-        { 'e', desc = '_' },
-        { 'f', desc = '_' },
-        { 'h', desc = '_' },
-        { 'i', desc = '_' },
-        { 'j', desc = '_' },
-        { 'k', desc = '_' },
-        { 'l', desc = '_' },
-        { 'm', desc = '_' },
-        { 'n', desc = '_' },
-        { 'o', desc = '_' },
-        { 'p', desc = '_' },
-        { 'q', desc = '_' },
-        { 'r', desc = '_' },
-        { 's', desc = '_' },
-        { 't', desc = '_' },
-        { 'u', desc = '_' },
-        { 'v', desc = '_' },
-        { 'w', desc = '_' },
-        { 'x', desc = '_' },
-        { 'y', desc = '_' },
-      },
+      -- Empty Lowercase Letter Keymaps (show as "_" in which-key)
+      { 'a', desc = '_', mode = { 'n', 'v' } },
+      { 'b', desc = '_', mode = { 'n', 'v' } },
+      { 'c', desc = '_', mode = { 'n', 'v' } },
+      { 'd', desc = '_', mode = { 'n', 'v' } },
+      { 'e', desc = '_', mode = { 'n', 'v' } },
+      { 'f', desc = '_', mode = { 'n', 'v' } },
+      { 'h', desc = '_', mode = { 'n', 'v' } },
+      { 'i', desc = '_', mode = { 'n', 'v' } },
+      { 'j', desc = '_', mode = { 'n', 'v' } },
+      { 'k', desc = '_', mode = { 'n', 'v' } },
+      { 'l', desc = '_', mode = { 'n', 'v' } },
+      { 'm', desc = '_', mode = { 'n', 'v' } },
+      { 'n', desc = '_', mode = { 'n', 'v' } },
+      { 'o', desc = '_', mode = { 'n', 'v' } },
+      { 'p', desc = '_', mode = { 'n', 'v' } },
+      { 'q', desc = '_', mode = { 'n', 'v' } },
+      { 'r', desc = '_', mode = { 'n', 'v' } },
+      { 's', desc = '_', mode = { 'n', 'v' } },
+      { 't', desc = '_', mode = { 'n', 'v' } },
+      { 'u', desc = '_', mode = { 'n', 'v' } },
+      { 'v', desc = '_', mode = { 'n', 'v' } },
+      { 'w', desc = '_', mode = { 'n', 'v' } },
+      { 'x', desc = '_', mode = { 'n', 'v' } },
+      { 'y', desc = '_', mode = { 'n', 'v' } },
     })
   end,
 }
