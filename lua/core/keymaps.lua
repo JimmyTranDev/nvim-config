@@ -49,9 +49,7 @@ map('', '<S-K>', '<C-U>', { desc = 'Scroll up half page' })
 -- ===============================
 map('n', '<leader><leader>da', languageActions.launch_android_emulator, { desc = '🤖 Launch Android emulator' })
 map('n', '<leader><leader>de', languageActions.run_eslint, { desc = '🔍 Run ESLint quickfix' })
-map('n', '<leader><leader>dc', errorsActions.copyDiagnosticUnderCursor, { desc = '📋 Copy diagnostic' })
 map('n', '<leader><leader>df', languageActions.fix_and_organize_ts, { desc = '🔧 Fix and organize imports (TS)' })
-map('n', '<leader><leader>dl', languageActions.repeatLastCommand, { desc = '⟳ Repeat last command' })
 map('n', '<leader><leader>ds', linkActions.openDevServer, { desc = '󰒋 Development server' })
 
 -- ===============================
@@ -64,7 +62,6 @@ map('n', '<leader><leader>mc', documentationActions.addConventionToReadme, { des
 -- ===============================
 map('n', '<leader><leader>fc', fileActions.saveClipboardToFile, { desc = '💾 Save clipboard to file' })
 map('n', '<leader><leader>fr', fileActions.runClipboardCommand, { desc = '▶️  Run command from clipboard' })
-map('n', '<leader><leader>ff', fileActions.copyAllFilesInFolder, { desc = '📁 Copy all files content' })
 map('n', '<leader><leader>fS', storageActions.sync_secrets_simple, { desc = '☁️  Sync secrets to cloud' })
 map('n', '<leader><leader>fI', storageActions.init_secrets_directory, { desc = '🔧 Initialize secrets directory' })
 map('n', '<leader><leader>fs', function() vim.cmd('set spell!') end, { desc = '📝 Toggle spellcheck' })
@@ -80,13 +77,15 @@ map(
 -- <leader><leader>t - Text & Content Operations
 -- ===============================
 map('x', '<leader><leader>tr', [["zy:%s/\V<C-r>=escape(@z, '/')<CR>//gc<left><left><left>]], { desc = '🔍 Visual search replace' })
-map('n', '<leader><leader>tR', ':cdo %s///gc<left><left><left><left>', { desc = '🔄 CDO replace' })
 map('n', '<leader><leader>tt', checkboxActions.toggle, { desc = '☑️  Toggle checkbox' })
 
 -- ===============================
 -- <leader>; - Misc Quick Access
 -- ===============================
 map('n', '<leader>;v', fileActions.openInVSCode, { desc = '󰨞 Open git folder in VS Code' })
+map('n', '<leader>;r', languageActions.repeatLastCommand, { desc = '⟳ Repeat last command' })
+map('n', '<leader>;d', errorsActions.copyDiagnosticUnderCursor, { desc = '📋 Copy diagnostic' })
+map('n', '<leader>;f', fileActions.copyAllFilesInFolder, { desc = '📁 Copy all files content' })
 
 -- ===============================
 -- <leader><leader>r - Replacement Operations

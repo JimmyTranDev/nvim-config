@@ -18,17 +18,17 @@ return {
 
     {
       mode = 'n',
-      '<leader>;dm',
+      '<leader><leader>dm',
       '<cmd>IconPickerInsert emoji<cr>',
       silent = true,
-      desc = 'Icon Picker Insert',
+      desc = 'Icon Picker Insert Emoji',
     },
     {
       mode = 'n',
-      '<leader>;dM',
+      '<leader><leader>dM',
       '<cmd>IconPickerInsert nerd_font<cr>',
       silent = true,
-      desc = 'Icon Picker Insert',
+      desc = 'Icon Picker Insert Nerd Font',
     },
   },
   config = function() require('icon-picker').setup({ disable_legacy_commands = true }) end,
