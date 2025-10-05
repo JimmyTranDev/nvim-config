@@ -77,7 +77,6 @@ map('n', '<leader><leader>tt', checkboxActions.toggle, { desc = '☑️  Toggle 
 -- ===============================
 -- <leader>; - Misc Quick Access
 -- ===============================
-map('n', '<leader>;v', fileActions.openInVSCode, { desc = '󰨞 Open git folder in VS Code' })
 map('n', '<leader>;r', languageActions.repeatLastCommand, { desc = '⟳ Repeat last command' })
 map('n', '<leader>;d', errorsActions.copyDiagnosticUnderCursor, { desc = '📋 Copy diagnostic' })
 map('n', '<leader>;f', fileActions.copyAllFilesInFolder, { desc = '📁 Copy all files content' })

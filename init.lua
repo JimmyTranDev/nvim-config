@@ -1,9 +1,6 @@
 -- Core Neovim Configuration
 -- Load configuration modules in order of dependency
 
--- Performance optimizations (must be first)
-require('core.performance')
-
 -- Plugin manager setup
 require('core.lazy')
 

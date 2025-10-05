@@ -2,9 +2,6 @@
 -- Neovim Options Configuration
 -- =============================================================================
 
--- Check if we're in VSCode
-local is_vscode = vim.g.vscode ~= nil
-
 -- Spell checking
 vim.opt.spelllang = 'en_us'
 
@@ -17,23 +14,21 @@ vim.g.maplocalleader = ' '
 -- =============================================================================
 -- Plugin-specific Settings
 -- =============================================================================
--- Copilot configuration (disable in VSCode as it has its own)
-if not is_vscode then vim.g.copilot_no_tab_map = true end
+-- Copilot configuration
+vim.g.copilot_no_tab_map = true
 
--- Netrw configuration (disable in VSCode)
-if not is_vscode then vim.g.netrw_sort_sequence = 'r' end
+-- Netrw configuration
+vim.g.netrw_sort_sequence = 'r'
 
 -- =============================================================================
 -- Display and UI Settings
 -- =============================================================================
--- Line numbers (VSCode handles these)
-if not is_vscode then
-  vim.wo.number = true
-  vim.wo.relativenumber = true
-end
+-- Line numbers
+vim.wo.number = true
+vim.wo.relativenumber = true
 
 -- Cursor and scrolling
-if not is_vscode then vim.opt.cursorline = true end
+vim.opt.cursorline = true
 vim.o.scrolloff = 99999 -- Auto center screen
 
 vim.wo.wrap = false
@@ -41,15 +36,11 @@ vim.o.foldenable = false
 vim.wo.linebreak = true
 vim.wo.list = false
 
--- Status line (VSCode handles this)
-if not is_vscode then
-  vim.o.laststatus = 3 -- Global status line
-else
-  vim.o.laststatus = 0 -- No status line in VSCode
-end
+-- Status line
+vim.o.laststatus = 3 -- Global status line
 
--- Colors and themes (VSCode handles themes)
-if not is_vscode then vim.o.termguicolors = true end
+-- Colors and themes
+vim.o.termguicolors = true
 
 -- =============================================================================
 -- Indentation and Spacing
@@ -109,34 +100,26 @@ vim.o.timeoutlen = 300 -- Faster key sequence timeout
 -- =============================================================================
 vim.o.completeopt = 'menuone,noselect'
 
--- Keep sign column always visible (only in regular Neovim)
-if not is_vscode then
-  vim.wo.signcolumn = 'yes'
-else
-  vim.wo.signcolumn = 'no' -- VSCode handles this
+-- Keep sign column always visible
+vim.wo.signcolumn = 'yes'
+
+-- =============================================================================
+-- Diagnostic Signs
+-- =============================================================================
+local signs = {
+  { name = 'DiagnosticSignError', text = ' ' },
+  { name = 'DiagnosticSignWarn', text = ' ' },
+  { name = 'DiagnosticSignInfo', text = ' ' },
+  { name = 'DiagnosticSignHint', text = '󰌵' },
+}
+
+for _, sign in ipairs(signs) do
+  vim.fn.sign_define(sign.name, { text = sign.text, texthl = sign.name })
 end
 
 -- =============================================================================
--- Diagnostic Signs (only in regular Neovim)
+-- Custom Highlighting
 -- =============================================================================
-if not is_vscode then
-  local signs = {
-    { name = 'DiagnosticSignError', text = ' ' },
-    { name = 'DiagnosticSignWarn', text = ' ' },
-    { name = 'DiagnosticSignInfo', text = ' ' },
-    { name = 'DiagnosticSignHint', text = '󰌵' },
-  }
-
-  for _, sign in ipairs(signs) do
-    vim.fn.sign_define(sign.name, { text = sign.text, texthl = sign.name })
-  end
-end
-
--- =============================================================================
--- Custom Highlighting (only in regular Neovim)
--- =============================================================================
-if not is_vscode then
-  -- Line number colors
-  vim.api.nvim_set_hl(0, 'LineNrAbove', { fg = '#5e67a1', bold = true })
-  vim.api.nvim_set_hl(0, 'LineNrBelow', { fg = '#5e67a1', bold = true })
-end
+-- Line number colors
+vim.api.nvim_set_hl(0, 'LineNrAbove', { fg = '#5e67a1', bold = true })
+vim.api.nvim_set_hl(0, 'LineNrBelow', { fg = '#5e67a1', bold = true })

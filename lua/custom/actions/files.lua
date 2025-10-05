@@ -115,37 +115,6 @@ function M.runClipboardCommand()
   vim.cmd(':TermExec cmd="' .. clipboard_content .. '"')
 end
 
-function M.openInVSCode()
-  local current_file = vim.fn.expand('%:p')
-  
-  -- Get the git root directory
-  local git_root = vim.fn.system('git rev-parse --show-toplevel 2>/dev/null'):gsub('\n', '')
-  
-  if vim.v.shell_error ~= 0 or git_root == '' then
-    vim.notify('Not in a git repository', vim.log.levels.WARN)
-    return
-  end
-  
-  -- Always try to open the current file first, then fallback to folder
-  if current_file ~= '' then
-    -- Open the specific file in VS Code
-    local result = vim.fn.system('code "' .. current_file .. '"')
-    if vim.v.shell_error == 0 then
-      vim.notify('Opened current file in VS Code: ' .. vim.fn.fnamemodify(current_file, ':t'), vim.log.levels.INFO)
-    else
-      vim.notify('Failed to open file in VS Code: ' .. result, vim.log.levels.ERROR)
-    end
-  else
-    -- No current file, open the git root folder
-    local result = vim.fn.system('code "' .. git_root .. '"')
-    if vim.v.shell_error == 0 then
-      vim.notify('Opened git repository in VS Code: ' .. vim.fn.fnamemodify(git_root, ':t'), vim.log.levels.INFO)
-    else
-      vim.notify('Failed to open folder in VS Code: ' .. result, vim.log.levels.ERROR)
-    end
-  end
-end
-
 function M.linkGithubFromDotfiles()
   local source_path = '~/Programming/dotfiles/etc/.github/copilot-instructions.md'
   local target_path = './.github/copilot-instructions.md'
