@@ -1,7 +1,7 @@
 return {
   'Bekaboo/dropbar.nvim',
   -- optional, but required for fuzzy finder support
-  event = { 'BufReadPost', 'BufNewFile' },
+  lazy = false,
   dependencies = {
     -- 'nvim-telescope/telescope-fzf-native.nvim',
     -- build = 'make'
