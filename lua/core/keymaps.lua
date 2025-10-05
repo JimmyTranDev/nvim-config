@@ -17,6 +17,7 @@ local replacementActions = require('custom.actions.replacement')
 local storageActions = require('custom.actions.storage')
 local lspActions = require('custom.actions.lsp')
 local documentationActions = require('custom.actions.documentation')
+local vscodeActions = require('custom.actions.vscode')
 
 -- Helper to set keymaps with silent and noremap by default
 local function map(mode, lhs, rhs, opts)
@@ -80,6 +81,7 @@ map('n', '<leader><leader>tt', checkboxActions.toggle, { desc = '☑️  Toggle 
 map('n', '<leader>;r', languageActions.repeatLastCommand, { desc = '⟳ Repeat last command' })
 map('n', '<leader>;d', errorsActions.copyDiagnosticUnderCursor, { desc = '📋 Copy diagnostic' })
 map('n', '<leader>;f', fileActions.copyAllFilesInFolder, { desc = '📁 Copy all files content' })
+map('n', '<leader>;v', vscodeActions.open_in_vscode, { desc = '💻 Open in VSCode' })
 
 -- ===============================
 -- <leader><leader>r - Replacement Operations
