@@ -131,13 +131,16 @@ return {
       { '<leader>fv', group = '󰕷 Vim', mode = { 'n', 'v' } },
 
       -- Git Operations (Leader + g)
-      { '<leader>g', group = '󰊢 Git', mode = { 'n', 'v' } },
-      { '<leader>gb', group = '󰘬 Branch', mode = { 'n', 'v' } },
-      { '<leader>gc', group = '󰜘 Commit', mode = { 'n', 'v' } },
-      { '<leader>gC', group = '󰜘 Commit & Push', mode = { 'n', 'v' } },
-      { '<leader>gn', group = '󰳴 Checkout', mode = { 'n', 'v' } },
-      { '<leader>gw', group = '󰘴 Worktree', mode = { 'n', 'v' } },
-      { '<leader>gy', group = '󰋫 Quick', mode = { 'n', 'v' } },
+       { '<leader>g', group = '󰊢 Git', mode = { 'n', 'v' } },
+       { '<leader>gb', group = '󰘬 Branch', mode = { 'n', 'v' } },
+       { '<leader>gc', group = '󰜘 Commit', mode = { 'n', 'v' } },
+       { '<leader>gC', group = '󰜘 Commit & Push', mode = { 'n', 'v' } },
+       { '<leader>gn', group = '󰳴 Checkout', mode = { 'n', 'v' } },
+       { '<leader>gw', group = '󰘴 Worktree', mode = { 'n', 'v' } },
+       { '<leader>gy', group = '󰋫 Quick', mode = { 'n', 'v' } },
+
+       -- AI Help (Leader + h)
+       { '<leader>h', group = '󰚩 AI Help', mode = { 'n', 'v' } },
 
       -- Terminal Commands (Leader + t)
       { '<leader>t', group = ' Terminal', mode = { 'n', 'v' } },
@@ -164,6 +167,7 @@ return {
        { '<leader>d', group = '󱉏 Dropbar', mode = { 'n', 'v' } },
        { '<leader>e', group = '󰇥 Explorer', mode = { 'n', 'v' } },
        { '<leader>E', group = '󰇥 Explorer (Root)', mode = { 'n', 'v' } },
+       { '<leader>h', group = '󰚩 AI Help', mode = { 'n', 'v' } },
        { '<leader>i', desc = '󰘻 Jump In', mode = { 'n', 'v' } },
        { '<leader>j', group = '󰊢 Git Hunks', mode = { 'n', 'v' } },
        { '<leader>m', desc = '󰊢 Lazygit', mode = { 'n', 'v' } },

@@ -443,42 +443,45 @@ function M.selectAndPopStash()
   end)
 end
 
-function M.gitAddPatch()
-  -- Check if there are any changes to stage
-  local status = vim.fn.system('git status --porcelain')
-  if status == '' or status == nil then
-    vim.notify('Nothing to add - working tree clean', vim.log.levels.INFO, { title = 'Git' })
-    return
-  end
-
-  -- Check if there are any unstaged changes (modified files)
-  local has_unstaged = false
-  for line in status:gmatch('[^\r\n]+') do
-    if line:match('^.[MD]') or line:match('^??') then -- Modified, deleted, or untracked
-      has_unstaged = true
-      break
+function M.gitAddPatch(extraArgs)
+  return function()
+    -- Check if there are any changes to stage
+    local status = vim.fn.system('git status --porcelain')
+    if status == '' or status == nil then
+      vim.notify('Nothing to add - working tree clean', vim.log.levels.INFO, { title = 'Git' })
+      return
     end
+
+    -- Check if there are any unstaged changes (modified files)
+    local has_unstaged = false
+    for line in status:gmatch('[^\r\n]+') do
+      if line:match('^.[MD]') or line:match('^??') then -- Modified, deleted, or untracked
+        has_unstaged = true
+        break
+      end
+    end
+
+    if not has_unstaged then
+      vim.notify('No unstaged changes to add', vim.log.levels.INFO, { title = 'Git' })
+      return
+    end
+
+    local args = extraArgs or ''
+    vim.cmd('tabnew')
+    vim.cmd(string.format('terminal git add -N . && git add -p %s; exit', args))
+    vim.cmd('startinsert') -- <-- This puts you in insert mode in the terminal
+
+    local term_win = vim.api.nvim_get_current_win()
+    local term_buf = vim.api.nvim_get_current_buf()
+
+    vim.api.nvim_create_autocmd('TermClose', {
+      buffer = term_buf,
+      once = true,
+      callback = function()
+        if vim.api.nvim_win_is_valid(term_win) then vim.api.nvim_win_close(term_win, true) end
+      end,
+    })
   end
-
-  if not has_unstaged then
-    vim.notify('No unstaged changes to add', vim.log.levels.INFO, { title = 'Git' })
-    return
-  end
-
-  vim.cmd('tabnew')
-  vim.cmd('terminal git add -N . && git add -p; exit')
-  vim.cmd('startinsert') -- <-- This puts you in insert mode in the terminal
-
-  local term_win = vim.api.nvim_get_current_win()
-  local term_buf = vim.api.nvim_get_current_buf()
-
-  vim.api.nvim_create_autocmd('TermClose', {
-    buffer = term_buf,
-    once = true,
-    callback = function()
-      if vim.api.nvim_win_is_valid(term_win) then vim.api.nvim_win_close(term_win, true) end
-    end,
-  })
 end
 
 -- =============================================================================

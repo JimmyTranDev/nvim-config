@@ -16,7 +16,8 @@ return {
     { mode = 'n', '<Leader>gf', ':Git fetch --prune --all<CR>', desc = '󰓦 Fetch prune', silent = true },
     { mode = 'n', '<Leader>gl', ':split <Bar> :terminal git --no-pager log<CR>', desc = '󰈙 Log All', silent = true },
     { mode = 'n', '<Leader>gs', ':Git status<CR>', desc = '󱖫 Status', silent = true },
-    { mode = 'n', '<Leader>gv', gitActions.gitAddPatch, desc = '📝 Git add patch', silent = true },
+    { mode = 'n', '<Leader>gv', gitActions.gitAddPatch(), desc = '📝 Git add patch', silent = true },
+    { mode = 'n', '<Leader>gp', gitActions.gitAddPatch('--ignore-all-space'), desc = '📝 Git add patch ignore whitespace', silent = true },
 
     -- STASH OPERATIONS
     { mode = 'n', '<Leader>ghh', gitActions.stashAllChanges, desc = '📦 Stash all changes', silent = true },
