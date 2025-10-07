@@ -466,9 +466,9 @@ function M.gitAddPatch(extraArgs)
       return
     end
 
-    local args = extraArgs or ''
+    local args = extraArgs and extraArgs ~= '' and (' ' .. extraArgs) or ''
     vim.cmd('tabnew')
-    vim.cmd(string.format('terminal git add -N . && git add -p %s; exit', args))
+    vim.cmd(string.format('terminal git add -N . && git add -p%s; exit', args))
     vim.cmd('startinsert') -- <-- This puts you in insert mode in the terminal
 
     local term_win = vim.api.nvim_get_current_win()

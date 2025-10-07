@@ -140,32 +140,7 @@ function M.openJiraTicket()
   fileUtils.open(jiraLink)
 end
 
-function M.openLinkedInJobs()
-  local locations = {
-    { name = 'European Economic Area', value = '91000002' },
-    { name = 'Worldwide', value = '92000000' },
-    { name = 'North America', value = '4245769176' },
-    { name = 'Latin America', value = '4227532126' },
-    { name = 'Norway', value = '103819153' },
-    { name = 'United States', value = '103644278' },
-    { name = 'Australia and New Zealand', value = '103644279' },
-    { name = 'Singapore', value = '103644280' },
-  }
 
-  vim.ui.select(locations, {
-    prompt = 'Select location to search jobs:',
-    format_item = function(item) return item.name end,
-  }, function(location)
-    if location == nil then return end
-    local searchQuery = 'typescript OR react OR Developer OR Software OR Programmer'
-    local url = string.format(
-      'https://www.linkedin.com/jobs/search/?currentJobId=4224452712&f_WT=2&geoId=%s&keywords=%s&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true',
-      location.value,
-      searchQuery
-    )
-    fileUtils.open(url)
-  end)
-end
 
 function M.openNpmUrl()
   vim.cmd('normal! yiW')

@@ -306,7 +306,7 @@ return {
       desc = 'Git Log Line',
     },
     {
-      '<leader>fjs',
+      '<leader>fd',
       function() Snacks.picker.git_status() end,
       desc = 'Git Status',
     },

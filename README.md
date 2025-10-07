@@ -606,7 +606,7 @@ gl           Format code with LSP
 <leader>uA   Move file to assets (Desktop)
 <leader>uc   Open file from clipboard path
 <leader>uj   Open Jira ticket
-<leader>ul   Open LinkedIn jobs
+
 <leader>un   Open NPM package URL
 <leader>uo   Open current directory
 <leader>uu   Open useful link
