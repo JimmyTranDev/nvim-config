@@ -2,6 +2,9 @@ return {
   'zbirenbaum/copilot.lua',
   cmd = 'Copilot',
   event = 'InsertEnter',
+  dependencies = {
+    'nvim-lua/plenary.nvim',
+  },
 
   config = function()
     require('copilot').setup({
@@ -16,7 +19,7 @@ return {
           open = false,
         },
         layout = {
-          position = 'bottom', -- | top | left | right | horizontal | vertical
+          position = 'bottom',
           ratio = 0.4,
         },
       },
@@ -31,22 +34,51 @@ return {
           accept_line = false,
           next = '<c-K>',
           prev = '<c-J>',
-          dismiss = false,
+          dismiss = '<C-e>',
         },
       },
       filetypes = {
         yaml = true,
         markdown = true,
         help = false,
-        gitcommit = false,
+        gitcommit = true,
         gitrebase = false,
         hgcommit = false,
         svn = false,
         cvs = false,
         ['.'] = false,
+        ['*'] = true,
       },
-      copilot_node_command = 'node', -- Node.js version must be > 18.x
-      server_opts_overrides = {},
+      copilot_node_command = 'node',
+      server_opts_overrides = {
+        trace = 'verbose',
+        settings = {
+          advanced = {
+            listCount = 10,
+            inlineSuggestCount = 3,
+          }
+        }
+      },
     })
+
+    vim.api.nvim_create_autocmd('VimEnter', {
+      callback = function()
+        vim.defer_fn(function()
+          vim.cmd('Copilot auth')
+        end, 1000)
+      end,
+    })
+
+    vim.keymap.set('n', '<leader>ct', function()
+      if vim.b.copilot_enabled == false then
+        vim.cmd('Copilot enable')
+        vim.notify('Copilot enabled', vim.log.levels.INFO)
+      else
+        vim.cmd('Copilot disable')
+        vim.notify('Copilot disabled', vim.log.levels.INFO)
+      end
+    end, { desc = 'Toggle Copilot' })
+
+    vim.keymap.set('n', '<leader>cs', '<cmd>Copilot status<CR>', { desc = 'Copilot status' })
   end,
 }
