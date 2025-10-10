@@ -101,6 +101,70 @@ function M.quickCommitUpdate()
   vim.cmd(string.format('Git commit --no-verify -m "%s"', commitMessage))
 end
 
+function M.createCommitFromBranchName()
+  local branchName = gitUtils.getCurrentBranchName()
+  if not branchName or branchName == '' or branchName == 'main' or branchName == 'master' then
+    vim.notify('Cannot generate commit from current branch name')
+    return
+  end
+
+  local commitMessage = branchName
+  local emoji = ''
+  local prefix = ''
+
+  if branchName:find('^feat/') or branchName:find('^feature/') then
+    prefix = 'feat'
+    emoji = '✨'
+  elseif branchName:find('^fix/') then
+    prefix = 'fix'
+    emoji = '🐛'
+  elseif branchName:find('^chore/') then
+    prefix = 'chore'
+    emoji = '🔧'
+  elseif branchName:find('^docs/') then
+    prefix = 'docs'
+    emoji = '📚'
+  elseif branchName:find('^style/') then
+    prefix = 'style'
+    emoji = '💎'
+  elseif branchName:find('^refactor/') then
+    prefix = 'refactor'
+    emoji = '🔨'
+  elseif branchName:find('^perf/') then
+    prefix = 'perf'
+    emoji = '🚀'
+  elseif branchName:find('^test/') then
+    prefix = 'test'
+    emoji = '🧪'
+  elseif branchName:find('^build/') then
+    prefix = 'build'
+    emoji = '📦'
+  elseif branchName:find('^ci/') then
+    prefix = 'ci'
+    emoji = '👷'
+  elseif branchName:find('^revert/') then
+    prefix = 'revert'
+    emoji = '⏪'
+  else
+    prefix = 'feat'
+    emoji = '✨'
+  end
+
+  local description = branchName:gsub('^[^/]+/', ''):gsub('_', ' '):gsub('-', ' ')
+  local jiraTicket = gitUtils.getJiraTicket(branchName)
+  local jiraTicketPart = jiraTicket == '' and '' or jiraTicket .. ' '
+
+  commitMessage = prefix .. ': ' .. emoji .. ' ' .. jiraTicketPart .. description
+
+  local projectName = fileUtils.getCwdName()
+  loggingUtils.logHistory('logs-work', string.format('[%s] %s', projectName, commitMessage))
+  
+  vim.cmd('Git add .')
+  vim.cmd(string.format('Git commit --no-verify -m "%s"', commitMessage))
+  
+  vim.notify('Committed: ' .. commitMessage)
+end
+
 -- =============================================================================
 -- Tag Operations
 -- =============================================================================
