@@ -312,7 +312,44 @@ return {
     },
     {
       '<leader>fjS',
-      function() Snacks.picker.git_stash() end,
+      function()
+        local stashes = vim.fn.systemlist('git stash list --oneline')
+        if #stashes == 0 then
+          vim.notify('No stashes found', vim.log.levels.INFO)
+          return
+        end
+        
+        local items = {}
+        for i, stash in ipairs(stashes) do
+          local stash_ref = 'stash@{' .. (i-1) .. '}'
+          table.insert(items, {
+            text = stash,
+            stash_ref = stash_ref,
+          })
+        end
+        
+        Snacks.picker({
+          title = 'Git Stashes',
+          items = items,
+          format = function(item) return item.text end,
+          confirm = function(picker, item)
+            picker:close()
+            local choice = vim.fn.input('Action (apply/pop/show/drop): ', 'show')
+            if choice == 'apply' then
+              vim.cmd('!git stash apply ' .. item.stash_ref)
+            elseif choice == 'pop' then
+              vim.cmd('!git stash pop ' .. item.stash_ref)
+            elseif choice == 'show' then
+              vim.cmd('!git stash show -p ' .. item.stash_ref)
+            elseif choice == 'drop' then
+              local confirm = vim.fn.input('Drop stash ' .. item.stash_ref .. '? (y/N): ')
+              if confirm:lower() == 'y' then
+                vim.cmd('!git stash drop ' .. item.stash_ref)
+              end
+            end
+          end,
+        })
+      end,
       desc = 'Git Stash',
     },
     {
