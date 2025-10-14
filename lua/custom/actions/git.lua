@@ -159,7 +159,6 @@ function M.createCommitFromBranchName()
   local projectName = fileUtils.getCwdName()
   loggingUtils.logHistory('logs-work', string.format('[%s] %s', projectName, commitMessage))
   
-  vim.cmd('Git add .')
   vim.cmd(string.format('Git commit --no-verify -m "%s"', commitMessage))
   
   vim.notify('Committed: ' .. commitMessage)
