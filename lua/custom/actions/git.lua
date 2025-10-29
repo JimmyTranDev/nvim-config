@@ -575,7 +575,9 @@ function M.resetAllWithConfirm()
     end
 
     -- Execute the reset operations
-    vim.cmd("TermExec5 cmd='git reset . && git clean -df && git restore .'")
+    vim.cmd('Git reset . | Git clean -df | Git restore .')
+    vim.cmd('Git clean -df')
+    vim.cmd('Git restore .')
     vim.notify(string.format('🔥 Reset ALL changes (%d files affected)', changes_count))
   end)
 end
