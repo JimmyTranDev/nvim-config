@@ -68,6 +68,7 @@ map('n', '<leader><leader>fI', storageActions.init_secrets_directory, { desc = '
 map('n', '<leader><leader>fs', function() vim.cmd('set spell!') end, { desc = '📝 Toggle spellcheck' })
 map('n', '<leader><leader>fC', ':!rm -r ' .. constants.NEOVIM_STATE_DIR .. '<CR>', { desc = '🗑️  Clear swap files' })
 map('n', '<leader><leader>fG', fileActions.linkGithubFromDotfiles, { desc = '🔗 Link .github from dotfiles' })
+map('n', '<leader><leader>fu', fileActions.copyCurrentFileAbsoluteUrl, { desc = '🔗 Copy file absolute URL' })
 
 -- ===============================
 -- <leader><leader>t - Text & Content Operations

@@ -78,8 +78,28 @@ return {
       
       -- Performance optimizations
       config.flags = {
-        debounce_text_changes = 200, -- Increased debounce for better performance
+        debounce_text_changes = 150, -- Balanced for performance and responsiveness
       }
+      
+      -- Ensure LSP starts properly on buffer attach
+      local original_on_attach = config.on_attach
+      config.on_attach = function(client, bufnr)
+        -- Call original on_attach if it exists
+        if original_on_attach then
+          original_on_attach(client, bufnr)
+        end
+        
+        -- Ensure buffer is ready for LSP features
+        vim.schedule(function()
+          if vim.api.nvim_buf_is_valid(bufnr) then
+            -- Trigger any additional setup needed
+            vim.api.nvim_exec_autocmds('LspAttach', { 
+              buffer = bufnr,
+              data = { client_id = client.id }
+            })
+          end
+        end)
+      end
       
       -- passing config.capabilities to blink.cmp merges with the capabilities in your
       -- `opts[server].capabilities, if you've defined it

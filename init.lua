@@ -18,35 +18,9 @@ require('core.statusline')
 
 require('core.keymaps')
 
--- Open directly into last file (skip dashboard)
-vim.api.nvim_create_autocmd('VimEnter', {
-  callback = function()
-    local function setup_buffer()
-      -- Single timer for buffer setup
-      vim.defer_fn(function()
-        vim.cmd('edit')
-        local buf = vim.api.nvim_get_current_buf()
-        -- Only trigger events if buffer has content
-        if vim.api.nvim_buf_get_name(buf) ~= '' then
-          vim.api.nvim_exec_autocmds('BufRead', { buffer = buf })
-        end
-      end, 5) -- Reduced from 10ms
-    end
 
-    if vim.fn.argc() == 0 then
-      require('custom.actions.recent').open_most_recent_in_cwd()
-      if vim.api.nvim_buf_get_name(0) ~= '' then
-        setup_buffer()
-      end
-    else
-      setup_buffer()
-    end
-  end,
-})
-
--- Optimized LSP and Treesitter activation
-vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
-  once = false,
+-- Enhanced LSP and Treesitter activation for all file operations
+vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile', 'BufEnter' }, {
   callback = function(event)
     local buf = event.buf
     local filetype = vim.bo[buf].filetype
@@ -56,13 +30,22 @@ vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
       return
     end
     
-    -- Enable Treesitter highlighting efficiently
-    if vim.treesitter.highlighter and vim.treesitter.highlighter.active[buf] == nil then
-      vim.defer_fn(function()
-        if vim.api.nvim_buf_is_valid(buf) then
-          pcall(vim.cmd, 'TSBufEnable highlight')
-        end
-      end, 1)
+    -- Ensure filetype is detected
+    if filetype == '' then
+      vim.bo[buf].filetype = vim.filetype.match({ buf = buf }) or ''
+      filetype = vim.bo[buf].filetype
     end
+    
+    -- Enable Treesitter highlighting efficiently
+    vim.defer_fn(function()
+      if vim.api.nvim_buf_is_valid(buf) and vim.treesitter.highlighter then
+        if vim.treesitter.highlighter.active[buf] == nil then
+          local ok, _ = pcall(vim.treesitter.start, buf)
+          if not ok then
+            pcall(vim.cmd, 'TSBufEnable highlight')
+          end
+        end
+      end
+    end, 1)
   end,
 })

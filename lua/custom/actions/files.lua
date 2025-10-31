@@ -132,4 +132,20 @@ function M.linkGithubFromDotfiles()
   end
 end
 
+function M.copyCurrentFileAbsoluteUrl()
+  local current_file = vim.fn.expand('%:p')
+  
+  if current_file == '' then
+    vim.notify('No file is currently open!', vim.log.levels.WARN)
+    return
+  end
+  
+  -- Convert to file:// URL format
+  local file_url = 'file://' .. current_file
+  
+  -- Copy to clipboard
+  vim.fn.setreg('+', file_url)
+  vim.notify('Copied file URL to clipboard: ' .. file_url, vim.log.levels.INFO)
+end
+
 return M

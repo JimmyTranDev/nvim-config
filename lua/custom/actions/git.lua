@@ -150,9 +150,15 @@ function M.createCommitFromBranchName()
     emoji = '✨'
   end
 
-  local description = branchName:gsub('^[^/]+/', ''):gsub('_', ' '):gsub('-', ' ')
   local jiraTicket = gitUtils.getJiraTicket(branchName)
   local jiraTicketPart = jiraTicket == '' and '' or jiraTicket .. ' '
+  
+  -- Remove prefix and Jira ticket from description to avoid duplication
+  local description = branchName:gsub('^[^/]+/', '') -- Remove prefix
+  if jiraTicket ~= '' then
+    description = description:gsub('^' .. jiraTicket:gsub('%-', '%%-') .. '[_%-]?', '') -- Remove Jira ticket
+  end
+  description = description:gsub('_', ' '):gsub('-', ' ') -- Convert separators to spaces
 
   commitMessage = prefix .. ': ' .. emoji .. ' ' .. jiraTicketPart .. description
 
