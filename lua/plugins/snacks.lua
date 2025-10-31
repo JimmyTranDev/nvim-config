@@ -69,7 +69,7 @@ return {
     bigfile = { enabled = true },
     -- TODO: make dashboard work
     dashboard = {
-      enabled = false,
+      enabled = true,
       sections = {
         { section = 'header' },
         {
@@ -318,16 +318,16 @@ return {
           vim.notify('No stashes found', vim.log.levels.INFO)
           return
         end
-        
+
         local items = {}
         for i, stash in ipairs(stashes) do
-          local stash_ref = 'stash@{' .. (i-1) .. '}'
+          local stash_ref = 'stash@{' .. (i - 1) .. '}'
           table.insert(items, {
             text = stash,
             stash_ref = stash_ref,
           })
         end
-        
+
         Snacks.picker({
           title = 'Git Stashes',
           items = items,
@@ -343,9 +343,7 @@ return {
               vim.cmd('!git stash show -p ' .. item.stash_ref)
             elseif choice == 'drop' then
               local confirm = vim.fn.input('Drop stash ' .. item.stash_ref .. '? (y/N): ')
-              if confirm:lower() == 'y' then
-                vim.cmd('!git stash drop ' .. item.stash_ref)
-              end
+              if confirm:lower() == 'y' then vim.cmd('!git stash drop ' .. item.stash_ref) end
             end
           end,
         })
