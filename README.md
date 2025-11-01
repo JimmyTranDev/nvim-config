@@ -27,16 +27,27 @@ A **performance-focused**, **productivity-driven** Neovim configuration built wi
 - **HTTP Client Utilities** - Async curl operations, JSON handling, API integrations
 - **Development Environment Automation** - Server launching, log viewing, deployment management
 
-### 🤖 **AI-First Development**
-- **GitHub Copilot** with custom chat integration and FMS prompts
-- **Blink.cmp** for blazing-fast completion with intelligent suggestions
-- **WTF.nvim** for AI-powered diagnostic debugging and error analysis
-- **Context-aware** AI assistance for code review, debugging, and optimization
-- **Custom prompt system** with specialized templates for different development scenarios
+## 🆕 **Recent Updates (2024)**
+
+### **Latest Additions**
+- **OpenCode.nvim Integration** - Direct AI assistant with session management, contextual prompts, and seamless development workflow
+- **Enhanced AI Workflow** - Streamlined AI integrations replacing multiple separate chat interfaces
+- **Optimized Plugin Selection** - Curated 40+ plugins with improved performance and reduced redundancy
+- **Improved Disabled Plugin Management** - Better organization of optional features that can be re-enabled as needed
+
+### **Performance Improvements**
+- **Faster Startup** - Optimized lazy loading and plugin selection for sub-30ms startup times
+- **Reduced Dependencies** - Streamlined plugin ecosystem with focused functionality
+- **Better Resource Management** - Intelligent loading based on file types and usage patterns
+
+### **Developer Experience**
+- **Modern AI Integration** - OpenCode.nvim provides superior AI assistance compared to traditional chat interfaces
+- **Enhanced Keybindings** - Comprehensive OpenCode keybindings for seamless AI-assisted development
+- **Simplified Configuration** - Cleaner architecture with better separation of concerns
 
 ## 🔌 **Plugin Ecosystem Overview**
 
-This configuration includes **60+ carefully selected plugins** organized into specialized categories:
+This configuration includes **40+ carefully selected plugins** organized into specialized categories:
 
 ### **Core Development Stack**
 - **Completion Engine**: Blink.cmp (Rust-based, ultra-fast)
@@ -56,8 +67,8 @@ This configuration includes **60+ carefully selected plugins** organized into sp
 - **Development Tools**: inc-rename, mini.ai, live-command, icon-picker
 
 ### **Specialized Integrations**
-- **AI & Productivity**: GitHub Copilot + Chat, WTF.nvim, package-info
-- **Database**: vim-dadbod-ui (complete SQL environment)
+- **AI & Productivity**: OpenCode.nvim, GitHub Copilot + Chat, WTF.nvim, package-info
+- **Database**: vim-dadbod-ui (currently disabled - see disabled directory)
 - **Terminal**: ToggleTerm (integrated terminal with project commands)
 - **Language-Specific**: nvim-java, typescript-tools, tailwind-tools, ts-autotag
 - **System Utilities**: suda (sudo operations), workspace-diagnostics
@@ -88,7 +99,15 @@ git clone https://github.com/JimmyTranDev/nvim-config.git ~/.config/nvim && \
 nvim
 ```
 
-The configuration will automatically bootstrap itself on first launch.
+The configuration will automatically bootstrap itself on first launch with Lazy.nvim.
+
+### ✨ What Happens on First Launch
+
+1. **Lazy.nvim Bootstrap**: Automatically downloads and installs the plugin manager
+2. **Plugin Installation**: All plugins are downloaded and compiled in parallel
+3. **LSP Server Setup**: Mason automatically installs language servers for common languages
+4. **Treesitter Parsers**: Syntax highlighting parsers are installed as needed
+5. **Ready to Use**: Complete development environment in under 2 minutes
 
 ### Enhanced Experience Setup
 
@@ -166,6 +185,7 @@ nvim/
     │   ├── package-info.lua  # 📦 Package management
     │   ├── wtf.lua           # 🤔 AI error debugging
     │   ├── mini-ai.lua       # 🧠 Enhanced text objects
+    │   ├── opencode.lua      # 🤖 OpenCode AI assistant integration
     │   ├── surround.lua      # 🔄 Text surrounding
     │   ├── substitute.lua    # 🔄 Find and replace
     │   ├── treesj.lua        # 🌲 Split/join code blocks
@@ -184,9 +204,15 @@ nvim/
     │   ├── workspace-diagnostics.lua # 🩺 Project-wide diagnostics
     │   ├── ts-autotag.lua    # 🏷️  Auto tag closing
     │   └── disabled/         # 🚫 Thoughtfully disabled plugins
-    │       ├── git-conflict.lua  # (Replaced by LazyGit + Fugitive)
-    │       ├── rayso.lua         # (Limited use case)
-    │       └── tabout.lua        # (Conflicts with Blink.cmp)
+    │       ├── avante.lua          # (Replaced by OpenCode integration)
+    │       ├── codecompanion.lua   # (Replaced by OpenCode integration)
+    │       ├── copilot-chat.lua    # (Alternative AI chat interface)
+    │       ├── dadbod-ui.lua       # (Database UI - can be re-enabled)
+    │       ├── dap.lua             # (Debugger - currently disabled)
+    │       ├── git-conflict.lua    # (Replaced by LazyGit + Fugitive)
+    │       ├── neotest.lua         # (Test runner - can be re-enabled)
+    │       ├── rayso.lua           # (Limited use case)
+    │       └── tabout.lua          # (Conflicts with Blink.cmp)
     │
     └── custom/               # 🎯 Unique productivity features
         ├── actions/          # 🎬 Custom automation scripts
@@ -366,11 +392,12 @@ nvim/
 ### 🤖 **AI & Productivity**
 | Feature                 | Plugin                     | Description                                   |
 | ----------------------- | -------------------------- | --------------------------------------------- |
+| **OpenCode Integration** | opencode.nvim              | Direct AI assistant integration with sessions, prompts, and contextual help |
 | **GitHub Copilot**      | copilot.lua + copilot-chat | AI code completion with custom prompts & chat |
 | **Todoist Integration** | Custom                     | Full task management with API integration     |
 | **Smart Checkboxes**    | Custom                     | Automated markdown task management            |
 | **Package Management**  | package-info + Custom      | NPM/Maven utilities with dependency analysis  |
-| **Database Tools**      | vim-dadbod-ui              | Complete SQL database management              |
+| **Database Tools**      | vim-dadbod-ui (disabled)   | Complete SQL database management              |
 | **Error Debugging**     | WTF.nvim                   | AI-powered diagnostic analysis                |
 | **Code Actions**        | Multiple                   | Context-aware code improvements               |
 | **Smart Renaming**      | inc-rename                 | Live LSP renaming with preview                |
@@ -434,11 +461,26 @@ gx           Open file/URL under cursor
 
 ### 🤖 **AI & Productivity**
 ```
+# OpenCode.nvim Integration
+<leader>aa   New OpenCode session
+<leader>at   Toggle OpenCode embedded mode
+<leader>aq   Ask about cursor/selection (context-aware)
+<leader>ab   Add buffer to OpenCode prompt
+<leader>aB   Add selection to OpenCode prompt  
+<leader>ae   Explain code at cursor
+<leader>as   Select OpenCode prompt
+<leader>ac   Commit changes with AI assistance
+<S-C-u>      OpenCode messages half page up
+<S-C-d>      OpenCode messages half page down
+
+# GitHub Copilot
 <Space>cc    Open Copilot chat
 <Space>ct    Toggle Copilot suggestions  
 <C-h>        Accept Copilot suggestion
 <C-K>        Next Copilot suggestion
 <C-J>        Previous Copilot suggestion
+
+# AI Diagnostics & Help
 <leader>ya   Debug diagnostic with AI (WTF)
 <leader>ys   Search diagnostic with Google
 <leader>td   Create Todoist task
@@ -784,6 +826,33 @@ Then add to your init.lua:
 pcall(require, 'local_config')
 ```
 
+### OpenCode AI Assistant Setup
+
+**Seamless AI integration with advanced features:**
+
+1. **Install OpenCode CLI**: Follow the installation guide at [OpenCode.ai](https://opencode.ai)
+2. **Authentication**: The plugin automatically integrates with your OpenCode CLI authentication
+3. **Features Available**:
+   - **Session Management** - Persistent AI conversations across Neovim sessions
+   - **Context-Aware Prompts** - Automatic inclusion of cursor position, selection, or buffer content
+   - **Code Explanation** - Intelligent code analysis and documentation
+   - **Commit Assistance** - AI-powered commit message generation
+   - **Embedded Mode** - Toggle AI assistant visibility within Neovim
+
+4. **Key Usage Patterns**:
+   ```vim
+   <leader>aa               " Start new AI session
+   <leader>at               " Toggle embedded AI mode
+   <leader>aq               " Ask about current code (cursor or selection)
+   <leader>ae               " Explain code at cursor with context
+   <leader>ac               " Generate commit messages with AI
+   ```
+
+5. **Advanced Features**:
+   - **Prompt Building** - Add buffers or selections to build comprehensive prompts
+   - **Message Navigation** - Scroll through AI responses efficiently
+   - **Selection-Aware** - Different behavior for normal vs visual mode
+
 ### Todoist Integration Setup
 
 **Complete task management integration with advanced features:**
@@ -941,7 +1010,13 @@ The `lua/plugins/disabled/` directory showcases **thoughtful decision-making**:
 
 | Plugin                | Reason for Disabling             | Alternative Used           |
 | --------------------- | -------------------------------- | -------------------------- |
+| **avante.lua**        | Replaced by OpenCode integration | OpenCode.nvim              |
+| **codecompanion.lua** | Replaced by OpenCode integration | OpenCode.nvim              |
+| **copilot-chat.lua**  | Alternative AI interface         | OpenCode.nvim + Copilot    |
+| **dadbod-ui.lua**     | Optional database interface      | Can be re-enabled if needed|
+| **dap.lua**           | Debug adapter protocol           | Can be re-enabled if needed|
 | **git-conflict.nvim** | Overlaps with LazyGit + Fugitive | Built-in Git workflow      |
+| **neotest.lua**       | Test runner                      | Can be re-enabled if needed|
 | **rayso.nvim**        | Limited use case                 | Manual screenshot tools    |
 | **tabout.nvim**       | Conflicts with Blink.cmp         | Native completion behavior |
 
