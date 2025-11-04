@@ -152,7 +152,7 @@ function M.createCommitFromBranchName()
 
   local jiraTicket = gitUtils.getJiraTicket(branchName)
   local jiraTicketPart = jiraTicket == '' and '' or jiraTicket .. ' '
-  
+
   -- Remove prefix and Jira ticket from description to avoid duplication
   local description = branchName:gsub('^[^/]+/', '') -- Remove prefix
   if jiraTicket ~= '' then
@@ -164,9 +164,9 @@ function M.createCommitFromBranchName()
 
   local projectName = fileUtils.getCwdName()
   loggingUtils.logHistory('logs-work', string.format('[%s] %s', projectName, commitMessage))
-  
+
   vim.cmd(string.format('Git commit --no-verify -m "%s"', commitMessage))
-  
+
   vim.notify('Committed: ' .. commitMessage)
 end
 
@@ -573,7 +573,10 @@ function M.resetAllWithConfirm()
 
   -- Confirmation prompt with details
   vim.ui.input({
-    prompt = string.format('⚠️  Reset ALL changes? This will:\n• Reset staged files\n• Clean untracked files\n• Restore modified files\n\nAffected files: %d\nType "yes" to confirm: ', changes_count),
+    prompt = string.format(
+      '⚠️  Reset ALL changes? This will:\n• Reset staged files\n• Clean untracked files\n• Restore modified files\n\nAffected files: %d\nType "yes" to confirm: ',
+      changes_count
+    ),
   }, function(confirmation)
     if confirmation ~= 'yes' then
       vim.notify('Reset cancelled.')
@@ -581,9 +584,9 @@ function M.resetAllWithConfirm()
     end
 
     -- Execute the reset operations
-    vim.cmd('Git reset . | Git clean -df | Git restore .')
-    vim.cmd('Git clean -df')
-    vim.cmd('Git restore .')
+    vim.cmd('!git reset . | Git clean -df | Git restore .')
+    vim.cmd('!git clean -df')
+    vim.cmd('!git restore .')
     vim.notify(string.format('🔥 Reset ALL changes (%d files affected)', changes_count))
   end)
 end
@@ -660,9 +663,7 @@ function M.rebaseChooseOurs()
     if line ~= '' and line ~= current_branch then
       -- Clean up remote branch names
       local clean_branch = line:gsub('origin/', '')
-      if not vim.tbl_contains(branches, clean_branch) then
-        table.insert(branches, clean_branch)
-      end
+      if not vim.tbl_contains(branches, clean_branch) then table.insert(branches, clean_branch) end
     end
   end
 
@@ -690,7 +691,7 @@ function M.rebaseChooseOurs()
       -- Execute rebase with strategy to choose ours
       local cmd = string.format('git rebase -X ours %s', selected_branch)
       vim.cmd(string.format("TermExec5 cmd='%s'", cmd))
-      
+
       vim.notify(string.format('🔄 Rebasing %s onto %s (choosing ours for conflicts)', current_branch, selected_branch))
     end)
   end)
