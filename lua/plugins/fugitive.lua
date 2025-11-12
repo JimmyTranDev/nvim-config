@@ -32,6 +32,7 @@ return {
     { mode = 'n', '<Leader>gM', ':Git commit --amend --no-verify --no-edit<CR>', desc = ' Amend', silent = true },
     { mode = 'n', '<Leader>gP', ':Git push<CR>', desc = ' Push', silent = true },
     { mode = 'n', '<Leader>gV', ':Git add .<CR>', desc = ' Add all', silent = true },
+    { mode = 'n', '<Leader>gX', ':Git clean -fd<CR>', desc = '🗑️ Remove all unstaged files', silent = true },
 
     -- EFFICIENT COMBO
     {
