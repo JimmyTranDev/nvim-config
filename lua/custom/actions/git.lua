@@ -574,19 +574,19 @@ function M.resetAllWithConfirm()
   -- Confirmation prompt with details
   vim.ui.input({
     prompt = string.format(
-      '⚠️  Reset ALL changes? This will:\n• Reset staged files\n• Clean untracked files\n• Restore modified files\n\nAffected files: %d\nType "yes" to confirm: ',
+      '⚠️  Reset ALL changes? This will:\n• Reset staged files\n• Clean untracked files\n• Restore modified files\n\nAffected files: %d\nType "y" to confirm: ',
       changes_count
     ),
   }, function(confirmation)
-    if confirmation ~= 'yes' then
+    if confirmation ~= 'y' then
       vim.notify('Reset cancelled.')
       return
     end
 
-    -- Execute the reset operations
-    vim.cmd('!git reset . | Git clean -df | Git restore .')
-    vim.cmd('!git clean -df')
-    vim.cmd('!git restore .')
+    -- Execute the reset operations sequentially
+    vim.cmd("TermExec5 open=0 cmd='git reset .'")
+    vim.cmd("TermExec5 open=0 cmd='git clean -df'")
+    vim.cmd("TermExec5 open=0 cmd='git restore .'")
     vim.notify(string.format('🔥 Reset ALL changes (%d files affected)', changes_count))
   end)
 end
