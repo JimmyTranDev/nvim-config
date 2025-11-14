@@ -1,45 +1,29 @@
 return {
   '2KAbhishek/nerdy.nvim',
   dependencies = {
-    'stevearc/dressing.nvim',
-    'nvim-telescope/telescope.nvim',
+    'folke/snacks.nvim', -- Primary picker (recommended)
   },
-  cmd = 'Nerdy',
+  lazy = true,
+  cmd = { 'Nerdy' },
   keys = {
-    -- Insert mode keybindings (preserving familiar shortcuts)
     {
       mode = 'i',
-      '<c-,>',
-      '<cmd>Nerdy<cr>',
-      silent = true,
-      desc = 'Nerdy Icon Picker',
-    },
-    {
-      mode = 'i', 
       '<c-.>',
       '<cmd>Nerdy<cr>',
       silent = true,
-      desc = 'Nerdy Icon Picker',
-    },
-
-    -- Normal mode keybindings (preserving existing locations)
-    {
-      mode = 'n',
-      '<leader><leader>dm',
-      '<cmd>Nerdy<cr>',
-      silent = true,
-      desc = 'Nerdy Icon Picker',
+      desc = 'Browse Nerd Font Icons',
     },
     {
       mode = 'n',
-      '<leader><leader>dM',
+      ';n',
       '<cmd>Nerdy<cr>',
       silent = true,
-      desc = 'Nerdy Icon Picker',
+      desc = 'Browse Nerd Font Icons',
     },
   },
-  config = function()
-    -- Nerdy doesn't require setup by default, but we can configure if needed
-    -- The plugin works out of the box with telescope
-  end,
+  opts = {
+    max_recents = 20,
+    add_default_keybindings = false, -- We define our own
+    copy_to_clipboard = false, -- Insert into buffer
+  },
 }
