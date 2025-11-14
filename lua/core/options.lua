@@ -2,131 +2,167 @@
 -- Neovim Options Configuration
 -- =============================================================================
 
--- Spell checking
-vim.opt.spelllang = 'en_us'
-
 -- =============================================================================
--- Leader Keys (must be set before plugins load)
+-- Leader Keys (MUST be set before plugins load)
 -- =============================================================================
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- =============================================================================
--- Plugin-specific Settings
+-- Core Editor Settings
 -- =============================================================================
--- Copilot configuration
-vim.g.copilot_no_tab_map = true
 
--- Netrw configuration
-vim.g.netrw_sort_sequence = 'r'
+---Configure basic editor behavior
+local function setup_editor_basics()
+  -- Language and locale
+  vim.opt.spelllang = 'en_us'
+  
+  -- Mouse support
+  vim.o.mouse = 'a'
+  
+  -- File handling
+  vim.o.undofile = true -- Persistent undo across sessions
+  vim.o.hidden = true -- Keep modified buffers in background
+  
+  -- Better completion experience  
+  vim.o.completeopt = 'menuone,noselect'
+end
 
--- =============================================================================
--- Display and UI Settings
--- =============================================================================
--- Line numbers
-vim.wo.number = true
-vim.wo.relativenumber = true
+---Configure display and visual settings
+local function setup_display()
+  -- Line numbers
+  vim.wo.number = true
+  vim.wo.relativenumber = true
+  vim.wo.signcolumn = 'yes' -- Always show sign column
+  
+  -- Cursor and navigation
+  vim.opt.cursorline = true
+  vim.o.scrolloff = 99999 -- Auto-center screen (extreme scrolloff)
+  
+  -- Text display
+  vim.wo.wrap = false
+  vim.wo.linebreak = true
+  vim.wo.list = false
+  vim.o.foldenable = false
+  
+  -- Status and UI
+  vim.o.laststatus = 3 -- Global status line
+  vim.o.termguicolors = true -- Enable 24-bit RGB colors
+end
 
--- Cursor and scrolling
-vim.opt.cursorline = true
-vim.o.scrolloff = 99999 -- Auto center screen
+---Configure indentation and formatting
+local function setup_indentation()
+  vim.opt.tabstop = 2
+  vim.opt.shiftwidth = 2
+  vim.opt.softtabstop = 2
+  vim.opt.expandtab = true
+  vim.o.breakindent = true -- Maintain indent when wrapping
+end
 
-vim.wo.wrap = false
-vim.o.foldenable = false
-vim.wo.linebreak = true
-vim.wo.list = false
+---Configure search behavior
+local function setup_search()
+  vim.o.ignorecase = true
+  -- Note: vim.o.smartcase is intentionally disabled
+  -- This forces case-insensitive search always
+end
 
--- Status line
-vim.o.laststatus = 3 -- Global status line
+---Configure clipboard integration
+local function setup_clipboard()
+  vim.o.clipboard = 'unnamedplus'
+  vim.opt.clipboard = 'unnamedplus'
 
--- Colors and themes
-vim.o.termguicolors = true
+  -- WSL-specific clipboard integration
+  if vim.fn.has('wsl') == 1 then
+    vim.g.clipboard = {
+      name = 'win32yank',
+      copy = {
+        ['+'] = 'win32yank.exe -i --crlf',
+        ['*'] = 'win32yank.exe -i --crlf',
+      },
+      paste = {
+        ['+'] = 'win32yank.exe -o --lf',
+        ['*'] = 'win32yank.exe -o --lf',
+      },
+      cache_enabled = 0,
+    }
+  end
+end
 
--- =============================================================================
--- Indentation and Spacing
--- =============================================================================
-vim.opt.tabstop = 2
-vim.opt.shiftwidth = 2
-vim.opt.softtabstop = 2
-vim.opt.expandtab = true
-vim.o.breakindent = true
-
--- =============================================================================
--- Mouse and Input
--- =============================================================================
-vim.o.mouse = 'a'
-
--- =============================================================================
--- Clipboard Configuration
--- =============================================================================
-vim.o.clipboard = 'unnamedplus'
-vim.opt.clipboard = 'unnamedplus'
-
--- WSL clipboard integration
-if vim.fn.has('wsl') == 1 then
-  vim.g.clipboard = {
-    name = 'win32yank',
-    copy = {
-      ['+'] = 'win32yank.exe -i --crlf',
-      ['*'] = 'win32yank.exe -i --crlf',
-    },
-    paste = {
-      ['+'] = 'win32yank.exe -o --lf',
-      ['*'] = 'win32yank.exe -o --lf',
-    },
-    cache_enabled = 0,
-  }
+---Configure performance and timing settings
+local function setup_performance()
+  -- Timing optimizations
+  vim.o.updatetime = 250 -- Faster completion and diagnostics
+  vim.o.timeoutlen = 300 -- Faster key sequence timeout
+  vim.o.redrawtime = 1500 -- More time for complex syntax highlighting
+  vim.o.lazyredraw = true -- Don't redraw during macros
+  
+  -- Memory optimizations
+  vim.o.history = 1000 -- Reasonable command history size
+  vim.o.maxmempattern = 20000 -- More memory for pattern matching
 end
 
 -- =============================================================================
--- File Management
+-- Plugin-Specific Pre-Configuration
 -- =============================================================================
-vim.o.undofile = true -- Persistent undo
+
+---Configure plugin settings that must be set before plugin loading
+local function setup_plugin_globals()
+  -- Copilot: disable default tab mapping
+  vim.g.copilot_no_tab_map = true
+  
+  -- Netrw: reverse sort order
+  vim.g.netrw_sort_sequence = 'r'
+end
 
 -- =============================================================================
--- Search Configuration
+-- Diagnostic Configuration
 -- =============================================================================
-vim.o.ignorecase = true
--- vim.o.smartcase = true  -- Commented out intentionally
 
--- =============================================================================
--- Performance and Timing
--- =============================================================================
-vim.o.updatetime = 250 -- Balanced for performance and responsiveness
-vim.o.timeoutlen = 300 -- Faster key sequence timeout
-vim.o.redrawtime = 1500 -- Increased for complex syntax highlighting
-vim.o.lazyredraw = true -- Don't redraw during macros for better performance
+---Configure LSP diagnostic signs and display
+local function setup_diagnostics()
+  local signs = {
+    { name = 'DiagnosticSignError', text = ' ' },
+    { name = 'DiagnosticSignWarn', text = ' ' },
+    { name = 'DiagnosticSignInfo', text = ' ' },
+    { name = 'DiagnosticSignHint', text = '󰌵' },
+  }
 
--- Memory and buffer optimizations
-vim.o.hidden = true -- Keep buffers in memory
-vim.o.history = 1000 -- Reasonable command history
-vim.o.maxmempattern = 20000 -- Increased pattern matching memory
-
--- =============================================================================
--- Completion
--- =============================================================================
-vim.o.completeopt = 'menuone,noselect'
-
--- Keep sign column always visible
-vim.wo.signcolumn = 'yes'
-
--- =============================================================================
--- Diagnostic Signs
--- =============================================================================
-local signs = {
-  { name = 'DiagnosticSignError', text = ' ' },
-  { name = 'DiagnosticSignWarn', text = ' ' },
-  { name = 'DiagnosticSignInfo', text = ' ' },
-  { name = 'DiagnosticSignHint', text = '󰌵' },
-}
-
-for _, sign in ipairs(signs) do
-  vim.fn.sign_define(sign.name, { text = sign.text, texthl = sign.name })
+  for _, sign in ipairs(signs) do
+    vim.fn.sign_define(sign.name, { 
+      text = sign.text, 
+      texthl = sign.name 
+    })
+  end
 end
 
 -- =============================================================================
 -- Custom Highlighting
 -- =============================================================================
--- Line number colors
-vim.api.nvim_set_hl(0, 'LineNrAbove', { fg = '#5e67a1', bold = true })
-vim.api.nvim_set_hl(0, 'LineNrBelow', { fg = '#5e67a1', bold = true })
+
+---Setup custom highlight groups
+local function setup_highlights()
+  -- Line number styling (using catppuccin-inspired colors)
+  vim.api.nvim_set_hl(0, 'LineNrAbove', { 
+    fg = '#5e67a1', 
+    bold = true 
+  })
+  vim.api.nvim_set_hl(0, 'LineNrBelow', { 
+    fg = '#5e67a1', 
+    bold = true 
+  })
+end
+
+-- =============================================================================
+-- Initialization
+-- =============================================================================
+
+-- Execute all configuration functions in logical order
+setup_editor_basics()
+setup_display()
+setup_indentation()
+setup_search()
+setup_clipboard()
+setup_performance()
+setup_plugin_globals()
+setup_diagnostics()
+setup_highlights()

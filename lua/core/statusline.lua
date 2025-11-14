@@ -1,24 +1,61 @@
-local lualine = require('lualine')
+-- =============================================================================
+-- Lualine Statusline Configuration  
+-- =============================================================================
 
--- Get current Catppuccin flavor and colors
+local M = {}
+
+-- Configuration constants
+local TEXT_TRUNCATE_LENGTH = 40
+local TEXT_TRUNCATE_PREVIEW = 37
+local MIN_WIDTH_FOR_DETAILS = 80
+local DEFAULT_THEME_FLAVOR = 'mocha'
+
+-- =============================================================================
+-- Theme and Color Management
+-- =============================================================================
+
+---Get Catppuccin colors with fallbacks
+---@return table colors Color palette from Catppuccin
 local function get_catppuccin_colors()
-  -- Default to mocha flavor since we removed theme switching
-  local current_flavor = 'mocha'
-  local catppuccin = require('catppuccin.palettes').get_palette(current_flavor)
+  local ok, catppuccin = pcall(require, 'catppuccin.palettes')
+  if not ok then
+    -- Fallback colors if Catppuccin is not available
+    return {
+      green = '#40a02b',
+      peach = '#fe640b', 
+      sapphire = '#209fb5',
+      mauve = '#8839ef',
+      red = '#d20f39',
+      yellow = '#df8e1d',
+      sky = '#04a5e5',
+    }
+  end
   
-  -- Map some color names for compatibility
-  catppuccin.orange = catppuccin.peach  -- Fallback for orange
-  catppuccin.cyan = catppuccin.sky      -- Fallback for cyan
+  local colors = catppuccin.get_palette(DEFAULT_THEME_FLAVOR)
   
-  return catppuccin
+  -- Add compatibility mappings
+  colors.orange = colors.peach or colors.orange
+  colors.cyan = colors.sky or colors.cyan
+  
+  return colors
 end
 
--- Get theme colors dynamically
+-- Initialize colors
 local colors = get_catppuccin_colors()
 
+-- =============================================================================
+-- Display Conditions
+-- =============================================================================
+
 local conditions = {
-  buffer_not_empty = function() return vim.fn.empty(vim.fn.expand('%:t')) ~= 1 end,
-  hide_in_width = function() return vim.fn.winwidth(0) > 80 end,
+  buffer_not_empty = function() 
+    return vim.fn.empty(vim.fn.expand('%:t')) ~= 1 
+  end,
+  
+  hide_in_width = function() 
+    return vim.fn.winwidth(0) > MIN_WIDTH_FOR_DETAILS 
+  end,
+  
   check_git_workspace = function()
     local filepath = vim.fn.expand('%:p:h')
     local gitdir = vim.fn.finddir('.git', filepath .. ';')
@@ -26,32 +63,42 @@ local conditions = {
   end,
 }
 
--- Config
+-- =============================================================================
+-- Component Factories and Utilities
+-- =============================================================================
+
+---Truncate text to prevent statusline overflow
+---@param text string|any Text to truncate
+---@return string Truncated text
+local function truncate_text(text)
+  if type(text) == 'string' and #text > TEXT_TRUNCATE_LENGTH then
+    return text:sub(1, TEXT_TRUNCATE_PREVIEW) .. '...'
+  end
+  return tostring(text)
+end
+
+-- =============================================================================
+-- Lualine Configuration
+-- =============================================================================
+
 local config = {
   options = {
-    -- Disable sections and component separators
     component_separators = '',
     section_separators = '',
     theme = {
-      -- We are going to use lualine_c an lualine_x as left and
-      -- right section. Both are highlighted by c theme .  So we
-      -- are just setting default looks o statusline
       normal = { c = { fg = colors.green, bg = nil } },
       inactive = { c = { fg = colors.green, bg = nil } },
     },
   },
   sections = {
-    -- these are to remove the defaults
     lualine_a = {},
     lualine_b = {},
     lualine_y = {},
     lualine_z = {},
-    -- These will be filled later
     lualine_c = {},
     lualine_x = {},
   },
   inactive_sections = {
-    -- these are to remove the defaults
     lualine_a = {},
     lualine_b = {},
     lualine_y = {},
@@ -61,37 +108,31 @@ local config = {
   },
 }
 
--- Inserts a component in lualine_c at left section
-local function ins_left(component) table.insert(config.sections.lualine_c, component) end
-
--- Inserts a component in lualine_x at right section
-local function ins_right(component) table.insert(config.sections.lualine_x, component) end
-
-
-local function truncate_text(text)
-  if type(text) == 'string' and #text > 40 then
-    return text:sub(1, 37) .. '...'
-  end
-  return text
-end
-
-local function createLeftBubble(color, icon, component)
+---Create a component with icon for left side of statusline
+---@param color_fn function Function returning color configuration
+---@param icon string Icon to display
+---@param component table Component configuration
+local function create_left_bubble(color_fn, icon, component)
   local cond = component.cond
-  component.color = color
-
-  ins_left({
+  component.color = color_fn
+  
+  -- Add icon component
+  table.insert(config.sections.lualine_c, {
     function() return icon end,
     cond = cond,
-    color = color,
+    color = color_fn,
     padding = { left = 1, right = 0 },
   })
-
+  
+  -- Wrap component function with truncation
   if type(component[1]) == 'function' then
     local orig_fn = component[1]
     component[1] = function(...)
       return truncate_text(orig_fn(...))
     end
   end
+  
+  -- Handle formatting with truncation
   if component.fmt then
     local orig_fmt = component.fmt
     component.fmt = function(text, ...)
@@ -100,27 +141,35 @@ local function createLeftBubble(color, icon, component)
   else
     component.fmt = truncate_text
   end
-  ins_left(component)
+  
+  table.insert(config.sections.lualine_c, component)
 end
 
-
-local function createRightBubble(color, icon, component)
+---Create a component with icon for right side of statusline
+---@param color_fn function Function returning color configuration  
+---@param icon string Icon to display
+---@param component table Component configuration
+local function create_right_bubble(color_fn, icon, component)
   local cond = component.cond
-  component.color = color
-
-  ins_right({
+  component.color = color_fn
+  
+  -- Add icon component
+  table.insert(config.sections.lualine_x, {
     function() return icon end,
     cond = cond,
-    color = color,
+    color = color_fn,
     padding = { left = 1, right = 0 },
   })
-
+  
+  -- Wrap component function with truncation
   if type(component[1]) == 'function' then
     local orig_fn = component[1]
     component[1] = function(...)
       return truncate_text(orig_fn(...))
     end
   end
+  
+  -- Handle formatting with truncation
   if component.fmt then
     local orig_fmt = component.fmt
     component.fmt = function(text, ...)
@@ -129,143 +178,161 @@ local function createRightBubble(color, icon, component)
   else
     component.fmt = truncate_text
   end
-  ins_right(component)
+  
+  table.insert(config.sections.lualine_x, component)
 end
 
-createLeftBubble(function() return { fg = colors.green, gui = 'bold' } end, '', { 'mode' })
+-- =============================================================================
+-- Component Generators
+-- =============================================================================
 
-createLeftBubble(function() return { fg = colors.peach, gui = 'bold' } end, '󰕥', {
-  function()
-    local msg = 'NONE'
-    local buf_ft = vim.bo.filetype
-    local clients = vim.lsp.get_clients()
-    if next(clients) == nil then return msg end
-    for _, client in ipairs(clients) do
-      local filetypes = client.config.filetypes
-      if filetypes and vim.fn.index(filetypes, buf_ft) ~= -1 then return client.name end
+---Get active LSP client name for current buffer
+---@return string LSP client name or 'NONE'
+local function get_lsp_client()
+  local buf_ft = vim.bo.filetype
+  local clients = vim.lsp.get_clients()
+  
+  if next(clients) == nil then 
+    return 'NONE' 
+  end
+  
+  for _, client in ipairs(clients) do
+    local filetypes = client.config.filetypes
+    if filetypes and vim.fn.index(filetypes, buf_ft) ~= -1 then 
+      return client.name 
     end
-    return msg
-  end,
-})
+  end
+  
+  return 'NONE'
+end
 
-createLeftBubble(function() return { fg = colors.sapphire, gui = 'bold' } end, '', {
-  function()
-    local current_working_directory = vim.fn.getcwd()
-    local folder_name = vim.fn.fnamemodify(current_working_directory, ':t')
-    return folder_name
-  end,
-})
+---Get current working directory name
+---@return string Directory name
+local function get_directory_name()
+  local cwd = vim.fn.getcwd()
+  return vim.fn.fnamemodify(cwd, ':t')
+end
 
--- createLeftBubble(
---   function()
---     return { fg = colors.sky, gui = 'bold' }
---   end,
---   '󰈔',
---   { 'filename', cond = conditions.buffer_not_empty }
--- )
+---Get git branch name using fugitive
+---@return string Branch name or 'NONE'
+local function get_git_branch()
+  local ok, status = pcall(vim.fn.FugitiveHead)
+  if not ok or status == '' then 
+    return 'NONE' 
+  end
+  return status
+end
 
-createLeftBubble(function() return { fg = colors.mauve, gui = 'bold' } end, '', {
-  function()
-    local status = vim.fn.FugitiveHead()
-    if status == '' then return 'NONE' end
-    return status
-  end,
-})
+-- =============================================================================
+-- Left Side Components
+-- =============================================================================
 
-createLeftBubble(function() return { fg = colors.green, gui = 'bold' } end, '', { 'datetime', style = '%H:%M' })
+-- Vim mode indicator
+create_left_bubble(
+  function() return { fg = colors.green, gui = 'bold' } end,
+  '',
+  { 'mode' }
+)
 
--- -- Insert mid section. You can make any number of sections in neovim :)
--- -- for lualine it's any number greater then 2
--- ins_left {
---   function()
---     return '%='
---   end,
--- }
+-- LSP client status
+create_left_bubble(
+  function() return { fg = colors.peach, gui = 'bold' } end,
+  '󰕥',
+  { get_lsp_client }
+)
 
-ins_left({
+-- Current directory
+create_left_bubble(
+  function() return { fg = colors.sapphire, gui = 'bold' } end,
+  '',
+  { get_directory_name }
+)
+
+-- Git branch
+create_left_bubble(
+  function() return { fg = colors.mauve, gui = 'bold' } end,
+  '',
+  { get_git_branch }
+)
+
+-- Current time
+create_left_bubble(
+  function() return { fg = colors.green, gui = 'bold' } end,
+  '',
+  { 'datetime', style = '%H:%M' }
+)
+
+-- Git diff status
+table.insert(config.sections.lualine_c, {
   'diff',
-  -- Is it me or the symbol for modified us really weird
-  symbols = { added = ' ', modified = ' ', removed = ' ' },
+  symbols = { added = ' ', modified = ' ', removed = ' ' },
   diff_color = {
     added = { fg = colors.green },
-    modified = { fg = colors.orange },
+    modified = { fg = colors.orange or colors.peach },
     removed = { fg = colors.red },
   },
   cond = conditions.hide_in_width,
   always_visible = true,
 })
 
-ins_right({
+-- =============================================================================
+-- Right Side Components  
+-- =============================================================================
+
+-- Diagnostic information
+table.insert(config.sections.lualine_x, {
   'diagnostics',
   sources = { 'nvim_diagnostic', 'nvim_lsp', 'nvim_workspace_diagnostic' },
-  symbols = { error = ' ', warn = '󰀨 ', info = ' ', hint = '󰠠 ' },
+  symbols = { error = ' ', warn = '󰀨 ', info = ' ', hint = '󰠠 ' },
   diagnostics_color = {
     color_error = { fg = colors.red },
     color_warn = { fg = colors.yellow },
-    color_info = { fg = colors.cyan },
+    color_info = { fg = colors.cyan or colors.sky },
   },
 })
 
--- createRightBubble(
---   function()
---     return { fg = colors.yellow, gui = 'bold' }
---   end,
---   '󰊿',
---   {
---     function()
---       return vim.bo.fenc
---     end,
---     cond = conditions.buffer_not_empty,
---     fmt = string.upper,
---   }
--- )
---
--- createRightBubble(
---   function()
---     return { fg = colors.lavender, gui = 'bold' }
---   end,
---   '󰣇',
---   { 'o:fileformat', fmt = string.upper }
--- )
---
--- createRightBubble(
---   function()
---     return { fg = colors.maroon, gui = 'bold' }
---   end,
---   '󰡯',
---   { 'o:filetype', fmt = string.upper }
--- )
---
--- createRightBubble(
---   function()
---     return { fg = colors.blue, gui = 'bold' }
---   end,
---   '󰖡',
---   { 'filesize', cond = conditions.buffer_not_empty }
--- )
---
--- createRightBubble(
---   function()
---     return { fg = colors.pink, gui = 'bold' }
---   end,
---   '',
---   { 'location' }
--- )
+-- =============================================================================
+-- Initialization and Refresh
+-- =============================================================================
 
-lualine.setup(config)
-
--- Function to refresh statusline with new theme colors
-local function refresh_statusline()
+---Refresh statusline with updated theme colors
+function M.refresh_statusline()
   colors = get_catppuccin_colors()
-  lualine.setup(config)
+  
+  -- Update theme colors in config
+  config.options.theme.normal.c.fg = colors.green
+  config.options.theme.inactive.c.fg = colors.green
+  
+  local ok, lualine = pcall(require, 'lualine')
+  if ok then
+    lualine.setup(config)
+  else
+    vim.notify('Failed to refresh statusline: lualine not available', vim.log.levels.WARN)
+  end
 end
 
--- Auto-refresh when colorscheme changes
-vim.api.nvim_create_autocmd('ColorScheme', {
-  pattern = 'catppuccin*',
-  callback = refresh_statusline,
-  desc = 'Refresh statusline when Catppuccin theme changes'
-})
+---Initialize the statusline
+function M.setup()
+  local ok, lualine = pcall(require, 'lualine')
+  if not ok then
+    vim.notify('Lualine not available, skipping statusline setup', vim.log.levels.WARN)
+    return
+  end
+  
+  lualine.setup(config)
+  
+  -- Auto-refresh when colorscheme changes
+  vim.api.nvim_create_autocmd('ColorScheme', {
+    pattern = 'catppuccin*',
+    callback = M.refresh_statusline,
+    desc = 'Refresh statusline when Catppuccin theme changes'
+  })
+  
+  -- Export refresh function globally for manual use
+  _G.refresh_statusline = M.refresh_statusline
+end
 
--- Export refresh function for manual use
-_G.refresh_statusline = refresh_statusline
+-- Auto-initialize
+M.setup()
+
+return M
