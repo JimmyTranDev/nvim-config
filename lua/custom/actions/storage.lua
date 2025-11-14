@@ -16,12 +16,7 @@ local M = {}
 local SECRETS_PATH = os.getenv('HOME') .. '/Programming/secrets'
 
 local TEMPLATE_FILES = {
-  {
-    name = 'prompts.json',
-    content = {
-      promptRoles = {},
-    },
-  },
+  -- prompts.json template removed (AI functionality removed)
   {
     name = 'technical_links.json',
     content = {},

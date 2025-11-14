@@ -157,8 +157,7 @@ return {
       { '<leader>gw', group = '󰘴 Worktree', mode = { 'n', 'v' } },
       { '<leader>gy', group = '󰋫 Quick', mode = { 'n', 'v' } },
 
-      -- AI Help (Leader + h)
-      { '<leader>h', group = '󰚩 AI Help', mode = { 'n', 'v' } },
+      -- AI Help section removed
 
       -- Terminal Commands (Leader + t)
       { '<leader>t', group = ' Terminal', mode = { 'n', 'v' } },

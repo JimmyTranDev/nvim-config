@@ -8,10 +8,10 @@ local constants = require('core.constants')
 local fileActions = require('custom.actions.files')
 local todoistActions = require('custom.actions.todoist')
 local linkActions = require('custom.actions.links')
-local prompts = require('core.prompts')
+-- Core prompts module removed
 local languageActions = require('custom.actions.language')
 local errorsActions = require('custom.actions.errors')
-local promptActions = require('custom.actions.prompt')
+-- AI prompt actions removed
 local checkboxActions = require('custom.actions.checkbox')
 local replacementActions = require('custom.actions.replacement')
 local storageActions = require('custom.actions.storage')
@@ -100,20 +100,10 @@ map('n', '<leader><leader>rf', replacementActions.replace_project, { desc = '�
 map('n', '<leader><leader>rF', replacementActions.replace_project_all, { desc = '🌐 Replace all in project' })
 
 -- =============================================================================
--- Leader + h - AI, Help, and Search Operations
+-- Leader + h - Help Operations (AI prompt functionality removed)
 -- =============================================================================
 
-map({ 'n', 'v' }, '<leader>ha', promptActions.open_ai_chat(), { desc = 'Open AI chat' })
-map({ 'n', 'v' }, '<leader>hd', promptActions.get_diagnostic_prompt(), { desc = '🛑 Diagnostic prompt' })
-map({ 'n', 'v' }, '<leader>hD', promptActions.get_diagnostic_prompt(true), { desc = '🛑 Diagnostic prompt with context' })
-map({ 'n', 'v' }, '<leader>hg', promptActions.search_github(vim.env.ORG_GITHUB_NAME), { desc = 'Search GitHub org' })
-map({ 'n', 'v' }, '<leader>hG', promptActions.search_github(), { desc = 'Search GitHub' })
-map('n', '<leader>hff', promptActions.folder_prompt(), { desc = 'Copy folder prompt' })
-map({ 'n', 'v' }, '<leader>hh', promptActions.prompt(), { desc = '🤖 Random prompt' })
-map({ 'n', 'v' }, '<leader>hH', promptActions.prompt(nil, true), { desc = '🤖 Random prompt with context' })
-map({ 'n', 'v' }, '<leader>hr', promptActions.prompt_role(prompts.promptRoles), { desc = '🎭 Role prompt' })
-map({ 'n', 'v' }, '<leader>hR', promptActions.prompt_role(prompts.promptRoles, true), { desc = '🎭 Role prompt with context' })
-map({ 'n', 'v' }, '<leader>hs', promptActions.query_search_engine(), { desc = 'Search web' })
+-- All AI prompt keybindings removed
 
 -- =============================================================================
 -- Leader + i/o - Jump Operations
