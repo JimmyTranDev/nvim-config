@@ -153,32 +153,7 @@ local function load_prompts()
   return data
 end
 
----Get all available prompt roles
----@return table roles Available prompt roles
-function M.get_prompt_roles()
-  return M.prompt_roles or {}
-end
-
----Check if prompts are available
----@return boolean available Whether prompts are loaded and available
-function M.has_prompts()
-  return next(M.prompt_roles) ~= nil
-end
-
----Reload prompts from file
----@return boolean success Whether reload was successful
-function M.reload_prompts()
-  local prompts_data = load_prompts()
-  M.prompt_roles = prompts_data.promptRoles or {}
-  
-  if M.has_prompts() then
-    vim.notify('Prompts reloaded successfully', vim.log.levels.INFO)
-    return true
-  else
-    vim.notify('Failed to reload prompts', vim.log.levels.WARN)
-    return false
-  end
-end
+-- Unused functions removed - only keep what's needed for keymaps
 
 -- =============================================================================
 -- Initialization
