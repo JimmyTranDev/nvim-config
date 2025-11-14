@@ -76,17 +76,16 @@ local function generate_lazy_config()
       notify = false, -- Reduce notification noise
     },
     
-    -- Performance optimizations
+    -- Enhanced performance optimizations
     performance = {
       cache = {
         enabled = true,
       },
-      reset_packpath = true, -- Clean package path for faster startup
+      reset_packpath = true, -- Reset packpath to improve startup time
       rtp = {
-        reset = true, -- Reset runtime path to essentials only
+        reset = true, -- Reset runtimepath to improve startup time
+        paths = {}, -- Remove unnecessary paths
         disabled_plugins = disabled_builtin_plugins,
-        -- Custom paths can be added here if needed:
-        -- paths = { "~/.config/nvim/custom_lua" },
       },
     },
     

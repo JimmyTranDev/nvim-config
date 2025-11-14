@@ -11,6 +11,14 @@ return {
     cmdline = {
       enabled = false,
     },
+    -- Performance optimizations
+    trigger = {
+      completion = {
+        keyword_length = 2, -- Require at least 2 characters before triggering
+        keyword_regex = '[%w_%-%.#:]*', -- More restrictive pattern
+        exclude_from_prefix_regex = '[%(%)]', -- Exclude some characters
+      },
+    },
     -- keymap = { preset = 'enter' },
     keymap = {
       ['<CR>'] = { 'select_and_accept', 'fallback' },
@@ -40,7 +48,8 @@ return {
       accept = { auto_brackets = { enabled = false } },
       documentation = {
         auto_show = true,
-        auto_show_delay_ms = 100,
+        auto_show_delay_ms = 200, -- Increased delay for better performance
+        update_delay_ms = 100, -- Add update delay for better performance
       },
       menu = {
         draw = {

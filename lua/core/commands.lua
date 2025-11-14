@@ -10,9 +10,7 @@
 local M = {}
 
 -- Autocommand group for organization
-local augroup = function(name)
-  return vim.api.nvim_create_augroup('nvim_config_' .. name, { clear = true })
-end
+local augroup = function(name) return vim.api.nvim_create_augroup('nvim_config_' .. name, { clear = true }) end
 
 -- Which-key color scheme (Catppuccin Dark)
 local WHICH_KEY_COLORS = {
@@ -35,9 +33,7 @@ local function setup_filetype_associations()
   vim.api.nvim_create_autocmd('BufRead', {
     group = augroup('filetype_associations'),
     pattern = { '*.tag', '*.riot' },
-    callback = function()
-      vim.bo.filetype = 'html'
-    end,
+    callback = function() vim.bo.filetype = 'html' end,
     desc = 'Set HTML filetype for Riot.js component files',
   })
 end
@@ -54,7 +50,7 @@ local function setup_language_settings()
     end,
     desc = 'Set Java-specific indentation (4 spaces)',
   })
-  
+
   -- Default indentation for other languages is handled in options.lua
 end
 
@@ -70,12 +66,10 @@ local function setup_formatting()
     callback = function(args)
       -- Only format if conform is available
       local ok, conform = pcall(require, 'conform')
-      if ok then
-        conform.format({ 
-          bufnr = args.buf,
-          timeout_ms = 3000,
-        })
-      end
+      if ok then conform.format({
+        bufnr = args.buf,
+        timeout_ms = 3000,
+      }) end
     end,
     desc = 'Format file on save using conform.nvim',
   })
@@ -99,36 +93,32 @@ local function setup_visual_enhancements()
     end,
     desc = 'Highlight yanked text briefly',
   })
-  
+
   -- Configure Copilot buffer settings
   vim.api.nvim_create_autocmd('BufEnter', {
     group = augroup('copilot_settings'),
     pattern = 'copilot-*',
-    callback = function()
-      vim.opt_local.relativenumber = true
-    end,
+    callback = function() vim.opt_local.relativenumber = true end,
     desc = 'Enable relative line numbers in Copilot buffers',
   })
 end
 
---- Set up which-key color scheme
-local function setup_which_key_colors()
-  vim.api.nvim_create_autocmd('ColorScheme', {
-    group = augroup('which_key_colors'),
-    pattern = '*',
-    callback = function()
-      for group, config in pairs(WHICH_KEY_COLORS) do
-        vim.api.nvim_set_hl(0, group, config)
-      end
-    end,
-    desc = 'Apply which-key color scheme',
-  })
-  
-  -- Apply immediately if colorscheme is already loaded
-  if vim.g.colors_name then
-    vim.api.nvim_exec_autocmds('ColorScheme', { pattern = vim.g.colors_name })
-  end
-end
+-- --- Set up which-key color scheme
+-- local function setup_which_key_colors()
+--   vim.api.nvim_create_autocmd('ColorScheme', {
+--     group = augroup('which_key_colors'),
+--     pattern = '*',
+--     callback = function()
+--       for group, config in pairs(WHICH_KEY_COLORS) do
+--         vim.api.nvim_set_hl(0, group, config)
+--       end
+--     end,
+--     desc = 'Apply which-key color scheme',
+--   })
+--
+--   -- Apply immediately if colorscheme is already loaded
+--   if vim.g.colors_name then vim.api.nvim_exec_autocmds('ColorScheme', { pattern = vim.g.colors_name }) end
+-- end
 
 -- =============================================================================
 -- Git Integration
@@ -142,7 +132,7 @@ local function setup_git_integration()
     callback = function()
       local file = vim.fn.expand('<afile>')
       vim.notify('Git conflict detected in: ' .. file, vim.log.levels.WARN)
-      
+
       -- Set up temporary keymap for conflict resolution
       vim.keymap.set('n', 'cww', function()
         vim.notify('Git conflict resolution functionality not yet implemented', vim.log.levels.INFO)
@@ -164,7 +154,7 @@ end
 local function setup_lsp_progress()
   ---@type table<number, {token:lsp.ProgressToken, msg:string, done:boolean}[]>
   local progress = vim.defaulttable()
-  
+
   vim.api.nvim_create_autocmd('LspProgress', {
     group = augroup('lsp_progress'),
     ---@param ev {data: {client_id: integer, params: lsp.ProgressParams}}
@@ -194,21 +184,19 @@ local function setup_lsp_progress()
 
       -- Filter completed progress and build message
       local msg = {}
-      progress[client.id] = vim.tbl_filter(function(v) 
-        table.insert(msg, v.msg) 
-        return not v.done 
+      progress[client.id] = vim.tbl_filter(function(v)
+        table.insert(msg, v.msg)
+        return not v.done
       end, p)
 
       -- Show notification with spinner
       local spinner = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' }
       local spinner_idx = math.floor(vim.uv.hrtime() / (1e6 * 80)) % #spinner + 1
-      
+
       vim.notify(table.concat(msg, '\n'), vim.log.levels.INFO, {
         id = 'lsp_progress',
         title = client.name,
-        opts = function(notif) 
-          notif.icon = #progress[client.id] == 0 and ' ' or spinner[spinner_idx]
-        end,
+        opts = function(notif) notif.icon = #progress[client.id] == 0 and ' ' or spinner[spinner_idx] end,
       })
     end,
     desc = 'Show LSP progress notifications with spinner',
@@ -218,7 +206,7 @@ end
 --- Clean up conflicting default keymaps
 local function cleanup_default_keymaps()
   local default_lsp_maps = { 'gra', 'gri', 'grn', 'grr' }
-  
+
   for _, map in ipairs(default_lsp_maps) do
     pcall(vim.keymap.del, 'n', map)
   end
@@ -234,7 +222,7 @@ function M.setup()
   setup_language_settings()
   setup_formatting()
   setup_visual_enhancements()
-  setup_which_key_colors()
+  -- setup_which_key_colors() -- Commented out function
   setup_git_integration()
   setup_lsp_progress()
   cleanup_default_keymaps()

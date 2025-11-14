@@ -78,7 +78,9 @@ return {
       
       -- Performance optimizations
       config.flags = {
-        debounce_text_changes = 150, -- Balanced for performance and responsiveness
+        debounce_text_changes = 300, -- Increased for better performance (was 150)
+        allow_incremental_sync = true, -- Enable incremental sync for better performance
+        exit_timeout = 2000, -- Faster LSP shutdown
       }
       
       -- Ensure LSP starts properly on buffer attach

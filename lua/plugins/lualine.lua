@@ -1,4 +1,4 @@
 return {
   'nvim-lualine/lualine.nvim',
-  lazy = false, -- Load immediately for statusline
+  event = 'VeryLazy', -- Changed from lazy = false for better startup -- Load immediately for statusline
 }
