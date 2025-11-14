@@ -1,358 +1,549 @@
-local languageUtils = require('custom.utils.language')
-local inputUtils = require('custom.utils.input')
-local toggleTermActions = require('custom.actions.toggleterm')
+-- =============================================================================
+-- Language-Specific Action Functions
+-- Development tools and language-specific operations
+-- =============================================================================
+
+local language_utils = require('custom.utils.language')
+local input_utils = require('custom.utils.input')
+local ui_utils = require('custom.utils.ui')
+local validation = require('custom.utils.validation')
 
 local M = {}
 
-function M.runJavaClassMvn()
-  local currentClass = languageUtils.getCurrentJavaClass()
-  vim.cmd(":3TermExec cmd='mvn compile'")
-  vim.cmd(':3TermExec mvn exec:java -Dexec.mainClass=' .. currentClass)
+-- =============================================================================
+-- Java Operations
+-- =============================================================================
+
+--- Run Java class using Maven
+function M.run_java_class_maven()
+  local current_class = language_utils.getCurrentJavaClass()
+  if not current_class or current_class == '' then
+    vim.notify('No Java class found', vim.log.levels.WARN)
+    return
+  end
+  
+  ui_utils.exec_background('mvn compile', 'Maven compile started')
+  ui_utils.exec_with_feedback(
+    'mvn exec:java -Dexec.mainClass=' .. current_class,
+    'Running Java class: ' .. current_class,
+    3
+  )
 end
 
-function M.runJavaClassJavac()
-  local currentClass = languageUtils.getCurrentJavaClass()
-  local command = [[:terminal javac ]] .. currentClass .. [[; java ]] .. currentClass
+--- Run Java class using javac
+function M.run_java_class_javac()
+  local current_class = language_utils.getCurrentJavaClass()
+  if not current_class or current_class == '' then
+    vim.notify('No Java class found', vim.log.levels.WARN)
+    return
+  end
+  
+  local command = string.format('terminal javac %s; java %s', current_class, current_class)
   vim.cmd(command)
+  ui_utils.show_success('Running Java class with javac: ' .. current_class)
 end
 
-function M.runMarkdownFileFolder()
-  local currentFolder = vim.fn.expand('%:p:h')
-  local command = ':4TermExec cmd="markserv -b -p 5454 ' .. currentFolder .. '"<CR>'
-  vim.cmd(command)
+-- =============================================================================
+-- Markdown Operations
+-- =============================================================================
+
+--- Serve markdown files in current folder
+function M.serve_markdown_folder()
+  local current_folder = vim.fn.expand('%:p:h')
+  if not current_folder or current_folder == '' then
+    vim.notify('Could not determine current folder', vim.log.levels.ERROR)
+    return
+  end
+  
+  local command = string.format('markserv -b -p 5454 "%s"', current_folder)
+  ui_utils.exec_with_feedback(command, 'Markdown server started on port 5454', 4)
 end
 
-function M.compileMjmlFile()
-  local mjmlFile = vim.fn.expand('%')
-  local htmlFile = mjmlFile:gsub('.mjml', '.html')
-  local ftlhFile = mjmlFile:gsub('.mjml', '.ftlh')
+-- =============================================================================
+-- MJML Operations
+-- =============================================================================
 
-  vim.cmd('!mjml -r' .. mjmlFile .. ' -o ' .. htmlFile)
-  vim.cmd('!mjml -r' .. mjmlFile .. ' -o ' .. ftlhFile)
+--- Compile MJML file to HTML and FTLH formats
+function M.compile_mjml_file()
+  local mjml_file = vim.fn.expand('%')
+  if not mjml_file or mjml_file == '' then
+    vim.notify('No current file found', vim.log.levels.WARN)
+    return
+  end
+  
+  if not mjml_file:match('%.mjml$') then
+    vim.notify('Current file is not an MJML file', vim.log.levels.WARN)
+    return
+  end
+  
+  local html_file = mjml_file:gsub('%.mjml$', '.html')
+  local ftlh_file = mjml_file:gsub('%.mjml$', '.ftlh')
+  
+  local commands = {
+    string.format('mjml -r "%s" -o "%s"', mjml_file, html_file),
+    string.format('mjml -r "%s" -o "%s"', mjml_file, ftlh_file),
+  }
+  
+  for _, cmd in ipairs(commands) do
+    vim.cmd('!' .. cmd)
+  end
+  
+  ui_utils.show_success('MJML compiled to HTML and FTLH formats')
 end
 
-function M.installJavascriptPackage()
-  local packageManager = languageUtils.getJavascriptPackageManager()
-  local packageTypes = { 'dev', 'prod' }
+-- =============================================================================
+-- JavaScript/Node.js Package Management
+-- =============================================================================
 
-  vim.ui.select(packageTypes, {
-    prompt = 'Select package type',
-  }, function(packageType)
-    if packageType == nil then return end
-
-    local packageName = inputUtils.getInputFromUser('Package name')
-
-    if packageType == 'dev' then
-      local devArg = languageUtils.getJavascriptPackageManagerDevArg()
-      vim.cmd(":3TermExec cmd='" .. packageManager .. ' add ' .. packageName .. ' ' .. devArg .. "'")
-    end
-
-    vim.cmd(":3TermExec cmd='" .. packageManager .. ' add ' .. packageName .. "'")
+--- Install JavaScript package with type selection
+function M.install_javascript_package()
+  local package_manager = language_utils.getJavascriptPackageManager()
+  if not package_manager then
+    vim.notify('No JavaScript package manager found', vim.log.levels.ERROR)
+    return
+  end
+  
+  local package_types = { 'production', 'development' }
+  
+  ui_utils.safe_select(package_types, {
+    prompt = 'Select package type:',
+  }, function(package_type)
+    ui_utils.safe_input({
+      prompt = 'Enter package name: ',
+    }, function(package_name)
+      -- Validate package name
+      local is_valid, error_msg = validation.string(package_name, 1)
+      if not is_valid then
+        vim.notify('Invalid package name: ' .. error_msg, vim.log.levels.ERROR)
+        return
+      end
+      
+      local base_cmd = package_manager .. ' add ' .. package_name
+      
+      if package_type == 'development' then
+        local dev_arg = language_utils.getJavascriptPackageManagerDevArg()
+        base_cmd = base_cmd .. ' ' .. dev_arg
+      end
+      
+      ui_utils.exec_with_feedback(base_cmd, 
+        string.format('Installing %s package: %s', package_type, package_name), 3)
+    end)
   end)
 end
 
-function M.runPackageJsonScript(terminalIndex)
-  local scripts = languageUtils.listPackageJsonCommands()
+--- Run package.json script with selection
+---@param terminal_index? number Terminal index to use (default: 3)
+function M.run_package_script(terminal_index)
+  local scripts = language_utils.listPackageJsonCommands()
+  local term_id = terminal_index or 3
 
   if #scripts == 0 then
     vim.notify('No scripts found in package.json', vim.log.levels.WARN)
     return
   end
 
-  vim.ui.select(scripts, {
+  ui_utils.safe_select(scripts, {
     prompt = 'Select a script to run:',
-  }, function(choice)
-    if choice then
-      local package_manager = languageUtils.getJavascriptPackageManager()
-      local command = package_manager .. ' ' .. choice
-      vim.cmd(':' .. terminalIndex .. "TermExec cmd='" .. command .. "'")
+  }, function(selected_script)
+    local package_manager = language_utils.getJavascriptPackageManager()
+    if not package_manager then
+      vim.notify('No JavaScript package manager found', vim.log.levels.ERROR)
+      return
     end
+    
+    local command = package_manager .. ' ' .. selected_script
+    ui_utils.exec_with_feedback(command, 
+      string.format('Running script: %s', selected_script), term_id)
   end)
 end
 
-function M.runCommandInTerminal(terminalIndex, command, shouldExit, args)
+--- Create a function to run command in terminal with package manager
+---@param terminal_index number Terminal index to use
+---@param command string Command to run (will be prefixed with package manager)
+---@param should_exit? boolean Whether to exit terminal after completion
+---@param args? string Additional arguments for TermExec
+---@return function command_runner Function that runs the command
+function M.create_package_command_runner(terminal_index, command, should_exit, args)
   return function()
-    if not args then args = '' end
-
-    local curwin = vim.api.nvim_get_current_win()
     if not command or command == '' then
       vim.notify('No command provided to run', vim.log.levels.WARN)
       return
     end
 
-    local package_manager = languageUtils.getJavascriptPackageManager()
-    if not package_manager or package_manager == '' then
+    local package_manager = language_utils.getJavascriptPackageManager()
+    if not package_manager then
       vim.notify('No JavaScript package manager found', vim.log.levels.ERROR)
       return
     end
-    command = package_manager .. ' ' .. command
 
-    vim.cmd(':' .. terminalIndex .. 'TermExec ' .. args .. " cmd='" .. command .. "' ")
+    local current_window = vim.api.nvim_get_current_win()
+    local full_command = package_manager .. ' ' .. command
+    local term_args = args or ''
+    
+    vim.cmd(string.format(':%dTermExec %s cmd=\'%s\'', terminal_index, term_args, full_command))
 
-    if shouldExit then
-      toggleTermActions.createKillToggleTerm(terminalIndex)()
-      vim.cmd(':' .. terminalIndex .. "TermExec cmd='exit'")
+    if should_exit then
+      local toggleterm_actions = require('custom.actions.toggleterm')
+      if toggleterm_actions.create_kill_toggle_term then
+        toggleterm_actions.create_kill_toggle_term(terminal_index)()
+      end
+      vim.cmd(string.format(':%dTermExec cmd=\'exit\'', terminal_index))
     end
-    vim.api.nvim_set_current_win(curwin)
+    
+    vim.api.nvim_set_current_win(current_window)
   end
 end
 
-function M.nextEslintQuickfix()
-  vim.cmd("cgetexpr system('eslint -f unix .')")
-  vim.cmd('cnext')
+-- =============================================================================
+-- ESLint Operations
+-- =============================================================================
+
+--- Jump to next ESLint error in quickfix list
+function M.next_eslint_quickfix()
+  local cmd = "eslint -f unix ."
+  vim.cmd("cgetexpr system('" .. cmd .. "')")
+  
+  local ok, err = pcall(vim.cmd, 'cnext')
+  if not ok then
+    vim.notify('No more ESLint errors', vim.log.levels.INFO)
+  end
 end
 
-function M.run_eslint()
-  print('Running ESLint...')
-  local cmd = 'npx eslint ./src --ext ts,tsx,js,jsx | grep /jimmy'
+--- Run ESLint and open file picker with results
+function M.run_eslint_picker()
+  ui_utils.show_progress('Running ESLint...')
+  
+  local cmd = 'npx eslint ./src --ext ts,tsx,js,jsx'
   local file_links = vim.fn.systemlist(cmd)
+
+  if vim.v.shell_error ~= 0 then
+    vim.notify('ESLint command failed', vim.log.levels.ERROR)
+    return
+  end
 
   local items = {}
   for idx, file_path in ipairs(file_links) do
-    local item = {
-      idx = idx,
-      text = vim.fn.fnamemodify(file_path, ':~'), -- Display path relative to home
-      file = file_path, -- Full path for opening the file
-    }
-    table.insert(items, item)
+    if file_path and file_path ~= '' then
+      local item = {
+        idx = idx,
+        text = vim.fn.fnamemodify(file_path, ':~'),
+        file = file_path,
+      }
+      table.insert(items, item)
+    end
   end
 
-  local snacks = require('snacks')
+  if #items == 0 then
+    ui_utils.show_success('No ESLint issues found!')
+    return
+  end
+
+  local ok, snacks = pcall(require, 'snacks')
+  if not ok then
+    vim.notify('Snacks plugin not available', vim.log.levels.ERROR)
+    return
+  end
+
   snacks.picker({
-    title = 'Preselected Files',
-    layout = {
-      preset = 'default', -- Use default layout (can be changed to "ivy", "select", etc.)
-      -- preview = true,     -- Enable preview pane
-    },
+    title = 'ESLint Results',
+    layout = { preset = 'default' },
     items = items,
     format = function(item, _)
       local a = snacks.picker.util.align
       local icon, icon_hl = snacks.util.icon(item.file, 'file')
       return {
-        { a(icon, 3), icon_hl }, -- File icon
+        { a(icon, 3), icon_hl },
         { ' ' },
-        { item.text }, -- Display relative path
+        { item.text },
       }
     end,
     confirm = function(picker, item)
       picker:close()
-      vim.cmd('edit ' .. vim.fn.fnameescape(item.file)) -- Open the selected file
+      vim.cmd('edit ' .. vim.fn.fnameescape(item.file))
     end,
   })
 
-  -- Snacks.picker.files({ hidden = true, items = output })
-  print('ESLint completed. Check the quickfix list for results.')
+  ui_utils.show_success('ESLint analysis complete')
 end
 
--- Function to filter npm packages starting with a given string
-function M.filter_npm_packages(start_str)
-  -- Validate input
-  if not start_str or start_str == '' then
-    vim.notify('Error: Please provide a valid starting string for package filtering', vim.log.levels.ERROR)
+-- =============================================================================
+-- Package Management Operations
+-- =============================================================================
+
+--- Filter and update npm packages by pattern
+---@param pattern string Pattern to filter packages (e.g., "@types", "react")
+function M.filter_npm_packages(pattern)
+  local is_valid, error_msg = validation.string(pattern, 1)
+  if not is_valid then
+    vim.notify('Invalid pattern: ' .. error_msg, vim.log.levels.ERROR)
     return
   end
 
-  -- Escape special characters in the input string to prevent command injection
-  local escaped_str = vim.fn.shellescape(start_str .. '*')
+  local escaped_pattern = vim.fn.shellescape(pattern .. '*')
+  local cmd = string.format('npx npm-check-updates -u --filter %s', escaped_pattern)
 
-  -- Construct the npm-check-updates command with filter
-  local cmd = string.format('npx npm-check-updates -u --filter %s', escaped_str)
-
-  -- Execute the command in a terminal, consistent with provided keymappings
-  vim.cmd(string.format("2TermExec cmd='%s'", vim.fn.shellescape(cmd)))
-
-  -- Notify user of the action
-  vim.notify(string.format('Filtering npm packages starting with: %s', start_str), vim.log.levels.INFO)
+  ui_utils.exec_with_feedback(cmd, 
+    string.format('Filtering npm packages matching: %s', pattern), 2)
 end
 
-function M.launch_android_emulator()
-  -- Path to your Android SDK emulator folder
-  local sdk_path = os.getenv('HOME') .. '/Library/Android/sdk/emulator' -- macOS/Linux
-  local emulator_exe = sdk_path .. '/emulator'
+--- Interactive npm package update with filter
+function M.update_npm_packages_interactive()
+  ui_utils.safe_input({
+    prompt = 'Filter packages to update (glob patterns, comma-separated, optional): ',
+    default = '',
+  }, function(filter_list)
+    local cmd = 'npx npm-check-updates'
 
-  -- Get list of available AVDs
-  local handle = io.popen(emulator_exe .. ' -list-avds')
-  if not handle then
-    print('Could not find emulator executable at ' .. emulator_exe)
-    return
-  end
+    if filter_list and filter_list ~= '' then
+      local patterns = {}
+      for pattern in string.gmatch(filter_list, '([^,]+)') do
+        local trimmed = pattern:match('^%s*(.-)%s*$')
+        if trimmed and trimmed ~= '' then
+          table.insert(patterns, trimmed)
+        end
+      end
 
-  local avds = {}
-  for line in handle:lines() do
-    table.insert(avds, line)
-  end
-  handle:close()
-
-  if #avds == 0 then
-    print('No AVDs found.')
-    return
-  end
-
-  -- Use vim.ui.select to pick one
-  vim.ui.select(avds, { prompt = 'Select Android Emulator:' }, function(choice)
-    if choice then
-      -- Run the emulator in the background
-      vim.fn.jobstart({ emulator_exe, '-avd', choice }, { detach = true })
-      print('Launching emulator: ' .. choice)
-    else
-      print('No emulator selected.')
+      if #patterns > 0 then
+        cmd = cmd .. ' --filter ' .. table.concat(patterns, ',')
+      end
     end
+
+    vim.cmd('split')
+    vim.cmd('terminal ' .. cmd)
+    vim.cmd('startinsert')
   end)
 end
 
-function M.fix_and_organize_ts()
-  local import_pattern = [[import%s+.-;%s*]]
-
-  -- Collect all .ts and .tsx files under cwd, ignoring node_modules
-  local files = vim.fn.systemlist("find . -type f \\( -name '*.ts' -o -name '*.tsx' \\) -not -path '*/node_modules/*'")
-  if #files == 0 then
-    print('No TypeScript files found')
-    return
-  end
-
-  local function process_file(filepath, callback)
-    vim.cmd('edit ' .. filepath)
-    local bufnr = vim.api.nvim_get_current_buf()
-
-    -- Delete all imports
-    vim.api.nvim_buf_call(bufnr, function() vim.cmd(string.format('%%s/%s//ge', import_pattern)) end)
-
-    -- Trigger LSP organize imports
-    local params = {
-      command = '_typescript.organizeImports',
-      arguments = { vim.api.nvim_buf_get_name(bufnr) },
-      title = '',
-    }
-    vim.lsp.buf.execute_command(params)
-
-    -- Save & close after short delay (let LSP apply changes)
-    vim.defer_fn(function()
-      vim.cmd('silent write')
-      vim.cmd('bdelete')
-      if callback then callback() end
-    end, 500)
-  end
-
-  -- Sequentially walk through files
-  local i = 1
-  local function step()
-    if i <= #files then
-      process_file(files[i], function()
-        i = i + 1
-        step()
-      end)
-    else
-      print('✅ Finished cleaning imports in ' .. #files .. ' files')
-    end
-  end
-
-  step()
-end
-
--- Function to find and delete unused npm packages
-function M.find_and_delete_unused_packages()
-  -- Check if package.json exists
+--- Find and remove unused npm packages
+function M.remove_unused_packages()
   if vim.fn.filereadable('package.json') == 0 then
     vim.notify('No package.json found in current directory', vim.log.levels.ERROR)
     return
   end
 
-  -- First, run depcheck to identify unused packages
-  local depcheck_cmd = 'npx depcheck --json'
+  ui_utils.show_progress('🔍 Analyzing unused packages...')
 
-  vim.notify('🔍 Analyzing unused packages...', vim.log.levels.INFO)
-
-  -- Run depcheck and capture output
-  vim.fn.jobstart(depcheck_cmd, {
+  vim.fn.jobstart('npx depcheck --json', {
     stdout_buffered = true,
     on_stdout = function(_, data)
-      if data and #data > 0 then
-        local json_str = table.concat(data, '\n')
-        if json_str:match('^%s*$') then return end
+      if not data or #data == 0 then return end
 
-        -- Parse the JSON output
-        local success, result = pcall(vim.fn.json_decode, json_str)
-        if not success or not result.dependencies then
-          vim.notify('Failed to parse depcheck output', vim.log.levels.ERROR)
-          return
-        end
+      local json_str = table.concat(data, '\n')
+      if json_str:match('^%s*$') then return end
 
-        local unused_deps = result.dependencies or {}
-        local unused_dev_deps = result.devDependencies or {}
-
-        -- Combine all unused dependencies
-        local all_unused = {}
-        for _, dep in ipairs(unused_deps) do
-          table.insert(all_unused, { name = dep, type = 'dependency' })
-        end
-        for _, dep in ipairs(unused_dev_deps) do
-          table.insert(all_unused, { name = dep, type = 'devDependency' })
-        end
-
-        if #all_unused == 0 then
-          vim.notify('✅ No unused packages found!', vim.log.levels.INFO)
-          return
-        end
-
-        -- Create options for vim.ui.select
-        local options = {}
-        for i, pkg in ipairs(all_unused) do
-          table.insert(options, string.format('%s (%s)', pkg.name, pkg.type))
-        end
-        table.insert(options, '🗑️  DELETE ALL UNUSED PACKAGES')
-        table.insert(options, '❌ Cancel')
-
-        -- Let user select which packages to uninstall
-        vim.ui.select(options, {
-          prompt = string.format('Found %d unused packages. Select action:', #all_unused),
-          format_item = function(item) return item end,
-        }, function(choice, idx)
-          if not choice or choice == '❌ Cancel' then return end
-
-          local packageManager = languageUtils.getJavascriptPackageManager()
-          local uninstall_cmd = packageManager == 'npm' and 'npm uninstall'
-            or packageManager == 'yarn' and 'yarn remove'
-            or packageManager == 'pnpm' and 'pnpm remove'
-            or 'npm uninstall'
-
-          if choice == '🗑️  DELETE ALL UNUSED PACKAGES' then
-            -- Uninstall all unused packages
-            local deps_to_remove = {}
-            for _, pkg in ipairs(all_unused) do
-              table.insert(deps_to_remove, pkg.name)
-            end
-
-            if #deps_to_remove > 0 then
-              local cmd = uninstall_cmd .. ' ' .. table.concat(deps_to_remove, ' ')
-              vim.notify('🗑️  Removing all unused packages: ' .. table.concat(deps_to_remove, ', '), vim.log.levels.INFO)
-              vim.cmd(string.format("2TermExec cmd='%s'", cmd))
-            end
-          else
-            -- Uninstall selected package
-            local selected_pkg = all_unused[idx]
-            if selected_pkg then
-              local cmd = uninstall_cmd .. ' ' .. selected_pkg.name
-              vim.notify('🗑️  Removing package: ' .. selected_pkg.name, vim.log.levels.INFO)
-              vim.cmd(string.format("2TermExec cmd='%s'", cmd))
-            end
-          end
-        end)
+      local success, result = pcall(vim.fn.json_decode, json_str)
+      if not success or not result then
+        vim.notify('Failed to parse depcheck output', vim.log.levels.ERROR)
+        return
       end
+
+      local unused_deps = result.dependencies or {}
+      local unused_dev_deps = result.devDependencies or {}
+
+      local all_unused = {}
+      for _, dep in ipairs(unused_deps) do
+        table.insert(all_unused, { name = dep, type = 'dependency' })
+      end
+      for _, dep in ipairs(unused_dev_deps) do
+        table.insert(all_unused, { name = dep, type = 'devDependency' })
+      end
+
+      if #all_unused == 0 then
+        ui_utils.show_success('✅ No unused packages found!')
+        return
+      end
+
+      M._handle_unused_packages_selection(all_unused)
     end,
     on_stderr = function(_, data)
       if data and #data > 0 then
         local error_msg = table.concat(data, '\n')
-        if not error_msg:match('^%s*$') then vim.notify('Depcheck error: ' .. error_msg, vim.log.levels.WARN) end
+        if not error_msg:match('^%s*$') then
+          vim.notify('Depcheck warning: ' .. error_msg, vim.log.levels.WARN)
+        end
       end
     end,
     on_exit = function(_, code)
-      if code ~= 0 then vim.notify('Depcheck failed with exit code: ' .. code, vim.log.levels.ERROR) end
+      if code ~= 0 then
+        vim.notify('Depcheck failed with exit code: ' .. code, vim.log.levels.ERROR)
+      end
     end,
   })
 end
 
-function M.repeatLastCommand()
-  -- Get the last command from command history
+--- Handle unused packages selection (private helper)
+---@param unused_packages table List of unused packages
+function M._handle_unused_packages_selection(unused_packages)
+  local options = {}
+  for _, pkg in ipairs(unused_packages) do
+    table.insert(options, string.format('%s (%s)', pkg.name, pkg.type))
+  end
+  table.insert(options, '🗑️  DELETE ALL UNUSED PACKAGES')
+  table.insert(options, '❌ Cancel')
+
+  ui_utils.safe_select(options, {
+    prompt = string.format('Found %d unused packages. Select action:', #unused_packages),
+  }, function(choice, idx)
+    if not choice or choice == '❌ Cancel' then return end
+
+    local package_manager = language_utils.getJavascriptPackageManager()
+    local uninstall_cmd = M._get_uninstall_command(package_manager)
+
+    if choice == '🗑️  DELETE ALL UNUSED PACKAGES' then
+      M._remove_all_packages(unused_packages, uninstall_cmd)
+    else
+      M._remove_single_package(unused_packages[idx], uninstall_cmd)
+    end
+  end)
+end
+
+--- Get uninstall command for package manager
+---@param package_manager string Package manager name
+---@return string uninstall_cmd Uninstall command
+function M._get_uninstall_command(package_manager)
+  local commands = {
+    npm = 'npm uninstall',
+    yarn = 'yarn remove',
+    pnpm = 'pnpm remove',
+  }
+  return commands[package_manager] or 'npm uninstall'
+end
+
+--- Remove all unused packages
+---@param packages table List of packages to remove
+---@param uninstall_cmd string Uninstall command
+function M._remove_all_packages(packages, uninstall_cmd)
+  local package_names = {}
+  for _, pkg in ipairs(packages) do
+    table.insert(package_names, pkg.name)
+  end
+
+  if #package_names > 0 then
+    local cmd = uninstall_cmd .. ' ' .. table.concat(package_names, ' ')
+    ui_utils.exec_with_feedback(cmd, 
+      '🗑️  Removing all unused packages: ' .. table.concat(package_names, ', '), 2)
+  end
+end
+
+--- Remove single package
+---@param package table Package to remove
+---@param uninstall_cmd string Uninstall command
+function M._remove_single_package(package, uninstall_cmd)
+  if package then
+    local cmd = uninstall_cmd .. ' ' .. package.name
+    ui_utils.exec_with_feedback(cmd, '🗑️  Removing package: ' .. package.name, 2)
+  end
+end
+
+-- =============================================================================
+-- Android Development
+-- =============================================================================
+
+--- Launch Android emulator with AVD selection
+function M.launch_android_emulator()
+  local sdk_path = os.getenv('HOME') .. '/Library/Android/sdk/emulator'
+  local emulator_exe = sdk_path .. '/emulator'
+
+  local handle = io.popen(emulator_exe .. ' -list-avds 2>/dev/null')
+  if not handle then
+    vim.notify('Could not find Android emulator at: ' .. emulator_exe, vim.log.levels.ERROR)
+    return
+  end
+
+  local avds = {}
+  for line in handle:lines() do
+    if line and line ~= '' then
+      table.insert(avds, line)
+    end
+  end
+  handle:close()
+
+  if #avds == 0 then
+    vim.notify('No Android Virtual Devices found', vim.log.levels.WARN)
+    return
+  end
+
+  ui_utils.safe_select(avds, { 
+    prompt = 'Select Android Emulator:' 
+  }, function(selected_avd)
+    vim.fn.jobstart({ emulator_exe, '-avd', selected_avd }, { detach = true })
+    ui_utils.show_success('Launching emulator: ' .. selected_avd)
+  end)
+end
+
+-- =============================================================================
+-- TypeScript/Import Management
+-- =============================================================================
+
+--- Fix and organize TypeScript imports across project
+function M.fix_and_organize_typescript_imports()
+  local import_pattern = [[import%s+.-;%s*]]
+  
+  ui_utils.show_progress('🔍 Finding TypeScript files...')
+  
+  local find_cmd = "find . -type f \\( -name '*.ts' -o -name '*.tsx' \\) -not -path '*/node_modules/*'"
+  local files = vim.fn.systemlist(find_cmd)
+  
+  if #files == 0 then
+    vim.notify('No TypeScript files found', vim.log.levels.WARN)
+    return
+  end
+
+  ui_utils.show_progress(string.format('🔧 Processing %d TypeScript files...', #files))
+
+  local function process_file(filepath, callback)
+    local ok = pcall(function()
+      vim.cmd('edit ' .. vim.fn.fnameescape(filepath))
+      local bufnr = vim.api.nvim_get_current_buf()
+
+      -- Remove all import statements
+      vim.api.nvim_buf_call(bufnr, function()
+        vim.cmd(string.format('%%s/%s//ge', import_pattern))
+      end)
+
+      -- Trigger LSP organize imports
+      local params = {
+        command = '_typescript.organizeImports',
+        arguments = { vim.api.nvim_buf_get_name(bufnr) },
+        title = '',
+      }
+      vim.lsp.buf.execute_command(params)
+
+      -- Save and close after LSP processes
+      vim.defer_fn(function()
+        vim.cmd('silent write')
+        vim.cmd('bdelete')
+        if callback then callback() end
+      end, 500)
+    end)
+    
+    if not ok and callback then
+      callback() -- Continue even if one file fails
+    end
+  end
+
+  -- Process files sequentially to avoid conflicts
+  local current_index = 1
+  local function process_next()
+    if current_index <= #files then
+      process_file(files[current_index], function()
+        current_index = current_index + 1
+        process_next()
+      end)
+    else
+      ui_utils.show_success(string.format('✅ Finished cleaning imports in %d files', #files))
+    end
+  end
+
+  process_next()
+end
+
+-- =============================================================================
+-- Command History and Utilities
+-- =============================================================================
+
+--- Repeat and edit last command
+function M.repeat_last_command()
   local last_cmd = vim.fn.histget(':', -1)
 
   if not last_cmd or last_cmd == '' then
@@ -360,68 +551,71 @@ function M.repeatLastCommand()
     return
   end
 
-  -- Use vim.ui.input to prefill with the last command
-  vim.ui.input({
+  ui_utils.safe_input({
     prompt = 'Repeat/Edit command: ',
     default = last_cmd,
     completion = 'command',
-  }, function(input)
-    if input and input ~= '' then
-      -- Execute the command
-      vim.cmd(input)
-    end
+  }, function(command)
+    vim.cmd(command)
   end)
 end
 
-function M.runNpmCheckUpdatesFilter()
-  vim.ui.input({
-    prompt = 'Filter packages to update (glob patterns, comma-separated, optional): ',
-    default = '',
-  }, function(filterList)
-    if filterList == nil then return end
+-- =============================================================================
+-- Make/Build System Operations
+-- =============================================================================
 
-    local cmd = 'npx npm-check-updates'
-
-    if filterList ~= '' then
-      -- Clean up the filter list: remove spaces, split by comma
-      local patterns = {}
-      for pattern in string.gmatch(filterList, '([^,]+)') do
-        table.insert(patterns, string.match(pattern, '^%s*(.-)%s*$')) -- trim whitespace
-      end
-
-      if #patterns > 0 then cmd = cmd .. ' --filter ' .. table.concat(patterns, ',') end
-    end
-
-    -- Run the command in a terminal
-    vim.cmd('split')
-    vim.cmd('terminal ' .. cmd)
-    vim.cmd('startinsert')
-  end)
-end
-
-function M.createRunMakeCommand(index)
+--- Create a function to run Make targets
+---@param terminal_index? number Terminal index to use (default: 1)
+---@return function make_runner Function that runs make targets
+function M.create_make_command_runner(terminal_index)
   return function()
     local makefile = 'Makefile'
-    if not vim.fn.filereadable(makefile) then
+    if vim.fn.filereadable(makefile) == 0 then
       vim.notify('No Makefile found in current directory', vim.log.levels.ERROR)
       return
     end
+
     local targets = {}
-    for line in io.lines(makefile) do
-      local target = line:match('^(%w[%w-_%.]*)%s*:%s*')
-      if target and target ~= 'PHONY' then table.insert(targets, target) end
+    local file = io.open(makefile, 'r')
+    if not file then
+      vim.notify('Could not read Makefile', vim.log.levels.ERROR)
+      return
     end
+
+    for line in file:lines() do
+      local target = line:match('^(%w[%w-_%.]*)%s*:%s*')
+      if target and target ~= 'PHONY' then
+        table.insert(targets, target)
+      end
+    end
+    file:close()
+
     if #targets == 0 then
       vim.notify('No make targets found', vim.log.levels.ERROR)
       return
     end
-    vim.ui.select(targets, { prompt = 'Select make target:' }, function(choice)
-      if not choice then return end
-      local term = require('toggleterm.terminal').Terminal
-      local t = term:new({ cmd = 'make ' .. choice, count = index or 1, close_on_exit = false })
-      t:toggle()
+
+    ui_utils.safe_select(targets, { 
+      prompt = 'Select make target:' 
+    }, function(selected_target)
+      local ok, toggleterm = pcall(require, 'toggleterm.terminal')
+      if not ok then
+        vim.notify('ToggleTerm not available', vim.log.levels.ERROR)
+        return
+      end
+
+      local term = toggleterm.Terminal:new({
+        cmd = 'make ' .. selected_target,
+        count = terminal_index or 1,
+        close_on_exit = false
+      })
+      term:toggle()
     end)
   end
 end
+
+-- =============================================================================
+-- Legacy Function Aliases for Backward Compatibility
+
 
 return M

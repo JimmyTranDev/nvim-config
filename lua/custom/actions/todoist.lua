@@ -152,7 +152,7 @@ local function create_task_with_navigation(taskName, projects, fallbackProjectNa
   select_project()
 end
 
-function M.logTodoistTask(fallbackProjectName)
+function M.log_todoist_task(fallbackProjectName)
   return function()
     local taskName = inputUtils.getInputFromUser('Enter the task name: ')
     if taskName == nil then
@@ -177,7 +177,7 @@ function M.logTodoistTask(fallbackProjectName)
 end
 
 -- Add function to refresh Todoist cache
-function M.refreshTodoistCache()
+function M.refresh_todoist_cache()
   return function()
     todoistUtils.clear_cache()
     vim.notify('Todoist cache cleared. Next API call will fetch fresh data.', vim.log.levels.INFO)
@@ -185,7 +185,7 @@ function M.refreshTodoistCache()
 end
 
 -- Function to create task with all projects (not just salmon)
-function M.logTodoistTaskAllProjects(fallbackProjectName)
+function M.log_todoist_task_all_projects(fallbackProjectName)
   return function()
     local taskName = inputUtils.getInputFromUser('Enter the task name: ')
     if taskName == nil then

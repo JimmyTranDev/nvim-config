@@ -1,47 +1,92 @@
+-- =============================================================================
+-- Input and Buffer Utilities
+-- =============================================================================
+
 local M = {}
 
-function M.getInputFromUser(prompt, text)
-  local input = vim.fn.input(prompt, text or '')
-  if input == '' then return M.getInputFromUser(prompt) end
+-- =============================================================================
+-- User Input Functions
+-- =============================================================================
 
-  if input == ' ' then return '' end
-
+--- Get input from user with validation and retry logic
+---@param prompt string The prompt to display
+---@param default_text? string Default text to show (optional)
+---@param allow_empty? boolean Whether to allow empty input (default: false)
+---@return string input The user input
+function M.get_input(prompt, default_text, allow_empty)
+  local input = vim.fn.input(prompt, default_text or '')
+  
+  -- Handle special case where space means empty string
+  if input == ' ' then
+    return ''
+  end
+  
+  -- Retry if empty and not allowed
+  if input == '' and not allow_empty then
+    return M.get_input(prompt, default_text, allow_empty)
+  end
+  
   return input
 end
 
-function M.getSelectedText()
-  vim.cmd('normal! y')
-  local selectedText = vim.fn.getreg('"')
-  return selectedText:gsub('"', ''):gsub(':', '')
+--- Legacy function for backward compatibility
+---@param prompt string The prompt to display
+---@param text? string Default text to show
+---@return string input The user input
+function M.getInputFromUser(prompt, text)
+  return M.get_input(prompt, text, false)
 end
 
+-- =============================================================================
+-- Text Selection Functions  
+-- =============================================================================
+
+--- Get selected text with register preservation
+---@return string selected_text The selected text
+function M.get_selected_text()
+  local old_reg = vim.fn.getreg('"')
+  vim.cmd('normal! ""y')
+  local selected = vim.fn.getreg('"')
+  vim.fn.setreg('"', old_reg)
+  return selected
+end
+
+--- Get selected text with character filtering (legacy)
+---@return string selected_text The filtered selected text
+function M.getSelectedText()
+  vim.cmd('normal! y')
+  local selected_text = vim.fn.getreg('"')
+  return selected_text:gsub('"', ''):gsub(':', '')
+end
+
+--- Get selected text without any processing (legacy)
+---@return string selected_text The raw selected text
 function M.getSelectedTextPure()
   vim.cmd('normal! y')
   return vim.fn.getreg('"')
 end
 
-function M.get_selected_text()
-  -- Store current register content
-  local old_reg = vim.fn.getreg('"')
-  -- Yank selected text to default register
-  vim.cmd('normal! ""y')
-  -- Get yanked text
-  local selected = vim.fn.getreg('"')
-  -- Restore original register content
-  vim.fn.setreg('"', old_reg)
-  return selected
-end
+-- =============================================================================
+-- Buffer Content Functions
+-- =============================================================================
 
-function M.get_current_buffer_content()
+--- Get current buffer content as a string
+---@return string content The buffer content
+function M.get_buffer_content()
   local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
   return table.concat(lines, '\n')
 end
 
-function M.replace_current_buffer_content(new_content)
-  -- Get the current buffer number
+--- Replace current buffer content
+---@param new_content string The new content to set
+function M.replace_buffer_content(new_content)
+  if not new_content or type(new_content) ~= 'string' then
+    error('New content must be a string')
+  end
+  
   local bufnr = vim.api.nvim_get_current_buf()
-  -- Set the new content for the buffer
-  vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, vim.split(new_content, '\n'))
+  local lines = vim.split(new_content, '\n')
+  vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, lines)
 end
 
 return M

@@ -22,10 +22,10 @@ return {
   -- See Commands section for default commands if you want to lazy load on them
   keys = {
     { mode = 'n', '<leader>kk', ':CopilotChat<CR>', desc = 'Copilot chat', silent = true },
-    { mode = 'v', '<leader>kk', copilotActions.copilotChatSelected, desc = 'Copilot chat selected', silent = true },
+    { mode = 'v', '<leader>kk', copilotActions.chat_with_selection, desc = 'Copilot chat selected', silent = true },
 
-    { mode = 'v', '<leader>kF', copilotActions.copilotChatFms, desc = 'Copilot chat fms', silent = true },
-    { mode = 'n', '<leader>ke', copilotActions.copilotChatFixErrorUnderCursor, desc = 'Copilot chat fix error under cursor', silent = true },
+    { mode = 'v', '<leader>kF', copilotActions.improve_selection, desc = 'Copilot chat fms', silent = true },
+    { mode = 'n', '<leader>ke', copilotActions.fix_error_under_cursor, desc = 'Copilot chat fix error under cursor', silent = true },
 
     { mode = 'v', '<leader>ke', ':CopilotChatExplain<cr>', silent = true, desc = 'Explain code' },
     { mode = 'v', '<leader>kr', ':CopilotChatReview<cr>', silent = true, desc = 'Review code' },

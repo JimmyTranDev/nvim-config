@@ -81,20 +81,20 @@ return {
     { mode = 'n', '<leader>tnp', languageActions.installJavascriptPackage, silent = true, desc = 'Npm Install Multi' },
     -- keymap.set('n', '<Leader>tn', linkActions.runNpmCheckUpdates, { desc = "󰏗 NPM check updates", silent = true })
 
-    { mode = 'n', '<leader>tni', languageActions.runCommandInTerminal(11, 'install'), silent = true, desc = 'Npm Install' },
-    { mode = 'n', '<leader>tnI', toggleTermActions.createKillToggleTerm(11), silent = true, desc = 'Npm Install Exit' },
-    { mode = 'n', '<leader>tnt', languageActions.runCommandInTerminal(12, 'test'), silent = true, desc = 'Npm Text' },
-    { mode = 'n', '<leader>tnT', toggleTermActions.createKillToggleTerm(12), silent = true, desc = 'Npm Test Exit' },
-    { mode = 'n', '<leader>tnb', languageActions.runCommandInTerminal(13, 'build'), silent = true, desc = 'Npm Build' },
-    { mode = 'n', '<leader>tnB', toggleTermActions.createKillToggleTerm(13), silent = true, desc = 'Npm Build Exit' },
-    { mode = 'n', '<leader>tnc', languageActions.runCommandInTerminal(14, 'build:check-types'), silent = true, desc = 'Npm Build Check Types' },
-    { mode = 'n', '<leader>tnC', toggleTermActions.createKillToggleTerm(14), silent = true, desc = 'Npm Build Check Types Exit' },
-    { mode = 'n', '<leader>tnl', languageActions.runCommandInTerminal(15, 'lint:fix'), silent = true, desc = 'Npm Lint Fix Exit' },
-    { mode = 'n', '<leader>tnL', toggleTermActions.createKillToggleTerm(15), silent = true, desc = 'Npm Lint Fix Exit' },
-    { mode = 'n', '<leader>tns', languageActions.runCommandInTerminal(3, 'start'), silent = true, desc = 'Npm Start' },
-    { mode = 'n', '<leader>tnS', toggleTermActions.createKillToggleTerm(3), silent = true, desc = 'Npm Start Exit' },
-    { mode = 'n', '<leader>tno', languageActions.runCommandInTerminal(4, 'storybook'), silent = true, desc = 'Npm Storybook' },
-    { mode = 'n', '<leader>tnO', toggleTermActions.createKillToggleTerm(4), silent = true, desc = 'Npm Storybook Exit' },
+    { mode = 'n', '<leader>tni', languageActions.create_package_command_runner(11, 'install'), silent = true, desc = 'Npm Install' },
+    { mode = 'n', '<leader>tnI', toggleTermActions.create_kill_toggle_term(11), silent = true, desc = 'Npm Install Exit' },
+    { mode = 'n', '<leader>tnt', languageActions.create_package_command_runner(12, 'test'), silent = true, desc = 'Npm Text' },
+    { mode = 'n', '<leader>tnT', toggleTermActions.create_kill_toggle_term(12), silent = true, desc = 'Npm Test Exit' },
+    { mode = 'n', '<leader>tnb', languageActions.create_package_command_runner(13, 'build'), silent = true, desc = 'Npm Build' },
+    { mode = 'n', '<leader>tnB', toggleTermActions.create_kill_toggle_term(13), silent = true, desc = 'Npm Build Exit' },
+    { mode = 'n', '<leader>tnc', languageActions.create_package_command_runner(14, 'build:check-types'), silent = true, desc = 'Npm Build Check Types' },
+    { mode = 'n', '<leader>tnC', toggleTermActions.create_kill_toggle_term(14), silent = true, desc = 'Npm Build Check Types Exit' },
+    { mode = 'n', '<leader>tnl', languageActions.create_package_command_runner(15, 'lint:fix'), silent = true, desc = 'Npm Lint Fix Exit' },
+    { mode = 'n', '<leader>tnL', toggleTermActions.create_kill_toggle_term(15), silent = true, desc = 'Npm Lint Fix Exit' },
+    { mode = 'n', '<leader>tns', languageActions.create_package_command_runner(3, 'start'), silent = true, desc = 'Npm Start' },
+    { mode = 'n', '<leader>tnS', toggleTermActions.create_kill_toggle_term(3), silent = true, desc = 'Npm Start Exit' },
+    { mode = 'n', '<leader>tno', languageActions.create_package_command_runner(4, 'storybook'), silent = true, desc = 'Npm Storybook' },
+    { mode = 'n', '<leader>tnO', toggleTermActions.create_kill_toggle_term(4), silent = true, desc = 'Npm Storybook Exit' },
     { mode = 'n', '<leader>tnx', toggleTermActions.killAllToggleTerm, silent = true, desc = 'Npm Kill All' },
     { mode = 'n', '<leader>tnX', ':ToggleTermToggleAll<CR>', desc = 'Toggle All Terminals', silent = true },
 
@@ -113,7 +113,7 @@ return {
       '<leader>tnA',
       function()
         for i = 2, 3 do
-          toggleTermActions.createKillToggleTerm(i)()
+          toggleTermActions.create_kill_toggle_term(i)()
         end
       end,
       silent = true,
@@ -123,8 +123,8 @@ return {
       mode = 'n',
       '<leader>tnf',
       function()
-        languageActions.runCommandInTerminal(9, 'fms:types', true)()
-        languageActions.runCommandInTerminal(10, 'fms:gen', true)()
+        languageActions.create_package_command_runner(9, 'fms:types', true)()
+        languageActions.create_package_command_runner(10, 'fms:gen', true)()
       end,
       silent = true,
       desc = 'Npm FMS Types and Gen',
@@ -133,9 +133,9 @@ return {
       mode = 'n',
       '<leader>tna',
       function()
-        languageActions.runCommandInTerminal(5, 'build:check-types')()
-        languageActions.runCommandInTerminal(6, 'lint:fix')()
-        languageActions.runCommandInTerminal(7, 'test')()
+        languageActions.create_package_command_runner(5, 'build:check-types')()
+        languageActions.create_package_command_runner(6, 'lint:fix')()
+        languageActions.create_package_command_runner(7, 'test')()
       end,
       silent = true,
       desc = 'Npm All (build, lint, test)',
@@ -145,24 +145,24 @@ return {
       '<leader>tnA',
       function()
         for i = 6, 8 do
-          toggleTermActions.createKillToggleTerm(i)()
+          toggleTermActions.create_kill_toggle_term(i)()
         end
       end,
       silent = true,
       desc = 'Npm Kill All (build, lint, test)',
     },
-    { mode = 'n', '<leader>tnj', function() languageActions.runPackageJsonScript(1) end, silent = true, desc = 'Npm Script 2' },
-    { mode = 'n', '<leader>tnJ', toggleTermActions.createKillToggleTerm(1), silent = true, desc = 'Npm Script 2 Exit' },
-    { mode = 'n', '<leader>tnk', function() languageActions.runPackageJsonScript(2) end, silent = true, desc = 'Npm Script 3' },
-    { mode = 'n', '<leader>tnK', toggleTermActions.createKillToggleTerm(2), silent = true, desc = 'Npm Script 3 Exit' },
+    { mode = 'n', '<leader>tnj', function() languageActions.run_package_script(1) end, silent = true, desc = 'Npm Script 2' },
+    { mode = 'n', '<leader>tnJ', toggleTermActions.create_kill_toggle_term(1), silent = true, desc = 'Npm Script 2 Exit' },
+    { mode = 'n', '<leader>tnk', function() languageActions.run_package_script(2) end, silent = true, desc = 'Npm Script 3' },
+    { mode = 'n', '<leader>tnK', toggleTermActions.create_kill_toggle_term(2), silent = true, desc = 'Npm Script 3 Exit' },
 
     -- -- Make
-    { mode = 'n', '<leader>tmj', languageActions.createRunMakeCommand(1), desc = 'Run Makefile Target', silent = true },
-    { mode = 'n', '<leader>tmJ', toggleTermActions.createKillToggleTerm(1), desc = 'Makefile Exit', silent = true },
-    { mode = 'n', '<leader>tmk', languageActions.createRunMakeCommand(2), desc = 'Run Makefile Target', silent = true },
-    { mode = 'n', '<leader>tmK', toggleTermActions.createKillToggleTerm(2), desc = 'Makefile Exit', silent = true },
-    { mode = 'n', '<leader>tmm', languageActions.createRunMakeCommand(3), desc = 'Run Makefile Target', silent = true },
-    { mode = 'n', '<leader>tmM', toggleTermActions.createKillToggleTerm(3), desc = 'Makefile Exit', silent = true },
+    { mode = 'n', '<leader>tmj', languageActions.create_make_command_runner(1), desc = 'Run Makefile Target', silent = true },
+    { mode = 'n', '<leader>tmJ', toggleTermActions.create_kill_toggle_term(1), desc = 'Makefile Exit', silent = true },
+    { mode = 'n', '<leader>tmk', languageActions.create_make_command_runner(2), desc = 'Run Makefile Target', silent = true },
+    { mode = 'n', '<leader>tmK', toggleTermActions.create_kill_toggle_term(2), desc = 'Makefile Exit', silent = true },
+    { mode = 'n', '<leader>tmm', languageActions.create_make_command_runner(3), desc = 'Run Makefile Target', silent = true },
+    { mode = 'n', '<leader>tmM', toggleTermActions.create_kill_toggle_term(3), desc = 'Makefile Exit', silent = true },
     { mode = 'n', '<leader>tms', ':1TermExec cmd="make start"<CR>', desc = 'Make Start', silent = true },
 
     -- Cargo
@@ -188,8 +188,8 @@ return {
     { mode = 'n', '<leader>tvC', ':3TermExec cmd="mvn clean"<CR>', desc = 'Maven Clean', silent = true },
     { mode = 'n', '<leader>tvp', ':3TermExec cmd="mvn package"<CR>', desc = 'Maven Package', silent = true },
     { mode = 'n', '<leader>tvd', ':3TermExec cmd="mvn deploy"<CR>', desc = 'Maven Deploy', silent = true },
-    { mode = 'n', '<leader>tvJ', languageActions.runJavaClassJavac, desc = 'Java Run Javac', silent = true },
-    { mode = 'n', '<leader>tvj', languageActions.runJavaClassMvn, desc = 'Maven Run', silent = true },
+    { mode = 'n', '<leader>tvJ', languageActions.run_java_class_javac, desc = 'Java Run Javac', silent = true },
+    { mode = 'n', '<leader>tvj', languageActions.run_java_class_maven, desc = 'Maven Run', silent = true },
   },
   config = function()
     require('toggleterm').setup({
