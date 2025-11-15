@@ -30,7 +30,7 @@ function M.get_projects(callback)
     'Content-Type: application/json',
   }
 
-  asyncUtils.execute_curl_async(cmd, function(success, result)
+  asyncUtils.execute_curl(cmd, function(success, result)
     if not success then
       print('Error: Failed to fetch projects - ' .. result)
       if callback then callback(false, result) end
@@ -107,7 +107,7 @@ function M.get_sections(project_id, callback)
     'Content-Type: application/json',
   }
 
-  asyncUtils.execute_curl_async(cmd, function(success, result)
+  asyncUtils.execute_curl(cmd, function(success, result)
     if not success then
       print('Error: Failed to fetch sections - ' .. result)
       if callback then callback(false, result) end
@@ -196,7 +196,7 @@ function M.create_task_with_project(content, project_id, section_id, priority, d
     json_data,
   }
 
-  asyncUtils.execute_curl_async(cmd, function(success, result)
+  asyncUtils.execute_curl(cmd, function(success, result)
     if not success then
       print('Error: Failed to create task - ' .. result)
       if callback then callback(false, result) end
@@ -242,7 +242,7 @@ function M.create_task(text, callback)
     string.format('{"content": "%s"}', text:gsub('"', '\\"')),
   }
 
-  asyncUtils.execute_curl_async(cmd, function(success, result)
+  asyncUtils.execute_curl(cmd, function(success, result)
     if not success then
       print('Error: Failed to create task - ' .. result)
       if callback then callback(false, result) end
@@ -286,7 +286,7 @@ function M.create_task_quick(text, callback)
     'text=' .. text:gsub(' ', '%%20'):gsub('"', '%%22'),
   }
 
-  asyncUtils.execute_curl_async(cmd, function(success, result)
+  asyncUtils.execute_curl(cmd, function(success, result)
     if not success then
       print('Error: Failed to create task - ' .. result)
       if callback then callback(false, result) end
