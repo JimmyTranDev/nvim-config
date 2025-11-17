@@ -82,6 +82,7 @@ map('n', '<leader><leader>tt', checkboxActions.toggle, { desc = '☑️  Toggle 
 map('n', '<leader>;r', languageActions.repeat_last_command, { desc = '⟳ Repeat last command' })
 map('n', '<leader>;d', errorsActions.copy_diagnostic_under_cursor, { desc = '📋 Copy diagnostic' })
 map('n', '<leader>;f', fileActions.copy_all_files_content, { desc = '📁 Copy all files content' })
+map('n', '<leader>;l', fileActions.copy_current_file_url, { desc = '🔗 Copy current file link' })
 map('n', '<leader>;v', vscodeActions.open_in_vscode, { desc = '💻 Open in VSCode' })
 
 -- ===============================

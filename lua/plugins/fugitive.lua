@@ -32,7 +32,6 @@ return {
     { mode = 'n', '<Leader>gM', ':Git commit --amend --no-verify --no-edit<CR>', desc = ' Amend', silent = true },
     { mode = 'n', '<Leader>gP', ':Git push<CR>', desc = ' Push', silent = true },
     { mode = 'n', '<Leader>gV', ':Git add .<CR>', desc = ' Add all', silent = true },
-    { mode = 'n', '<Leader>gX', ':Git clean -fd<CR>', desc = '🗑️ Remove all unstaged files', silent = true },
 
     -- EFFICIENT COMBO
     {
@@ -53,12 +52,13 @@ return {
     -- RESET
     { mode = 'n', '<Leader>grC', gitActions.resetAllWithConfirm, desc = '🔥 Reset ALL with confirm', silent = true },
     { mode = 'n', '<Leader>grr', ':Git reset .<CR>', desc = 'Reset patch', silent = true },
-    { mode = 'n', '<Leader>grT', ':Git reset -p<CR>', desc = 'Reset', silent = true },
-    { mode = 'n', '<Leader>grt', ':Git restore -p<CR>', desc = 'Restore patch', silent = true },
     { mode = 'n', '<Leader>grR', function() require('custom.actions.git').resetToReflog() end, desc = 'Reset to reflog', silent = true },
-    { mode = 'n', '<Leader>grH', function() require('custom.actions.git').resetHardToCommit() end, desc = '🔥 Reset hard to commit', silent = true },
-    { mode = 'n', '<Leader>grS', function() require('custom.actions.git').resetSoftToCommit() end, desc = '💿 Reset soft to commit', silent = true },
-    { mode = 'n', '<Leader>grO', ':Git reset --hard origin<CR>', desc = '💥 Reset hard to origin', silent = true },
+    { mode = 'n', '<Leader>grX', ':Git clean -fd<CR>', desc = '🗑️ Remove all unstaged files', silent = true },
+    -- { mode = 'n', '<Leader>grT', ':Git reset -p<CR>', desc = 'Reset', silent = true },
+    -- { mode = 'n', '<Leader>grt', ':Git restore -p<CR>', desc = 'Restore patch', silent = true },
+    -- { mode = 'n', '<Leader>grH', function() require('custom.actions.git').resetHardToCommit() end, desc = '🔥 Reset hard to commit', silent = true },
+    -- { mode = 'n', '<Leader>grS', function() require('custom.actions.git').resetSoftToCommit() end, desc = '💿 Reset soft to commit', silent = true },
+    -- { mode = 'n', '<Leader>grO', ':Git reset --hard origin<CR>', desc = '💥 Reset hard to origin', silent = true },
 
     -- BRANCH
     { mode = 'n', '<Leader>gbP', ':Git pull --rebase<CR>', desc = 'Branch pull rebase', silent = true },
