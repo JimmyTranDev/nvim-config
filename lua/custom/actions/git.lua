@@ -66,9 +66,9 @@ end
 
 function M.createCommit(prefix, emoji, shouldPush, shouldGeneric)
   return function()
-    local projectName = fileUtils.getCwdName()
-    local branchName = gitUtils.getCurrentBranchName()
-    local jiraTicket = gitUtils.getJiraTicket(branchName)
+    local projectName = fileUtils.get_cwd_name()
+    local branchName = gitUtils.get_current_branch()
+    local jiraTicket = gitUtils.extract_jira_ticket(branchName)
 
     local commitMessage = ''
 
@@ -102,7 +102,7 @@ function M.quickCommitUpdate()
 end
 
 function M.createCommitFromBranchName()
-  local branchName = gitUtils.getCurrentBranchName()
+  local branchName = gitUtils.get_current_branch()
   if not branchName or branchName == '' or branchName == 'main' or branchName == 'master' then
     vim.notify('Cannot generate commit from current branch name')
     return
@@ -150,7 +150,7 @@ function M.createCommitFromBranchName()
     emoji = '✨'
   end
 
-  local jiraTicket = gitUtils.getJiraTicket(branchName)
+  local jiraTicket = gitUtils.extract_jira_ticket(branchName)
   local jiraTicketPart = jiraTicket == '' and '' or jiraTicket .. ' '
 
   -- Remove prefix and Jira ticket from description to avoid duplication
@@ -162,10 +162,15 @@ function M.createCommitFromBranchName()
 
   commitMessage = prefix .. ': ' .. emoji .. ' ' .. jiraTicketPart .. description
 
-  local projectName = fileUtils.getCwdName()
+  local projectName = fileUtils.get_cwd_name()
   loggingUtils.logHistory('logs-work', string.format('[%s] %s', projectName, commitMessage))
 
-  vim.cmd(string.format('Git commit --no-verify -m "%s"', commitMessage))
+  -- Add all changes first
+  vim.cmd('Git add .')
+  
+  -- Escape the commit message properly
+  local escapedMessage = commitMessage:gsub('"', '\\"')
+  vim.cmd(string.format('Git commit --no-verify -m "%s"', escapedMessage))
 
   vim.notify('Committed: ' .. commitMessage)
 end
@@ -178,7 +183,7 @@ function M.addTagToHash()
   local tagName = inputUtils.getInputFromUser('Tag Name: ')
   if tagName == '' then return end
 
-  local commitLines, commitLineToSha = gitUtils.getCommitLineToSha(false)
+  local commitLines, commitLineToSha = gitUtils.get_commit_log(false)
   local message = inputUtils.getInputFromUser('Tag Message: ')
 
   vim.ui.select(commitLines, {
@@ -598,7 +603,7 @@ end
 function M.openGithubPullRequest()
   local githubUtils = require('custom.utils.github')
 
-  local branch = gitUtils.getCurrentBranchName()
+  local branch = gitUtils.get_current_branch()
   local repo = githubUtils.getRepoName()
   local username = vim.env.GITHUB_USERNAME or vim.env.PRI_GITHUB_USERNAME or ''
   if not branch or branch == '' or not repo or repo == '' or username == '' then

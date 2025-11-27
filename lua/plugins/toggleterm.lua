@@ -96,7 +96,7 @@ return {
     { mode = 'n', '<leader>tno', languageActions.create_package_command_runner(4, 'storybook'), silent = true, desc = 'Npm Storybook' },
     { mode = 'n', '<leader>tnO', toggleTermActions.create_kill_toggle_term(4), silent = true, desc = 'Npm Storybook Exit' },
     { mode = 'n', '<leader>tnx', toggleTermActions.killAllToggleTerm, silent = true, desc = 'Npm Kill All' },
-    { mode = 'n', '<leader>tnX', ':ToggleTermToggleAll<CR>', desc = 'Toggle All Terminals', silent = true },
+    { mode = 'n', '<leader>tnx', ':ToggleTermToggleAll<CR>', desc = 'Toggle All Terminals', silent = true },
 
     {
       mode = 'n',

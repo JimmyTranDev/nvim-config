@@ -44,8 +44,8 @@ return {
     {
       mode = 'n',
       '<Leader>gyy',
-      ":Git add . <Bar> :Git commit --no-verify -m 'feat: ✨ update' <Bar> :Git push<CR>",
-      desc = ' Commit and push',
+      ':Git add . <Bar> :Git commit --no-verify -m "feat: ✨ update" <Bar> :Git push<CR>',
+      desc = ' Commit and push',
       silent = true,
     },
 
