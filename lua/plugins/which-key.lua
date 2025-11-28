@@ -200,13 +200,15 @@ return {
       { '<leader>ls', group = '󰒋 Servers', mode = { 'n', 'v' } },
       { '<leader>lt', group = '󰙨 Tools', mode = { 'n', 'v' } },
 
-      -- Main Leader Key Groups
-      { '<leader>', group = '󱁐 Leader', mode = { 'n', 'v' } },
-      { '<leader>a', group = '󰚩 AI', mode = { 'n', 'v' } },
-      { '<leader>c', group = '󰛦 TypeScript', mode = { 'n', 'v' } },
-      { '<leader>d', group = '󱉏 Dropbar', mode = { 'n', 'v' } },
-      { '<leader>e', group = '󰇥 Explorer', mode = { 'n', 'v' } },
-      { '<leader>E', group = '󰇥 Explorer (Root)', mode = { 'n', 'v' } },
+       -- Main Leader Key Groups
+       { '<leader>', group = '󱁐 Leader', mode = { 'n', 'v' } },
+       { '<leader>a', group = '󰚩 AI', mode = { 'n', 'v' } },
+       { '<leader>b', group = '󰌃 Brain Training', mode = { 'n', 'v' } },
+       { '<leader>c', group = '󰛦 TypeScript', mode = { 'n', 'v' } },
+       { '<leader>d', group = '󱉏 Dropbar', mode = { 'n', 'v' } },
+       { '<leader>e', group = '󰇥 Explorer', mode = { 'n', 'v' } },
+       { '<leader>E', group = '󰇥 Explorer (Root)', mode = { 'n', 'v' } },
+       { '<leader>F', desc = '󰙂 Floating Terminal', mode = { 'n', 'v' } },
       { '<leader>i', desc = '󰘻 Jump In', mode = { 'n', 'v' } },
       { '<leader>j', group = '󰊢 Git Hunks', mode = { 'n', 'v' } },
       { '<leader>k', group = '󰌌 Keymaps', mode = { 'n', 'v' } },

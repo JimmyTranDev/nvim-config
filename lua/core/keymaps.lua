@@ -155,6 +155,14 @@ map('n', '<leader>zu', ':Lazy update<CR>', { desc = 'Lazy update' })
 map('n', '<leader>zz', ':Lazy<CR>', { desc = 'Open Lazy' })
 
 -- =============================================================================
+-- Leader + b - Brain Training
+-- =============================================================================
+
+map('n', '<Leader>bl', ':Leet<CR>', { desc = '󰞷 Open LeetCode' })
+map('n', '<Leader>bt', ':Typr<CR>', { desc = '󰗀 Start typing test' })
+map('n', '<Leader>bs', ':TyprStats<CR>', { desc = '󰄨 Show typing stats' })
+
+-- =============================================================================
 -- Leader + u - File & Link Operations (Advanced)
 -- =============================================================================
 map('n', '<Leader>ua', fileActions.move_file_to_assets('/Downloads'), { desc = ' Move to assets (Downloads)' })
