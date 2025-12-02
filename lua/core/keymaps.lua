@@ -17,7 +17,6 @@ local replacementActions = require('custom.actions.replacement')
 local storageActions = require('custom.actions.storage')
 local lspActions = require('custom.actions.lsp')
 local documentationActions = require('custom.actions.documentation')
-local vscodeActions = require('custom.actions.vscode')
 local gitActions = require('custom.actions.git')
 
 -- Helper to set keymaps with silent and noremap by default
@@ -52,7 +51,9 @@ map('', '<S-K>', '<C-U>', { desc = 'Scroll up half page' })
 map('n', '<leader><leader>da', languageActions.launch_android_emulator, { desc = '🤖 Launch Android emulator' })
 map('n', '<leader><leader>de', languageActions.run_eslint_picker, { desc = '🔍 Run ESLint quickfix' })
 map('n', '<leader><leader>df', languageActions.fix_and_organize_typescript_imports, { desc = '🔧 Fix and organize imports (TS)' })
+map('n', '<leader><leader>dr', languageActions.repeat_last_command, { desc = '⟳ Repeat last command' })
 map('n', '<leader><leader>ds', linkActions.open_dev_server, { desc = '󰒋 Development server' })
+map('n', '<leader><leader>dw', ':SudaWrite<CR>', { desc = '🔐 Sudo write' })
 
 -- ===============================
 -- <leader><leader>m - Documentation & Manual
@@ -80,11 +81,9 @@ map('n', '<leader><leader>tt', checkboxActions.toggle, { desc = '☑️  Toggle 
 -- ===============================
 -- <leader>; - Misc Quick Access
 -- ===============================
-map('n', '<leader>;r', languageActions.repeat_last_command, { desc = '⟳ Repeat last command' })
 map('n', '<leader>;d', errorsActions.copy_diagnostic_under_cursor, { desc = '📋 Copy diagnostic' })
 map('n', '<leader>;f', fileActions.copy_all_files_content, { desc = '📁 Copy all files content' })
 map('n', '<leader>;l', fileActions.copy_current_file_url, { desc = '🔗 Copy current file link' })
-map('n', '<leader>;v', vscodeActions.open_in_vscode, { desc = '💻 Open in VSCode' })
 map('n', '<leader>;p', gitActions.openExistingPullRequestOnly, { desc = '🔗 Open existing PR link' })
 
 -- ===============================
