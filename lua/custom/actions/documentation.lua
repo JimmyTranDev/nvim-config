@@ -143,7 +143,7 @@ function M.add_convention_to_readme()
   if not readme_path then return end
   
   local prompt = generate_convention_prompt(convention)
-  ui_utils.show_info('Generating example with ChatGPT...')
+  ui_utils.show_progress('Generating example with ChatGPT...')
   
   http_utils.chatgpt_request(prompt, function(response)
     if not response or not response.content then

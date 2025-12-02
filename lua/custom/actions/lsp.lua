@@ -56,7 +56,7 @@ end
 
 --- Refresh all LSP clients (stop all and restart for current buffer)
 function M.refresh_all_lsps()
-  ui_utils.show_info('Refreshing all LSP clients...')
+  ui_utils.show_progress('Refreshing all LSP clients...')
   
   local stopped_count = stop_all_lsp_clients()
   

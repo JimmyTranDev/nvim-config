@@ -27,7 +27,7 @@ local function map(mode, lhs, rhs, opts)
   keymap.set(mode, lhs, rhs, opts)
 end
 
-keymap.set('n', '<Leader>rl', lspActions.refresh_all_lsps, { desc = '🔄 Refresh all LSPs', silent = true })
+
 
 -- Window & Navigation
 map('n', '<C-h>', '<C-W><C-H>', { desc = 'Move to left window' })
@@ -88,6 +88,8 @@ map('n', '<leader>;d', fileActions.open_current_dir, { desc = '📁 Open directo
 map('n', '<leader>;g', linkActions.open_current_github_repo, { desc = '󰊤 Open current GitHub repo' })
 map('n', '<leader>;G', linkActions.open_current_github_prs, { desc = '󰊤 Open GitHub PRs tab' })
 map('n', '<leader>;p', gitActions.openExistingPullRequestOnly, { desc = '🔗 Open existing PR link' })
+map('n', '<leader>;r', lspActions.refresh_all_lsps, { desc = '🔄 Refresh all LSPs' })
+map('n', '<leader>;t', '<cmd>Copilot toggle<CR>', { desc = '🤖 Toggle Copilot autocomplete' })
 
 -- ===============================
 -- <leader><leader>r - Replacement Operations

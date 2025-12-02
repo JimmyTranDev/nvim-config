@@ -69,15 +69,7 @@ return {
       end,
     })
 
-    vim.keymap.set('n', '<leader>ct', function()
-      if vim.b.copilot_enabled == false then
-        vim.cmd('Copilot enable')
-        vim.notify('Copilot enabled', vim.log.levels.INFO)
-      else
-        vim.cmd('Copilot disable')
-        vim.notify('Copilot disabled', vim.log.levels.INFO)
-      end
-    end, { desc = 'Toggle Copilot' })
+    vim.keymap.set('n', '<leader>ct', '<cmd>Copilot toggle<CR>', { desc = 'Toggle Copilot' })
 
     vim.keymap.set('n', '<leader>cs', '<cmd>Copilot status<CR>', { desc = 'Copilot status' })
   end,

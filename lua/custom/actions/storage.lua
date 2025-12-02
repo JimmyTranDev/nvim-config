@@ -76,7 +76,7 @@ local function create_template_file(template, secrets_path)
     file:write(content)
     file:close()
     
-    ui_utils.show_info('Created template file: ' .. file_path)
+    ui_utils.show_progress('Created template file: ' .. file_path)
   end)
   
   if not ok then
@@ -113,7 +113,7 @@ function M.init_secrets_directory()
     return false
   end
   
-  ui_utils.show_info('Initializing secrets directory...')
+  ui_utils.show_progress('Initializing secrets directory...')
   
   local success_count = 0
   for _, template in ipairs(TEMPLATE_FILES) do
@@ -154,7 +154,7 @@ function M.sync_secrets_simple()
   
   local sync_cmd = build_sync_command(credentials, SECRETS_PATH)
   
-  ui_utils.show_info('Syncing secrets to cloud storage...')
+  ui_utils.show_progress('Syncing secrets to cloud storage...')
   
   local success = os.execute(sync_cmd)
   if success then
