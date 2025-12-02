@@ -12,8 +12,9 @@ local M = {}
 -- =============================================================================
 
 --- Stop all active LSP clients
+---@param silent boolean? Whether to suppress notifications
 ---@return number stopped_count Number of clients stopped
-local function stop_all_lsp_clients()
+local function stop_all_lsp_clients(silent)
   local clients = vim.lsp.get_clients()
   local stopped_count = 0
   
@@ -25,9 +26,13 @@ local function stop_all_lsp_clients()
       
       if ok then
         stopped_count = stopped_count + 1
-        vim.notify('Stopped LSP client: ' .. client.name, vim.log.levels.DEBUG)
+        if not silent then
+          vim.notify('Stopped LSP client: ' .. client.name, vim.log.levels.DEBUG)
+        end
       else
-        vim.notify('Failed to stop LSP client ' .. client.name .. ': ' .. tostring(err), vim.log.levels.WARN)
+        if not silent then
+          vim.notify('Failed to stop LSP client ' .. client.name .. ': ' .. tostring(err), vim.log.levels.WARN)
+        end
       end
     end
   end
@@ -36,14 +41,17 @@ local function stop_all_lsp_clients()
 end
 
 --- Restart LSP for current buffer
-local function restart_lsp_for_buffer()
+---@param silent boolean? Whether to suppress error notifications
+local function restart_lsp_for_buffer(silent)
   local ok, err = pcall(function()
     vim.cmd('edit')
     vim.cmd('LspStart')
   end)
   
   if not ok then
-    vim.notify('Failed to restart LSP: ' .. tostring(err), vim.log.levels.ERROR)
+    if not silent then
+      vim.notify('Failed to restart LSP: ' .. tostring(err), vim.log.levels.ERROR)
+    end
     return false
   end
   
@@ -58,7 +66,7 @@ end
 function M.refresh_all_lsps()
   ui_utils.show_progress('Refreshing all LSP clients...')
   
-  local stopped_count = stop_all_lsp_clients()
+  local stopped_count = stop_all_lsp_clients(false)
   
   if stopped_count > 0 then
     vim.notify(string.format('Stopped %d LSP client(s)', stopped_count), vim.log.levels.INFO)
@@ -68,9 +76,19 @@ function M.refresh_all_lsps()
   
   -- Small delay to allow clients to fully stop
   vim.defer_fn(function()
-    if restart_lsp_for_buffer() then
+    if restart_lsp_for_buffer(false) then
       ui_utils.show_success('LSP clients refreshed successfully')
     end
+  end, 100)
+end
+
+--- Refresh all LSP clients silently (no notifications)
+function M.refresh_all_lsps_silent()
+  local stopped_count = stop_all_lsp_clients(true)
+  
+  -- Small delay to allow clients to fully stop
+  vim.defer_fn(function()
+    restart_lsp_for_buffer(true)
   end, 100)
 end
 

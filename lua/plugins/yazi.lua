@@ -1,6 +1,5 @@
 return {
   'mikavilpas/yazi.nvim',
-  dependencies = { 'folke/snacks.nvim', lazy = true },
   keys = {
     -- 👇 in this section, choose your own keymappings!
     {

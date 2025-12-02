@@ -1,8 +1,5 @@
 return {
   '2KAbhishek/nerdy.nvim',
-  dependencies = {
-    'folke/snacks.nvim', -- Primary picker (recommended)
-  },
   lazy = true,
   cmd = { 'Nerdy' },
   keys = {
