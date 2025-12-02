@@ -18,6 +18,7 @@ local storageActions = require('custom.actions.storage')
 local lspActions = require('custom.actions.lsp')
 local documentationActions = require('custom.actions.documentation')
 local vscodeActions = require('custom.actions.vscode')
+local gitActions = require('custom.actions.git')
 
 -- Helper to set keymaps with silent and noremap by default
 local function map(mode, lhs, rhs, opts)
@@ -84,6 +85,7 @@ map('n', '<leader>;d', errorsActions.copy_diagnostic_under_cursor, { desc = '�
 map('n', '<leader>;f', fileActions.copy_all_files_content, { desc = '📁 Copy all files content' })
 map('n', '<leader>;l', fileActions.copy_current_file_url, { desc = '🔗 Copy current file link' })
 map('n', '<leader>;v', vscodeActions.open_in_vscode, { desc = '💻 Open in VSCode' })
+map('n', '<leader>;p', gitActions.openExistingPullRequestOnly, { desc = '🔗 Open existing PR link' })
 
 -- ===============================
 -- <leader><leader>r - Replacement Operations

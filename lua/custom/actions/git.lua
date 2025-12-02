@@ -635,6 +635,50 @@ function M.openGithubPullRequest()
   end
 end
 
+function M.openExistingPullRequestOnly()
+  local githubUtils = require('custom.utils.github')
+  
+  local branch = gitUtils.get_current_branch()
+  if not branch or branch == '' then
+    vim.notify('Could not determine current branch', vim.log.levels.ERROR)
+    return
+  end
+  
+  local handle = io.popen('gh pr list --json number,headRefName,url')
+  if not handle then
+    vim.notify('Failed to run gh command', vim.log.levels.ERROR)
+    return
+  end
+  
+  local prListJson = handle:read('*a')
+  handle:close()
+  
+  if vim.v.shell_error ~= 0 then
+    vim.notify('Failed to fetch PR list. Make sure gh CLI is installed and authenticated.', vim.log.levels.ERROR)
+    return
+  end
+  
+  local prUrl = nil
+  if prListJson and prListJson ~= '' then
+    local ok, prList = pcall(vim.fn.json_decode, prListJson)
+    if ok and prList then
+      for _, pr in ipairs(prList) do
+        if pr.headRefName == branch and pr.url then
+          prUrl = pr.url
+          break
+        end
+      end
+    end
+  end
+  
+  if prUrl then
+    fileUtils.open(prUrl)
+    vim.notify('🔗 Opened PR for branch: ' .. branch, vim.log.levels.INFO)
+  else
+    vim.notify('❌ No existing PR found for branch: ' .. branch, vim.log.levels.WARN)
+  end
+end
+
 -- =============================================================================
 -- Rebase Operations
 -- =============================================================================
