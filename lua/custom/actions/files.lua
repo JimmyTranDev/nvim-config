@@ -65,23 +65,6 @@ function M.move_file_to_assets(source_dir)
   end
 end
 
---- Open file using path from clipboard
-function M.open_file_from_clipboard()
-  local clipboard_content = vim.fn.getreg('"')
-  clipboard_content = vim.fn.trim(clipboard_content)
-
-  if clipboard_content == '' then
-    vim.notify('No content in clipboard', vim.log.levels.WARN)
-    return
-  end
-
-  local escaped_path = vim.fn.fnameescape(clipboard_content)
-  local ok, err = pcall(vim.cmd, 'edit ' .. escaped_path)
-  
-  if not ok then
-    vim.notify('Failed to open file: ' .. err, vim.log.levels.ERROR)
-  end
-end
 
 --- Yank word under cursor and open as file
 function M.yank_word_and_open()

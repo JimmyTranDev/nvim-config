@@ -12,6 +12,13 @@ function M.create_kill_toggle_term(index)
   end
 end
 
+function M.killAllToggleTerm()
+  local all_terms = require('toggleterm.terminal').get_all()
+  for _, term in pairs(all_terms) do
+    term:shutdown()
+  end
+end
+
 function M.kill_all_toggle_term()
   local all_terms = require('toggleterm.terminal').get_all()
   for _, term in pairs(all_terms) do

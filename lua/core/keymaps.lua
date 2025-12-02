@@ -81,9 +81,12 @@ map('n', '<leader><leader>tt', checkboxActions.toggle, { desc = '☑️  Toggle 
 -- ===============================
 -- <leader>; - Misc Quick Access
 -- ===============================
-map('n', '<leader>;d', errorsActions.copy_diagnostic_under_cursor, { desc = '📋 Copy diagnostic' })
-map('n', '<leader>;f', fileActions.copy_all_files_content, { desc = '📁 Copy all files content' })
-map('n', '<leader>;l', fileActions.copy_current_file_url, { desc = '🔗 Copy current file link' })
+map('n', '<leader>;e', errorsActions.copy_diagnostic_under_cursor, { desc = '📋 Copy diagnostic' })
+map('n', '<leader>;c', fileActions.copy_all_files_content, { desc = '📁 Copy all files content' })
+map('n', '<leader>;f', fileActions.copy_current_file_url, { desc = '🔗 Copy current file link' })
+map('n', '<leader>;d', fileActions.open_current_dir, { desc = '📁 Open directory' })
+map('n', '<leader>;g', linkActions.open_current_github_repo, { desc = '󰊤 Open current GitHub repo' })
+map('n', '<leader>;G', linkActions.open_current_github_prs, { desc = '󰊤 Open GitHub PRs tab' })
 map('n', '<leader>;p', gitActions.openExistingPullRequestOnly, { desc = '🔗 Open existing PR link' })
 
 -- ===============================
@@ -168,9 +171,7 @@ map('n', '<Leader>bs', ':TyprStats<CR>', { desc = '󰄨 Show typing stats' })
 -- =============================================================================
 map('n', '<Leader>ua', fileActions.move_file_to_assets('/Downloads'), { desc = ' Move to assets (Downloads)' })
 map('n', '<Leader>uA', fileActions.move_file_to_assets('/Desktop'), { desc = ' Move to assets (Desktop)' })
-map('n', '<Leader>uc', fileActions.open_file_from_clipboard, { desc = ' Open file from clipboard', silent = true })
 map('n', '<Leader>uj', linkActions.open_jira_ticket, { desc = '󰌃 Open Jira ticket', silent = true })
 
 map('n', '<Leader>un', linkActions.open_npm_url, { desc = ' Open NPM link', silent = true })
-map('n', '<Leader>uo', fileActions.open_current_dir, { desc = ' Open directory', silent = true })
 map('n', '<Leader>uu', linkActions.open_useful_link, { desc = ' Open useful link', silent = true })

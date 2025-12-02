@@ -68,9 +68,12 @@ return {
     { mode = 'n', '<leader>t1', ':1ToggleTerm<CR>', desc = 'Toggle Terminal 1', silent = true },
     { mode = 'n', '<leader>t2', ':2ToggleTerm<Cr>', desc = 'Toggle Terminal 2', silent = true },
 
-    -- Keybindings
-    { mode = 't', '<c-q>', [[<C-\><C-n>:q<CR>]], desc = 'Terminal Escape and Exit', silent = true },
-    { mode = 't', '<c-w>', [[<C-\><C-n>]], desc = 'Terminal Escape', silent = true }, -- Javascript
+    -- Terminal mode keybindings
+    { mode = 't', '<C-h>', [[<Cmd>wincmd h<CR>]], desc = 'Terminal left window', silent = true },
+    { mode = 't', '<C-j>', [[<Cmd>wincmd j<CR>]], desc = 'Terminal down window', silent = true },
+    { mode = 't', '<C-k>', [[<Cmd>wincmd k<CR>]], desc = 'Terminal up window', silent = true },
+    { mode = 't', '<C-l>', [[<Cmd>wincmd l<CR>]], desc = 'Terminal right window', silent = true },
+    { mode = 't', '<Esc>', [[<C-\><C-n>]], desc = 'Terminal escape to normal mode', silent = true },
     { mode = 'n', '<leader>tnum', ':2TermExec cmd="npx npm-check-updates -u -t minor"<CR>', silent = true, desc = 'Npm Update Minor' },
     { mode = 'n', '<leader>tnun', ':2TermExec cmd="npx npm-check-updates -u"<CR>', silent = true, desc = 'Npm Update Major' },
     { mode = 'n', '<leader>tnup', ':2TermExec cmd="npx npm-check-updates -u -t patch"<CR>', silent = true, desc = 'Npm Update Patch' },
@@ -95,8 +98,8 @@ return {
     { mode = 'n', '<leader>tnS', toggleTermActions.create_kill_toggle_term(3), silent = true, desc = 'Npm Start Exit' },
     { mode = 'n', '<leader>tno', languageActions.create_package_command_runner(4, 'storybook'), silent = true, desc = 'Npm Storybook' },
     { mode = 'n', '<leader>tnO', toggleTermActions.create_kill_toggle_term(4), silent = true, desc = 'Npm Storybook Exit' },
-    { mode = 'n', '<leader>tnx', toggleTermActions.killAllToggleTerm, silent = true, desc = 'Npm Kill All' },
-    { mode = 'n', '<leader>tnx', ':ToggleTermToggleAll<CR>', desc = 'Toggle All Terminals', silent = true },
+    { mode = 'n', '<leader>tnx', toggleTermActions.killAllToggleTerm, silent = true, desc = 'Kill All Terminals' },
+    { mode = 'n', '<leader>tta', ':ToggleTermToggleAll<CR>', desc = 'Toggle All Terminals', silent = true },
 
     {
       mode = 'n',

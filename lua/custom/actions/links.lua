@@ -131,6 +131,59 @@ function M.open_private_github_repo()
   open_url_safe(url, string.format('Private repo: %s', current_repo))
 end
 
+--- Open current project's GitHub repository
+function M.open_current_github_repo()
+  -- Get current repository info using gh CLI
+  local handle = io.popen('gh repo view --json url 2>/dev/null')
+  if not handle then
+    vim.notify('Failed to run gh command', vim.log.levels.ERROR)
+    return
+  end
+  
+  local output = handle:read('*a')
+  handle:close()
+  
+  if vim.v.shell_error ~= 0 then
+    vim.notify('Failed to get repository info. Make sure you are in a git repository and gh CLI is authenticated.', vim.log.levels.ERROR)
+    return
+  end
+  
+  local ok, repo_info = pcall(vim.fn.json_decode, output)
+  if not ok or not repo_info or not repo_info.url then
+    vim.notify('Could not determine repository URL', vim.log.levels.ERROR)
+    return
+  end
+  
+  open_url_safe(repo_info.url, 'Current GitHub repository')
+end
+
+--- Open current project's GitHub pull requests tab
+function M.open_current_github_prs()
+  -- Get current repository info using gh CLI
+  local handle = io.popen('gh repo view --json url 2>/dev/null')
+  if not handle then
+    vim.notify('Failed to run gh command', vim.log.levels.ERROR)
+    return
+  end
+  
+  local output = handle:read('*a')
+  handle:close()
+  
+  if vim.v.shell_error ~= 0 then
+    vim.notify('Failed to get repository info. Make sure you are in a git repository and gh CLI is authenticated.', vim.log.levels.ERROR)
+    return
+  end
+  
+  local ok, repo_info = pcall(vim.fn.json_decode, output)
+  if not ok or not repo_info or not repo_info.url then
+    vim.notify('Could not determine repository URL', vim.log.levels.ERROR)
+    return
+  end
+  
+  local pr_url = repo_info.url .. '/pulls'
+  open_url_safe(pr_url, 'GitHub pull requests')
+end
+
 -- =============================================================================
 -- Infrastructure and Environment Links
 -- =============================================================================
