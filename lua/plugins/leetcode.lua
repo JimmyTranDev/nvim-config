@@ -62,29 +62,29 @@ return {
     end
 
     -- Core LeetCode operations
-    map('n', '<leader>bl', '<cmd>Leet<CR>', '󰞷 Open LeetCode')
-    map('n', '<leader>bm', '<cmd>Leet menu<CR>', '󰍉 LeetCode menu')  
-    map('n', '<leader>bc', '<cmd>Leet console<CR>', '󰆍 Open console')
-    map('n', '<leader>bi', '<cmd>Leet info<CR>', 'ℹ️  Problem info')
+    map('n', '<leader>bll', '<cmd>Leet<CR>', '󰞷 Open LeetCode')
+    map('n', '<leader>blm', '<cmd>Leet menu<CR>', '󰍉 LeetCode menu')  
+    map('n', '<leader>blc', '<cmd>Leet console<CR>', '󰆍 Open console')
+    map('n', '<leader>bli', '<cmd>Leet info<CR>', 'ℹ️  Problem info')
     
     -- Problem navigation & browsing
-    map('n', '<leader>bL', '<cmd>Leet list<CR>', '📋 List problems')
-    map('n', '<leader>bd', '<cmd>Leet daily<CR>', '📅 Daily challenge')  
-    map('n', '<leader>bR', '<cmd>Leet random<CR>', '🎲 Random problem')
+    map('n', '<leader>blL', '<cmd>Leet list<CR>', '📋 List problems')
+    map('n', '<leader>bld', '<cmd>Leet daily<CR>', '📅 Daily challenge')  
+    map('n', '<leader>blR', '<cmd>Leet random<CR>', '🎲 Random problem')
     
     -- Code execution & testing  
-    map('n', '<leader>br', '<cmd>Leet run<CR>', '▶️  Run code')
-    map('n', '<leader>bS', '<cmd>Leet submit<CR>', '📤 Submit solution')
-    map('n', '<leader>bT', '<cmd>Leet test<CR>', '🧪 Run tests')
+    map('n', '<leader>blr', '<cmd>Leet run<CR>', '▶️  Run code')
+    map('n', '<leader>blS', '<cmd>Leet submit<CR>', '📤 Submit solution')
+    map('n', '<leader>blT', '<cmd>Leet test<CR>', '🧪 Run tests')
     
     -- Session & content management
-    map('n', '<leader>bs', '<cmd>Leet session<CR>', '🔗 Manage session') 
-    map('n', '<leader>by', '<cmd>Leet yank<CR>', '📋 Yank solution')
+    map('n', '<leader>bls', '<cmd>Leet session<CR>', '🔗 Manage session') 
+    map('n', '<leader>bly', '<cmd>Leet yank<CR>', '📋 Yank solution')
     
     -- Configuration & preferences
-    map('n', '<leader>bg', '<cmd>Leet lang<CR>', '🌐 Change language')
-    map('n', '<leader>bD', '<cmd>Leet desc<CR>', '📖 Toggle description')
-    map('n', '<leader>bC', '<cmd>Leet cache<CR>', '💾 Cache operations')
+    map('n', '<leader>blg', '<cmd>Leet lang<CR>', '🌐 Change language')
+    map('n', '<leader>blD', '<cmd>Leet desc<CR>', '📖 Toggle description')
+    map('n', '<leader>blC', '<cmd>Leet cache<CR>', '💾 Cache operations')
     
     -- Quick access shortcuts in console mode
     vim.api.nvim_create_autocmd('FileType', {
