@@ -161,12 +161,16 @@ map('n', '<leader>zu', ':Lazy update<CR>', { desc = 'Lazy update' })
 map('n', '<leader>zz', ':Lazy<CR>', { desc = 'Open Lazy' })
 
 -- =============================================================================
--- Leader + b - Brain Training
+-- Leader + b - Brain Training & Productivity
 -- =============================================================================
+-- Note: LeetCode keymaps are configured in lua/plugins/leetcode.lua for better organization
 
-map('n', '<Leader>bl', ':Leet<CR>', { desc = '󰞷 Open LeetCode' })
-map('n', '<Leader>bt', ':Typr<CR>', { desc = '󰗀 Start typing test' })
-map('n', '<Leader>bs', ':TyprStats<CR>', { desc = '󰄨 Show typing stats' })
+-- Typing practice  
+map('n', '<Leader>btt', ':Typr<CR>', { desc = '󰗀 Start typing test' })
+map('n', '<Leader>bts', ':TyprStats<CR>', { desc = '󰄨 Show typing stats' })
+
+-- Quick LeetCode access (comprehensive keymaps configured in plugin)
+map('n', '<Leader>bq', ':Leet<CR>', { desc = '󰞷 Quick LeetCode access' })
 
 -- =============================================================================
 -- Leader + u - File & Link Operations (Advanced)
