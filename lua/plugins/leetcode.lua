@@ -7,6 +7,32 @@ return {
   },
   cmd = 'Leet',
   build = ':TSUpdate html',
+  keys = {
+    -- Core LeetCode operations
+    { '<leader>bll', '<cmd>Leet<CR>', desc = '󰞷 Open LeetCode', mode = 'n' },
+    { '<leader>blm', '<cmd>Leet menu<CR>', desc = '󰍉 LeetCode menu', mode = 'n' },
+    { '<leader>blc', '<cmd>Leet console<CR>', desc = '󰆍 Open console', mode = 'n' },
+    { '<leader>bli', '<cmd>Leet info<CR>', desc = 'ℹ️  Problem info', mode = 'n' },
+    
+    -- Problem navigation & browsing
+    { '<leader>blL', '<cmd>Leet list<CR>', desc = '📋 List problems', mode = 'n' },
+    { '<leader>bld', '<cmd>Leet daily<CR>', desc = '📅 Daily challenge', mode = 'n' },
+    { '<leader>blR', '<cmd>Leet random<CR>', desc = '🎲 Random problem', mode = 'n' },
+    
+    -- Code execution & testing
+    { '<leader>blr', '<cmd>Leet run<CR>', desc = '▶️  Run code', mode = 'n' },
+    { '<leader>blS', '<cmd>Leet submit<CR>', desc = '📤 Submit solution', mode = 'n' },
+    { '<leader>blT', '<cmd>Leet test<CR>', desc = '🧪 Run tests', mode = 'n' },
+    
+    -- Session & content management
+    { '<leader>bls', '<cmd>Leet session<CR>', desc = '🔗 Manage session', mode = 'n' },
+    { '<leader>bly', '<cmd>Leet yank<CR>', desc = '📋 Yank solution', mode = 'n' },
+    
+    -- Configuration & preferences
+    { '<leader>blg', '<cmd>Leet lang<CR>', desc = '🌐 Change language', mode = 'n' },
+    { '<leader>blD', '<cmd>Leet desc<CR>', desc = '📖 Toggle description', mode = 'n' },
+    { '<leader>blC', '<cmd>Leet cache<CR>', desc = '💾 Cache operations', mode = 'n' },
+  },
   opts = {
     arg = 'leetcode.nvim',
     lang = 'javascript',

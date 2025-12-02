@@ -198,10 +198,13 @@ return {
       { '<leader>ls', group = '󰒋 Servers', mode = { 'n', 'v' } },
       { '<leader>lt', group = '󰙨 Tools', mode = { 'n', 'v' } },
 
+      -- Brain Training Groups (Leader + b)
+      { '<leader>b', group = '󰌃 Brain Training', mode = { 'n', 'v' } },
+      { '<leader>bl', group = '󰞷 LeetCode', mode = { 'n', 'v' } },
+
       -- Main Leader Key Groups
       { '<leader>', group = '󱁐 Leader', mode = { 'n', 'v' } },
       { '<leader>a', group = '󰚩 AI', mode = { 'n', 'v' } },
-      { '<leader>b', group = '󰌃 Brain Training', mode = { 'n', 'v' } },
       { '<leader>c', group = '󰛦 TypeScript', mode = { 'n', 'v' } },
       { '<leader>d', group = '󱉏 Dropbar', mode = { 'n', 'v' } },
       { '<leader>e', group = '󰇥 Explorer', mode = { 'n', 'v' } },

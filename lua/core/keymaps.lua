@@ -27,8 +27,6 @@ local function map(mode, lhs, rhs, opts)
   keymap.set(mode, lhs, rhs, opts)
 end
 
-
-
 -- Window & Navigation
 map('n', '<C-h>', '<C-W><C-H>', { desc = 'Move to left window' })
 map('n', '<C-j>', '<C-W><C-J>', { desc = 'Move to bottom window' })
@@ -165,12 +163,9 @@ map('n', '<leader>zz', ':Lazy<CR>', { desc = 'Open Lazy' })
 -- =============================================================================
 -- Note: LeetCode keymaps are configured in lua/plugins/leetcode.lua for better organization
 
--- Typing practice  
+-- Typing practice
 map('n', '<Leader>btt', ':Typr<CR>', { desc = '󰗀 Start typing test' })
 map('n', '<Leader>bts', ':TyprStats<CR>', { desc = '󰄨 Show typing stats' })
-
--- Quick LeetCode access (comprehensive keymaps configured in plugin)
-map('n', '<Leader>bq', ':Leet<CR>', { desc = '󰞷 Quick LeetCode access' })
 
 -- =============================================================================
 -- Leader + u - File & Link Operations (Advanced)
