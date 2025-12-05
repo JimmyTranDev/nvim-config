@@ -198,9 +198,10 @@ return {
       { '<leader>ls', group = '󰒋 Servers', mode = { 'n', 'v' } },
       { '<leader>lt', group = '󰙨 Tools', mode = { 'n', 'v' } },
 
-      -- Brain Training Groups (Leader + b)
-      { '<leader>b', group = '󰌃 Brain Training', mode = { 'n', 'v' } },
-      { '<leader>bl', group = '󰞷 LeetCode', mode = { 'n', 'v' } },
+      -- Buffer Management Groups (Leader + b)
+      { '<leader>b', group = '󰓩 Buffer Management', mode = { 'n', 'v' } },
+      { '<leader>bc', group = '󰅗 Close Buffers', mode = { 'n', 'v' } },
+      { '<leader>bs', group = '󰒺 Sort Buffers', mode = { 'n', 'v' } },
 
       -- Main Leader Key Groups
       { '<leader>', group = '󱁐 Leader', mode = { 'n', 'v' } },
@@ -221,6 +222,9 @@ return {
       { '<leader>Q', desc = '󰩈 Force Quit', mode = { 'n', 'v' } },
       { '<leader>r', group = '󰌱 Todoist', mode = { 'n', 'v' } },
       { '<leader>s', group = '󰒺 Sort', mode = { 'n', 'v' } },
+      { '<leader>t', group = '󰌃 Training & Productivity', mode = { 'n', 'v' } },
+      { '<leader>tl', group = '󰞷 LeetCode', mode = { 'n', 'v' } },
+      { '<leader>tt', group = '󰗀 Typing Practice', mode = { 'n', 'v' } },
       { '<leader>u', group = '󰦥 Locator', mode = { 'n', 'v' } },
       { '<leader>v', group = '󰯲 Diff', mode = { 'n', 'v' } },
       { '<leader>w', desc = '󰆓 Save', mode = { 'n', 'v' } },

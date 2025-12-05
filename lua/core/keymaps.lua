@@ -157,13 +157,60 @@ map('n', '<leader>zu', ':Lazy update<CR>', { desc = 'Lazy update' })
 map('n', '<leader>zz', ':Lazy<CR>', { desc = 'Open Lazy' })
 
 -- =============================================================================
--- Leader + b - Brain Training & Productivity
+-- Leader + b - Buffer Management (barbar.nvim)
+-- =============================================================================
+
+-- Buffer navigation
+map('n', '<Leader>bp', '<Cmd>BufferPrevious<CR>', { desc = '󰒮 Previous buffer' })
+map('n', '<Leader>bn', '<Cmd>BufferNext<CR>', { desc = '󰒭 Next buffer' })
+map('n', '<Leader>bP', '<Cmd>BufferMovePrevious<CR>', { desc = '󰜲 Move buffer left' })
+map('n', '<Leader>bN', '<Cmd>BufferMoveNext<CR>', { desc = '󰜵 Move buffer right' })
+
+-- Buffer selection by position
+map('n', '<Leader>b1', '<Cmd>BufferGoto 1<CR>', { desc = '󰲠 Go to buffer 1' })
+map('n', '<Leader>b2', '<Cmd>BufferGoto 2<CR>', { desc = '󰲢 Go to buffer 2' })
+map('n', '<Leader>b3', '<Cmd>BufferGoto 3<CR>', { desc = '󰲤 Go to buffer 3' })
+map('n', '<Leader>b4', '<Cmd>BufferGoto 4<CR>', { desc = '󰲦 Go to buffer 4' })
+map('n', '<Leader>b5', '<Cmd>BufferGoto 5<CR>', { desc = '󰲨 Go to buffer 5' })
+map('n', '<Leader>b6', '<Cmd>BufferGoto 6<CR>', { desc = '󰲪 Go to buffer 6' })
+map('n', '<Leader>b7', '<Cmd>BufferGoto 7<CR>', { desc = '󰲬 Go to buffer 7' })
+map('n', '<Leader>b8', '<Cmd>BufferGoto 8<CR>', { desc = '󰲮 Go to buffer 8' })
+map('n', '<Leader>b9', '<Cmd>BufferGoto 9<CR>', { desc = '󰲰 Go to buffer 9' })
+map('n', '<Leader>bl', '<Cmd>BufferLast<CR>', { desc = '󰘁 Go to last buffer' })
+
+-- Buffer management
+map('n', '<Leader>bc', '<Cmd>BufferClose<CR>', { desc = '󰅖 Close buffer' })
+map('n', '<Leader>bC', '<Cmd>BufferRestore<CR>', { desc = '󰁯 Restore buffer' })
+map('n', '<Leader>bw', '<Cmd>BufferWipeout<CR>', { desc = '󰩺 Wipeout buffer' })
+map('n', '<Leader>bpin', '<Cmd>BufferPin<CR>', { desc = '󰐃 Pin/unpin buffer' })
+
+-- Buffer operations
+map('n', '<Leader>bpick', '<Cmd>BufferPick<CR>', { desc = '󰒉 Pick buffer' })
+map('n', '<Leader>bpd', '<Cmd>BufferPickDelete<CR>', { desc = '󰒉 Pick delete buffer' })
+
+-- Close operations  
+map('n', '<Leader>bca', '<Cmd>BufferCloseAllButCurrent<CR>', { desc = '󰅗 Close all but current' })
+map('n', '<Leader>bcv', '<Cmd>BufferCloseAllButVisible<CR>', { desc = '󰅗 Close all but visible' })
+map('n', '<Leader>bcp', '<Cmd>BufferCloseAllButPinned<CR>', { desc = '󰅗 Close all but pinned' })
+map('n', '<Leader>bcc', '<Cmd>BufferCloseAllButCurrentOrPinned<CR>', { desc = '󰅗 Close all but current/pinned' })
+map('n', '<Leader>bcl', '<Cmd>BufferCloseBuffersLeft<CR>', { desc = '󰅖 Close buffers left' })
+map('n', '<Leader>bcr', '<Cmd>BufferCloseBuffersRight<CR>', { desc = '󰅖 Close buffers right' })
+
+-- Sort operations
+map('n', '<Leader>bsn', '<Cmd>BufferOrderByName<CR>', { desc = '󰒺 Sort by name' })
+map('n', '<Leader>bsd', '<Cmd>BufferOrderByDirectory<CR>', { desc = '󰉋 Sort by directory' })
+map('n', '<Leader>bsl', '<Cmd>BufferOrderByLanguage<CR>', { desc = '󰗊 Sort by language' })
+map('n', '<Leader>bsw', '<Cmd>BufferOrderByWindowNumber<CR>', { desc = '󰖲 Sort by window' })
+map('n', '<Leader>bsb', '<Cmd>BufferOrderByBufferNumber<CR>', { desc = '󰎕 Sort by buffer number' })
+
+-- =============================================================================
+-- Leader + t - Training & Productivity  
 -- =============================================================================
 -- Note: LeetCode keymaps are configured in lua/plugins/leetcode.lua for better organization
 
 -- Typing practice
-map('n', '<Leader>btt', ':Typr<CR>', { desc = '󰗀 Start typing test' })
-map('n', '<Leader>bts', ':TyprStats<CR>', { desc = '󰄨 Show typing stats' })
+map('n', '<Leader>ttt', ':Typr<CR>', { desc = '󰗀 Start typing test' })
+map('n', '<Leader>tts', ':TyprStats<CR>', { desc = '󰄨 Show typing stats' })
 
 -- =============================================================================
 -- Leader + u - File & Link Operations (Advanced)

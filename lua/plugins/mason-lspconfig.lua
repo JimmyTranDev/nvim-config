@@ -69,11 +69,11 @@ return {
       ensure_installed = servers,
     })
 
-    local lspconfig = require('lspconfig')
     for server, config in pairs(opts.servers) do
       -- Set root_dir for lua_ls specifically
       if server == 'lua_ls' then
-        config.root_dir = require('lspconfig.util').root_pattern('.git', vim.fn.getcwd())
+        local lspconfig_util = require('lspconfig.util')
+        config.root_dir = lspconfig_util.root_pattern('.git', vim.fn.getcwd())
       end
       
       -- Performance optimizations
@@ -109,7 +109,7 @@ return {
       -- config.on_attach = function(client, bufnr)
       --   require("workspace-diagnostics").populate_workspace_diagnostics(client, bufnr)
       -- end
-      lspconfig[server].setup(config)
+      vim.lsp.config(server, config)
     end
 
   end,
