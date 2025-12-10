@@ -8,10 +8,8 @@ local constants = require('core.constants')
 local fileActions = require('custom.actions.files')
 local todoistActions = require('custom.actions.todoist')
 local linkActions = require('custom.actions.links')
--- Core prompts module removed
 local languageActions = require('custom.actions.language')
 local errorsActions = require('custom.actions.errors')
--- AI prompt actions removed
 local checkboxActions = require('custom.actions.checkbox')
 local replacementActions = require('custom.actions.replacement')
 local lspActions = require('custom.actions.lsp')
@@ -71,7 +69,7 @@ map('n', '<leader><leader>fu', fileActions.copy_current_file_url, { desc = '🔗
 -- <leader><leader>t - Text & Content Operations
 -- ===============================
 map('x', '<leader><leader>tr', [["zy:%s/\V<C-r>=escape(@z, '/')<CR>//gc<left><left><left>]], { desc = '🔍 Visual search replace' })
-map('n', '<leader><leader>tt', checkboxActions.toggle, { desc = '☑️  Toggle checkbox' })
+map('n', '<leader>;;', checkboxActions.toggle, { desc = '☑️  Toggle checkbox' })
 
 -- ===============================
 -- <leader>; - Misc Quick Access
@@ -84,7 +82,7 @@ map('n', '<leader>;g', linkActions.open_current_github_repo, { desc = '󰊤 Open
 map('n', '<leader>;G', linkActions.open_current_github_prs, { desc = '󰊤 Open GitHub PRs tab' })
 map('n', '<leader>;p', gitActions.openExistingPullRequestOnly, { desc = '🔗 Open existing PR link' })
 map('n', '<leader>;w', function() vim.opt.wrap = not vim.opt.wrap:get() end, { desc = '↩️ Toggle text wrap' })
-map('n', '<leader>;;', lspActions.refresh_all_lsps_silent, { desc = '🔄 Refresh all LSPs' })
+map('n', '<leader>;l', lspActions.refresh_all_lsps_silent, { desc = '🔄 Refresh all LSPs' })
 map('n', '<leader>;t', '<cmd>Copilot toggle<CR>', { desc = '🤖 Toggle Copilot autocomplete' })
 
 -- ===============================
@@ -188,7 +186,7 @@ map('n', '<Leader>bpin', '<Cmd>BufferPin<CR>', { desc = '󰐃 Pin/unpin buffer' 
 map('n', '<Leader>bpick', '<Cmd>BufferPick<CR>', { desc = '󰒉 Pick buffer' })
 map('n', '<Leader>bpd', '<Cmd>BufferPickDelete<CR>', { desc = '󰒉 Pick delete buffer' })
 
--- Close operations  
+-- Close operations
 map('n', '<Leader>bca', '<Cmd>BufferCloseAllButCurrent<CR>', { desc = '󰅗 Close all but current' })
 map('n', '<Leader>bcv', '<Cmd>BufferCloseAllButVisible<CR>', { desc = '󰅗 Close all but visible' })
 map('n', '<Leader>bcp', '<Cmd>BufferCloseAllButPinned<CR>', { desc = '󰅗 Close all but pinned' })
@@ -204,7 +202,7 @@ map('n', '<Leader>bsw', '<Cmd>BufferOrderByWindowNumber<CR>', { desc = '󰖲 Sor
 map('n', '<Leader>bsb', '<Cmd>BufferOrderByBufferNumber<CR>', { desc = '󰎕 Sort by buffer number' })
 
 -- =============================================================================
--- Leader + t - Training & Productivity  
+-- Leader + t - Training & Productivity
 -- =============================================================================
 -- Note: LeetCode keymaps are configured in lua/plugins/leetcode.lua for better organization
 

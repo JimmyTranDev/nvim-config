@@ -5,7 +5,6 @@
 local gitUtils = require('custom.utils.git')
 local inputUtils = require('custom.utils.input')
 local fileUtils = require('custom.utils.files')
-local loggingUtils = require('custom.utils.logging')
 
 local M = {}
 
@@ -66,7 +65,6 @@ end
 
 function M.createCommit(prefix, emoji, shouldPush, shouldGeneric)
   return function()
-    local projectName = fileUtils.get_cwd_name()
     local branchName = gitUtils.get_current_branch()
     local jiraTicket = gitUtils.extract_jira_ticket(branchName)
 
@@ -87,7 +85,6 @@ function M.createCommit(prefix, emoji, shouldPush, shouldGeneric)
       commitMessage = prefix .. ': update'
     end
 
-    loggingUtils.logHistory('logs-work', string.format('[%s] %s', projectName, commitMessage))
     vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', commitMessage))
 
     if shouldPush then vim.cmd("TermExec3 open=0 cmd='git push'") end
@@ -161,9 +158,6 @@ function M.createCommitFromBranchName()
   description = description:gsub('_', ' '):gsub('-', ' ') -- Convert separators to spaces
 
   commitMessage = prefix .. ': ' .. emoji .. ' ' .. jiraTicketPart .. description
-
-  local projectName = fileUtils.get_cwd_name()
-  loggingUtils.logHistory('logs-work', string.format('[%s] %s', projectName, commitMessage))
 
   -- Add all changes first
   vim.cmd('Git add .')
