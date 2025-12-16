@@ -14,7 +14,6 @@ local errorsActions = require('custom.actions.errors')
 -- AI prompt actions removed
 local checkboxActions = require('custom.actions.checkbox')
 local replacementActions = require('custom.actions.replacement')
-local storageActions = require('custom.actions.storage')
 local lspActions = require('custom.actions.lsp')
 local documentationActions = require('custom.actions.documentation')
 local gitActions = require('custom.actions.git')
@@ -63,8 +62,6 @@ map('n', '<leader><leader>mc', documentationActions.add_convention_to_readme, { 
 -- ===============================
 map('n', '<leader><leader>fc', fileActions.save_clipboard_to_file, { desc = '💾 Save clipboard to file' })
 map('n', '<leader><leader>fr', fileActions.run_clipboard_command, { desc = '▶️  Run command from clipboard' })
-map('n', '<leader><leader>fS', storageActions.sync_secrets_simple, { desc = '☁️  Sync secrets to cloud' })
-map('n', '<leader><leader>fI', storageActions.init_secrets_directory, { desc = '🔧 Initialize secrets directory' })
 map('n', '<leader><leader>fs', function() vim.cmd('set spell!') end, { desc = '📝 Toggle spellcheck' })
 map('n', '<leader><leader>fC', ':!rm -r ' .. constants.NEOVIM_STATE_DIR .. '<CR>', { desc = '🗑️  Clear swap files' })
 map('n', '<leader><leader>fG', fileActions.link_github_copilot_instructions, { desc = '🔗 Link .github from dotfiles' })

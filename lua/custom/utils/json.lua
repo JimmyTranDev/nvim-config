@@ -9,10 +9,13 @@ function M.parse_json_from_file(file_path)
   if not file then
     -- Check if it's a secrets directory issue and try to help
     if string.match(file_path, 'Programming/secrets') then
-      local storage = require('custom.utils.storage')
-      if not storage.secrets_directory_exists() then
+      local secrets_path = os.getenv('HOME') .. '/Programming/secrets'
+      local stat = vim.loop.fs_stat(secrets_path)
+      local secrets_dir_exists = stat and stat.type == 'directory'
+      
+      if not secrets_dir_exists then
         if not notified_secrets_missing then
-          vim.notify('Secrets directory does not exist. Use <Leader>;fI to initialize it.', vim.log.levels.INFO)
+          vim.notify('Secrets directory does not exist. Run: storage-init', vim.log.levels.INFO)
           notified_secrets_missing = true
         end
         -- Don't spam with individual file notifications if directory doesn't exist
@@ -21,7 +24,7 @@ function M.parse_json_from_file(file_path)
         -- Directory exists but individual file is missing
         local filename = vim.fn.fnamemodify(file_path, ':t')
         if not missing_files[filename] then
-          vim.notify('Missing secrets file: ' .. filename .. '. Use <Leader>;fI to reinitialize.', vim.log.levels.WARN)
+          vim.notify('Missing secrets file: ' .. filename .. '. Run: storage-init', vim.log.levels.WARN)
           missing_files[filename] = true
         end
       end
