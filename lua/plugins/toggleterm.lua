@@ -79,7 +79,7 @@ return {
     { mode = 'n', '<leader>tnup', ':2TermExec cmd="npx npm-check-updates -u -t patch"<CR>', silent = true, desc = 'Npm Update Patch' },
     { mode = 'n', '<leader>tnuf', languageActions.runNpmCheckUpdatesFilter, silent = true, desc = 'Npm Check Updates' },
     { mode = 'n', '<leader>tnui', ':2TermExec cmd="npx npm-check-updates -ui"<CR>', silent = true, desc = 'Npm Update Interactive' },
-    { mode = 'n', '<leader>tnd', ':2TermExec cmd="npx depcheck"<CR>', silent = true, desc = 'Npm Check Deps' },
+    { mode = 'n', '<leader>tnd', languageActions.create_package_command_runner(2, 'run dev'), silent = true, desc = 'Package Manager Run Dev' },
     { mode = 'n', '<leader>tnU', languageActions.find_and_delete_unused_packages, silent = true, desc = 'Npm Remove Unused' },
     { mode = 'n', '<leader>tnp', languageActions.installJavascriptPackage, silent = true, desc = 'Npm Install Multi' },
     -- keymap.set('n', '<Leader>tn', linkActions.runNpmCheckUpdates, { desc = "󰏗 NPM check updates", silent = true })
