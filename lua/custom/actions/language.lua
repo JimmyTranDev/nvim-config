@@ -266,6 +266,213 @@ function M.run_eslint_picker()
   ui_utils.show_success('ESLint analysis complete')
 end
 
+--- Run knip and show results in interactive picker
+function M.run_knip_picker()
+  -- Check if we're in a JavaScript project
+  local package_manager = language_utils.getJavascriptPackageManager()
+  if not package_manager or package_manager == '' then
+    vim.notify('No JavaScript package manager found. Make sure you are in a JS/TS project with a lockfile.', vim.log.levels.ERROR)
+    return
+  end
+  
+  local cmd = package_manager .. ' dlx knip --reporter json'
+  
+  ui_utils.show_progress('Running knip analysis with: ' .. cmd)
+  
+  local stdout_data = {}
+  local stderr_data = {}
+  
+  vim.fn.jobstart(cmd, {
+    stdout_buffered = true,
+    stderr_buffered = true,
+    on_stdout = function(_, data)
+      if data then
+        vim.list_extend(stdout_data, data)
+      end
+    end,
+    on_stderr = function(_, data)
+      if data then
+        vim.list_extend(stderr_data, data)
+      end
+    end,
+    on_exit = function(_, code)
+      -- Exit code 1 is normal for knip when it finds issues, not an error
+      if code ~= 0 and code ~= 1 then
+        local error_msg = 'Knip failed with exit code: ' .. code
+        if #stderr_data > 0 then
+          error_msg = error_msg .. '\nError output:\n' .. table.concat(stderr_data, '\n')
+        end
+        vim.notify(error_msg, vim.log.levels.ERROR)
+        return
+      end
+      
+      -- Process output
+      if not stdout_data or #stdout_data == 0 or (stdout_data[1] == '' and #stdout_data == 1) then
+        vim.notify('No unused code found by knip!', vim.log.levels.INFO)
+        return
+      end
+      
+      local json_str = table.concat(stdout_data, '\n')
+      local ok, result = pcall(vim.fn.json_decode, json_str)
+      
+      if not ok or not result then
+        vim.notify('Failed to parse knip JSON output', vim.log.levels.ERROR)
+        return
+      end
+      
+      local items = {}
+      
+      -- Parse orphaned files
+      if result.files and type(result.files) == 'table' then
+        for _, file in ipairs(result.files) do
+          table.insert(items, {
+            file = file,
+            line = 1,
+            col = 1,
+            type = 'orphaned file',
+            name = file,
+            text = string.format('[%s] Orphaned file (unused)', file)
+          })
+        end
+      end
+      
+      -- Parse issues from different files
+      if result.issues and type(result.issues) == 'table' then
+        for _, issue in ipairs(result.issues) do
+          local file = issue.file
+          
+          -- Unused dependencies
+          if issue.dependencies then
+            for _, dep in ipairs(issue.dependencies) do
+              table.insert(items, {
+                file = file,
+                line = dep.line or 1,
+                col = dep.col or 1,
+                type = 'unused dependency',
+                name = dep.name or 'unknown',
+                text = string.format('[%s:%d] Unused dependency: %s', file, dep.line or 1, dep.name or 'unknown')
+              })
+            end
+          end
+          
+          -- Unused devDependencies
+          if issue.devDependencies then
+            for _, dep in ipairs(issue.devDependencies) do
+              table.insert(items, {
+                file = file,
+                line = dep.line or 1,
+                col = dep.col or 1,
+                type = 'unused devDependency',
+                name = dep.name or 'unknown',
+                text = string.format('[%s:%d] Unused devDependency: %s', file, dep.line or 1, dep.name or 'unknown')
+              })
+            end
+          end
+          
+          -- Unused exports
+          if issue.exports then
+            for _, export in ipairs(issue.exports) do
+              table.insert(items, {
+                file = file,
+                line = export.line or 1,
+                col = export.col or 1,
+                type = 'unused export',
+                name = export.name or 'unknown',
+                text = string.format('[%s:%d] Unused export: %s', file, export.line or 1, export.name or 'unknown')
+              })
+            end
+          end
+          
+          -- Unused types
+          if issue.types then
+            for _, typ in ipairs(issue.types) do
+              table.insert(items, {
+                file = file,
+                line = typ.line or 1,
+                col = typ.col or 1,
+                type = 'unused type',
+                name = typ.name or 'unknown',
+                text = string.format('[%s:%d] Unused type: %s', file, typ.line or 1, typ.name or 'unknown')
+              })
+            end
+          end
+          
+          -- Unlisted dependencies
+          if issue.unlisted then
+            for _, dep in ipairs(issue.unlisted) do
+              table.insert(items, {
+                file = file,
+                line = dep.line or 1,
+                col = dep.col or 1,
+                type = 'unlisted dependency',
+                name = dep.name or 'unknown',
+                text = string.format('[%s:%d] Unlisted dependency: %s', file, dep.line or 1, dep.name or 'unknown')
+              })
+            end
+          end
+          
+          -- Unresolved imports
+          if issue.unresolved then
+            for _, unres in ipairs(issue.unresolved) do
+              table.insert(items, {
+                file = file,
+                line = unres.line or 1,
+                col = unres.col or 1,
+                type = 'unresolved import',
+                name = unres.name or 'unknown',
+                text = string.format('[%s:%d] Unresolved import: %s', file, unres.line or 1, unres.name or 'unknown')
+              })
+            end
+          end
+        end
+      end
+      
+      if #items == 0 then
+        vim.notify('No unused code found by knip!', vim.log.levels.INFO)
+        return
+      end
+      
+      local ok_snacks, snacks = pcall(require, 'snacks')
+      if not ok_snacks then
+        vim.notify('Snacks plugin not available', vim.log.levels.ERROR)
+        return
+      end
+      
+      snacks.picker({
+        title = string.format('Knip Results (%d items)', #items),
+        layout = { preset = 'default' },
+        items = items,
+        format = function(item, _)
+          local a = snacks.picker.util.align
+          local icon, icon_hl = snacks.util.icon(item.file, 'file')
+          local type_icon = item.type == 'unused export' and '󰏫' or 
+                           item.type == 'unused dependency' and '󰏗' or 
+                           item.type == 'unused devDependency' and '󰏗' or
+                           item.type == 'unused type' and '󰉉' or 
+                           item.type == 'orphaned file' and '󰈚' or
+                           item.type == 'unlisted dependency' and '󰏗' or
+                           item.type == 'unresolved import' and '󰌘' or '󰊨'
+          local type_hl = item.type == 'orphaned file' and 'DiagnosticError' or 'DiagnosticWarn'
+          return {
+            { a(icon, 3), icon_hl },
+            { ' ' },
+            { a(type_icon, 2), type_hl },
+            { ' ' },
+            { item.text },
+          }
+        end,
+        confirm = function(picker, item)
+          picker:close()
+          vim.cmd('edit ' .. vim.fn.fnameescape(item.file))
+          vim.api.nvim_win_set_cursor(0, { item.line, item.col - 1 })
+        end,
+      })
+      
+      ui_utils.show_success(string.format('Knip analysis complete - found %d issues', #items))
+    end
+  })
+end
+
 -- =============================================================================
 -- Package Management Operations
 -- =============================================================================

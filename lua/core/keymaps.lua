@@ -44,7 +44,6 @@ map('', '<S-K>', '<C-U>', { desc = 'Scroll up half page' })
 -- <leader><leader>d - Development & Code Tools
 -- ===============================
 map('n', '<leader><leader>da', languageActions.launch_android_emulator, { desc = '🤖 Launch Android emulator' })
-map('n', '<leader><leader>de', languageActions.run_eslint_picker, { desc = '🔍 Run ESLint quickfix' })
 map('n', '<leader><leader>df', languageActions.fix_and_organize_typescript_imports, { desc = '🔧 Fix and organize imports (TS)' })
 map('n', '<leader><leader>dr', languageActions.repeat_last_command, { desc = '⟳ Repeat last command' })
 map('n', '<leader><leader>ds', linkActions.open_dev_server, { desc = '󰒋 Development server' })
@@ -84,6 +83,12 @@ map('n', '<leader>;p', gitActions.openExistingPullRequestOnly, { desc = '🔗 Op
 map('n', '<leader>;w', function() vim.opt.wrap = not vim.opt.wrap:get() end, { desc = '↩️ Toggle text wrap' })
 map('n', '<leader>;l', lspActions.refresh_all_lsps_silent, { desc = '🔄 Refresh all LSPs' })
 map('n', '<leader>;t', '<cmd>Copilot toggle<CR>', { desc = '🤖 Toggle Copilot autocomplete' })
+
+-- ===============================
+-- <leader>f; - Find & Analysis Operations
+-- ===============================
+map('n', '<leader>f;e', languageActions.run_eslint_picker, { desc = '🔍 ESLint analysis picker' })
+map('n', '<leader>f;k', languageActions.run_knip_picker, { desc = '🧹 Knip unused code picker' })
 
 -- ===============================
 -- <leader><leader>r - Replacement Operations
