@@ -5,7 +5,7 @@ return {
   dependencies = {
     'nvim-lua/plenary.nvim',
   },
-
+  cond = false,
   config = function()
     require('copilot').setup({
       panel = {
@@ -56,16 +56,14 @@ return {
           advanced = {
             listCount = 10,
             inlineSuggestCount = 3,
-          }
-        }
+          },
+        },
       },
     })
 
     vim.api.nvim_create_autocmd('VimEnter', {
       callback = function()
-        vim.defer_fn(function()
-          vim.cmd('Copilot auth')
-        end, 1000)
+        vim.defer_fn(function() vim.cmd('Copilot auth') end, 1000)
       end,
     })
 
