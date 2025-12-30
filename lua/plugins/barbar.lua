@@ -4,7 +4,51 @@ return {
     'lewis6991/gitsigns.nvim',
     'nvim-tree/nvim-web-devicons',
   },
-  init = function() vim.g.barbar_auto_setup = false end,
+  event = 'VimEnter',
+  keys = {
+    -- Buffer navigation
+    { '<Leader>bp', '<Cmd>BufferPrevious<CR>', desc = '󰒮 Previous buffer' },
+    { '<Leader>bn', '<Cmd>BufferNext<CR>', desc = '󰒭 Next buffer' },
+    { '<Leader>bP', '<Cmd>BufferMovePrevious<CR>', desc = '󰜲 Move buffer left' },
+    { '<Leader>bN', '<Cmd>BufferMoveNext<CR>', desc = '󰜵 Move buffer right' },
+
+    -- Buffer selection by position
+    { '<Leader>b1', '<Cmd>BufferGoto 1<CR>', desc = '󰲠 Go to buffer 1' },
+    { '<Leader>b2', '<Cmd>BufferGoto 2<CR>', desc = '󰲢 Go to buffer 2' },
+    { '<Leader>b3', '<Cmd>BufferGoto 3<CR>', desc = '󰲤 Go to buffer 3' },
+    { '<Leader>b4', '<Cmd>BufferGoto 4<CR>', desc = '󰲦 Go to buffer 4' },
+    { '<Leader>b5', '<Cmd>BufferGoto 5<CR>', desc = '󰲨 Go to buffer 5' },
+    { '<Leader>b6', '<Cmd>BufferGoto 6<CR>', desc = '󰲪 Go to buffer 6' },
+    { '<Leader>b7', '<Cmd>BufferGoto 7<CR>', desc = '󰲬 Go to buffer 7' },
+    { '<Leader>b8', '<Cmd>BufferGoto 8<CR>', desc = '󰲮 Go to buffer 8' },
+    { '<Leader>b9', '<Cmd>BufferGoto 9<CR>', desc = '󰲰 Go to buffer 9' },
+    { '<Leader>bl', '<Cmd>BufferLast<CR>', desc = '󰘁 Go to last buffer' },
+
+    -- Buffer management
+    { '<Leader>bc', '<Cmd>BufferClose<CR>', desc = '󰅖 Close buffer' },
+    { '<Leader>bC', '<Cmd>BufferRestore<CR>', desc = '󰁯 Restore buffer' },
+    { '<Leader>bw', '<Cmd>BufferWipeout<CR>', desc = '󰩺 Wipeout buffer' },
+    { '<Leader>bpin', '<Cmd>BufferPin<CR>', desc = '󰐃 Pin/unpin buffer' },
+
+    -- Buffer operations
+    { '<Leader>bpick', '<Cmd>BufferPick<CR>', desc = '󰒉 Pick buffer' },
+    { '<Leader>bpd', '<Cmd>BufferPickDelete<CR>', desc = '󰒉 Pick delete buffer' },
+
+    -- Close operations
+    { '<Leader>bca', '<Cmd>BufferCloseAllButCurrent<CR>', desc = '󰅗 Close all but current' },
+    { '<Leader>bcv', '<Cmd>BufferCloseAllButVisible<CR>', desc = '󰅗 Close all but visible' },
+    { '<Leader>bcp', '<Cmd>BufferCloseAllButPinned<CR>', desc = '󰅗 Close all but pinned' },
+    { '<Leader>bcc', '<Cmd>BufferCloseAllButCurrentOrPinned<CR>', desc = '󰅗 Close all but current/pinned' },
+    { '<Leader>bcl', '<Cmd>BufferCloseBuffersLeft<CR>', desc = '󰅖 Close buffers left' },
+    { '<Leader>bcr', '<Cmd>BufferCloseBuffersRight<CR>', desc = '󰅖 Close buffers right' },
+
+    -- Sort operations
+    { '<Leader>bsn', '<Cmd>BufferOrderByName<CR>', desc = '󰒺 Sort by name' },
+    { '<Leader>bsd', '<Cmd>BufferOrderByDirectory<CR>', desc = '󰉋 Sort by directory' },
+    { '<Leader>bsl', '<Cmd>BufferOrderByLanguage<CR>', desc = '󰗊 Sort by language' },
+    { '<Leader>bsw', '<Cmd>BufferOrderByWindowNumber<CR>', desc = '󰖲 Sort by window' },
+    { '<Leader>bsb', '<Cmd>BufferOrderByBufferNumber<CR>', desc = '󰎕 Sort by buffer number' },
+  },
   opts = {
     animation = true,
     auto_hide = false,
