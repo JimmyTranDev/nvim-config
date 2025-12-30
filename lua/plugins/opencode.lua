@@ -1,24 +1,34 @@
 return {
   'NickvanDyke/opencode.nvim',
+  dependencies = {
+    -- Recommended for `ask()` and `select()`.
+    -- Required for `snacks` provider.
+    ---@module 'snacks' <- Loads `snacks.nvim` types for configuration intellisense.
+    { 'folke/snacks.nvim', opts = { input = {}, picker = {}, terminal = {} } },
+  },
+  lazy = false,
   config = function()
+    ---@type opencode.Opts
     vim.g.opencode_opts = {
-      float = true,
+      -- Your configuration, if any — see `lua/opencode/config.lua`, or "goto definition".
     }
 
-    -- Required for `opts.auto_reload`
-    vim.opt.autoread = true
+    -- Required for `opts.events.reload`.
+    vim.o.autoread = true
+
+    -- Recommended/example keymaps.
+    vim.keymap.set({ 'n', 'x' }, '<C-a>', function() require('opencode').ask('@this: ', { submit = true }) end, { desc = 'Ask opencode' })
+    vim.keymap.set({ 'n', 'x' }, '<C-x>', function() require('opencode').select() end, { desc = 'Execute opencode action…' })
+    vim.keymap.set({ 'n', 't' }, '<C-.>', function() require('opencode').toggle() end, { desc = 'Toggle opencode' })
+
+    vim.keymap.set({ 'n', 'x' }, '<leader>aa', function() return require('opencode').operator('@this ') end, { expr = true, desc = 'Add range to opencode' })
+    vim.keymap.set('n', '<leader>al', function() return require('opencode').operator('@this ') .. '_' end, { expr = true, desc = 'Add line to opencode' })
+
+    vim.keymap.set('n', '<S-C-u>', function() require('opencode').command('session.half.page.up') end, { desc = 'opencode half page up' })
+    vim.keymap.set('n', '<S-C-d>', function() require('opencode').command('session.half.page.down') end, { desc = 'opencode half page down' })
+
+    -- You may want these if you stick with the opinionated "<C-a>" and "<C-x>" above — otherwise consider "<leader>o".
+    vim.keymap.set('n', '+', '<C-a>', { desc = 'Increment', noremap = true })
+    vim.keymap.set('n', '-', '<C-x>', { desc = 'Decrement', noremap = true })
   end,
-  keys = {
-    { '<leader>aa', function() require('opencode').command('session_new') end, desc = 'New session', mode = 'n' },
-    { '<leader>at', function() require('opencode').toggle() end, desc = 'Toggle embedded', mode = 'n' },
-    { '<leader>aq', function() require('opencode').ask('@cursor: ') end, desc = 'Ask about this', mode = 'n' },
-    { '<leader>aq', function() require('opencode').ask('@selection: ') end, desc = 'Ask about selection', mode = 'v' },
-    { '<leader>ab', function() require('opencode').prompt('@buffer', { append = true }) end, desc = 'Add buffer to prompt', mode = 'n' },
-    { '<leader>aB', function() require('opencode').prompt('@selection', { append = true }) end, desc = 'Add selection to prompt', mode = 'v' },
-    { '<leader>ae', function() require('opencode').prompt('Explain @cursor and its context') end, desc = 'Explain this code', mode = 'n' },
-    { '<S-C-u>', function() require('opencode').command('messages_half_page_up') end, desc = 'Messages half page up', mode = 'n' },
-    { '<S-C-d>', function() require('opencode').command('messages_half_page_down') end, desc = 'Messages half page down', mode = 'n' },
-    { '<leader>as', function() require('opencode').select() end, desc = 'Select prompt', mode = { 'n', 'v' } },
-    { '<leader>ac', function() require('opencode').prompt('commit') end, desc = 'Commit changes', mode = 'n' },
-  },
 }
