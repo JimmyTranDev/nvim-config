@@ -16,6 +16,8 @@ end
 local function findWorkspaceRoot(startPath)
   local path = startPath or vim.fn.getcwd()
   local lockfiles = {
+    { file = 'bun.lockb', manager = 'bun' },
+    { file = 'bun.lock', manager = 'bun' },
     { file = 'pnpm-lock.yaml', manager = 'pnpm' },
     { file = 'yarn.lock', manager = 'yarn' },
     { file = 'package-lock.json', manager = 'npm' }
@@ -46,7 +48,11 @@ local function isWorkspace(rootPath)
   
   local workspaceFiles = {
     rootPath .. '/pnpm-workspace.yaml',
-    rootPath .. '/lerna.json'
+    rootPath .. '/lerna.json',
+    rootPath .. '/nx.json',
+    rootPath .. '/rush.json',
+    rootPath .. '/turbo.json',
+    rootPath .. '/.yarnrc.yml'
   }
   
   -- Check for workspace config files
@@ -95,7 +101,11 @@ function M.getJavascriptPackageManager()
   end
   
   -- Fallback to original behavior - check current directory only
-  if vim.fn.filereadable('yarn.lock') == 1 then
+  if vim.fn.filereadable('bun.lockb') == 1 then
+    return 'bun'
+  elseif vim.fn.filereadable('bun.lock') == 1 then
+    return 'bun'
+  elseif vim.fn.filereadable('yarn.lock') == 1 then
     return 'yarn'
   elseif vim.fn.filereadable('package-lock.json') == 1 then
     return 'npm'
@@ -115,44 +125,172 @@ function M.getJavascriptPackageManagerDevArg()
     return '--save-dev'
   elseif packageManager == 'pnpm' then
     return '--save-dev'
+  elseif packageManager == 'bun' then
+    return '--dev'
   end
 end
 
--- Get the workspace root path (useful for monorepo operations)
-function M.getWorkspaceRoot()
-  local rootPath, _ = findWorkspaceRoot()
-  return rootPath
-end
-
--- Check if the current directory is within a monorepo workspace
-function M.isInWorkspace()
-  local rootPath = M.getWorkspaceRoot()
-  return isWorkspace(rootPath)
-end
-
-function M.listPackageJsonCommands()
-  -- First try to find package.json in current directory
-  local package_json_path = vim.fn.getcwd() .. '/package.json'
+-- Get the package manager executable with workspace-aware commands
+function M.getPackageManagerExecutable(workspaceContext)
+  local packageManager = M.getJavascriptPackageManager()
+  local isInWs = M.isInWorkspace()
   
-  -- If not found, try workspace root
-  if vim.fn.filereadable(package_json_path) ~= 1 then
-    local workspaceRoot = M.getWorkspaceRoot()
-    if workspaceRoot then
-      package_json_path = workspaceRoot .. '/package.json'
+  if not packageManager or packageManager == '' then
+    return 'npm'
+  end
+  
+  -- For workspace contexts, return the appropriate command
+  if workspaceContext and isInWs then
+    if packageManager == 'pnpm' then
+      return 'pnpm --filter'
+    elseif packageManager == 'yarn' then
+      return 'yarn workspace'
+    elseif packageManager == 'npm' then
+      return 'npm --workspace'
+    elseif packageManager == 'bun' then
+      return 'bun --filter'
     end
   end
   
-  if vim.fn.filereadable(package_json_path) ~= 1 then
-    return {}
+  return packageManager
+end
+
+-- Get the npx equivalent for the detected package manager
+function M.getNpxEquivalent()
+  local packageManager = M.getJavascriptPackageManager()
+  
+  if packageManager == 'yarn' then
+    return 'yarn dlx'
+  elseif packageManager == 'pnpm' then
+    return 'pnpm dlx'
+  elseif packageManager == 'bun' then
+    return 'bunx'
+  else
+    return 'npx'
+  end
+end
+
+function M.listPackageJsonCommands()
+  local scripts = {}
+  
+  -- First try to find package.json in current directory
+  local current_package_json = vim.fn.getcwd() .. '/package.json'
+  if vim.fn.filereadable(current_package_json) == 1 then
+    local current_scripts = M.getScriptsFromPackageJson(current_package_json)
+    if current_scripts and #current_scripts > 0 then
+      scripts = current_scripts
+    end
   end
   
-  local command = "jq '.scripts | keys' " .. package_json_path
+  -- If we're in a workspace and didn't find scripts in current dir, try workspace root
+  if #scripts == 0 then
+    local workspaceRoot = M.getWorkspaceRoot()
+    if workspaceRoot then
+      local root_package_json = workspaceRoot .. '/package.json'
+      if vim.fn.filereadable(root_package_json) == 1 then
+        local root_scripts = M.getScriptsFromPackageJson(root_package_json)
+        if root_scripts then
+          scripts = root_scripts
+        end
+      end
+    end
+  end
+  
+  return scripts
+end
+
+-- Helper function to extract scripts from a package.json file
+function M.getScriptsFromPackageJson(packageJsonPath)
+  local command = "jq '.scripts | keys' " .. packageJsonPath
   local handle = io.popen(command)
   if handle == nil then return {} end
   local result = handle:read('*a')
   handle:close()
-  local scripts = vim.fn.json_decode(result)
-  return scripts
+  
+  local ok, scripts = pcall(vim.fn.json_decode, result)
+  if ok and scripts then
+    return scripts
+  end
+  return {}
+end
+
+-- Get available workspace packages (for monorepo contexts)
+function M.getWorkspacePackages()
+  local workspaceRoot = M.getWorkspaceRoot()
+  if not workspaceRoot or not M.isInWorkspace() then
+    return {}
+  end
+  
+  local packageManager = M.getJavascriptPackageManager()
+  local command = nil
+  
+  if packageManager == 'pnpm' then
+    command = 'pnpm list --recursive --depth=-1 --json'
+  elseif packageManager == 'yarn' then
+    command = 'yarn workspaces list --json'
+  elseif packageManager == 'npm' then
+    command = 'npm ls --workspaces --json'
+  elseif packageManager == 'bun' then
+    command = 'bun pm ls --all --json'
+  end
+  
+  if command then
+    local handle = io.popen('cd "' .. workspaceRoot .. '" && ' .. command .. ' 2>/dev/null')
+    if handle then
+      local result = handle:read('*a')
+      handle:close()
+      
+      local ok, data = pcall(vim.fn.json_decode, result)
+      if ok and data then
+        return M.extractWorkspaceNames(data, packageManager)
+      end
+    end
+  end
+  
+  return {}
+end
+
+-- Helper function to extract workspace names from different package manager outputs
+function M.extractWorkspaceNames(data, packageManager)
+  local names = {}
+  
+  if packageManager == 'pnpm' and type(data) == 'table' then
+    for _, pkg in ipairs(data) do
+      if pkg.name and pkg.path then
+        table.insert(names, pkg.name)
+      end
+    end
+  elseif packageManager == 'yarn' and type(data) == 'string' then
+    -- Yarn workspaces list returns NDJSON
+    for line in data:gmatch('[^\r\n]+') do
+      local ok, workspace = pcall(vim.fn.json_decode, line)
+      if ok and workspace and workspace.name then
+        table.insert(names, workspace.name)
+      end
+    end
+  elseif packageManager == 'npm' and data.dependencies then
+    for name, _ in pairs(data.dependencies) do
+      table.insert(names, name)
+    end
+  elseif packageManager == 'bun' and type(data) == 'table' then
+    -- Bun pm ls returns an array of packages with name and path
+    if data.packages then
+      for _, pkg in ipairs(data.packages) do
+        if pkg.name then
+          table.insert(names, pkg.name)
+        end
+      end
+    elseif type(data) == 'table' then
+      -- Fallback for different Bun output formats
+      for _, pkg in ipairs(data) do
+        if type(pkg) == 'table' and pkg.name then
+          table.insert(names, pkg.name)
+        end
+      end
+    end
+  end
+  
+  return names
 end
 
 function M.openServerUrl(type)

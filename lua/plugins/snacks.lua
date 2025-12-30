@@ -108,13 +108,13 @@ return {
       },
       sources = {
         files = {
-          exclude = { 'pnpm-lock.yaml' }, -- Ignore package.json in file picker
+          exclude = { 'pnpm-lock.yaml', 'yarn.lock', 'package-lock.json', 'bun.lockb', 'bun.lock' }, -- Ignore lockfiles in file picker
         },
         grep = {
-          exclude = { 'pnpm-lock.yaml' }, -- Ignore package.json in grep picker
+          exclude = { 'pnpm-lock.yaml', 'yarn.lock', 'package-lock.json', 'bun.lockb', 'bun.lock' }, -- Ignore lockfiles in grep picker
         },
         explorer = {
-          exclude = { 'pnpm-lock.yaml' }, -- Ignore package.json in explorer
+          exclude = { 'pnpm-lock.yaml', 'yarn.lock', 'package-lock.json', 'bun.lockb', 'bun.lock' }, -- Ignore lockfiles in explorer
         },
       },
       jump = {

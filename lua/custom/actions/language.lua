@@ -95,12 +95,20 @@ end
 -- JavaScript/Node.js Package Management
 -- =============================================================================
 
---- Install JavaScript package with type selection
+--- Install JavaScript package with type selection and workspace support
 function M.install_javascript_package()
   local package_manager = language_utils.getJavascriptPackageManager()
   if not package_manager then
     vim.notify('No JavaScript package manager found', vim.log.levels.ERROR)
     return
+  end
+  
+  local isInWs = language_utils.isInWorkspace()
+  local workspacePackages = {}
+  
+  -- If we're in a workspace, get available packages
+  if isInWs then
+    workspacePackages = language_utils.getWorkspacePackages()
   end
   
   local package_types = { 'production', 'development' }
@@ -118,17 +126,62 @@ function M.install_javascript_package()
         return
       end
       
-      local base_cmd = package_manager .. ' add ' .. package_name
-      
-      if package_type == 'development' then
-        local dev_arg = language_utils.getJavascriptPackageManagerDevArg()
-        base_cmd = base_cmd .. ' ' .. dev_arg
+      -- If in workspace and has packages, ask which workspace to install to
+      if isInWs and #workspacePackages > 0 then
+        local install_options = { 'Root workspace' }
+        for _, pkg in ipairs(workspacePackages) do
+          table.insert(install_options, pkg)
+        end
+        
+        ui_utils.safe_select(install_options, {
+          prompt = 'Install to which workspace:',
+        }, function(selected_workspace)
+          local cmd = M.build_workspace_install_command(package_manager, package_name, package_type, selected_workspace, workspacePackages)
+          ui_utils.exec_with_feedback(cmd, 
+            string.format('Installing %s package %s to %s', package_type, package_name, selected_workspace), 3)
+        end)
+      else
+        -- Standard installation
+        local base_cmd = package_manager .. ' add ' .. package_name
+        
+        if package_type == 'development' then
+          local dev_arg = language_utils.getJavascriptPackageManagerDevArg()
+          base_cmd = base_cmd .. ' ' .. dev_arg
+        end
+        
+        ui_utils.exec_with_feedback(base_cmd, 
+          string.format('Installing %s package: %s', package_type, package_name), 3)
       end
-      
-      ui_utils.exec_with_feedback(base_cmd, 
-        string.format('Installing %s package: %s', package_type, package_name), 3)
     end)
   end)
+end
+
+--- Build workspace-specific install command
+function M.build_workspace_install_command(package_manager, package_name, package_type, selected_workspace, workspacePackages)
+  local base_cmd = package_manager .. ' add ' .. package_name
+  
+  if package_type == 'development' then
+    local dev_arg = language_utils.getJavascriptPackageManagerDevArg()
+    base_cmd = base_cmd .. ' ' .. dev_arg
+  end
+  
+  -- If installing to root workspace, use standard command
+  if selected_workspace == 'Root workspace' then
+    return base_cmd
+  end
+  
+  -- Build workspace-specific command based on package manager
+  if package_manager == 'pnpm' then
+    return 'pnpm --filter ' .. selected_workspace .. ' add ' .. package_name .. (package_type == 'development' and ' --save-dev' or '')
+  elseif package_manager == 'yarn' then
+    return 'yarn workspace ' .. selected_workspace .. ' add ' .. package_name .. (package_type == 'development' and ' --dev' or '')
+  elseif package_manager == 'npm' then
+    return 'npm --workspace=' .. selected_workspace .. ' install ' .. package_name .. (package_type == 'development' and ' --save-dev' or '')
+  elseif package_manager == 'bun' then
+    return 'bun --filter ' .. selected_workspace .. ' add ' .. package_name .. (package_type == 'development' and ' --dev' or '')
+  else
+    return base_cmd
+  end
 end
 
 --- Run package.json script with selection
@@ -213,7 +266,8 @@ end
 function M.run_eslint_picker()
   ui_utils.show_progress('Running ESLint...')
   
-  local cmd = 'npx eslint ./src --ext ts,tsx,js,jsx'
+  local npx_cmd = language_utils.getNpxEquivalent()
+  local cmd = npx_cmd .. ' eslint ./src --ext ts,tsx,js,jsx'
   local file_links = vim.fn.systemlist(cmd)
 
   if vim.v.shell_error ~= 0 then
@@ -487,7 +541,8 @@ function M.filter_npm_packages(pattern)
   end
 
   local escaped_pattern = vim.fn.shellescape(pattern .. '*')
-  local cmd = string.format('npx npm-check-updates -u --filter %s', escaped_pattern)
+  local npx_cmd = language_utils.getNpxEquivalent()
+  local cmd = string.format('%s npm-check-updates -u --filter %s', npx_cmd, escaped_pattern)
 
   ui_utils.exec_with_feedback(cmd, 
     string.format('Filtering npm packages matching: %s', pattern), 2)
@@ -499,7 +554,8 @@ function M.update_npm_packages_interactive()
     prompt = 'Filter packages to update (glob patterns, comma-separated, optional): ',
     default = '',
   }, function(filter_list)
-    local cmd = 'npx npm-check-updates'
+    local npx_cmd = language_utils.getNpxEquivalent()
+    local cmd = npx_cmd .. ' npm-check-updates'
 
     if filter_list and filter_list ~= '' then
       local patterns = {}
@@ -530,7 +586,8 @@ function M.remove_unused_packages()
 
   ui_utils.show_progress('🔍 Analyzing unused packages...')
 
-  vim.fn.jobstart('npx depcheck --json', {
+  local npx_cmd = language_utils.getNpxEquivalent()
+  vim.fn.jobstart(npx_cmd .. ' depcheck --json', {
     stdout_buffered = true,
     on_stdout = function(_, data)
       if not data or #data == 0 then return end
@@ -612,6 +669,7 @@ function M._get_uninstall_command(package_manager)
     npm = 'npm uninstall',
     yarn = 'yarn remove',
     pnpm = 'pnpm remove',
+    bun = 'bun remove',
   }
   return commands[package_manager] or 'npm uninstall'
 end
@@ -823,6 +881,35 @@ end
 
 -- =============================================================================
 -- Legacy Function Aliases for Backward Compatibility
+
+-- =============================================================================
+-- Dynamic NPM Update Commands for ToggleTerm
+-- =============================================================================
+
+--- Create npm-check-updates command for different update types
+function M.create_npm_update_command(update_type)
+  local npx_cmd = language_utils.getNpxEquivalent()
+  
+  if update_type == 'minor' then
+    return npx_cmd .. ' npm-check-updates -u -t minor'
+  elseif update_type == 'major' then
+    return npx_cmd .. ' npm-check-updates -u'
+  elseif update_type == 'patch' then
+    return npx_cmd .. ' npm-check-updates -u -t patch'
+  elseif update_type == 'interactive' then
+    return npx_cmd .. ' npm-check-updates -ui'
+  else
+    return npx_cmd .. ' npm-check-updates'
+  end
+end
+
+--- Create terminal executor for npm-check-updates commands
+function M.create_npm_update_executor(terminal_num, update_type)
+  return function()
+    local cmd = M.create_npm_update_command(update_type)
+    vim.cmd(string.format(':%dTermExec cmd="%s"', terminal_num, cmd))
+  end
+end
 
 
 return M

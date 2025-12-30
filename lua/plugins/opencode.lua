@@ -6,7 +6,7 @@ return {
     ---@module 'snacks' <- Loads `snacks.nvim` types for configuration intellisense.
     { 'folke/snacks.nvim', opts = { input = {}, picker = {}, terminal = {} } },
   },
-  event = 'VeryLazy',
+  lazy = false,
   keys = {
     { '<C-a>', function() require('opencode').ask('@this: ', { submit = true }) end, mode = { 'n', 'x' }, desc = 'Ask opencode' },
     { '<C-x>', function() require('opencode').select() end, mode = { 'n', 'x' }, desc = 'Execute opencode action…' },
