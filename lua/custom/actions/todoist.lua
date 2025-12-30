@@ -4,10 +4,10 @@ local todoistUtils = require('custom.utils.todoist')
 local M = {}
 
 local todoistPriorityOptions = {
-  { name = 'Priority None', value = 'p4' },
   { name = 'Priority High', value = 'p1' },
   { name = 'Priority Medium', value = 'p2' },
   { name = 'Priority Low', value = 'p3' },
+  { name = 'Priority None', value = 'p4' },
 }
 
 -- Helper to get/set recent project
@@ -72,9 +72,7 @@ local function create_task_with_navigation(taskName, projects, fallbackProjectNa
         return
       end
 
-      local section_options = { 
-        { name = 'No section', id = nil } 
-      }
+      local section_options = {}
       for _, section in ipairs(sections) do
         table.insert(section_options, {
           name = section.name,
