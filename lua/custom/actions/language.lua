@@ -267,13 +267,8 @@ function M.run_eslint_picker()
   ui_utils.show_progress('Running ESLint...')
   
   local npx_cmd = language_utils.getNpxEquivalent()
-  local cmd = npx_cmd .. ' eslint ./src --ext ts,tsx,js,jsx'
+  local cmd = npx_cmd .. ' eslint . --ext ts,tsx,js,jsx --format unix 2>&1 | grep -oE "^[^:]+:[0-9]+" | cut -d: -f1 | sort -u'
   local file_links = vim.fn.systemlist(cmd)
-
-  if vim.v.shell_error ~= 0 then
-    vim.notify('ESLint command failed', vim.log.levels.ERROR)
-    return
-  end
 
   local items = {}
   for idx, file_path in ipairs(file_links) do
