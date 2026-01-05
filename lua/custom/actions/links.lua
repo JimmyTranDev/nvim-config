@@ -22,9 +22,7 @@ local M = {}
 ---@return table org_names List of organization names
 local function get_organization_names()
   local orgs = { 
-    vim.env.PRI_GITHUB_USERNAME, 
-    vim.env.ORG_GITHUB_NAME, 
-    vim.env.ORG_GITHUB_DESIGN_NAME 
+    vim.env.PRI_GITHUB_USERNAME
   }
   
   -- Filter out nil/empty values
@@ -103,11 +101,13 @@ function M.open_github_repo()
   ui_utils.safe_select(project_names, {
     prompt = 'Select repository to open:',
   }, function(project_name)
-    if vim.env.ORG_GITHUB_LINK then
-      local url = string.format(vim.env.ORG_GITHUB_LINK, project_name)
+    -- Try to open using private GitHub repo logic since ORG_GITHUB_LINK is no longer available
+    local github_username = vim.env.PRI_GITHUB_USERNAME
+    if github_username then
+      local url = string.format('https://github.com/%s/%s', github_username, project_name)
       open_url_safe(url, project_name)
     else
-      vim.notify('ORG_GITHUB_LINK environment variable not set', vim.log.levels.ERROR)
+      vim.notify('GitHub username not configured', vim.log.levels.ERROR)
     end
   end)
 end
@@ -209,27 +209,27 @@ end
 
 --- Open test environment logs
 function M.open_test_logs()
-  open_environment_link(vim.env.ORG_TEST_LOGS_LINK, 'Test Logs')
+  vim.notify('Test logs functionality not configured', vim.log.levels.WARN)
 end
 
 --- Open test environment pods
 function M.open_test_pods()
-  open_environment_link(vim.env.ORG_TEST_PODS_LINK, 'Test Pods')
+  vim.notify('Test pods functionality not configured', vim.log.levels.WARN)
 end
 
 --- Open production logs
 function M.open_prod_logs()
-  open_environment_link(vim.env.ORG_PROD_LOGS_LINK, 'Production Logs')
+  vim.notify('Production logs functionality not configured', vim.log.levels.WARN)
 end
 
 --- Open production pods
 function M.open_prod_pods()
-  open_environment_link(vim.env.ORG_PROD_PODS_LINK, 'Production Pods')
+  vim.notify('Production pods functionality not configured', vim.log.levels.WARN)
 end
 
 --- Open container registry
 function M.open_container_registry()
-  open_environment_link(vim.env.ORG_CONTAINER_REGISTRY_LINK, 'Container Registry')
+  vim.notify('Container registry functionality not configured', vim.log.levels.WARN)
 end
 
 -- =============================================================================

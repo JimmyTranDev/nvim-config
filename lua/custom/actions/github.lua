@@ -99,9 +99,7 @@ end
 --- Select organization, repository, and pull request to open
 function M.select_and_open_pr()
   local orgs = { 
-    vim.env.PRI_GITHUB_USERNAME, 
-    vim.env.ORG_GITHUB_NAME, 
-    vim.env.ORG_GITHUB_DESIGN_NAME 
+    vim.env.PRI_GITHUB_USERNAME
   }
   
   -- Filter out nil values
