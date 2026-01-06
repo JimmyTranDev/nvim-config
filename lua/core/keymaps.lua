@@ -15,6 +15,7 @@ local replacementActions = require('custom.actions.replacement')
 local lspActions = require('custom.actions.lsp')
 local documentationActions = require('custom.actions.documentation')
 local gitActions = require('custom.actions.git')
+local githubActions = require('custom.actions.github')
 
 -- Helper to set keymaps with silent and noremap by default
 local function map(mode, lhs, rhs, opts)
@@ -80,6 +81,7 @@ map('n', '<leader>;d', fileActions.open_current_dir, { desc = '📁 Open directo
 map('n', '<leader>;g', linkActions.open_current_github_repo, { desc = '󰊤 Open current GitHub repo' })
 map('n', '<leader>;', linkActions.open_current_github_prs, { desc = '󰊤 Open GitHub PRs tab' })
 map('n', '<leader>;p', gitActions.openExistingPullRequestOnly, { desc = '🔗 Open existing PR link' })
+map('n', '<leader>;pr', githubActions.create_pr_into_develop, { desc = '🔀 Create PR into develop' })
 map('n', '<leader>;w', function() vim.opt.wrap = not vim.opt.wrap:get() end, { desc = '↩️ Toggle text wrap' })
 map('n', '<leader>;l', lspActions.refresh_all_lsps_silent, { desc = '🔄 Refresh all LSPs' })
 map('n', '<leader>;t', '<cmd>Copilot toggle<CR>', { desc = '🤖 Toggle Copilot autocomplete' })
@@ -119,7 +121,7 @@ map('n', '<Leader>i', '<C-i>', { desc = 'Jump forward' })
 map('n', '<Leader>o', '<C-o>', { desc = 'Jump backward' })
 
 -- =============================================================================
--- Leader + l - Link Operations
+-- Leader + i/o - Jump Operations
 -- =============================================================================
 
 map('n', '<Leader>lc', linkActions.open_container_registry, { desc = 'Container registry' })
