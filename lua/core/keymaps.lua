@@ -42,6 +42,23 @@ map('', '<S-J>', '<C-D>', { desc = 'Scroll down half page' })
 map('', '<S-K>', '<C-U>', { desc = 'Scroll up half page' })
 
 -- ===============================
+-- Window Splits Management (<leader>n)
+-- ===============================
+map('n', '<leader>nh', ':vsplit<CR>', { desc = 'Split window vertically (left)' })
+map('n', '<leader>nj', ':split<CR><C-W>j', { desc = 'Split window horizontally (below)' })
+map('n', '<leader>nk', ':split<CR>', { desc = 'Split window horizontally (above)' })
+map('n', '<leader>nl', ':vsplit<CR><C-W>l', { desc = 'Split window vertically (right)' })
+map('n', '<leader>nn', ':split<CR>', { desc = 'Split window horizontally' })
+map('n', '<leader>nv', ':vsplit<CR>', { desc = 'Split window vertically' })
+map('n', '<leader>nc', '<C-W>c', { desc = 'Close current window' })
+map('n', '<leader>no', '<C-W>o', { desc = 'Close all other windows' })
+map('n', '<leader>n=', '<C-W>=', { desc = 'Equalize window sizes' })
+map('n', '<leader>n+', '<C-W>+', { desc = 'Increase window height' })
+map('n', '<leader>n-', '<C-W>-', { desc = 'Decrease window height' })
+map('n', '<leader>n>', '<C-W>>', { desc = 'Increase window width' })
+map('n', '<leader>n<', '<C-W><', { desc = 'Decrease window width' })
+
+-- ===============================
 -- Buffer Operations
 -- ===============================
 map('n', '<leader>bd', ':bdelete<CR>', { desc = 'Delete buffer' })
@@ -56,12 +73,12 @@ map('n', '<leader>br', ':e!<CR>', { desc = 'Reload buffer' })
 -- ===============================
 -- Tab Operations
 -- ===============================
-map('n', '<leader>hd', ':tabclose<CR>', { desc = 'Delete tab' })
-map('n', '<leader>hD', ':tabonly<CR>', { desc = 'Close all other tabs' })
-map('n', '<leader>hn', ':tabnext<CR>', { desc = 'Next tab' })
-map('n', '<leader>hp', ':tabprevious<CR>', { desc = 'Previous tab' })
+map('n', '<leader>hx', ':tabclose<CR>', { desc = 'Delete tab' })
+map('n', '<leader>ho', ':tabonly<CR>', { desc = 'Close all other tabs' })
+map('n', '<leader>hk', ':tabnext<CR>', { desc = 'Next tab' })
+map('n', '<leader>hj', ':tabprevious<CR>', { desc = 'Previous tab' })
 map('n', '<leader>hl', ':tabs<CR>', { desc = 'List tabs' })
-map('n', '<leader>ho', ':tabnew<CR>', { desc = 'Open new tab' })
+map('n', '<leader>hn', ':tabnew<CR>', { desc = 'Open new tab' })
 map('n', '<leader>hm', ':tabmove<CR>', { desc = 'Move tab' })
 map('n', '<leader>hf', ':tabfirst<CR>', { desc = 'First tab' })
 map('n', '<leader>hL', ':tablast<CR>', { desc = 'Last tab' })
@@ -112,7 +129,7 @@ map('n', '<leader>ll', lspActions.refresh_all_lsps_silent, { desc = '🔄 Refres
 map('n', '<leader>lt', '<cmd>Copilot toggle<CR>', { desc = '🤖 Toggle Copilot autocomplete' })
 
 -- ===============================
--- <leader>la - Analysis Operations  
+-- <leader>la - Analysis Operations
 -- ===============================
 map('n', '<leader>lae', languageActions.run_eslint_picker, { desc = '🔍 ESLint analysis picker' })
 map('n', '<leader>lak', languageActions.run_knip_picker, { desc = '🧹 Knip unused code picker' })
@@ -149,8 +166,6 @@ map('n', '<Leader>o', '<C-o>', { desc = 'Jump backward' })
 -- Leader + i/o - Jump Operations
 -- =============================================================================
 
-
-
 -- =============================================================================
 -- Leader + q/Q/w/W - File Operations (Basic)
 -- =============================================================================
@@ -178,8 +193,6 @@ map('n', '<leader>zp', ':Lazy profile<CR>', { desc = 'Lazy profile' })
 map('n', '<leader>zr', ':Lazy restore<CR>', { desc = 'Lazy restore' })
 map('n', '<leader>zu', ':Lazy update<CR>', { desc = 'Lazy update' })
 map('n', '<leader>zz', ':Lazy<CR>', { desc = 'Open Lazy' })
-
-
 
 -- =============================================================================
 -- Leader + t - Training & Productivity

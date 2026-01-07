@@ -208,7 +208,7 @@ return {
       { '<leader>j', group = '󰊢 Git Hunks', mode = { 'n', 'v' } },
       { '<leader>k', group = '󰌌 Keymaps', mode = { 'n', 'v' } },
       { '<leader>m', desc = '󰊢 Lazygit', mode = { 'n', 'v' } },
-      { '<leader>n', group = '󰎙 Notes', mode = { 'n', 'v' } },
+      { '<leader>n', group = '󰖲 Window Splits', mode = { 'n', 'v' } },
       { '<leader>o', desc = '󰘶 Jump Out', mode = { 'n', 'v' } },
       { '<leader>p', group = '󰏖 Packages', mode = { 'n', 'v' } },
       { '<leader>q', desc = '󰩈 Quit', mode = { 'n', 'v' } },
