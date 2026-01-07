@@ -72,25 +72,25 @@ map('x', '<leader><leader>tr', [["zy:%s/\V<C-r>=escape(@z, '/')<CR>//gc<left><le
 map('n', '<leader>;;', checkboxActions.toggle, { desc = '☑️  Toggle checkbox' })
 
 -- ===============================
--- <leader>; - Misc Quick Access
+-- <leader>l - Links & Quick Access
 -- ===============================
-map('n', '<leader>;e', errorsActions.copy_diagnostic_under_cursor, { desc = '📋 Copy diagnostic' })
-map('n', '<leader>;c', fileActions.copy_all_files_content, { desc = '📁 Copy all files content' })
-map('n', '<leader>;f', fileActions.copy_current_file_url, { desc = '🔗 Copy current file link' })
-map('n', '<leader>;d', fileActions.open_current_dir, { desc = '📁 Open directory' })
-map('n', '<leader>;g', linkActions.open_current_github_repo, { desc = '󰊤 Open current GitHub repo' })
-map('n', '<leader>;', linkActions.open_current_github_prs, { desc = '󰊤 Open GitHub PRs tab' })
-map('n', '<leader>;p', gitActions.openExistingPullRequestOnly, { desc = '🔗 Open existing PR link' })
-map('n', '<leader>;pr', githubActions.create_pr_into_develop, { desc = '🔀 Create PR into develop' })
-map('n', '<leader>;w', function() vim.opt.wrap = not vim.opt.wrap:get() end, { desc = '↩️ Toggle text wrap' })
-map('n', '<leader>;l', lspActions.refresh_all_lsps_silent, { desc = '🔄 Refresh all LSPs' })
-map('n', '<leader>;t', '<cmd>Copilot toggle<CR>', { desc = '🤖 Toggle Copilot autocomplete' })
+map('n', '<leader>le', errorsActions.copy_diagnostic_under_cursor, { desc = '📋 Copy diagnostic' })
+map('n', '<leader>lc', fileActions.copy_all_files_content, { desc = '📁 Copy all files content' })
+map('n', '<leader>lf', fileActions.copy_current_file_url, { desc = '🔗 Copy current file link' })
+map('n', '<leader>ld', fileActions.open_current_dir, { desc = '📁 Open directory' })
+map('n', '<leader>lg', linkActions.open_current_github_prs, { desc = '󰊤 Open GitHub PRs tab' })
+map('n', '<leader>lG', linkActions.open_current_github_repo, { desc = '󰊤 Open current GitHub repo' })
+map('n', '<leader>l', linkActions.open_current_github_prs, { desc = '󰊤 Open GitHub PRs tab' })
+map('n', '<leader>lp', gitActions.openOrCreatePullRequest, { desc = '🔗 Open existing PR or create new one' })
+map('n', '<leader>lw', function() vim.opt.wrap = not vim.opt.wrap:get() end, { desc = '↩️ Toggle text wrap' })
+map('n', '<leader>ll', lspActions.refresh_all_lsps_silent, { desc = '🔄 Refresh all LSPs' })
+map('n', '<leader>lt', '<cmd>Copilot toggle<CR>', { desc = '🤖 Toggle Copilot autocomplete' })
 
 -- ===============================
--- <leader>f; - Find & Analysis Operations
+-- <leader>la - Analysis Operations  
 -- ===============================
-map('n', '<leader>f;e', languageActions.run_eslint_picker, { desc = '🔍 ESLint analysis picker' })
-map('n', '<leader>f;k', languageActions.run_knip_picker, { desc = '🧹 Knip unused code picker' })
+map('n', '<leader>lae', languageActions.run_eslint_picker, { desc = '🔍 ESLint analysis picker' })
+map('n', '<leader>lak', languageActions.run_knip_picker, { desc = '🧹 Knip unused code picker' })
 
 -- ===============================
 -- <leader><leader>r - Replacement Operations
@@ -124,14 +124,7 @@ map('n', '<Leader>o', '<C-o>', { desc = 'Jump backward' })
 -- Leader + i/o - Jump Operations
 -- =============================================================================
 
-map('n', '<Leader>lc', linkActions.open_container_registry, { desc = 'Container registry' })
-map('n', '<Leader>ld', linkActions.open_test_pods, { desc = 'Test pods' })
-map('n', '<Leader>lD', linkActions.open_prod_pods, { desc = 'Production pods' })
-map('n', '<Leader>lg', linkActions.open_github_repo, { desc = '󰊤 Open GitHub repo' })
-map('n', '<Leader>ll', linkActions.open_test_logs, { desc = 'Test logs' })
-map('n', '<Leader>lL', linkActions.open_prod_logs, { desc = 'Production logs' })
-map('n', '<Leader>lp', linkActions.open_prod_server, { desc = '󰒋 Production server' })
-map('n', '<Leader>lt', linkActions.open_test_server, { desc = '󰒋 Test server' })
+
 
 -- =============================================================================
 -- Leader + q/Q/w/W - File Operations (Basic)

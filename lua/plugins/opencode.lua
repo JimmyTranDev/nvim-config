@@ -28,13 +28,13 @@ return {
     vim.o.autoread = true
 
     -- Auto-open OpenCode when Neovim starts
-    vim.api.nvim_create_autocmd('VimEnter', {
-      callback = function()
-        vim.defer_fn(function()
-          require('opencode').toggle()
-        end, 1000) -- 1 second delay to ensure everything is loaded
-      end,
-      desc = 'Auto-open OpenCode on startup',
-    })
+    -- vim.api.nvim_create_autocmd('VimEnter', {
+    --   callback = function()
+    --     vim.defer_fn(function()
+    --       require('opencode').toggle()
+    --     end, 1000) -- 1 second delay to ensure everything is loaded
+    --   end,
+    --   desc = 'Auto-open OpenCode on startup',
+    -- })
   end,
 }

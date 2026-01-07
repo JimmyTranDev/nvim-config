@@ -119,8 +119,9 @@ return {
       { '<leader><leader>r', group = '󰛔 Replace', mode = { 'n', 'v' } },
       { '<leader><leader>m', group = '󰈙 Manual', mode = { 'n', 'v' } },
 
-      -- Quick Access Commands
-      { '<leader>;', group = '󰓦 Quick Access', mode = { 'n', 'v' } },
+      -- External Links (Leader + l)
+      { '<leader>l', group = '󰌷 Links & Quick Access', mode = { 'n', 'v' } },
+      { '<leader>la', group = '󰉋 Analysis', mode = { 'n', 'v' } },
 
       -- Find/Search Groups (Leader + f)
       { '<leader>f', group = '󰭎 Find', mode = { 'n', 'v' } },
@@ -187,16 +188,7 @@ return {
       { '<leader>ty', group = '󰛢 Yarn', mode = { 'n', 'v' } },
       { '<leader>tz', group = '󰘳 Zone', mode = { 'n', 'v' } },
 
-      -- External Links (Leader + l)
-      { '<leader>l', group = '󰌷 Links', mode = { 'n', 'v' } },
-      { '<leader>la', group = '󰉋 Apps', mode = { 'n', 'v' } },
-      { '<leader>lb', group = '󰇰 Bookmarks', mode = { 'n', 'v' } },
-      { '<leader>lc', group = '󰘖 Config', mode = { 'n', 'v' } },
-      { '<leader>ld', group = '󰈙 Docs', mode = { 'n', 'v' } },
-      { '<leader>lg', group = '󰊤 GitHub', mode = { 'n', 'v' } },
-      { '<leader>lp', group = '󰏖 Projects', mode = { 'n', 'v' } },
-      { '<leader>ls', group = '󰒋 Servers', mode = { 'n', 'v' } },
-      { '<leader>lt', group = '󰙨 Tools', mode = { 'n', 'v' } },
+
 
       -- Buffer Management Groups (Leader + b)
       { '<leader>b', group = '󰓩 Buffer Management', mode = { 'n', 'v' } },

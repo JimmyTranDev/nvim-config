@@ -569,38 +569,32 @@ gl           Format code with LSP
 <leader><leader>ns   Show test summary
 ```
 
+### 🔗 **Links & Quick Access Operations**
+```
+<leader>le   Copy diagnostic message under cursor
+<leader>lc   Copy all files content in folder  
+<leader>lf   Copy current file link/URL
+<leader>ld   Open current directory
+<leader>lg   Open current GitHub repository
+<leader>l    Open GitHub pull requests tab
+<leader>lp   Open existing PR link for current branch
+<leader>lP   Create PR into develop branch
+<leader>lw   Toggle text wrap
+<leader>ll   Refresh all LSP servers
+<leader>lt   Toggle Copilot autocomplete
+<leader>lae  ESLint analysis with quickfix integration
+<leader>lak  Knip unused code analysis
+```
+
 ### 🔧 **Development Utilities**
 ```
-<leader>;de  Run ESLint with quickfix integration
-<leader>;df  Fix and organize TypeScript imports
-<leader>;da  Launch Android emulator for development
-<leader>;dc  Copy diagnostic message under cursor
-<leader>;dl  Repeat last executed command
-<leader>;dm  Insert emoji (Icon Picker)
-<leader>;dM  Insert Nerd Font icon (Icon Picker)
 <C-,>        Insert emoji (Insert mode)
 <C-.>        Insert Nerd Font (Insert mode)
 ```
 
-### 📁 **File & System Operations**
-```
-<leader>;fc  Save clipboard content to file
-<leader>;fr  Run command from clipboard  
-<leader>;ff  Copy all files content in folder
-<leader>;fS  Sync secrets to cloud storage
-<leader>;fI  Initialize secrets directory
-<leader>;fs  Toggle spell checking
-<leader>;fC  Clear Neovim swap files
-```
 
-### ✏️ **Text Manipulation**
-```
-<leader>;tr  Visual search and replace (selected text)
-<leader>;tR  CDO replace across quickfix list
-<leader>;tt  Toggle markdown checkbox
-<leader>;tc  Replace text (visual selection)
-<leader>;tC  Replace text with CDO (visual selection)
-```
+
+
 
 ### 🤖 **AI & Prompt System** 
 ```
@@ -622,18 +616,7 @@ gl           Format code with LSP
 <leader>hs   Search web with query
 ```
 
-### 🔗 **Link & Server Operations**
-```
-<leader>lc   Open container registry
-<leader>ld   Open test environment pods
-<leader>lD   Open production pods
-<leader>lg   Open GitHub repository
-<leader>ll   Open test environment logs
-<leader>lL   Open production logs
-<leader>lp   Open production server
-<leader>ls   Open development server  
-<leader>lt   Open test server
-```
+
 
 ### 📝 **Todoist & Task Management**
 ```
@@ -882,12 +865,12 @@ pcall(require, 'local_config')
 
 ```lua
 -- Java Development
-<leader>;da                 " Launch Android emulator (AVD selection)
+<leader>da                  " Launch Android emulator (AVD selection)
 :lua require('custom.actions.language').runJavaClassMvn()
 
--- JavaScript/TypeScript
-<leader>;de                 " ESLint with quickfix integration
-<leader>;df                 " Fix and organize imports
+-- JavaScript/TypeScript  
+<leader>lae                 " ESLint analysis with quickfix integration
+<leader>df                  " Fix and organize imports
 :lua require('custom.actions.language').find_and_delete_unused_packages()
 
 -- Package Management
@@ -900,10 +883,10 @@ pcall(require, 'local_config')
 
 ```lua
 -- Initialize secrets directory with templates
-<leader>;fI
+:lua require('custom.actions.files').initialize_secrets()
 
--- Sync to cloud storage (B2)
-<leader>;fS
+-- Sync to cloud storage (B2)  
+:lua require('custom.actions.files').sync_secrets()
 
 -- Directory structure created:
 -- ~/Programming/secrets/
@@ -1128,7 +1111,7 @@ The included `.luarc.json` should prevent this issue automatically.
 <summary><strong>AI prompts not loading</strong></summary>
 
 **Setup required**:
-1. Initialize secrets directory: `<leader>;fI`
+1. Initialize secrets directory: `:lua require('custom.actions.files').initialize_secrets()`
 2. Create prompts.json in ~/Programming/secrets/
 3. Structure should include keys like:
    ```json

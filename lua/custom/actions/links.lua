@@ -70,47 +70,7 @@ end
 -- GitHub Repository Operations
 -- =============================================================================
 
---- Open GitHub repository with organization selection
-function M.open_github_repo()
-  local current_repo = github_utils.getRepoName()
-  if not current_repo or current_repo == '' then
-    vim.notify('Could not determine current repository', vim.log.levels.WARN)
-    return
-  end
-  
-  local project_names = get_project_names_with_current()
-  
-  -- If current repo is not in known projects, prompt for organization
-  if not array_utils.hasValue(link_constants.projectNames or {}, current_repo) then
-    local org_names = get_organization_names()
-    
-    if #org_names == 0 then
-      vim.notify('No GitHub organizations configured', vim.log.levels.ERROR)
-      return
-    end
-    
-    ui_utils.safe_select(org_names, {
-      prompt = 'Select organization/username:',
-    }, function(org_name)
-      local url = string.format('https://github.com/%s/%s', org_name, current_repo)
-      open_url_safe(url, string.format('%s/%s', org_name, current_repo))
-    end)
-    return
-  end
 
-  ui_utils.safe_select(project_names, {
-    prompt = 'Select repository to open:',
-  }, function(project_name)
-    -- Try to open using private GitHub repo logic since ORG_GITHUB_LINK is no longer available
-    local github_username = vim.env.PRI_GITHUB_USERNAME
-    if github_username then
-      local url = string.format('https://github.com/%s/%s', github_username, project_name)
-      open_url_safe(url, project_name)
-    else
-      vim.notify('GitHub username not configured', vim.log.levels.ERROR)
-    end
-  end)
-end
 
 --- Open private GitHub repository
 function M.open_private_github_repo()
@@ -207,30 +167,7 @@ local function open_environment_link(link_template, description)
   end)
 end
 
---- Open test environment logs
-function M.open_test_logs()
-  vim.notify('Test logs functionality not configured', vim.log.levels.WARN)
-end
 
---- Open test environment pods
-function M.open_test_pods()
-  vim.notify('Test pods functionality not configured', vim.log.levels.WARN)
-end
-
---- Open production logs
-function M.open_prod_logs()
-  vim.notify('Production logs functionality not configured', vim.log.levels.WARN)
-end
-
---- Open production pods
-function M.open_prod_pods()
-  vim.notify('Production pods functionality not configured', vim.log.levels.WARN)
-end
-
---- Open container registry
-function M.open_container_registry()
-  vim.notify('Container registry functionality not configured', vim.log.levels.WARN)
-end
 
 -- =============================================================================
 -- Server Environment Operations
@@ -239,16 +176,6 @@ end
 --- Open development server
 function M.open_dev_server()
   language_utils.openServerUrl('dev')
-end
-
---- Open test server
-function M.open_test_server()
-  language_utils.openServerUrl('test')
-end
-
---- Open production server
-function M.open_prod_server()
-  language_utils.openServerUrl('prod')
 end
 
 -- =============================================================================
