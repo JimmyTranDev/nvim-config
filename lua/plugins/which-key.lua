@@ -156,7 +156,8 @@ return {
       { '<leader>gw', group = '󰘴 Worktree', mode = { 'n', 'v' } },
       { '<leader>gy', group = '󰋫 Quick', mode = { 'n', 'v' } },
 
-      -- AI Help section removed
+      -- Tab Operations (Leader + h)
+      { '<leader>h', group = '󰓩 Tab Operations', mode = { 'n', 'v' } },
 
       -- Terminal Commands (Leader + t)
       { '<leader>t', group = ' Terminal', mode = { 'n', 'v' } },

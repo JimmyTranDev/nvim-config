@@ -42,6 +42,31 @@ map('', '<S-J>', '<C-D>', { desc = 'Scroll down half page' })
 map('', '<S-K>', '<C-U>', { desc = 'Scroll up half page' })
 
 -- ===============================
+-- Buffer Operations
+-- ===============================
+map('n', '<leader>bd', ':bdelete<CR>', { desc = 'Delete buffer' })
+map('n', '<leader>bD', ':bdelete!<CR>', { desc = 'Force delete buffer' })
+map('n', '<leader>bn', ':bnext<CR>', { desc = 'Next buffer' })
+map('n', '<leader>bp', ':bprevious<CR>', { desc = 'Previous buffer' })
+map('n', '<leader>bl', ':buffers<CR>', { desc = 'List buffers' })
+map('n', '<leader>bo', ':%bdelete|edit#<CR>', { desc = 'Close all other buffers' })
+map('n', '<leader>bw', ':w<CR>', { desc = 'Write buffer' })
+map('n', '<leader>br', ':e!<CR>', { desc = 'Reload buffer' })
+
+-- ===============================
+-- Tab Operations
+-- ===============================
+map('n', '<leader>hd', ':tabclose<CR>', { desc = 'Delete tab' })
+map('n', '<leader>hD', ':tabonly<CR>', { desc = 'Close all other tabs' })
+map('n', '<leader>hn', ':tabnext<CR>', { desc = 'Next tab' })
+map('n', '<leader>hp', ':tabprevious<CR>', { desc = 'Previous tab' })
+map('n', '<leader>hl', ':tabs<CR>', { desc = 'List tabs' })
+map('n', '<leader>ho', ':tabnew<CR>', { desc = 'Open new tab' })
+map('n', '<leader>hm', ':tabmove<CR>', { desc = 'Move tab' })
+map('n', '<leader>hf', ':tabfirst<CR>', { desc = 'First tab' })
+map('n', '<leader>hL', ':tablast<CR>', { desc = 'Last tab' })
+
+-- ===============================
 -- <leader><leader>d - Development & Code Tools
 -- ===============================
 map('n', '<leader><leader>da', languageActions.launch_android_emulator, { desc = '🤖 Launch Android emulator' })
