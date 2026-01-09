@@ -253,8 +253,6 @@ function M.run_eslint_picker()
   ui_utils.show_success('ESLint analysis complete')
 end
 
-
-
 function M.run_knip_unused_files()
   local package_manager = language_utils.getJavascriptPackageManager()
   if not package_manager or package_manager == '' then
@@ -363,26 +361,22 @@ function M.run_knip_fix()
     return
   end
 
-  local cmd = package_manager .. ' dlx knip --fix --allow-remove-files'
-  
+  local cmd = package_manager .. ' dlx knip --fix --allow-remove-files --format'
+
   ui_utils.show_progress('Running knip fix with: ' .. cmd)
-  
+
   vim.fn.jobstart(cmd, {
     on_stdout = function(_, data)
       if data and #data > 0 then
         for _, line in ipairs(data) do
-          if line and line ~= '' then
-            vim.notify(line, vim.log.levels.INFO)
-          end
+          if line and line ~= '' then vim.notify(line, vim.log.levels.INFO) end
         end
       end
     end,
     on_stderr = function(_, data)
       if data and #data > 0 then
         for _, line in ipairs(data) do
-          if line and line ~= '' then
-            vim.notify(line, vim.log.levels.WARN)
-          end
+          if line and line ~= '' then vim.notify(line, vim.log.levels.WARN) end
         end
       end
     end,
@@ -545,7 +539,7 @@ function M.run_knip_unused_code()
         format = function(item, _)
           local a = snacks.picker.util.align
           local icon, icon_hl = snacks.util.icon(item.file, 'file')
-          
+
           -- Different icons for different issue types
           local type_icon, type_hl = '🏷️', 'DiagnosticWarn'
           if item.type == 'unused dependency' or item.type == 'unused devDependency' then

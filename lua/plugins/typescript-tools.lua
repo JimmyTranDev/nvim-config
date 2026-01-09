@@ -7,20 +7,16 @@ return {
   keys = {
     {
       mode = 'n',
-      '<leader>co',
+      '<leader>lq',
       function()
-        -- Step 1: Fix all TypeScript issues first (most comprehensive fix)
         vim.cmd('TSToolsFixAll')
         vim.defer_fn(function()
-          -- Step 2: Remove unused imports and code
           vim.cmd('TSToolsRemoveUnusedImports')
           vim.defer_fn(function()
             vim.cmd('TSToolsRemoveUnused')
             vim.defer_fn(function()
-              -- Step 3: Add any missing imports
               vim.cmd('TSToolsAddMissingImports')
               vim.defer_fn(function()
-                -- Step 4: Organize and sort imports (final cleanup)
                 vim.cmd('TSToolsOrganizeImports')
                 vim.defer_fn(function()
                   vim.cmd('TSToolsSortImports')

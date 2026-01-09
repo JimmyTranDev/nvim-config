@@ -180,7 +180,6 @@ return {
       -- Main Leader Key Groups
       { '<leader>', group = '󱁐 Leader', mode = { 'n', 'v' } },
       { '<leader>a', group = '󰚩 AI', mode = { 'n', 'v' } },
-      { '<leader>c', group = '󰛦 TypeScript', mode = { 'n', 'v' } },
       { '<leader>d', group = '󱉏 Dropbar', mode = { 'n', 'v' } },
       { '<leader>e', group = '󰇥 Explorer', mode = { 'n', 'v' } },
       { '<leader>E', group = '󰇥 Explorer (Root)', mode = { 'n', 'v' } },
