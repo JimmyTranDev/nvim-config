@@ -1,4 +1,3 @@
--- local copilotActions = require('custom.actions.copilot') -- Action removed in cleanup
 return {
   'CopilotC-Nvim/CopilotChat.nvim',
   branch = 'main',

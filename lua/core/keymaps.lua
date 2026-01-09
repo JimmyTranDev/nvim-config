@@ -1,7 +1,3 @@
--- =============================================================================
--- Neovim Key Mappings Configuration
--- =============================================================================
-
 local keymap = vim.keymap
 
 local constants = require('core.constants')
@@ -41,9 +37,6 @@ map('n', 'gp', ':vsplit<CR>', { desc = 'Vertical split' })
 map('', '<S-J>', '<C-D>', { desc = 'Scroll down half page' })
 map('', '<S-K>', '<C-U>', { desc = 'Scroll up half page' })
 
--- ===============================
--- Window Splits Management (<leader>n)
--- ===============================
 map('n', '<leader>nh', ':vsplit<CR>', { desc = 'Split window vertically (left)' })
 map('n', '<leader>nj', ':split<CR><C-W>j', { desc = 'Split window horizontally (below)' })
 map('n', '<leader>nk', ':split<CR>', { desc = 'Split window horizontally (above)' })
@@ -58,9 +51,6 @@ map('n', '<leader>n-', '<C-W>-', { desc = 'Decrease window height' })
 map('n', '<leader>n>', '<C-W>>', { desc = 'Increase window width' })
 map('n', '<leader>n<', '<C-W><', { desc = 'Decrease window width' })
 
--- ===============================
--- Buffer Operations
--- ===============================
 map('n', '<leader>bd', ':bdelete<CR>', { desc = 'Delete buffer' })
 map('n', '<leader>bD', ':bdelete!<CR>', { desc = 'Force delete buffer' })
 map('n', '<leader>bn', ':bnext<CR>', { desc = 'Next buffer' })
@@ -70,9 +60,6 @@ map('n', '<leader>bo', ':%bdelete|edit#<CR>', { desc = 'Close all other buffers'
 map('n', '<leader>bw', ':w<CR>', { desc = 'Write buffer' })
 map('n', '<leader>br', ':e!<CR>', { desc = 'Reload buffer' })
 
--- ===============================
--- Tab Operations
--- ===============================
 map('n', '<leader>hx', ':tabclose<CR>', { desc = 'Delete tab' })
 map('n', '<leader>ho', ':tabonly<CR>', { desc = 'Close all other tabs' })
 map('n', '<leader>hk', ':tabnext<CR>', { desc = 'Next tab' })
@@ -83,18 +70,12 @@ map('n', '<leader>hm', ':tabmove<CR>', { desc = 'Move tab' })
 map('n', '<leader>hf', ':tabfirst<CR>', { desc = 'First tab' })
 map('n', '<leader>hL', ':tablast<CR>', { desc = 'Last tab' })
 
--- ===============================
--- <leader><leader>d - Development & Code Tools
--- ===============================
 map('n', '<leader><leader>da', languageActions.launch_android_emulator, { desc = '🤖 Launch Android emulator' })
 map('n', '<leader><leader>df', languageActions.fix_and_organize_typescript_imports, { desc = '🔧 Fix and organize imports (TS)' })
 map('n', '<leader><leader>dr', languageActions.repeat_last_command, { desc = '⟳ Repeat last command' })
 map('n', '<leader><leader>ds', linkActions.open_dev_server, { desc = '󰒋 Development server' })
 map('n', '<leader><leader>dw', ':SudaWrite<CR>', { desc = '🔐 Sudo write' })
 
--- ===============================
--- <leader><leader>m - Documentation & Manual
--- ===============================
 map('n', '<leader><leader>mc', documentationActions.add_convention_to_readme, { desc = '📖 Add convention to README' })
 
 -- ===============================
@@ -107,15 +88,9 @@ map('n', '<leader><leader>fC', ':!rm -r ' .. constants.NEOVIM_STATE_DIR .. '<CR>
 map('n', '<leader><leader>fG', fileActions.link_github_copilot_instructions, { desc = '🔗 Link .github from dotfiles' })
 map('n', '<leader><leader>fu', fileActions.copy_current_file_url, { desc = '🔗 Copy file absolute URL' })
 
--- ===============================
--- <leader><leader>t - Text & Content Operations
--- ===============================
 map('x', '<leader><leader>tr', [["zy:%s/\V<C-r>=escape(@z, '/')<CR>//gc<left><left><left>]], { desc = '🔍 Visual search replace' })
 map('n', '<leader>;;', checkboxActions.toggle, { desc = '☑️  Toggle checkbox' })
 
--- ===============================
--- <leader>l - Links & Quick Access
--- ===============================
 map('n', '<leader>le', errorsActions.copy_diagnostic_under_cursor, { desc = '📋 Copy diagnostic' })
 map('n', '<leader>lc', fileActions.copy_all_files_content, { desc = '📁 Copy all files content' })
 map('n', '<leader>lf', fileActions.copy_current_file_url, { desc = '🔗 Copy current file link' })
@@ -128,15 +103,9 @@ map('n', '<leader>lw', function() vim.opt.wrap = not vim.opt.wrap:get() end, { d
 map('n', '<leader>ll', lspActions.refresh_all_lsps_silent, { desc = '🔄 Refresh all LSPs' })
 map('n', '<leader>lt', '<cmd>Copilot toggle<CR>', { desc = '🤖 Toggle Copilot autocomplete' })
 
--- ===============================
--- <leader>la - Analysis Operations
--- ===============================
 map('n', '<leader>lae', languageActions.run_eslint_picker, { desc = '🔍 ESLint analysis picker' })
 map('n', '<leader>lak', languageActions.run_knip_picker, { desc = '🧹 Knip unused code picker' })
 
--- ===============================
--- <leader><leader>r - Replacement Operations
--- ===============================
 map('n', '<leader><leader>ri', replacementActions.replace_interactive, { desc = '🎯 Interactive replace' })
 map('n', '<leader><leader>rb', replacementActions.replace_buffer, { desc = '📄 Replace in buffer' })
 map('n', '<leader><leader>rB', replacementActions.replace_buffer_all, { desc = '📄 Replace all in buffer' })
@@ -149,14 +118,7 @@ map('n', '<leader><leader>rQ', replacementActions.replace_quickfix_all, { desc =
 map('n', '<leader><leader>rf', replacementActions.replace_project, { desc = '🌐 Replace in project' })
 map('n', '<leader><leader>rF', replacementActions.replace_project_all, { desc = '🌐 Replace all in project' })
 
--- =============================================================================
--- Leader + h - Help Operations (AI prompt functionality removed)
--- =============================================================================
-
 -- All AI prompt keybindings removed
-
--- =============================================================================
--- Leader + i/o - Jump Operations
 -- =============================================================================
 
 map('n', '<Leader>i', '<C-i>', { desc = 'Jump forward' })
@@ -166,26 +128,14 @@ map('n', '<Leader>o', '<C-o>', { desc = 'Jump backward' })
 -- Leader + i/o - Jump Operations
 -- =============================================================================
 
--- =============================================================================
--- Leader + q/Q/w/W - File Operations (Basic)
--- =============================================================================
-
 map('n', '<Leader>q', ':q<CR>', { desc = '󰩈 Quit' })
 map('n', '<Leader>Q', ':qa!<CR>', { desc = '󰩈 Force quit all' })
 map('n', '<Leader>w', ':w<CR>', { desc = ' Write' })
 map('n', '<Leader>W', ':wa<CR>', { desc = ' Write all' })
 
--- =============================================================================
--- Leader + r - Logging Operations
--- =============================================================================
-
 map('n', '<Leader>rr', todoistActions.log_todoist_task(), { desc = '󰎞 Log task (salmon)' })
 map('n', '<Leader>rR', todoistActions.log_todoist_task_all_projects(), { desc = '󰎞 Log task (all projects)' })
 map('n', '<Leader>rC', todoistActions.refresh_todoist_cache(), { desc = '󰑓 Refresh Todoist cache' })
-
--- =============================================================================
--- Leader + z - Plugin Management (Lazy)
--- =============================================================================
 
 map('n', '<leader>zc', ':Lazy clean<CR>', { desc = 'Lazy clean' })
 map('n', '<leader>zh', ':Lazy health<CR>', { desc = 'Lazy health' })
@@ -194,18 +144,12 @@ map('n', '<leader>zr', ':Lazy restore<CR>', { desc = 'Lazy restore' })
 map('n', '<leader>zu', ':Lazy update<CR>', { desc = 'Lazy update' })
 map('n', '<leader>zz', ':Lazy<CR>', { desc = 'Open Lazy' })
 
--- =============================================================================
--- Leader + t - Training & Productivity
--- =============================================================================
 -- Note: LeetCode keymaps are configured in lua/plugins/leetcode.lua for better organization
 
 -- Typing practice
 map('n', '<Leader>ttt', ':Typr<CR>', { desc = '󰗀 Start typing test' })
 map('n', '<Leader>tts', ':TyprStats<CR>', { desc = '󰄨 Show typing stats' })
 
--- =============================================================================
--- Leader + u - File & Link Operations (Advanced)
--- =============================================================================
 map('n', '<Leader>ua', fileActions.move_file_to_assets('/Downloads'), { desc = ' Move to assets (Downloads)' })
 map('n', '<Leader>uA', fileActions.move_file_to_assets('/Desktop'), { desc = ' Move to assets (Desktop)' })
 map('n', '<Leader>uj', linkActions.open_jira_ticket, { desc = '󰌃 Open Jira ticket', silent = true })

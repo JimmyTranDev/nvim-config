@@ -27,9 +27,6 @@ return {
       vim.api.nvim_set_hl(0, 'WhichKeyBorder', { fg = colors.surface2 }) -- surface2
     end
 
-    -- =============================================================================
-    -- Which-Key Setup Configuration
-    -- =============================================================================
     wk.setup({
       preset = 'modern',
       delay = function(ctx) return ctx.plugin and 0 or 200 end,
@@ -89,9 +86,6 @@ return {
       },
     })
 
-    -- =============================================================================
-    -- Which-Key Custom Highlights (Dynamic Catppuccin)
-    -- =============================================================================
     -- Apply initial highlights
     apply_which_key_highlights()
 
@@ -105,11 +99,7 @@ return {
     -- Export refresh function for manual use
     _G.refresh_which_key_highlights = apply_which_key_highlights
 
-    -- =============================================================================
-    -- Leader + Leader Groups (Secondary Commands)
-    -- =============================================================================
     -- All Which-Key Mappings
-    -- =============================================================================
     wk.add({
       -- Secondary Leader Commands
       { '<leader><leader>', group = '󰌌 Secondary', mode = { 'n', 'v' } },

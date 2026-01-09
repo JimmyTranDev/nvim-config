@@ -106,9 +106,6 @@ return {
       -- passing config.capabilities to blink.cmp merges with the capabilities in your
       -- `opts[server].capabilities, if you've defined it
       config.capabilities = require('blink.cmp').get_lsp_capabilities(config.capabilities)
-      -- config.on_attach = function(client, bufnr)
-      --   require("workspace-diagnostics").populate_workspace_diagnostics(client, bufnr)
-      -- end
       vim.lsp.config(server, config)
     end
 

@@ -103,22 +103,6 @@ local function setup_visual_enhancements()
   })
 end
 
--- --- Set up which-key color scheme
--- local function setup_which_key_colors()
---   vim.api.nvim_create_autocmd('ColorScheme', {
---     group = augroup('which_key_colors'),
---     pattern = '*',
---     callback = function()
---       for group, config in pairs(WHICH_KEY_COLORS) do
---         vim.api.nvim_set_hl(0, group, config)
---       end
---     end,
---     desc = 'Apply which-key color scheme',
---   })
---
---   -- Apply immediately if colorscheme is already loaded
---   if vim.g.colors_name then vim.api.nvim_exec_autocmds('ColorScheme', { pattern = vim.g.colors_name }) end
--- end
 
 -- =============================================================================
 -- Git Integration
@@ -222,7 +206,6 @@ function M.setup()
   setup_language_settings()
   setup_formatting()
   setup_visual_enhancements()
-  -- setup_which_key_colors() -- Commented out function
   setup_git_integration()
   setup_lsp_progress()
   cleanup_default_keymaps()
