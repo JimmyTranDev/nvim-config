@@ -104,7 +104,7 @@ return {
 
       -- External Links (Leader + l)
       { '<leader>l', group = '󰌷 Links & Quick Access', mode = { 'n', 'v' } },
-      { '<leader>la', group = '󰉋 Analysis', mode = { 'n', 'v' } },
+      { '<leader>v', group = '󰉋 Analysis', mode = { 'n', 'v' } },
 
       -- Find/Search Groups (Leader + f)
       { '<leader>f', group = '󰭎 Find', mode = { 'n', 'v' } },
@@ -200,7 +200,7 @@ return {
       { '<leader>tl', group = '󰞷 LeetCode', mode = { 'n', 'v' } },
       { '<leader>tt', group = '󰗀 Typing Practice', mode = { 'n', 'v' } },
       { '<leader>u', group = '󰦥 Locator', mode = { 'n', 'v' } },
-      { '<leader>v', group = '󰯲 Diff', mode = { 'n', 'v' } },
+      { '<leader>V', group = '󰯲 Diff', mode = { 'n', 'v' } },
       { '<leader>w', desc = '󰆓 Save', mode = { 'n', 'v' } },
       { '<leader>W', desc = '󰆓 Save All', mode = { 'n', 'v' } },
       { '<leader>x', group = '󰅗 Close', mode = { 'n', 'v' } },

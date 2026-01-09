@@ -31,7 +31,7 @@ return {
               break
             end
           end
-          require('opencode').toggle()
+          -- require('opencode').toggle()
         end, 200)
       end,
       desc = 'Auto-open OpenCode and most recent file from current folder (if any) on startup',

@@ -8,17 +8,34 @@ return {
     {
       mode = 'n',
       '<leader>co',
-      ':TSToolsOrganizeImports<CR>',
-      desc = 'Organize Imports',
+      function()
+        -- Step 1: Fix all TypeScript issues first (most comprehensive fix)
+        vim.cmd('TSToolsFixAll')
+        vim.defer_fn(function()
+          -- Step 2: Remove unused imports and code
+          vim.cmd('TSToolsRemoveUnusedImports')
+          vim.defer_fn(function()
+            vim.cmd('TSToolsRemoveUnused')
+            vim.defer_fn(function()
+              -- Step 3: Add any missing imports
+              vim.cmd('TSToolsAddMissingImports')
+              vim.defer_fn(function()
+                -- Step 4: Organize and sort imports (final cleanup)
+                vim.cmd('TSToolsOrganizeImports')
+                vim.defer_fn(function()
+                  vim.cmd('TSToolsSortImports')
+                  vim.notify('Complete TypeScript cleanup finished: fixed all issues, cleaned imports, organized code', vim.log.levels.INFO)
+                end, 100)
+              end, 100)
+            end, 100)
+          end, 100)
+        end, 200) -- Longer delay for FixAll to complete
+      end,
+      desc = 'Complete TS Cleanup (fix all, clean imports, organize)',
       silent = true,
     },
-    { mode = 'n', '<leader>cs', ':TSToolsSortImports<CR>', desc = 'Sort Imports' },
-    { mode = 'n', '<leader>ci', ':TSToolsRemoveUnusedImports<CR>', desc = 'Remove Unused Imports' },
-    { mode = 'n', '<leader>cu', ':TSToolsRemoveUnused<CR>', desc = 'Remove All Unused' },
-    { mode = 'n', '<leader>cc', ':TSToolsAddMissingImports<CR>', desc = 'Add Missing Imports' },
-    { mode = 'n', '<leader>cf', ':TSToolsFixAll<CR>', desc = 'Fix All' },
-    { mode = 'n', '<leader>cd', ':TSToolsGoToSourceDefinition<CR>', desc = 'Go to Source Definition' },
-    { mode = 'n', '<leader>cR', ':TSToolsRenameFile<CR>', desc = 'Rename File' },
-    { mode = 'n', '<leader>cr', ':TSToolsFileReferences<CR>', desc = 'File References' },
+    -- { mode = 'n', '<leader>cd', ':TSToolsGoToSourceDefinition<CR>', desc = 'Go to Source Definition' },
+    -- { mode = 'n', '<leader>cR', ':TSToolsRenameFile<CR>', desc = 'Rename File' },
+    -- { mode = 'n', '<leader>cr', ':TSToolsFileReferences<CR>', desc = 'File References' },
   },
 }

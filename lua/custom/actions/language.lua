@@ -253,7 +253,9 @@ function M.run_eslint_picker()
   ui_utils.show_success('ESLint analysis complete')
 end
 
-function M.run_knip_picker()
+
+
+function M.run_knip_unused_files()
   local package_manager = language_utils.getJavascriptPackageManager()
   if not package_manager or package_manager == '' then
     vim.notify('No JavaScript package manager found. Make sure you are in a JS/TS project with a lockfile.', vim.log.levels.ERROR)
@@ -262,7 +264,148 @@ function M.run_knip_picker()
 
   local cmd = package_manager .. ' dlx knip --reporter json'
 
-  ui_utils.show_progress('Running knip analysis with: ' .. cmd)
+  ui_utils.show_progress('Running knip analysis for unused files with: ' .. cmd)
+
+  local stdout_data = {}
+  local stderr_data = {}
+
+  vim.fn.jobstart(cmd, {
+    stdout_buffered = true,
+    stderr_buffered = true,
+    on_stdout = function(_, data)
+      if data then vim.list_extend(stdout_data, data) end
+    end,
+    on_stderr = function(_, data)
+      if data then vim.list_extend(stderr_data, data) end
+    end,
+    on_exit = function(_, code)
+      if code ~= 0 and code ~= 1 then
+        local error_msg = 'Knip failed with exit code: ' .. code
+        if #stderr_data > 0 then error_msg = error_msg .. '\nError output:\n' .. table.concat(stderr_data, '\n') end
+        vim.notify(error_msg, vim.log.levels.ERROR)
+        return
+      end
+
+      if not stdout_data or #stdout_data == 0 or (stdout_data[1] == '' and #stdout_data == 1) then
+        vim.notify('No unused files found by knip!', vim.log.levels.INFO)
+        return
+      end
+
+      local json_str = table.concat(stdout_data, '\n')
+      local ok, result = pcall(vim.fn.json_decode, json_str)
+
+      if not ok or not result then
+        vim.notify('Failed to parse knip JSON output', vim.log.levels.ERROR)
+        return
+      end
+
+      local items = {}
+
+      -- Only process orphaned files (unused files)
+      if result.files and type(result.files) == 'table' then
+        for _, file in ipairs(result.files) do
+          table.insert(items, {
+            file = file,
+            line = 1,
+            col = 1,
+            type = 'orphaned file',
+            name = file,
+            text = string.format('[%s] Orphaned file (unused)', file),
+          })
+        end
+      end
+
+      if #items == 0 then
+        vim.notify('No unused files found by knip!', vim.log.levels.INFO)
+        return
+      end
+
+      local ok_snacks, snacks = pcall(require, 'snacks')
+      if not ok_snacks then
+        vim.notify('Snacks plugin not available', vim.log.levels.ERROR)
+        return
+      end
+
+      snacks.picker({
+        title = string.format('Knip Unused Files (%d items)', #items),
+        layout = { preset = 'default' },
+        items = items,
+        format = function(item, _)
+          local a = snacks.picker.util.align
+          local icon, icon_hl = snacks.util.icon(item.file, 'file')
+          local type_icon = '🗂️'
+          local type_hl = 'DiagnosticError'
+
+          return {
+            { type_icon, type_hl },
+            { ' ' },
+            { icon, icon_hl },
+            { ' ' },
+            { item.text, 'Normal' },
+          }
+        end,
+        confirm = function(picker, item)
+          picker:close()
+          vim.cmd('edit ' .. vim.fn.fnameescape(item.file))
+          vim.api.nvim_win_set_cursor(0, { item.line, item.col - 1 })
+        end,
+      })
+
+      ui_utils.show_success(string.format('Knip unused files analysis complete - found %d files', #items))
+    end,
+  })
+end
+
+function M.run_knip_fix()
+  local package_manager = language_utils.getJavascriptPackageManager()
+  if not package_manager or package_manager == '' then
+    vim.notify('No JavaScript package manager found. Make sure you are in a JS/TS project with a lockfile.', vim.log.levels.ERROR)
+    return
+  end
+
+  local cmd = package_manager .. ' dlx knip --fix --allow-remove-files'
+  
+  ui_utils.show_progress('Running knip fix with: ' .. cmd)
+  
+  vim.fn.jobstart(cmd, {
+    on_stdout = function(_, data)
+      if data and #data > 0 then
+        for _, line in ipairs(data) do
+          if line and line ~= '' then
+            vim.notify(line, vim.log.levels.INFO)
+          end
+        end
+      end
+    end,
+    on_stderr = function(_, data)
+      if data and #data > 0 then
+        for _, line in ipairs(data) do
+          if line and line ~= '' then
+            vim.notify(line, vim.log.levels.WARN)
+          end
+        end
+      end
+    end,
+    on_exit = function(_, code)
+      if code == 0 then
+        ui_utils.show_success('Knip fix completed successfully')
+      else
+        vim.notify('Knip fix failed with exit code: ' .. code, vim.log.levels.ERROR)
+      end
+    end,
+  })
+end
+
+function M.run_knip_unused_code()
+  local package_manager = language_utils.getJavascriptPackageManager()
+  if not package_manager or package_manager == '' then
+    vim.notify('No JavaScript package manager found. Make sure you are in a JS/TS project with a lockfile.', vim.log.levels.ERROR)
+    return
+  end
+
+  local cmd = package_manager .. ' dlx knip --reporter json'
+
+  ui_utils.show_progress('Running knip analysis for unused code with: ' .. cmd)
 
   local stdout_data = {}
   local stderr_data = {}
@@ -299,19 +442,7 @@ function M.run_knip_picker()
 
       local items = {}
 
-      if result.files and type(result.files) == 'table' then
-        for _, file in ipairs(result.files) do
-          table.insert(items, {
-            file = file,
-            line = 1,
-            col = 1,
-            type = 'orphaned file',
-            name = file,
-            text = string.format('[%s] Orphaned file (unused)', file),
-          })
-        end
-      end
-
+      -- Process all code-level issues (exports, dependencies, types, etc.)
       if result.issues and type(result.issues) == 'table' then
         for _, issue in ipairs(result.issues) do
           local file = issue.file
@@ -408,27 +539,34 @@ function M.run_knip_picker()
       end
 
       snacks.picker({
-        title = string.format('Knip Results (%d items)', #items),
+        title = string.format('Knip Unused Code (%d items)', #items),
         layout = { preset = 'default' },
         items = items,
         format = function(item, _)
           local a = snacks.picker.util.align
           local icon, icon_hl = snacks.util.icon(item.file, 'file')
-          local type_icon = item.type == 'unused export' and '󰏫'
-            or item.type == 'unused dependency' and '󰏗'
-            or item.type == 'unused devDependency' and '󰏗'
-            or item.type == 'unused type' and '󰉉'
-            or item.type == 'orphaned file' and '󰈚'
-            or item.type == 'unlisted dependency' and '󰏗'
-            or item.type == 'unresolved import' and '󰌘'
-            or '󰊨'
-          local type_hl = item.type == 'orphaned file' and 'DiagnosticError' or 'DiagnosticWarn'
+          
+          -- Different icons for different issue types
+          local type_icon, type_hl = '🏷️', 'DiagnosticWarn'
+          if item.type == 'unused dependency' or item.type == 'unused devDependency' then
+            type_icon = '📦'
+          elseif item.type == 'unlisted dependency' then
+            type_icon = '❓'
+          elseif item.type == 'unresolved import' then
+            type_icon = '❌'
+            type_hl = 'DiagnosticError'
+          elseif item.type == 'unused type' then
+            type_icon = '🏷️'
+          elseif item.type == 'unused export' then
+            type_icon = '🚪'
+          end
+
           return {
-            { a(icon, 3), icon_hl },
+            { type_icon, type_hl },
             { ' ' },
-            { a(type_icon, 2), type_hl },
+            { icon, icon_hl },
             { ' ' },
-            { item.text },
+            { item.text, 'Normal' },
           }
         end,
         confirm = function(picker, item)
@@ -438,7 +576,7 @@ function M.run_knip_picker()
         end,
       })
 
-      ui_utils.show_success(string.format('Knip analysis complete - found %d issues', #items))
+      ui_utils.show_success(string.format('Knip unused code analysis complete - found %d issues', #items))
     end,
   })
 end

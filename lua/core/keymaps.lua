@@ -103,9 +103,11 @@ map('n', '<leader>lp', linkActions.open_current_github_prs, { desc = '󰊤 Open 
 map('n', '<leader>lw', function() vim.opt.wrap = not vim.opt.wrap:get() end, { desc = '↩️ Toggle text wrap' })
 map('n', '<leader>ll', lspActions.refresh_all_lsps_silent, { desc = '🔄 Refresh all LSPs' })
 map('n', '<leader>lt', '<cmd>Copilot toggle<CR>', { desc = '🤖 Toggle Copilot autocomplete' })
+map('n', '<leader>lK', languageActions.run_knip_fix, { desc = '🔧 Knip fix & remove files' })
 
-map('n', '<leader>lae', languageActions.run_eslint_picker, { desc = '🔍 ESLint analysis picker' })
-map('n', '<leader>lak', languageActions.run_knip_picker, { desc = '🧹 Knip unused code picker' })
+map('n', '<leader>ve', languageActions.run_eslint_picker, { desc = '🔍 ESLint analysis picker' })
+map('n', '<leader>vK', languageActions.run_knip_unused_files, { desc = '📁 Knip unused files' })
+map('n', '<leader>vk', languageActions.run_knip_unused_code, { desc = '🔧 Knip unused code' })
 
 map('n', '<leader><leader>ri', replacementActions.replace_interactive, { desc = '🎯 Interactive replace' })
 map('n', '<leader><leader>rb', replacementActions.replace_buffer, { desc = '📄 Replace in buffer' })

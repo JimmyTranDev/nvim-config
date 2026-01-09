@@ -124,6 +124,72 @@ function M.copy_current_file_url()
   vim.notify('Copied file URL to clipboard: ' .. file_url, vim.log.levels.INFO)
 end
 
+-- Helper function to check if a comment should be ignored
+local function should_ignore_comment(comment_content)
+  if not comment_content then
+    return false
+  end
+  
+  -- Trim leading/trailing whitespace from comment content
+  local trimmed_content = comment_content:match('^%s*(.-)%s*$')
+  
+  -- Debug output (uncomment for debugging)
+  -- print("Checking comment content: '" .. (trimmed_content or "nil") .. "'")
+  
+  -- Define patterns to ignore (case-insensitive)
+  local ignore_patterns = {
+    '^[Nn]ote:',                           -- // Note: or // note:
+    '^[Tt]his is a placeholder',           -- // This is a placeholder
+    '^[Aa]ctual .* would use',            -- // Actual seeding would use...
+    '^[Pp]laceholder',                     -- // Placeholder...
+    '^TODO:',                              -- // TODO: (exact case)
+    '^todo:',                              -- // todo: (lowercase)
+    '^Todo:',                              -- // Todo: (title case)
+    '^FIXME:',                             -- // FIXME: (exact case)
+    '^fixme:',                             -- // fixme: (lowercase)
+    '^Fixme:',                             -- // Fixme: (title case)
+    '^HACK:',                              -- // HACK: (exact case)
+    '^hack:',                              -- // hack: (lowercase)
+    '^Hack:',                              -- // Hack: (title case)
+    '^WARNING:',                           -- // WARNING:
+    '^warning:',                           -- // warning:
+    '^BUG:',                               -- // BUG:
+    '^bug:',                               -- // bug:
+    '^DEBUG:',                             -- // DEBUG:
+    '^debug:',                             -- // debug:
+    '^const ',                             -- // const variable = ...
+    '^let ',                               -- // let variable = ...
+    '^var ',                               -- // var variable = ...
+    '^function ',                          -- // function name() {...}
+    '^class ',                             -- // class Name {...}
+    '^import ',                            -- // import ... from ...
+    '^export ',                            -- // export ...
+    '^return ',                            -- // return ...
+    '^if ',                                -- // if (...) {...}
+    '^for ',                               -- // for (...) {...}
+    '^while ',                             -- // while (...) {...}
+    '^await ',                             -- // await someFunction();
+    '^console%.',                          -- // console.log(...) or console.error(...)
+    '%.then%(',                            -- // promise.then(...)
+    '%.catch%(',                           -- // promise.catch(...)
+    '%.map%(',                             -- // array.map(...)
+    '%.filter%(',                          -- // array.filter(...)
+    '%.forEach%(',                         -- // array.forEach(...)
+  }
+  
+  for _, pattern in ipairs(ignore_patterns) do
+    if trimmed_content:match(pattern) then
+      -- Debug output (uncomment for debugging)
+      -- print("IGNORING: '" .. trimmed_content .. "' matched pattern: " .. pattern)
+      return true
+    end
+  end
+  
+  -- Debug output (uncomment for debugging)  
+  -- print("NOT IGNORING: '" .. trimmed_content .. "'")
+  return false
+end
+
 function M.delete_all_comments()
   local bufnr = vim.api.nvim_get_current_buf()
   local filetype = vim.bo[bufnr].filetype
@@ -207,12 +273,19 @@ function M.delete_all_comments()
 
   local new_lines = {}
   local in_block_comment = false
+  local in_ignore_block = false  -- Track if we're in a block of comments to ignore
   local removed_count = 0
   local modified_count = 0
 
   for _, line in ipairs(lines) do
     local should_keep = true
     local modified_line = line
+    
+    -- Check if this is a blank line (breaks ignore blocks)
+    local is_blank_line = line:match('^%s*$')
+    if is_blank_line then
+      in_ignore_block = false
+    end
 
     -- Handle block comments first
     if patterns.block_start and patterns.block_end then
@@ -221,10 +294,24 @@ function M.delete_all_comments()
         should_keep = false
         removed_count = removed_count + 1
       elseif line:find(patterns.block_start) then
-        in_block_comment = true
-        if line:find(patterns.block_end) then in_block_comment = false end
-        should_keep = false
-        removed_count = removed_count + 1
+        -- Check if this is a single-line block comment that should be ignored
+        local single_line_block = line:find(patterns.block_end)
+        if single_line_block then
+          -- Single-line block comment /* content */
+          local comment_content = line:match('/%*%s*(.-)%s*%*/')
+          if not should_ignore_comment(comment_content) then
+            should_keep = false
+            removed_count = removed_count + 1
+          end
+        else
+          -- Multi-line block comment - check the content on this line
+          local comment_content = line:match(patterns.block_start .. '%s*(.*)')
+          if not should_ignore_comment(comment_content) then
+            in_block_comment = true
+            should_keep = false
+            removed_count = removed_count + 1
+          end
+        end
       end
     end
 
@@ -242,11 +329,41 @@ function M.delete_all_comments()
       end
     end
 
-    -- Handle single-line comments (full line comments)
+    -- Handle single-line comments (full line comments) with block tracking
     if patterns.single_line and should_keep and not in_block_comment then
       if line:find(patterns.single_line) then
-        should_keep = false
-        removed_count = removed_count + 1
+        -- Extract the comment content to check if it should be ignored
+        local comment_content
+        if filetype == 'javascript' or filetype == 'typescript' or filetype == 'typescriptreact' or filetype == 'javascriptreact' then
+          comment_content = line:match('//%s*(.*)')  -- Extract everything after //
+        elseif filetype == 'lua' then
+          comment_content = line:match('--%s*(.*)')  -- Extract everything after --
+        elseif filetype == 'python' or filetype == 'sh' or filetype == 'bash' then
+          comment_content = line:match('#%s*(.*)')   -- Extract everything after #
+        else
+          -- Generic fallback
+          comment_content = line:match(patterns.single_line .. '%s*(.*)')
+        end
+        
+        if should_ignore_comment(comment_content) then
+          -- This comment should be ignored, start an ignore block
+          in_ignore_block = true
+        elseif in_ignore_block then
+          -- We're in an ignore block, continue ignoring this comment line
+          -- Keep the comment (don't set should_keep = false)
+        else
+          -- Regular comment, not in ignore block, remove it
+          should_keep = false
+          removed_count = removed_count + 1
+        end
+      else
+        -- This line is not a comment, end the ignore block
+        in_ignore_block = false
+      end
+    else
+      -- This line is not a single-line comment, end the ignore block
+      if not in_block_comment then
+        in_ignore_block = false
       end
     end
 
@@ -278,9 +395,13 @@ function M.delete_all_comments()
           end
           
           if not in_string then
-            modified_line = before_comment:gsub('%s+$', '') -- Remove trailing whitespace
-            if modified_line ~= original_line then
-              modified_count = modified_count + 1
+            -- Extract the comment content to check if it should be ignored
+            local comment_content = modified_line:sub(comment_start + 1) -- Skip the comment delimiter
+            if not should_ignore_comment(comment_content) then
+              modified_line = before_comment:gsub('%s+$', '') -- Remove trailing whitespace
+              if modified_line ~= original_line then
+                modified_count = modified_count + 1
+              end
             end
           end
         end
@@ -311,10 +432,14 @@ function M.delete_all_comments()
           end
           
           if not in_string then
-            local after_comment = modified_line:sub(comment_end + 2) -- +2 to skip */
-            modified_line = before_comment:gsub('%s+$', '') .. after_comment
-            if modified_line ~= original_line then
-              modified_count = modified_count + 1
+            -- Extract the comment content to check if it should be ignored
+            local comment_content = modified_line:sub(comment_start + 2, comment_end - 1) -- Extract content between /* and */
+            if not should_ignore_comment(comment_content) then
+              local after_comment = modified_line:sub(comment_end + 2) -- +2 to skip */
+              modified_line = before_comment:gsub('%s+$', '') .. after_comment
+              if modified_line ~= original_line then
+                modified_count = modified_count + 1
+              end
             end
           end
         end
@@ -343,11 +468,16 @@ function M.delete_all_comments()
           end
           
           if not in_string then
-            local before_jsx_clean = before_jsx:gsub('%s+$', '')
-            local after_jsx = modified_line:sub(jsx_end + 1)
-            modified_line = before_jsx_clean .. after_jsx
-            if modified_line ~= original_line then
-              modified_count = modified_count + 1
+            -- Extract the JSX comment content to check if it should be ignored
+            local jsx_comment = modified_line:sub(jsx_start, jsx_end)
+            local comment_content = jsx_comment:match('{/%*%s*(.-)%s*%*/}') -- Extract content between {/* and */}
+            if not should_ignore_comment(comment_content) then
+              local before_jsx_clean = before_jsx:gsub('%s+$', '')
+              local after_jsx = modified_line:sub(jsx_end + 1)
+              modified_line = before_jsx_clean .. after_jsx
+              if modified_line ~= original_line then
+                modified_count = modified_count + 1
+              end
             end
           end
         end
