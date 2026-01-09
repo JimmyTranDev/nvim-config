@@ -63,9 +63,6 @@ return {
   event = 'UIEnter',
   ---@type snacks.Config
   opts = {
-    -- your configuration comes here
-    -- or leave it empty to use the default settings
-    -- refer to the configuration section below
     bigfile = { enabled = true },
     dashboard = {
       enabled = true,
@@ -79,7 +76,6 @@ return {
           padding = 1,
           cwd = true,
         },
-        -- { icon = " ", title = "Projects", section = "projects", indent = 2, padding = 1 },
         { icon = ' ', title = 'Keymaps', section = 'keys', indent = 2, padding = 1 },
         { section = 'startup' },
       },
@@ -231,7 +227,6 @@ return {
       function() Snacks.picker.diagnostics() end,
       desc = 'Diagnostics',
     },
-    -- { "<leader>fE",   function() Snacks.picker.diagnostics_buffer() end,                      desc = "Buffer Diagnostics" },
     {
       '<leader>fE',
       show_diagnostics_picker,
@@ -279,9 +274,6 @@ return {
       function() Snacks.picker.commands() end,
       desc = 'Commands',
     },
-    -- { "<leader>fe",        function() Snacks.explorer() end,                                       desc = "File Explorer" },
-    -- { "<leader>fb,",       function() Snacks.picker.buffers() end,                                 desc = "Buffers" },
-    -- { "<leader>fsB",       function() Snacks.picker.grep_buffers() end,                            desc = "Grep Open Buffers" },
 
     -- Git
     {
@@ -453,20 +445,6 @@ return {
     },
 
     -- Other
-    -- { "<leader>fz",        function() Snacks.zen() end,                                            desc = "Toggle Zen Mode" },
-    -- { "<leader>fZ",        function() Snacks.zen.zoom() end,                                       desc = "Toggle Zoom" },
-    -- { "<leader>f.",        function() Snacks.scratch() end,                                        desc = "Toggle Scratch Buffer" },
-    -- { "<leader>fS",        function() Snacks.scratch.select() end,                                 desc = "Select Scratch Buffer" },
-    -- { "<leader>fn",        function() Snacks.notifier.show_history() end,                          desc = "Notification History" },
-    -- { "<leader>fbd",       function() Snacks.bufdelete() end,                                      desc = "Delete Buffer" },
-    -- { "<leader>fcR",       function() Snacks.rename.rename_file() end,                             desc = "Rename File" },
-    -- { "<leader>fgB",       function() Snacks.gitbrowse() end,                                      desc = "Git Browse",               mode = { "n", "v" } },
-    -- { "<leader>fgg",       function() Snacks.lazygit() end,                                        desc = "Lazygit" },
-    -- { "<leader>fun",       function() Snacks.notifier.hide() end,                                  desc = "Dismiss All Notifications" },
-    -- { "<c-/>",             function() Snacks.terminal() end,                                       desc = "Toggle Terminal" },
-    -- { "<c-_>",             function() Snacks.terminal() end,                                       desc = "which_key_ignore" },
-    -- { "]]",                function() Snacks.words.jump(vim.v.count1) end,                         desc = "Next Reference",           mode = { "n", "t" } },
-    -- { "[[",                function() Snacks.words.jump(-vim.v.count1) end,                        desc = "Prev Reference",           mode = { "n", "t" } },
     {
       '<leader>fN',
       desc = 'Neovim News',
