@@ -5,21 +5,17 @@ return {
     'echasnovski/mini.nvim',
   },
   version = '*',
-  ---@module 'blink.cmp'
-  ---@type blink.cmp.Config
   opts = {
     cmdline = {
       enabled = false,
     },
-    -- Performance optimizations
     trigger = {
       completion = {
-        keyword_length = 2, -- Require at least 2 characters before triggering
-        keyword_regex = '[%w_%-%.#:]*', -- More restrictive pattern
-        exclude_from_prefix_regex = '[%(%)]', -- Exclude some characters
+        keyword_length = 2,
+        keyword_regex = '[%w_%-%.#:]*',
+        exclude_from_prefix_regex = '[%(%)]',
       },
     },
-    -- keymap = { preset = 'enter' },
     keymap = {
       ['<CR>'] = { 'select_and_accept', 'fallback' },
       ['<Down>'] = { 'select_next', 'fallback' },
@@ -27,19 +23,7 @@ return {
       ['<S-PageDown>'] = { 'scroll_documentation_down' },
       ['<S-PageUp>'] = { 'scroll_documentation_up' },
       ['<C-n>'] = { 'show', 'show_documentation', 'hide_documentation' },
-      -- ["<S-Tab>"] = { "select_prev", "fallback" },
-      -- ["<Tab>"] = { "select_next", "fallback" },
-      -- ['<C-b>'] = {},
-      -- ['<C-e>'] = {},
-      -- ['<C-f>'] = {},
-      -- ['<C-p>'] = {},
-      -- ['<C-space>'] = {},
-      -- ['<C-y>'] = {},
     },
-    -- appearance = {
-    --   use_nvim_cmp_as_default = true,
-    --   nerd_font_variant = 'mono'
-    -- },
     sources = {
       default = { 'lsp', 'path', 'snippets', 'buffer' },
     },
@@ -48,8 +32,8 @@ return {
       accept = { auto_brackets = { enabled = false } },
       documentation = {
         auto_show = true,
-        auto_show_delay_ms = 200, -- Increased delay for better performance
-        update_delay_ms = 100, -- Add update delay for better performance
+        auto_show_delay_ms = 200,
+        update_delay_ms = 100,
       },
       menu = {
         draw = {

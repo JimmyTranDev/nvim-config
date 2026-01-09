@@ -20,7 +20,7 @@ return {
   },
   opts = {
     max_recents = 20,
-    add_default_keybindings = false, -- We define our own
-    copy_to_clipboard = false, -- Insert into buffer
+    add_default_keybindings = false,
+    copy_to_clipboard = false,
   },
 }

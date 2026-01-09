@@ -46,7 +46,7 @@ return {
         harpoon = true,
       },
     })
-    
+
     -- Apply the theme
     vim.cmd('colorscheme catppuccin-mocha')
   end,

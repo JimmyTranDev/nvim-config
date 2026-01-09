@@ -1,11 +1,9 @@
 local languageActions = require('custom.actions.language')
 local toggleTermActions = require('custom.actions.toggleterm')
 
--- Function to grep markdown headings using snacks.nvim picker
 local function grep_markdown_headings()
   local snacks = require('snacks')
 
-  -- Use snacks picker to grep for markdown headings (lines starting with #)
   snacks.picker.grep({
     search = '^#{1,6} ',
     prompt = 'Markdown Headings',
@@ -23,7 +21,6 @@ local function grep_markdown_headings()
       preview = true,
     },
     format = function(item)
-      -- Extract heading level and text for better formatting
       local text = item.text or ''
       local level = text:match('^(#{1,6})')
       local heading_text = text:match('^#{1,6}%s*(.*)')

@@ -1,14 +1,11 @@
 local fileAction = require('custom.actions.files')
 
--- Function to group diagnostics by file
 local function get_diagnostics_by_file()
-  -- Only run if not in VSCode (VSCode handles diagnostics UI)
   if vim.g.vscode then return {} end
 
-  local diagnostics = vim.diagnostic.get() -- Get all diagnostics
+  local diagnostics = vim.diagnostic.get()
   local by_file = {}
 
-  -- Group diagnostics by buffer (file)
   for _, diag in ipairs(diagnostics) do
     local buf = diag.bufnr
     local filename = vim.api.nvim_buf_get_name(buf)
@@ -19,7 +16,6 @@ local function get_diagnostics_by_file()
     end
   end
 
-  -- Convert to picker items
   local items = {}
   for filename, data in pairs(by_file) do
     table.insert(items, {
@@ -34,7 +30,6 @@ local function get_diagnostics_by_file()
   return items
 end
 
--- Custom picker to show diagnostics grouped by file
 local function show_diagnostics_picker()
   local items = get_diagnostics_by_file()
 
@@ -44,9 +39,7 @@ local function show_diagnostics_picker()
     format = function(item, _) return { { item.text, 'Normal' } } end,
     confirm = function(picker, item)
       picker:close()
-      -- Open the file in the buffer
       vim.api.nvim_set_current_buf(item.buf)
-      -- Optionally, show all diagnostics for this file using trouble.nvim
       require('trouble').open({
         mode = 'diagnostics',
         filter = { buf = item.buf },
@@ -58,10 +51,9 @@ end
 
 return {
   'folke/snacks.nvim',
-  lazy = true, -- Enable lazy loading
+  lazy = true,
   priority = 1000,
   event = 'UIEnter',
-  ---@type snacks.Config
   opts = {
     bigfile = { enabled = true },
     dashboard = {
@@ -86,38 +78,31 @@ return {
     picker = {
       enabled = true,
       cwd = true,
-      layout = { -- the layout config
-        layout = { -- the layout itself
-          -- width = 0, -- 0 is max
-          -- height = 0,
-        },
+      layout = {
+        layout = {},
       },
       formatters = {
         file = {
-          -- filename_first = false, -- display filename before the file path
-          truncate = 60, -- truncate the file path to (roughly) this length
-          -- filename_only = false,  -- only show the filename
-          -- icon_width = 2,         -- width of the icon (in characters)
-          -- git_status_hl = true,   -- use the git status highlight group for the filename
+          truncate = 60,
         },
       },
       sources = {
         files = {
-          exclude = { 'pnpm-lock.yaml', 'yarn.lock', 'package-lock.json', 'bun.lockb', 'bun.lock' }, -- Ignore lockfiles in file picker
+          exclude = { 'pnpm-lock.yaml', 'yarn.lock', 'package-lock.json', 'bun.lockb', 'bun.lock' },
         },
         grep = {
-          exclude = { 'pnpm-lock.yaml', 'yarn.lock', 'package-lock.json', 'bun.lockb', 'bun.lock' }, -- Ignore lockfiles in grep picker
+          exclude = { 'pnpm-lock.yaml', 'yarn.lock', 'package-lock.json', 'bun.lockb', 'bun.lock' },
         },
         explorer = {
-          exclude = { 'pnpm-lock.yaml', 'yarn.lock', 'package-lock.json', 'bun.lockb', 'bun.lock' }, -- Ignore lockfiles in explorer
+          exclude = { 'pnpm-lock.yaml', 'yarn.lock', 'package-lock.json', 'bun.lockb', 'bun.lock' },
         },
       },
       jump = {
-        jumplist = true, -- save the current position in the jumplist
-        tagstack = false, -- save the current position in the tagstack
-        reuse_win = true, -- reuse an existing window if the buffer is already open
-        close = true, -- close the picker when jumping/editing to a location (defaults to true)
-        match = false, -- jump to the first match position. (useful for `lines`)
+        jumplist = true,
+        tagstack = false,
+        reuse_win = true,
+        close = true,
+        match = false,
       },
     },
     notifier = { enabled = true },
@@ -128,7 +113,6 @@ return {
     words = { enabled = false },
   },
   keys = {
-    -- LSP
     {
       'ga',
       vim.lsp.buf.code_action,
@@ -196,7 +180,6 @@ return {
       mode = { 'n', 'v' },
     },
 
-    -- Top Pickers & Explorer
     {
       '<leader>ff',
       function() Snacks.picker.smart({ hidden = true, filter = { cwd = true } }) end,
@@ -275,7 +258,6 @@ return {
       desc = 'Commands',
     },
 
-    -- Git
     {
       '<leader>fjt',
       function() Snacks.picker.git_files() end,
@@ -367,7 +349,6 @@ return {
       desc = 'Open Current Commit in GitHub',
     },
 
-    -- Search
     {
       '<leader>fv/',
       function() Snacks.picker.search_history() end,
@@ -444,7 +425,6 @@ return {
       desc = 'Quickfix List',
     },
 
-    -- Other
     {
       '<leader>fN',
       desc = 'Neovim News',

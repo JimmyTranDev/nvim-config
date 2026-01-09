@@ -1,4 +1,3 @@
--- tailwind-tools.lua
 return {
   'luckasRanarison/tailwind-tools.nvim',
   name = 'tailwind-tools',
@@ -6,8 +5,7 @@ return {
   ft = { 'html', 'css', 'javascript', 'typescript', 'javascriptreact', 'typescriptreact', 'svelte', 'vue' },
   dependencies = {
     'nvim-treesitter/nvim-treesitter',
-    -- "nvim-telescope/telescope.nvim", -- optional
-    'neovim/nvim-lspconfig', -- optional
+    'neovim/nvim-lspconfig',
   },
-  opts = {}, -- your configuration
+  opts = {},
 }

@@ -7,15 +7,12 @@ return {
   event = 'VeryLazy',
   config = function()
     local wk = require('which-key')
-    -- Get current Catppuccin flavor and colors
     local function get_catppuccin_colors()
-      -- Default to mocha flavor since we removed theme switching
       local current_flavor = 'mocha'
       local catppuccin = require('catppuccin.palettes').get_palette(current_flavor)
       return catppuccin
     end
 
-    -- Function to apply which-key highlights
     local function apply_which_key_highlights()
       local colors = get_catppuccin_colors()
 
@@ -86,20 +83,16 @@ return {
       },
     })
 
-    -- Apply initial highlights
     apply_which_key_highlights()
 
-    -- Auto-refresh highlights when colorscheme changes
     vim.api.nvim_create_autocmd('ColorScheme', {
       pattern = 'catppuccin*',
       callback = apply_which_key_highlights,
       desc = 'Refresh which-key highlights when Catppuccin theme changes',
     })
 
-    -- Export refresh function for manual use
     _G.refresh_which_key_highlights = apply_which_key_highlights
 
-    -- All Which-Key Mappings
     wk.add({
       -- Secondary Leader Commands
       { '<leader><leader>', group = '󰌌 Secondary', mode = { 'n', 'v' } },
@@ -178,8 +171,6 @@ return {
       { '<leader>tx', group = '󰅗 Close', mode = { 'n', 'v' } },
       { '<leader>ty', group = '󰛢 Yarn', mode = { 'n', 'v' } },
       { '<leader>tz', group = '󰘳 Zone', mode = { 'n', 'v' } },
-
-
 
       -- Buffer Management Groups (Leader + b)
       { '<leader>b', group = '󰓩 Buffer Management', mode = { 'n', 'v' } },

@@ -1,6 +1,6 @@
 return {
   'lewis6991/gitsigns.nvim',
-  event = { 'BufReadPre', 'BufNewFile' }, -- More specific loading
+  event = { 'BufReadPre', 'BufNewFile' },
   keys = {
     {
       mode = 'n',
@@ -97,28 +97,26 @@ return {
         changedelete = { text = '~' },
         untracked = { text = '┆' },
       },
-      signcolumn = true, -- Toggle with `:Gitsigns toggle_signs`
-      numhl = true, -- Toggle with `:Gitsigns toggle_numhl`
-      linehl = false, -- Toggle with `:Gitsigns toggle_linehl`
-      word_diff = false, -- Toggle with `:Gitsigns toggle_word_diff`
+      signcolumn = true,
+      numhl = true,
+      linehl = false,
+      word_diff = false,
       watch_gitdir = {
         follow_files = true,
       },
       attach_to_untracked = true,
-      current_line_blame = true, -- Toggle with `:Gitsigns toggle_current_line_blame`
+      current_line_blame = true,
       current_line_blame_opts = {
         virt_text = true,
-        virt_text_pos = 'eol', -- 'eol' | 'overlay' | 'right_align'
-        delay = 500, -- Increased delay for better performance
+        virt_text_pos = 'eol',
+        delay = 500,
         ignore_whitespace = false,
         virt_text_priority = 100,
       },
-      update_debounce = 200, -- Increased debounce for better performance
-      -- fweafe
-      status_formatter = nil, -- Use default
-      max_file_length = 20000, -- Reduced for better performance with large files
+      update_debounce = 200,
+      status_formatter = nil,
+      max_file_length = 20000,
       preview_config = {
-        -- Options passed to nvim_open_win
         border = 'single',
         style = 'minimal',
         relative = 'cursor',
@@ -134,7 +132,6 @@ return {
           vim.keymap.set(mode, l, r, opts)
         end
 
-        -- Navigation
         map('n', ']j', function()
           if vim.wo.diff then return ']c' end
           vim.schedule(function() gs.next_hunk() end)

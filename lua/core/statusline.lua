@@ -1,28 +1,16 @@
--- =============================================================================
--- Lualine Statusline Configuration  
--- =============================================================================
-
 local M = {}
 
--- Configuration constants
 local TEXT_TRUNCATE_LENGTH = 40
 local TEXT_TRUNCATE_PREVIEW = 37
 local MIN_WIDTH_FOR_DETAILS = 80
 local DEFAULT_THEME_FLAVOR = 'mocha'
 
--- =============================================================================
--- Theme and Color Management
--- =============================================================================
-
----Get Catppuccin colors with fallbacks
----@return table colors Color palette from Catppuccin
 local function get_catppuccin_colors()
   local ok, catppuccin = pcall(require, 'catppuccin.palettes')
   if not ok then
-    -- Fallback colors if Catppuccin is not available
     return {
       green = '#40a02b',
-      peach = '#fe640b', 
+      peach = '#fe640b',
       sapphire = '#209fb5',
       mauve = '#8839ef',
       red = '#d20f39',
@@ -30,32 +18,22 @@ local function get_catppuccin_colors()
       sky = '#04a5e5',
     }
   end
-  
+
   local colors = catppuccin.get_palette(DEFAULT_THEME_FLAVOR)
-  
-  -- Add compatibility mappings
+
   colors.orange = colors.peach or colors.orange
   colors.cyan = colors.sky or colors.cyan
-  
+
   return colors
 end
 
--- Initialize colors
 local colors = get_catppuccin_colors()
 
--- =============================================================================
--- Display Conditions
--- =============================================================================
-
 local conditions = {
-  buffer_not_empty = function() 
-    return vim.fn.empty(vim.fn.expand('%:t')) ~= 1 
-  end,
-  
-  hide_in_width = function() 
-    return vim.fn.winwidth(0) > MIN_WIDTH_FOR_DETAILS 
-  end,
-  
+  buffer_not_empty = function() return vim.fn.empty(vim.fn.expand('%:t')) ~= 1 end,
+
+  hide_in_width = function() return vim.fn.winwidth(0) > MIN_WIDTH_FOR_DETAILS end,
+
   check_git_workspace = function()
     local filepath = vim.fn.expand('%:p:h')
     local gitdir = vim.fn.finddir('.git', filepath .. ';')
@@ -63,23 +41,10 @@ local conditions = {
   end,
 }
 
--- =============================================================================
--- Component Factories and Utilities
--- =============================================================================
-
----Truncate text to prevent statusline overflow
----@param text string|any Text to truncate
----@return string Truncated text
 local function truncate_text(text)
-  if type(text) == 'string' and #text > TEXT_TRUNCATE_LENGTH then
-    return text:sub(1, TEXT_TRUNCATE_PREVIEW) .. '...'
-  end
+  if type(text) == 'string' and #text > TEXT_TRUNCATE_LENGTH then return text:sub(1, TEXT_TRUNCATE_PREVIEW) .. '...' end
   return tostring(text)
 end
-
--- =============================================================================
--- Lualine Configuration
--- =============================================================================
 
 local config = {
   options = {
@@ -108,161 +73,93 @@ local config = {
   },
 }
 
----Create a component with icon for left side of statusline
----@param color_fn function Function returning color configuration
----@param icon string Icon to display
----@param component table Component configuration
 local function create_left_bubble(color_fn, icon, component)
   local cond = component.cond
   component.color = color_fn
-  
-  -- Add icon component
+
   table.insert(config.sections.lualine_c, {
     function() return icon end,
     cond = cond,
     color = color_fn,
     padding = { left = 1, right = 0 },
   })
-  
-  -- Wrap component function with truncation
+
   if type(component[1]) == 'function' then
     local orig_fn = component[1]
-    component[1] = function(...)
-      return truncate_text(orig_fn(...))
-    end
+    component[1] = function(...) return truncate_text(orig_fn(...)) end
   end
-  
-  -- Handle formatting with truncation
+
   if component.fmt then
     local orig_fmt = component.fmt
-    component.fmt = function(text, ...)
-      return truncate_text(orig_fmt(text, ...))
-    end
+    component.fmt = function(text, ...) return truncate_text(orig_fmt(text, ...)) end
   else
     component.fmt = truncate_text
   end
-  
+
   table.insert(config.sections.lualine_c, component)
 end
 
----Create a component with icon for right side of statusline
----@param color_fn function Function returning color configuration  
----@param icon string Icon to display
----@param component table Component configuration
 local function create_right_bubble(color_fn, icon, component)
   local cond = component.cond
   component.color = color_fn
-  
-  -- Add icon component
+
   table.insert(config.sections.lualine_x, {
     function() return icon end,
     cond = cond,
     color = color_fn,
     padding = { left = 1, right = 0 },
   })
-  
-  -- Wrap component function with truncation
+
   if type(component[1]) == 'function' then
     local orig_fn = component[1]
-    component[1] = function(...)
-      return truncate_text(orig_fn(...))
-    end
+    component[1] = function(...) return truncate_text(orig_fn(...)) end
   end
-  
-  -- Handle formatting with truncation
+
   if component.fmt then
     local orig_fmt = component.fmt
-    component.fmt = function(text, ...)
-      return truncate_text(orig_fmt(text, ...))
-    end
+    component.fmt = function(text, ...) return truncate_text(orig_fmt(text, ...)) end
   else
     component.fmt = truncate_text
   end
-  
+
   table.insert(config.sections.lualine_x, component)
 end
 
--- =============================================================================
--- Component Generators
--- =============================================================================
-
----Get active LSP client name for current buffer
----@return string LSP client name or 'NONE'
 local function get_lsp_client()
   local buf_ft = vim.bo.filetype
   local clients = vim.lsp.get_clients()
-  
-  if next(clients) == nil then 
-    return 'NONE' 
-  end
-  
+
+  if next(clients) == nil then return 'NONE' end
+
   for _, client in ipairs(clients) do
     local filetypes = client.config.filetypes
-    if filetypes and vim.fn.index(filetypes, buf_ft) ~= -1 then 
-      return client.name 
-    end
+    if filetypes and vim.fn.index(filetypes, buf_ft) ~= -1 then return client.name end
   end
-  
+
   return 'NONE'
 end
 
----Get current working directory name
----@return string Directory name
 local function get_directory_name()
   local cwd = vim.fn.getcwd()
   return vim.fn.fnamemodify(cwd, ':t')
 end
 
----Get git branch name using fugitive
----@return string Branch name or 'NONE'
 local function get_git_branch()
   local ok, status = pcall(vim.fn.FugitiveHead)
-  if not ok or status == '' then 
-    return 'NONE' 
-  end
+  if not ok or status == '' then return 'NONE' end
   return status
 end
 
--- =============================================================================
--- Left Side Components
--- =============================================================================
+create_left_bubble(function() return { fg = colors.green, gui = 'bold' } end, '', { 'mode' })
 
--- Vim mode indicator
-create_left_bubble(
-  function() return { fg = colors.green, gui = 'bold' } end,
-  '',
-  { 'mode' }
-)
+create_left_bubble(function() return { fg = colors.peach, gui = 'bold' } end, '󰕥', { get_lsp_client })
 
--- LSP client status
-create_left_bubble(
-  function() return { fg = colors.peach, gui = 'bold' } end,
-  '󰕥',
-  { get_lsp_client }
-)
+create_left_bubble(function() return { fg = colors.sapphire, gui = 'bold' } end, '', { get_directory_name })
 
--- Current directory
-create_left_bubble(
-  function() return { fg = colors.sapphire, gui = 'bold' } end,
-  '',
-  { get_directory_name }
-)
+create_left_bubble(function() return { fg = colors.mauve, gui = 'bold' } end, '', { get_git_branch })
 
--- Git branch
-create_left_bubble(
-  function() return { fg = colors.mauve, gui = 'bold' } end,
-  '',
-  { get_git_branch }
-)
+create_left_bubble(function() return { fg = colors.green, gui = 'bold' } end, '', { 'datetime', style = '%H:%M' })
 
--- Current time
-create_left_bubble(
-  function() return { fg = colors.green, gui = 'bold' } end,
-  '',
-  { 'datetime', style = '%H:%M' }
-)
-
--- Git diff status
 table.insert(config.sections.lualine_c, {
   'diff',
   symbols = { added = ' ', modified = ' ', removed = ' ' },
@@ -275,11 +172,6 @@ table.insert(config.sections.lualine_c, {
   always_visible = true,
 })
 
--- =============================================================================
--- Right Side Components  
--- =============================================================================
-
--- Diagnostic information
 table.insert(config.sections.lualine_x, {
   'diagnostics',
   sources = { 'nvim_diagnostic', 'nvim_lsp', 'nvim_workspace_diagnostic' },
@@ -291,18 +183,12 @@ table.insert(config.sections.lualine_x, {
   },
 })
 
--- =============================================================================
--- Initialization and Refresh
--- =============================================================================
-
----Refresh statusline with updated theme colors
 function M.refresh_statusline()
   colors = get_catppuccin_colors()
-  
-  -- Update theme colors in config
+
   config.options.theme.normal.c.fg = colors.green
   config.options.theme.inactive.c.fg = colors.green
-  
+
   local ok, lualine = pcall(require, 'lualine')
   if ok then
     lualine.setup(config)
@@ -311,28 +197,24 @@ function M.refresh_statusline()
   end
 end
 
----Initialize the statusline
 function M.setup()
   local ok, lualine = pcall(require, 'lualine')
   if not ok then
     vim.notify('Lualine not available, skipping statusline setup', vim.log.levels.WARN)
     return
   end
-  
+
   lualine.setup(config)
-  
-  -- Auto-refresh when colorscheme changes
+
   vim.api.nvim_create_autocmd('ColorScheme', {
     pattern = 'catppuccin*',
     callback = M.refresh_statusline,
-    desc = 'Refresh statusline when Catppuccin theme changes'
+    desc = 'Refresh statusline when Catppuccin theme changes',
   })
-  
-  -- Export refresh function globally for manual use
+
   _G.refresh_statusline = M.refresh_statusline
 end
 
--- Auto-initialize
 M.setup()
 
 return M

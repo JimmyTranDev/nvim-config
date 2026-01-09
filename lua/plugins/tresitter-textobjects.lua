@@ -7,18 +7,16 @@ return {
       textobjects = {
         select = {
           enable = true,
-          lookahead = true, -- auto-jump to the nearest textobject
+          lookahead = true,
           keymaps = {
-            -- Function textobjects
             ['af'] = '@function.outer',
             ['if'] = '@function.inner',
-            -- Parameter textobjects
             ['ap'] = '@parameter.outer',
             ['ip'] = '@parameter.inner',
           },
           selection_modes = {
-            ['@function.outer'] = 'V', -- linewise
-            ['@parameter.outer'] = 'v', -- charwise
+            ['@function.outer'] = 'V',
+            ['@parameter.outer'] = 'v',
           },
           include_surrounding_whitespace = true,
         },

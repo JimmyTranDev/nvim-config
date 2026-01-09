@@ -137,21 +137,43 @@ function M.delete_all_comments()
   local comment_patterns = {
     lua = {
       single_line = '^%s*%-%-',
+      inline_single = '%s%-%-',
       block_start = '^%s*%-%-%[%[',
       block_end = '%]%]',
     },
     javascript = {
       single_line = '^%s*//',
+      inline_single = '%s//',
       block_start = '^%s*/%*',
       block_end = '%*/',
+      inline_block_start = '%s/%*',
     },
     typescript = {
       single_line = '^%s*//',
+      inline_single = '%s//',
       block_start = '^%s*/%*',
       block_end = '%*/',
+      inline_block_start = '%s/%*',
+    },
+    typescriptreact = {
+      single_line = '^%s*//',
+      inline_single = '%s//',
+      block_start = '^%s*/%*',
+      block_end = '%*/',
+      inline_block_start = '%s/%*',
+      jsx_comment = '{/%*.*%*/}',
+    },
+    javascriptreact = {
+      single_line = '^%s*//',
+      inline_single = '%s//',
+      block_start = '^%s*/%*',
+      block_end = '%*/',
+      inline_block_start = '%s/%*',
+      jsx_comment = '{/%*.*%*/}',
     },
     python = {
       single_line = '^%s*#',
+      inline_single = '%s#',
       block_start = '^%s*"""',
       block_end = '"""',
       block_start_alt = "^%s*'''",
@@ -159,17 +181,21 @@ function M.delete_all_comments()
     },
     vim = {
       single_line = '^%s*"',
+      inline_single = '%s"',
     },
     sh = {
       single_line = '^%s*#',
+      inline_single = '%s#',
     },
     bash = {
       single_line = '^%s*#',
+      inline_single = '%s#',
     },
     css = {
       single_line = nil,
       block_start = '^%s*/%*',
       block_end = '%*/',
+      inline_block_start = '%s/%*',
     },
   }
 
@@ -182,10 +208,13 @@ function M.delete_all_comments()
   local new_lines = {}
   local in_block_comment = false
   local removed_count = 0
+  local modified_count = 0
 
   for _, line in ipairs(lines) do
     local should_keep = true
+    local modified_line = line
 
+    -- Handle block comments first
     if patterns.block_start and patterns.block_end then
       if in_block_comment then
         if line:find(patterns.block_end) then in_block_comment = false end
@@ -199,6 +228,7 @@ function M.delete_all_comments()
       end
     end
 
+    -- Handle alternative block comments (Python)
     if patterns.block_start_alt and patterns.block_end_alt and should_keep then
       if in_block_comment then
         if line:find(patterns.block_end_alt) then in_block_comment = false end
@@ -212,6 +242,7 @@ function M.delete_all_comments()
       end
     end
 
+    -- Handle single-line comments (full line comments)
     if patterns.single_line and should_keep and not in_block_comment then
       if line:find(patterns.single_line) then
         should_keep = false
@@ -219,12 +250,128 @@ function M.delete_all_comments()
       end
     end
 
-    if should_keep then table.insert(new_lines, line) end
+    -- Handle inline comments if the line is being kept
+    if should_keep and not in_block_comment then
+      local original_line = modified_line
+      
+      -- Handle inline single-line comments
+      if patterns.inline_single then
+        local comment_start = modified_line:find(patterns.inline_single)
+        if comment_start then
+          -- Make sure we're not inside a string literal
+          local before_comment = modified_line:sub(1, comment_start - 1)
+          local in_string = false
+          local quote_char = nil
+          
+          -- Simple string detection (handles basic cases)
+          for i = 1, #before_comment do
+            local char = before_comment:sub(i, i)
+            if char == '"' or char == "'" then
+              if not in_string then
+                in_string = true
+                quote_char = char
+              elseif char == quote_char and before_comment:sub(i-1, i-1) ~= '\\' then
+                in_string = false
+                quote_char = nil
+              end
+            end
+          end
+          
+          if not in_string then
+            modified_line = before_comment:gsub('%s+$', '') -- Remove trailing whitespace
+            if modified_line ~= original_line then
+              modified_count = modified_count + 1
+            end
+          end
+        end
+      end
+      
+      -- Handle inline block comments
+      if patterns.inline_block_start and patterns.block_end then
+        local comment_start = modified_line:find(patterns.inline_block_start)
+        local comment_end = modified_line:find(patterns.block_end)
+        
+        if comment_start and comment_end and comment_end > comment_start then
+          -- Simple string detection for inline block comments
+          local before_comment = modified_line:sub(1, comment_start - 1)
+          local in_string = false
+          local quote_char = nil
+          
+          for i = 1, #before_comment do
+            local char = before_comment:sub(i, i)
+            if char == '"' or char == "'" then
+              if not in_string then
+                in_string = true
+                quote_char = char
+              elseif char == quote_char and before_comment:sub(i-1, i-1) ~= '\\' then
+                in_string = false
+                quote_char = nil
+              end
+            end
+          end
+          
+          if not in_string then
+            local after_comment = modified_line:sub(comment_end + 2) -- +2 to skip */
+            modified_line = before_comment:gsub('%s+$', '') .. after_comment
+            if modified_line ~= original_line then
+              modified_count = modified_count + 1
+            end
+          end
+        end
+      end
+      
+      -- Handle JSX comments {/* comment */}
+      if patterns.jsx_comment then
+        local jsx_start, jsx_end = modified_line:find('{/%*.*%*/}')
+        if jsx_start and jsx_end then
+          -- Simple check to avoid removing from string literals
+          local before_jsx = modified_line:sub(1, jsx_start - 1)
+          local in_string = false
+          local quote_char = nil
+          
+          for i = 1, #before_jsx do
+            local char = before_jsx:sub(i, i)
+            if char == '"' or char == "'" or char == '`' then
+              if not in_string then
+                in_string = true
+                quote_char = char
+              elseif char == quote_char and before_jsx:sub(i-1, i-1) ~= '\\' then
+                in_string = false
+                quote_char = nil
+              end
+            end
+          end
+          
+          if not in_string then
+            local before_jsx_clean = before_jsx:gsub('%s+$', '')
+            local after_jsx = modified_line:sub(jsx_end + 1)
+            modified_line = before_jsx_clean .. after_jsx
+            if modified_line ~= original_line then
+              modified_count = modified_count + 1
+            end
+          end
+        end
+      end
+    end
+
+    if should_keep then 
+      table.insert(new_lines, modified_line)
+    end
   end
 
   vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, new_lines)
 
-  vim.notify(string.format('Deleted %d comment lines from %s file', removed_count, filetype), vim.log.levels.INFO)
+  local total_changes = removed_count + modified_count
+  if removed_count > 0 and modified_count > 0 then
+    vim.notify(string.format('Deleted %d comment lines and removed inline comments from %d lines in %s file', 
+      removed_count, modified_count, filetype), vim.log.levels.INFO)
+  elseif removed_count > 0 then
+    vim.notify(string.format('Deleted %d comment lines from %s file', removed_count, filetype), vim.log.levels.INFO)
+  elseif modified_count > 0 then
+    vim.notify(string.format('Removed inline comments from %d lines in %s file', modified_count, filetype), vim.log.levels.INFO)
+  else
+    vim.notify(string.format('No comments found in %s file', filetype), vim.log.levels.INFO)
+  end
 end
 
 function M.run_clipboard_command()

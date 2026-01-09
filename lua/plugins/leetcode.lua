@@ -8,27 +8,22 @@ return {
   cmd = 'Leet',
   build = ':TSUpdate html',
   keys = {
-    -- Core LeetCode operations
     { '<leader>tll', '<cmd>Leet<CR>', desc = '󰞷 Open LeetCode', mode = 'n' },
     { '<leader>tlm', '<cmd>Leet menu<CR>', desc = '󰍉 LeetCode menu', mode = 'n' },
     { '<leader>tlc', '<cmd>Leet console<CR>', desc = '󰆍 Open console', mode = 'n' },
     { '<leader>tli', '<cmd>Leet info<CR>', desc = 'ℹ️  Problem info', mode = 'n' },
-    
-    -- Problem navigation & browsing
+
     { '<leader>tlL', '<cmd>Leet list<CR>', desc = '📋 List problems', mode = 'n' },
     { '<leader>tld', '<cmd>Leet daily<CR>', desc = '📅 Daily challenge', mode = 'n' },
     { '<leader>tlR', '<cmd>Leet random<CR>', desc = '🎲 Random problem', mode = 'n' },
-    
-    -- Code execution & testing
+
     { '<leader>tlr', '<cmd>Leet run<CR>', desc = '▶️  Run code', mode = 'n' },
     { '<leader>tlS', '<cmd>Leet submit<CR>', desc = '📤 Submit solution', mode = 'n' },
     { '<leader>tlT', '<cmd>Leet test<CR>', desc = '🧪 Run tests', mode = 'n' },
-    
-    -- Session & content management
+
     { '<leader>tls', '<cmd>Leet session<CR>', desc = '🔗 Manage session', mode = 'n' },
     { '<leader>tly', '<cmd>Leet yank<CR>', desc = '📋 Yank solution', mode = 'n' },
-    
-    -- Configuration & preferences
+
     { '<leader>tlg', '<cmd>Leet lang<CR>', desc = '🌐 Change language', mode = 'n' },
     { '<leader>tlD', '<cmd>Leet desc<CR>', desc = '📖 Toggle description', mode = 'n' },
     { '<leader>tlC', '<cmd>Leet cache<CR>', desc = '💾 Cache operations', mode = 'n' },
@@ -36,24 +31,24 @@ return {
   opts = {
     arg = 'leetcode.nvim',
     lang = 'javascript',
-    
+
     cn = {
       enabled = false,
       translator = true,
       translate_problems = true,
     },
-    
+
     storage = {
       home = vim.fn.stdpath('data') .. '/leetcode',
       cache = vim.fn.stdpath('cache') .. '/leetcode',
     },
-    
+
     logging = true,
-    
+
     cache = {
-      update_interval = 60 * 60 * 24 * 7, -- 7 days
+      update_interval = 60 * 60 * 24 * 7,
     },
-    
+
     console = {
       open_on_runcode = true,
       dir = 'row',
@@ -69,50 +64,41 @@ return {
         size = '40%',
       },
     },
-    
+
     description = {
       position = 'left',
       width = '40%',
       show_stats = true,
     },
-    
+
     image_support = false,
   },
   config = function(_, opts)
     require('leetcode').setup(opts)
-    
-    -- Comprehensive LeetCode keymaps
-    local keymap = vim.keymap
-    local function map(mode, lhs, rhs, desc)
-      keymap.set(mode, lhs, rhs, { desc = desc, silent = true, noremap = true })
-    end
 
-    -- Core LeetCode operations
+    local keymap = vim.keymap
+    local function map(mode, lhs, rhs, desc) keymap.set(mode, lhs, rhs, { desc = desc, silent = true, noremap = true }) end
+
     map('n', '<leader>tll', '<cmd>Leet<CR>', '󰞷 Open LeetCode')
-    map('n', '<leader>tlm', '<cmd>Leet menu<CR>', '󰍉 LeetCode menu')  
+    map('n', '<leader>tlm', '<cmd>Leet menu<CR>', '󰍉 LeetCode menu')
     map('n', '<leader>tlc', '<cmd>Leet console<CR>', '󰆍 Open console')
     map('n', '<leader>tli', '<cmd>Leet info<CR>', 'ℹ️  Problem info')
-    
-    -- Problem navigation & browsing
+
     map('n', '<leader>tlL', '<cmd>Leet list<CR>', '📋 List problems')
-    map('n', '<leader>tld', '<cmd>Leet daily<CR>', '📅 Daily challenge')  
+    map('n', '<leader>tld', '<cmd>Leet daily<CR>', '📅 Daily challenge')
     map('n', '<leader>tlR', '<cmd>Leet random<CR>', '🎲 Random problem')
-    
-    -- Code execution & testing  
+
     map('n', '<leader>tlr', '<cmd>Leet run<CR>', '▶️  Run code')
     map('n', '<leader>tlS', '<cmd>Leet submit<CR>', '📤 Submit solution')
     map('n', '<leader>tlT', '<cmd>Leet test<CR>', '🧪 Run tests')
-    
-    -- Session & content management
-    map('n', '<leader>tls', '<cmd>Leet session<CR>', '🔗 Manage session') 
+
+    map('n', '<leader>tls', '<cmd>Leet session<CR>', '🔗 Manage session')
     map('n', '<leader>tly', '<cmd>Leet yank<CR>', '📋 Yank solution')
-    
-    -- Configuration & preferences
+
     map('n', '<leader>tlg', '<cmd>Leet lang<CR>', '🌐 Change language')
     map('n', '<leader>tlD', '<cmd>Leet desc<CR>', '📖 Toggle description')
     map('n', '<leader>tlC', '<cmd>Leet cache<CR>', '💾 Cache operations')
-    
-    -- Quick access shortcuts in console mode
+
     vim.api.nvim_create_autocmd('FileType', {
       pattern = 'leetcode.nvim',
       callback = function()
@@ -123,3 +109,4 @@ return {
     })
   end,
 }
+

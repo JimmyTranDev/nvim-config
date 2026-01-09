@@ -12,7 +12,6 @@ return {
     servers = {
       lua_ls = {
         filetypes = { 'lua' },
-        -- root_dir will be set in the config function
         settings = {
           Lua = {
             diagnostics = {
@@ -31,7 +30,6 @@ return {
           },
         },
       },
-      -- shfmt = {},
       cssls = {},
       eslint = {},
       html = {},
@@ -70,44 +68,33 @@ return {
     })
 
     for server, config in pairs(opts.servers) do
-      -- Set root_dir for lua_ls specifically
       if server == 'lua_ls' then
         local lspconfig_util = require('lspconfig.util')
         config.root_dir = lspconfig_util.root_pattern('.git', vim.fn.getcwd())
       end
-      
-      -- Performance optimizations
+
       config.flags = {
-        debounce_text_changes = 300, -- Increased for better performance (was 150)
-        allow_incremental_sync = true, -- Enable incremental sync for better performance
-        exit_timeout = 2000, -- Faster LSP shutdown
+        debounce_text_changes = 300,
+        allow_incremental_sync = true,
+        exit_timeout = 2000,
       }
-      
-      -- Ensure LSP starts properly on buffer attach
+
       local original_on_attach = config.on_attach
       config.on_attach = function(client, bufnr)
-        -- Call original on_attach if it exists
-        if original_on_attach then
-          original_on_attach(client, bufnr)
-        end
-        
-        -- Ensure buffer is ready for LSP features
+        if original_on_attach then original_on_attach(client, bufnr) end
+
         vim.schedule(function()
           if vim.api.nvim_buf_is_valid(bufnr) then
-            -- Trigger any additional setup needed
-            vim.api.nvim_exec_autocmds('LspAttach', { 
+            vim.api.nvim_exec_autocmds('LspAttach', {
               buffer = bufnr,
-              data = { client_id = client.id }
+              data = { client_id = client.id },
             })
           end
         end)
       end
-      
-      -- passing config.capabilities to blink.cmp merges with the capabilities in your
-      -- `opts[server].capabilities, if you've defined it
+
       config.capabilities = require('blink.cmp').get_lsp_capabilities(config.capabilities)
       vim.lsp.config(server, config)
     end
-
   end,
 }
