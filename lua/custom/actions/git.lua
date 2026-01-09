@@ -1,16 +1,8 @@
--- =============================================================================
--- Git Action Functions
--- =============================================================================
-
 local gitUtils = require('custom.utils.git')
 local inputUtils = require('custom.utils.input')
 local fileUtils = require('custom.utils.files')
 
 local M = {}
-
--- =============================================================================
--- Branch Operations
--- =============================================================================
 
 function M.createBranch(prefix)
   return function()
@@ -27,13 +19,10 @@ function M.createBranch(prefix)
       branchName = string.format('%s/%s', prefix, descriptionPart)
     end
 
-    -- Create the branch
     vim.cmd(string.format('Git checkout -b %s', branchName))
 
-    -- Add all files
     vim.cmd("TermExec5 open=0 cmd='git add .'")
 
-    -- Commit with the branch name as the message
     vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', branchName))
   end
 end
@@ -58,10 +47,6 @@ function M.createWorktree(prefix)
     vim.cmd(string.format('Git worktree add -b %s %s', branchName, worktreeName))
   end
 end
-
--- =============================================================================
--- Commit Operations
--- =============================================================================
 
 function M.createCommit(prefix, emoji, shouldPush, shouldGeneric)
   return function()
@@ -150,7 +135,6 @@ function M.createCommitFromBranchName()
   local jiraTicket = gitUtils.extract_jira_ticket(branchName)
   local jiraTicketPart = jiraTicket == '' and '' or jiraTicket .. ' '
 
-  -- Remove prefix and Jira ticket from description to avoid duplication
   local description = branchName:gsub('^[^/]+/', '') -- Remove prefix
   if jiraTicket ~= '' then
     description = description:gsub('^' .. jiraTicket:gsub('%-', '%%-') .. '[_%-]?', '') -- Remove Jira ticket
@@ -159,19 +143,13 @@ function M.createCommitFromBranchName()
 
   commitMessage = prefix .. ': ' .. emoji .. ' ' .. jiraTicketPart .. description
 
-  -- Add all changes first
   vim.cmd('Git add .')
-  
-  -- Escape the commit message properly
+
   local escapedMessage = commitMessage:gsub('"', '\\"')
   vim.cmd(string.format('Git commit --no-verify -m "%s"', escapedMessage))
 
   vim.notify('Committed: ' .. commitMessage)
 end
-
--- =============================================================================
--- Tag Operations
--- =============================================================================
 
 function M.addTagToHash()
   local tagName = inputUtils.getInputFromUser('Tag Name: ')
@@ -214,12 +192,7 @@ function M.copyLatestCommitMessage()
   vim.notify('Cleaned commit message copied to clipboard.')
 end
 
--- =============================================================================
--- Reflog Operations
--- =============================================================================
-
 function M.resetToReflog()
-  -- Get reflog entries
   local handle = io.popen('git reflog --oneline -n 20')
   if not handle then vim.notify('Failed to run git reflog command') end
 
@@ -231,7 +204,6 @@ function M.resetToReflog()
     return
   end
 
-  -- Parse reflog entries
   local reflog_entries = {}
   local reflog_hashes = {}
 
@@ -250,7 +222,6 @@ function M.resetToReflog()
     return
   end
 
-  -- Show selection menu
   vim.ui.select(reflog_entries, {
     prompt = 'Select reflog entry to reset to:',
     format_item = function(item) return item end,
@@ -263,7 +234,6 @@ function M.resetToReflog()
       return
     end
 
-    -- Ask for reset type
     local reset_options = {
       'soft (keep changes staged)',
       'mixed (keep changes unstaged)',
@@ -284,7 +254,6 @@ function M.resetToReflog()
         reset_flag = '--hard'
       end
 
-      -- Execute the reset
       local cmd = string.format('git reset %s %s', reset_flag, hash)
       vim.cmd(string.format("TermExec5 cmd='%s'", cmd))
 
@@ -293,12 +262,7 @@ function M.resetToReflog()
   end)
 end
 
--- =============================================================================
--- Reset Operations
--- =============================================================================
-
 function M.resetHardToCommit()
-  -- Get commit log
   local handle = io.popen('git log --oneline -n 20')
   if not handle then
     vim.notify('Failed to run git log command')
@@ -313,7 +277,6 @@ function M.resetHardToCommit()
     return
   end
 
-  -- Parse commit entries
   local commit_entries = {}
   local commit_hashes = {}
 
@@ -332,7 +295,6 @@ function M.resetHardToCommit()
     return
   end
 
-  -- Show selection menu
   vim.ui.select(commit_entries, {
     prompt = 'Select commit to reset hard to (⚠️  This will discard all changes):',
     format_item = function(item) return item end,
@@ -345,7 +307,6 @@ function M.resetHardToCommit()
       return
     end
 
-    -- Confirmation prompt for hard reset
     vim.ui.input({
       prompt = string.format("⚠️  Reset HARD to %s? This will discard ALL changes! Type 'yes' to confirm: ", hash:sub(1, 7)),
     }, function(confirmation)
@@ -354,7 +315,6 @@ function M.resetHardToCommit()
         return
       end
 
-      -- Execute the hard reset
       local cmd = string.format('git reset --hard %s', hash)
       vim.cmd(string.format("TermExec5 cmd='%s'", cmd))
 
@@ -364,7 +324,6 @@ function M.resetHardToCommit()
 end
 
 function M.resetSoftToCommit()
-  -- Get commit log
   local handle = io.popen('git log --oneline -n 20')
   if not handle then
     vim.notify('Failed to run git log command')
@@ -379,7 +338,6 @@ function M.resetSoftToCommit()
     return
   end
 
-  -- Parse commit entries
   local commit_entries = {}
   local commit_hashes = {}
 
@@ -398,7 +356,6 @@ function M.resetSoftToCommit()
     return
   end
 
-  -- Show selection menu
   vim.ui.select(commit_entries, {
     prompt = 'Select commit to reset soft to (changes will be kept staged):',
     format_item = function(item) return item end,
@@ -411,17 +368,12 @@ function M.resetSoftToCommit()
       return
     end
 
-    -- Execute the soft reset
     local cmd = string.format('git reset --soft %s', hash)
     vim.cmd(string.format("TermExec5 cmd='%s'", cmd))
 
     vim.notify(string.format('💿 Reset --soft to %s (changes kept staged)', hash:sub(1, 7)))
   end)
 end
-
--- =============================================================================
--- Stash Operations
--- =============================================================================
 
 function M.stashAllChanges()
   vim.ui.input({
@@ -456,7 +408,6 @@ function M.stashKeepChanges()
 end
 
 function M.selectAndPopStash()
-  -- Get stash list
   local handle = io.popen('git stash list')
   if not handle then
     vim.notify('Failed to run git stash list command')
@@ -471,7 +422,6 @@ function M.selectAndPopStash()
     return
   end
 
-  -- Parse stash entries
   local stash_entries = {}
   local stash_ids = {}
 
@@ -490,7 +440,6 @@ function M.selectAndPopStash()
     return
   end
 
-  -- Show selection menu
   vim.ui.select(stash_entries, {
     prompt = 'Select stash to pop:',
     format_item = function(item) return item end,
@@ -503,7 +452,6 @@ function M.selectAndPopStash()
       return
     end
 
-    -- Execute the stash pop
     local cmd = string.format('git stash pop %s', stash_id)
     vim.cmd(string.format("TermExec5 cmd='%s'", cmd))
 
@@ -513,14 +461,12 @@ end
 
 function M.gitAddPatch(extraArgs)
   return function()
-    -- Check if there are any changes to stage
     local status = vim.fn.system('git status --porcelain')
     if status == '' or status == nil then
       vim.notify('Nothing to add - working tree clean', vim.log.levels.INFO, { title = 'Git' })
       return
     end
 
-    -- Check if there are any unstaged changes (modified files)
     local has_unstaged = false
     for line in status:gmatch('[^\r\n]+') do
       if line:match('^.[MD]') or line:match('^??') then -- Modified, deleted, or untracked
@@ -552,25 +498,18 @@ function M.gitAddPatch(extraArgs)
   end
 end
 
--- =============================================================================
--- Reset Operations
--- =============================================================================
-
 function M.resetAllWithConfirm()
-  -- Check if there are any changes to reset
   local status = vim.fn.system('git status --porcelain')
   if status == '' or status == nil then
     vim.notify('Nothing to reset - working tree clean', vim.log.levels.INFO, { title = 'Git' })
     return
   end
 
-  -- Show what will be affected
   local changes_count = 0
   for _ in status:gmatch('[^\r\n]+') do
     changes_count = changes_count + 1
   end
 
-  -- Confirmation prompt with details
   vim.ui.input({
     prompt = string.format(
       '⚠️  Reset ALL changes? This will:\n• Reset staged files\n• Clean untracked files\n• Restore modified files\n\nAffected files: %d\nType "y" to confirm: ',
@@ -582,17 +521,12 @@ function M.resetAllWithConfirm()
       return
     end
 
-    -- Execute the reset operations sequentially
     vim.cmd("TermExec5 open=0 cmd='git reset .'")
     vim.cmd("TermExec5 open=0 cmd='git clean -df'")
     vim.cmd("TermExec5 open=0 cmd='git restore .'")
     vim.notify(string.format('🔥 Reset ALL changes (%d files affected)', changes_count))
   end)
 end
-
--- =============================================================================
--- GitHub PR Operations
--- =============================================================================
 
 function M.openGithubPullRequest()
   local githubUtils = require('custom.utils.github')
@@ -631,27 +565,27 @@ end
 
 function M.openExistingPullRequestOnly()
   local githubUtils = require('custom.utils.github')
-  
+
   local branch = gitUtils.get_current_branch()
   if not branch or branch == '' then
     vim.notify('Could not determine current branch', vim.log.levels.ERROR)
     return
   end
-  
+
   local handle = io.popen('gh pr list --json number,headRefName,url')
   if not handle then
     vim.notify('Failed to run gh command', vim.log.levels.ERROR)
     return
   end
-  
+
   local prListJson = handle:read('*a')
   handle:close()
-  
+
   if vim.v.shell_error ~= 0 then
     vim.notify('Failed to fetch PR list. Make sure gh CLI is installed and authenticated.', vim.log.levels.ERROR)
     return
   end
-  
+
   local prUrl = nil
   if prListJson and prListJson ~= '' then
     local ok, prList = pcall(vim.fn.json_decode, prListJson)
@@ -664,7 +598,7 @@ function M.openExistingPullRequestOnly()
       end
     end
   end
-  
+
   if prUrl then
     fileUtils.open(prUrl)
     vim.notify('🔗 Opened PR for branch: ' .. branch, vim.log.levels.INFO)
@@ -673,30 +607,29 @@ function M.openExistingPullRequestOnly()
   end
 end
 
---- Open existing PR or create new one into develop
 function M.openOrCreatePullRequest()
   local githubUtils = require('custom.utils.github')
-  
+
   local branch = gitUtils.get_current_branch()
   if not branch or branch == '' then
     vim.notify('Could not determine current branch', vim.log.levels.ERROR)
     return
   end
-  
+
   local handle = io.popen('gh pr list --json number,headRefName,url')
   if not handle then
     vim.notify('Failed to run gh command', vim.log.levels.ERROR)
     return
   end
-  
+
   local prListJson = handle:read('*a')
   handle:close()
-  
+
   if vim.v.shell_error ~= 0 then
     vim.notify('Failed to fetch PR list. Make sure gh CLI is installed and authenticated.', vim.log.levels.ERROR)
     return
   end
-  
+
   local prUrl = nil
   if prListJson and prListJson ~= '' then
     local ok, prList = pcall(vim.fn.json_decode, prListJson)
@@ -709,16 +642,14 @@ function M.openOrCreatePullRequest()
       end
     end
   end
-  
+
   if prUrl then
-    -- Existing PR found, open it
     fileUtils.open(prUrl)
     vim.notify('🔗 Opened existing PR for branch: ' .. branch, vim.log.levels.INFO)
   else
-    -- No existing PR, create new one into develop
     vim.notify('No existing PR found. Creating new PR into develop...', vim.log.levels.INFO)
     local result = vim.fn.system('gh pr create --base develop --web 2>&1')
-    
+
     if vim.v.shell_error == 0 then
       vim.notify('🔀 PR created into develop and opened in browser', vim.log.levels.INFO)
     else
@@ -727,19 +658,13 @@ function M.openOrCreatePullRequest()
   end
 end
 
--- =============================================================================
--- Rebase Operations
--- =============================================================================
-
 function M.rebaseChooseOurs()
-  -- Get current branch
   local current_branch = vim.fn.systemlist('git branch --show-current')[1]
   if not current_branch or current_branch == '' then
     vim.notify('❌ Could not determine current branch', vim.log.levels.ERROR)
     return
   end
 
-  -- Get list of branches for rebase target
   local handle = io.popen('git branch -a --format="%(refname:short)" | grep -v "^' .. current_branch .. '$" | head -20')
   if not handle then
     vim.notify('❌ Failed to get branch list', vim.log.levels.ERROR)
@@ -754,11 +679,9 @@ function M.rebaseChooseOurs()
     return
   end
 
-  -- Parse branch entries
   local branches = {}
   for line in branch_output:gmatch('[^\n]+') do
     if line ~= '' and line ~= current_branch then
-      -- Clean up remote branch names
       local clean_branch = line:gsub('origin/', '')
       if not vim.tbl_contains(branches, clean_branch) then table.insert(branches, clean_branch) end
     end
@@ -769,14 +692,12 @@ function M.rebaseChooseOurs()
     return
   end
 
-  -- Show branch selection
   vim.ui.select(branches, {
     prompt = 'Select branch to rebase onto (will choose "ours" for all conflicts):',
     format_item = function(item) return item end,
   }, function(selected_branch)
     if not selected_branch then return end
 
-    -- Confirmation prompt
     vim.ui.input({
       prompt = string.format('⚠️  Rebase %s onto %s (choose ours for all conflicts)? Type "yes" to confirm: ', current_branch, selected_branch),
     }, function(confirmation)
@@ -785,7 +706,6 @@ function M.rebaseChooseOurs()
         return
       end
 
-      -- Execute rebase with strategy to choose ours
       local cmd = string.format('git rebase -X ours %s', selected_branch)
       vim.cmd(string.format("TermExec5 cmd='%s'", cmd))
 

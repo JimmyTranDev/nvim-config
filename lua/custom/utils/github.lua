@@ -27,13 +27,11 @@ end
 function M.searchGithub(orgName, searchQuery)
   local encodedSearchQuery = urlUtils.urlencode(searchQuery)
 
-  -- Define search type options
   local searchTypes = { 'code', 'issues', 'repositories', 'commits' }
   local orgQuery = ''
 
   if orgName ~= nil and orgName ~= '' then orgQuery = string.format('org:%s+', orgName) end
 
-  -- Use vim.ui.select to prompt user for search type
   vim.ui.select(searchTypes, {
     prompt = 'Select GitHub search type: ',
   }, function(selected)
@@ -41,10 +39,8 @@ function M.searchGithub(orgName, searchQuery)
       return -- User cancelled, exit
     end
 
-    -- Construct the search URL with the selected type
     local searchUrl = string.format('https://github.com/search?q=%s%s&type=%s', orgQuery, encodedSearchQuery, selected)
 
-    -- Open the URL in the browser
     fileUtils.open(searchUrl)
   end)
 end

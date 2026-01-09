@@ -1,62 +1,40 @@
--- =============================================================================
--- GitHub Action Functions
--- =============================================================================
-
 local github_utils = require('custom.utils.github')
 
 local M = {}
 
--- =============================================================================
--- Private Helper Functions
--- =============================================================================
-
---- Get current repository information
----@return table|nil repo_info Repository info with owner and name
 local function get_current_repo_info()
   local handle = io.popen('gh repo view --json name,owner,nameWithOwner 2>/dev/null')
   if not handle then return nil end
-  
+
   local output = handle:read('*a')
   handle:close()
-  
+
   if vim.v.shell_error ~= 0 then return nil end
-  
+
   local ok, repo_info = pcall(vim.fn.json_decode, output)
   return ok and repo_info or nil
 end
 
---- Format pull request for display
----@param pr table Pull request data
----@return string formatted_pr Formatted PR string
-local function format_pr_display(pr)
-  return string.format('#%d %s [%s]', pr.number, pr.title, pr.state)
-end
+local function format_pr_display(pr) return string.format('#%d %s [%s]', pr.number, pr.title, pr.state) end
 
---- Open URL in browser
----@param url string URL to open
-local function open_url(url)
-  vim.fn.system('open ' .. vim.fn.shellescape(url))
-end
+local function open_url(url) vim.fn.system('open ' .. vim.fn.shellescape(url)) end
 
---- Select and open pull request from list
----@param pulls table List of pull requests
----@param context_name string Context name for notifications
 local function select_and_open_pr_from_list(pulls, context_name)
   if #pulls == 0 then
     vim.notify('No PRs found in ' .. context_name, vim.log.levels.INFO)
     return
   end
-  
+
   local pr_options = {}
   for _, pr in ipairs(pulls) do
     table.insert(pr_options, format_pr_display(pr))
   end
-  
-  vim.ui.select(pr_options, { 
-    prompt = 'Select PR to open:' 
+
+  vim.ui.select(pr_options, {
+    prompt = 'Select PR to open:',
   }, function(selected_display)
     if not selected_display then return end
-    
+
     for _, pr in ipairs(pulls) do
       if selected_display:find('#' .. pr.number) then
         open_url(pr.url)
@@ -67,14 +45,9 @@ local function select_and_open_pr_from_list(pulls, context_name)
   end)
 end
 
--- =============================================================================
--- Pull Request Operations
--- =============================================================================
-
---- Create a draft pull request and open in browser
 function M.create_draft_pr()
   local result = vim.fn.system('gh pr create --draft --web 2>&1')
-  
+
   if vim.v.shell_error == 0 then
     vim.notify('Draft PR created and opened in browser', vim.log.levels.INFO)
   else
@@ -82,10 +55,9 @@ function M.create_draft_pr()
   end
 end
 
---- Create a pull request into develop branch and open in browser
 function M.create_pr_into_develop()
   local result = vim.fn.system('gh pr create --base develop --web 2>&1')
-  
+
   if vim.v.shell_error == 0 then
     vim.notify('PR created into develop and opened in browser', vim.log.levels.INFO)
   else
@@ -93,125 +65,105 @@ function M.create_pr_into_develop()
   end
 end
 
---- Open pull requests from current repository
 function M.open_current_repo_prs()
   local repo_info = get_current_repo_info()
   if not repo_info or not repo_info.owner or not repo_info.name then
     vim.notify('Could not determine current repository', vim.log.levels.ERROR)
     return
   end
-  
+
   local repo_full = repo_info.owner.login .. '/' .. repo_info.name
   local pulls = github_utils.get_pulls(repo_full)
-  
+
   select_and_open_pr_from_list(pulls, repo_full)
 end
 
---- Select organization, repository, and pull request to open
 function M.select_and_open_pr()
-  local orgs = { 
-    vim.env.PRI_GITHUB_USERNAME
+  local orgs = {
+    vim.env.PRI_GITHUB_USERNAME,
   }
-  
-  -- Filter out nil values
+
   local valid_orgs = {}
   for _, org in ipairs(orgs) do
-    if org and org ~= '' then
-      table.insert(valid_orgs, org)
-    end
+    if org and org ~= '' then table.insert(valid_orgs, org) end
   end
-  
+
   if #valid_orgs == 0 then
     vim.notify('No GitHub organizations configured in environment', vim.log.levels.ERROR)
     return
   end
-  
-  vim.ui.select(valid_orgs, { 
-    prompt = 'Select organization:' 
+
+  vim.ui.select(valid_orgs, {
+    prompt = 'Select organization:',
   }, function(selected_org)
     if not selected_org then return end
-    
+
     M.select_repo_and_open_pr(selected_org)
   end)
 end
 
---- Select repository from organization and open PR
----@param org_name string Organization name
 function M.select_repo_and_open_pr(org_name)
   local handle = io.popen('gh repo list ' .. org_name .. ' --limit 30 --json name,url 2>/dev/null')
   if not handle then
     vim.notify('Failed to fetch repositories', vim.log.levels.ERROR)
     return
   end
-  
+
   local output = handle:read('*a')
   handle:close()
-  
+
   if vim.v.shell_error ~= 0 then
     vim.notify('Failed to fetch repositories for ' .. org_name, vim.log.levels.ERROR)
     return
   end
-  
+
   local ok, repos = pcall(vim.fn.json_decode, output)
   if not ok or #repos == 0 then
     vim.notify('No repositories found for ' .. org_name, vim.log.levels.ERROR)
     return
   end
-  
+
   local repo_names = {}
   for _, repo in ipairs(repos) do
     table.insert(repo_names, repo.name)
   end
-  
-  vim.ui.select(repo_names, { 
-    prompt = 'Select repository:' 
+
+  vim.ui.select(repo_names, {
+    prompt = 'Select repository:',
   }, function(selected_repo)
     if not selected_repo then return end
-    
+
     local pulls = github_utils.get_pulls(org_name .. '/' .. selected_repo)
     select_and_open_pr_from_list(pulls, selected_repo)
   end)
 end
 
--- =============================================================================
--- Commit Operations
--- =============================================================================
-
---- Open current commit in GitHub web interface
 function M.open_current_commit_in_github()
-  -- Get current commit hash
   local handle = io.popen('git rev-parse HEAD 2>/dev/null')
   if not handle then
     vim.notify('Failed to get current commit hash', vim.log.levels.ERROR)
     return
   end
-  
+
   local commit_hash = handle:read('*a'):gsub('%s+', '')
   handle:close()
-  
+
   if vim.v.shell_error ~= 0 or not commit_hash or commit_hash == '' then
     vim.notify('Could not determine current commit hash', vim.log.levels.ERROR)
     return
   end
-  
-  -- Get repo info
+
   local repo_info = get_current_repo_info()
   if not repo_info or not repo_info.nameWithOwner then
     vim.notify('Could not determine repository', vim.log.levels.ERROR)
     return
   end
-  
-  -- Construct and open GitHub commit URL
-  local github_url = string.format('https://github.com/%s/commit/%s', 
-    repo_info.nameWithOwner, commit_hash)
-  
+
+  local github_url = string.format('https://github.com/%s/commit/%s', repo_info.nameWithOwner, commit_hash)
+
   open_url(github_url)
   vim.notify(string.format('Opened commit %s in GitHub', commit_hash:sub(1, 7)), vim.log.levels.INFO)
 end
-
--- =============================================================================
--- Legacy Function Aliases for Backward Compatibility
--- =============================================================================
 
 M.open_prs_in_current_repo = M.open_current_repo_prs
 

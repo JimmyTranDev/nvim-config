@@ -2,11 +2,9 @@ local M = {}
 
 local asyncUtils = require('custom.utils.async')
 
--- Cache for projects and sections to avoid repeated API calls
 local projects_cache = nil
 local sections_cache = {}
 
--- Fetch all projects from Todoist API
 function M.get_projects(callback)
   if projects_cache then
     if callback then callback(true, projects_cache) end
@@ -37,10 +35,8 @@ function M.get_projects(callback)
       return
     end
 
-    -- Try to parse JSON response
     local json_result = result:match('^%s*%[.*%]%s*$')
     if json_result then
-      -- Simple JSON parsing for project list
       local projects = {}
       for project_json in result:gmatch('{[^}]*"name"[^}]*}') do
         local id = project_json:match('"id":%s*"([^"]*)"') or project_json:match('"id":%s*([^,}]+)')
@@ -64,7 +60,6 @@ function M.get_projects(callback)
   end)
 end
 
--- Fetch only salmon-colored projects from Todoist API
 function M.get_salmon_projects(callback)
   M.get_projects(function(success, projects)
     if not success then
@@ -72,7 +67,6 @@ function M.get_salmon_projects(callback)
       return
     end
 
-    -- Filter for salmon-colored projects
     local salmon_projects = {}
     for _, project in ipairs(projects) do
       if project.color == 'salmon' then table.insert(salmon_projects, project) end
@@ -83,7 +77,6 @@ function M.get_salmon_projects(callback)
   end)
 end
 
--- Fetch sections for a specific project
 function M.get_sections(project_id, callback)
   if sections_cache[project_id] then
     if callback then callback(true, sections_cache[project_id]) end
@@ -114,10 +107,8 @@ function M.get_sections(project_id, callback)
       return
     end
 
-    -- Try to parse JSON response
     local json_result = result:match('^%s*%[.*%]%s*$')
     if json_result then
-      -- Simple JSON parsing for sections list
       local sections = {}
       for section_json in result:gmatch('{[^}]*"name"[^}]*}') do
         local id = section_json:match('"id":%s*"([^"]*)"') or section_json:match('"id":%s*([^,}]+)')
@@ -140,13 +131,11 @@ function M.get_sections(project_id, callback)
   end)
 end
 
--- Clear cache (useful for refresh)
 function M.clear_cache()
   projects_cache = nil
   sections_cache = {}
 end
 
--- Create task with project and section IDs
 function M.create_task_with_project(content, project_id, section_id, priority, due_string, callback)
   if not content or content == '' then
     if callback then callback(false, 'Task content cannot be empty') end
@@ -159,7 +148,6 @@ function M.create_task_with_project(content, project_id, section_id, priority, d
     return
   end
 
-  -- Build the task data
   local task_data = {
     content = content,
   }
@@ -169,14 +157,12 @@ function M.create_task_with_project(content, project_id, section_id, priority, d
   if section_id and section_id ~= '' then task_data.section_id = section_id end
 
   if priority and priority ~= '' and priority ~= 'p4' then
-    -- Convert priority format (p1 = 4, p2 = 3, p3 = 2, p4 = 1)
     local priority_map = { p1 = '4', p2 = '3', p3 = '2', p4 = '1' }
     task_data.priority = priority_map[priority] or '1'
   end
 
   if due_string and due_string ~= '' then task_data.due_string = due_string end
 
-  -- Convert task_data to JSON manually (simple approach)
   local json_parts = {}
   for key, value in pairs(task_data) do
     table.insert(json_parts, string.format('"%s": "%s"', key, tostring(value):gsub('"', '\\"')))
@@ -203,7 +189,6 @@ function M.create_task_with_project(content, project_id, section_id, priority, d
       return
     end
 
-    -- Parse JSON response to check for errors
     local json_result = result:match('^%s*{.*}%s*$')
     if json_result and json_result:match('"id"') then
       print('Task created successfully: ' .. content)
@@ -215,7 +200,6 @@ function M.create_task_with_project(content, project_id, section_id, priority, d
   end)
 end
 
--- Todoist API utility functions
 function M.create_task(text, callback)
   if not text or text == '' then
     if callback then callback(false, 'Task text cannot be empty') end
@@ -228,7 +212,6 @@ function M.create_task(text, callback)
     return
   end
 
-  -- Use curl to make the request to Todoist API
   local cmd = {
     'curl',
     '-X',
@@ -249,7 +232,6 @@ function M.create_task(text, callback)
       return
     end
 
-    -- Parse JSON response to check for errors
     local json_result = result:match('^%s*{.*}%s*$')
     if json_result and json_result:match('"id"') then
       print('Task created successfully: ' .. text)
@@ -261,7 +243,6 @@ function M.create_task(text, callback)
   end)
 end
 
--- Create task with quick add format (supports natural language)
 function M.create_task_quick(text, callback)
   if not text or text == '' then
     if callback then callback(false, 'Task text cannot be empty') end
@@ -274,7 +255,6 @@ function M.create_task_quick(text, callback)
     return
   end
 
-  -- Use curl to make the request to Todoist quick add API
   local cmd = {
     'curl',
     '-X',
@@ -293,7 +273,6 @@ function M.create_task_quick(text, callback)
       return
     end
 
-    -- Simple check for success
     if result:match('"id"') or result:match('sync_token') then
       print('Task created successfully: ' .. text)
       if callback then callback(true, result) end
@@ -304,12 +283,10 @@ function M.create_task_quick(text, callback)
   end)
 end
 
--- Backward compatibility wrapper functions (deprecated)
 function M.create_task_sync(text)
   vim.notify('Warning: create_task_sync is deprecated. Use create_task with callback instead.', vim.log.levels.WARN)
   local success = false
   M.create_task(text, function(ok, _) success = ok end)
-  -- Note: This will return immediately, not wait for completion
   return success
 end
 
@@ -317,7 +294,6 @@ function M.create_task_quick_sync(text)
   vim.notify('Warning: create_task_quick_sync is deprecated. Use create_task_quick with callback instead.', vim.log.levels.WARN)
   local success = false
   M.create_task_quick(text, function(ok, _) success = ok end)
-  -- Note: This will return immediately, not wait for completion
   return success
 end
 

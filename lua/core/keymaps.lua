@@ -93,6 +93,7 @@ map('n', '<leader>;;', checkboxActions.toggle, { desc = '☑️  Toggle checkbox
 
 map('n', '<leader>le', errorsActions.copy_diagnostic_under_cursor, { desc = '📋 Copy diagnostic' })
 map('n', '<leader>lc', fileActions.copy_all_files_content, { desc = '📁 Copy all files content' })
+map('n', '<leader>lC', fileActions.delete_all_comments, { desc = '🧹 Delete all comments' })
 map('n', '<leader>lf', fileActions.copy_current_file_url, { desc = '🔗 Copy current file link' })
 map('n', '<leader>ld', fileActions.open_current_dir, { desc = '📁 Open directory' })
 map('n', '<leader>lg', gitActions.openOrCreatePullRequest, { desc = '🔗 Open existing PR or create new one' })

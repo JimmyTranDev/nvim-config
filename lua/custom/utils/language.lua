@@ -12,7 +12,6 @@ function M.getCurrentJavaClass()
   return currentClass
 end
 
--- Helper function to find workspace root by traversing up the directory tree
 local function findWorkspaceRoot(startPath)
   local path = startPath or vim.fn.getcwd()
   local lockfiles = {
@@ -20,87 +19,67 @@ local function findWorkspaceRoot(startPath)
     { file = 'bun.lock', manager = 'bun' },
     { file = 'pnpm-lock.yaml', manager = 'pnpm' },
     { file = 'yarn.lock', manager = 'yarn' },
-    { file = 'package-lock.json', manager = 'npm' }
+    { file = 'package-lock.json', manager = 'npm' },
   }
-  
-  -- Traverse up the directory tree
+
   while path ~= '/' and path ~= '' do
-    -- Check for lockfiles in current directory
     for _, lockfile in ipairs(lockfiles) do
       local fullPath = path .. '/' .. lockfile.file
-      if vim.fn.filereadable(fullPath) == 1 then
-        return path, lockfile.manager
-      end
+      if vim.fn.filereadable(fullPath) == 1 then return path, lockfile.manager end
     end
-    
-    -- Move up one directory
+
     local parent = vim.fn.fnamemodify(path, ':h')
     if parent == path then break end -- Reached root
     path = parent
   end
-  
+
   return nil, nil
 end
 
--- Helper function to detect if we're in a workspace/monorepo
 local function isWorkspace(rootPath)
   if not rootPath then return false end
-  
+
   local workspaceFiles = {
     rootPath .. '/pnpm-workspace.yaml',
     rootPath .. '/lerna.json',
     rootPath .. '/nx.json',
     rootPath .. '/rush.json',
     rootPath .. '/turbo.json',
-    rootPath .. '/.yarnrc.yml'
+    rootPath .. '/.yarnrc.yml',
   }
-  
-  -- Check for workspace config files
+
   for _, file in ipairs(workspaceFiles) do
-    if vim.fn.filereadable(file) == 1 then
-      return true
-    end
+    if vim.fn.filereadable(file) == 1 then return true end
   end
-  
-  -- Check for workspaces field in package.json
+
   local packageJsonPath = rootPath .. '/package.json'
   if vim.fn.filereadable(packageJsonPath) == 1 then
     local ok, packageJson = pcall(vim.fn.json_decode, vim.fn.readfile(packageJsonPath))
-    if ok and packageJson and packageJson.workspaces then
-      return true
-    end
+    if ok and packageJson and packageJson.workspaces then return true end
   end
-  
+
   return false
 end
 
--- Get the workspace root path (useful for monorepo operations)
 function M.getWorkspaceRoot()
   local rootPath, _ = findWorkspaceRoot()
   return rootPath
 end
 
--- Check if the current directory is within a monorepo workspace
 function M.isInWorkspace()
   local rootPath = M.getWorkspaceRoot()
   return isWorkspace(rootPath)
 end
 
 function M.getJavascriptPackageManager()
-  -- Try to find workspace root first
   local rootPath, packageManager = findWorkspaceRoot()
-  
+
   if packageManager then
-    -- If we found a lockfile in a parent directory, check if it's a workspace
-    if isWorkspace(rootPath) then
-      return packageManager
-    end
-    
-    -- Even if not a workspace, use the detected package manager from root
+    if isWorkspace(rootPath) then return packageManager end
+
     return packageManager
   end
-  
-  -- Fallback to original behavior - check current directory only
+
   if vim.fn.filereadable('bun.lockb') == 1 then
     return 'bun'
   elseif vim.fn.filereadable('bun.lock') == 1 then
@@ -112,7 +91,7 @@ function M.getJavascriptPackageManager()
   elseif vim.fn.filereadable('pnpm-lock.yaml') == 1 then
     return 'pnpm'
   end
-  
+
   return ''
 end
 
@@ -130,16 +109,12 @@ function M.getJavascriptPackageManagerDevArg()
   end
 end
 
--- Get the package manager executable with workspace-aware commands
 function M.getPackageManagerExecutable(workspaceContext)
   local packageManager = M.getJavascriptPackageManager()
   local isInWs = M.isInWorkspace()
-  
-  if not packageManager or packageManager == '' then
-    return 'npm'
-  end
-  
-  -- For workspace contexts, return the appropriate command
+
+  if not packageManager or packageManager == '' then return 'npm' end
+
   if workspaceContext and isInWs then
     if packageManager == 'pnpm' then
       return 'pnpm --filter'
@@ -151,14 +126,13 @@ function M.getPackageManagerExecutable(workspaceContext)
       return 'bun --filter'
     end
   end
-  
+
   return packageManager
 end
 
--- Get the npx equivalent for the detected package manager
 function M.getNpxEquivalent()
   local packageManager = M.getJavascriptPackageManager()
-  
+
   if packageManager == 'yarn' then
     return 'yarn dlx'
   elseif packageManager == 'pnpm' then
@@ -172,58 +146,46 @@ end
 
 function M.listPackageJsonCommands()
   local scripts = {}
-  
-  -- First try to find package.json in current directory
+
   local current_package_json = vim.fn.getcwd() .. '/package.json'
   if vim.fn.filereadable(current_package_json) == 1 then
     local current_scripts = M.getScriptsFromPackageJson(current_package_json)
-    if current_scripts and #current_scripts > 0 then
-      scripts = current_scripts
-    end
+    if current_scripts and #current_scripts > 0 then scripts = current_scripts end
   end
-  
-  -- If we're in a workspace and didn't find scripts in current dir, try workspace root
+
   if #scripts == 0 then
     local workspaceRoot = M.getWorkspaceRoot()
     if workspaceRoot then
       local root_package_json = workspaceRoot .. '/package.json'
       if vim.fn.filereadable(root_package_json) == 1 then
         local root_scripts = M.getScriptsFromPackageJson(root_package_json)
-        if root_scripts then
-          scripts = root_scripts
-        end
+        if root_scripts then scripts = root_scripts end
       end
     end
   end
-  
+
   return scripts
 end
 
--- Helper function to extract scripts from a package.json file
 function M.getScriptsFromPackageJson(packageJsonPath)
   local command = "jq '.scripts | keys' " .. packageJsonPath
   local handle = io.popen(command)
   if handle == nil then return {} end
   local result = handle:read('*a')
   handle:close()
-  
+
   local ok, scripts = pcall(vim.fn.json_decode, result)
-  if ok and scripts then
-    return scripts
-  end
+  if ok and scripts then return scripts end
   return {}
 end
 
--- Get available workspace packages (for monorepo contexts)
 function M.getWorkspacePackages()
   local workspaceRoot = M.getWorkspaceRoot()
-  if not workspaceRoot or not M.isInWorkspace() then
-    return {}
-  end
-  
+  if not workspaceRoot or not M.isInWorkspace() then return {} end
+
   local packageManager = M.getJavascriptPackageManager()
   local command = nil
-  
+
   if packageManager == 'pnpm' then
     command = 'pnpm list --recursive --depth=-1 --json'
   elseif packageManager == 'yarn' then
@@ -233,63 +195,49 @@ function M.getWorkspacePackages()
   elseif packageManager == 'bun' then
     command = 'bun pm ls --all --json'
   end
-  
+
   if command then
     local handle = io.popen('cd "' .. workspaceRoot .. '" && ' .. command .. ' 2>/dev/null')
     if handle then
       local result = handle:read('*a')
       handle:close()
-      
+
       local ok, data = pcall(vim.fn.json_decode, result)
-      if ok and data then
-        return M.extractWorkspaceNames(data, packageManager)
-      end
+      if ok and data then return M.extractWorkspaceNames(data, packageManager) end
     end
   end
-  
+
   return {}
 end
 
--- Helper function to extract workspace names from different package manager outputs
 function M.extractWorkspaceNames(data, packageManager)
   local names = {}
-  
+
   if packageManager == 'pnpm' and type(data) == 'table' then
     for _, pkg in ipairs(data) do
-      if pkg.name and pkg.path then
-        table.insert(names, pkg.name)
-      end
+      if pkg.name and pkg.path then table.insert(names, pkg.name) end
     end
   elseif packageManager == 'yarn' and type(data) == 'string' then
-    -- Yarn workspaces list returns NDJSON
     for line in data:gmatch('[^\r\n]+') do
       local ok, workspace = pcall(vim.fn.json_decode, line)
-      if ok and workspace and workspace.name then
-        table.insert(names, workspace.name)
-      end
+      if ok and workspace and workspace.name then table.insert(names, workspace.name) end
     end
   elseif packageManager == 'npm' and data.dependencies then
     for name, _ in pairs(data.dependencies) do
       table.insert(names, name)
     end
   elseif packageManager == 'bun' and type(data) == 'table' then
-    -- Bun pm ls returns an array of packages with name and path
     if data.packages then
       for _, pkg in ipairs(data.packages) do
-        if pkg.name then
-          table.insert(names, pkg.name)
-        end
+        if pkg.name then table.insert(names, pkg.name) end
       end
     elseif type(data) == 'table' then
-      -- Fallback for different Bun output formats
       for _, pkg in ipairs(data) do
-        if type(pkg) == 'table' and pkg.name then
-          table.insert(names, pkg.name)
-        end
+        if type(pkg) == 'table' and pkg.name then table.insert(names, pkg.name) end
       end
     end
   end
-  
+
   return names
 end
 
