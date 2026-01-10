@@ -361,25 +361,11 @@ function M.run_knip_fix()
     return
   end
 
-  local cmd = package_manager .. ' dlx knip --fix --allow-remove-files --format'
-
+  local cmd = package_manager .. ' dlx knip --fix --allow-remove-files'
+  
   ui_utils.show_progress('Running knip fix with: ' .. cmd)
-
+  
   vim.fn.jobstart(cmd, {
-    on_stdout = function(_, data)
-      if data and #data > 0 then
-        for _, line in ipairs(data) do
-          if line and line ~= '' then vim.notify(line, vim.log.levels.INFO) end
-        end
-      end
-    end,
-    on_stderr = function(_, data)
-      if data and #data > 0 then
-        for _, line in ipairs(data) do
-          if line and line ~= '' then vim.notify(line, vim.log.levels.WARN) end
-        end
-      end
-    end,
     on_exit = function(_, code)
       if code == 0 then
         ui_utils.show_success('Knip fix completed successfully')

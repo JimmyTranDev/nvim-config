@@ -98,7 +98,6 @@ map('n', '<leader>lf', fileActions.copy_current_file_url, { desc = '🔗 Copy cu
 map('n', '<leader>ld', fileActions.open_current_dir, { desc = '📁 Open directory' })
 map('n', '<leader>lg', gitActions.openOrCreatePullRequest, { desc = '🔗 Open existing PR or create new one' })
 map('n', '<leader>lG', linkActions.open_current_github_repo, { desc = '󰊤 Open current GitHub repo' })
-map('n', '<leader>l', linkActions.open_current_github_prs, { desc = '󰊤 Open GitHub PRs tab' })
 map('n', '<leader>lp', linkActions.open_current_github_prs, { desc = '󰊤 Open GitHub PRs tab' })
 map('n', '<leader>lw', function() vim.opt.wrap = not vim.opt.wrap:get() end, { desc = '↩️ Toggle text wrap' })
 map('n', '<leader>ll', lspActions.refresh_all_lsps_silent, { desc = '🔄 Refresh all LSPs' })
