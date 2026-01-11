@@ -42,11 +42,15 @@ function M.get_projects(callback)
         local id = project_json:match('"id":%s*"([^"]*)"') or project_json:match('"id":%s*([^,}]+)')
         local name = project_json:match('"name":%s*"([^"]*)"')
         local color = project_json:match('"color":%s*"([^"]*)"')
+        local child_order = project_json:match('"child_order":%s*([%d]+)')
+        local view_order = project_json:match('"view_order":%s*([%d]+)')
 
         if id and name then table.insert(projects, {
           id = id,
           name = name,
           color = color or 'grey',
+          child_order = tonumber(child_order) or 0,
+          view_order = tonumber(view_order) or 0,
         }) end
       end
 
@@ -113,13 +117,23 @@ function M.get_sections(project_id, callback)
       for section_json in result:gmatch('{[^}]*"name"[^}]*}') do
         local id = section_json:match('"id":%s*"([^"]*)"') or section_json:match('"id":%s*([^,}]+)')
         local name = section_json:match('"name":%s*"([^"]*)"')
+        local order = section_json:match('"order":%s*([%d]+)')
 
         if id and name then table.insert(sections, {
           id = id,
           name = name,
           project_id = project_id,
+          order = tonumber(order) or 0,
         }) end
       end
+
+      -- Sort sections by their order index
+      table.sort(sections, function(a, b)
+        if a.order ~= b.order then
+          return a.order < b.order
+        end
+        return a.name < b.name
+      end)
 
       sections_cache[project_id] = sections
       print('Successfully fetched ' .. #sections .. ' sections for project ' .. project_id)
@@ -131,9 +145,27 @@ function M.get_sections(project_id, callback)
   end)
 end
 
+function M.debug_project_ordering(callback)
+  M.get_projects(function(success, projects)
+    if not success then
+      if callback then callback(false, projects) end
+      return
+    end
+    
+    print('Project ordering debug:')
+    for i, project in ipairs(projects) do
+      print(string.format('%d. %s (child_order: %d, view_order: %d)', 
+        i, project.name, project.child_order or 0, project.view_order or 0))
+    end
+    
+    if callback then callback(true, projects) end
+  end)
+end
+
 function M.clear_cache()
   projects_cache = nil
   sections_cache = {}
+  print('Todoist cache cleared - next API call will fetch fresh data with index ordering')
 end
 
 function M.create_task_with_project(content, project_id, section_id, priority, due_string, callback)

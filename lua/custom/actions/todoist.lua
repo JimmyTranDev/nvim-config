@@ -36,6 +36,14 @@ local function create_task_with_navigation(taskName, projects, fallbackProjectNa
     table.sort(projects, function(a, b)
       if a.id == recent_id then return true end
       if b.id == recent_id then return false end
+      -- Use Todoist's native ordering (child_order) instead of alphabetical
+      -- If child_order is the same, fall back to view_order, then alphabetical
+      if a.child_order ~= b.child_order then
+        return a.child_order < b.child_order
+      end
+      if a.view_order ~= b.view_order then
+        return a.view_order < b.view_order  
+      end
       return a.name < b.name
     end)
 

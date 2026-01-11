@@ -539,4 +539,114 @@ function M.link_github_copilot_instructions()
   end
 end
 
+-- Function to get uncommitted files from git
+local function get_uncommitted_files()
+  local cmd = 'git status --porcelain'
+  local output = vim.fn.system(cmd)
+  
+  if vim.v.shell_error ~= 0 then
+    vim.notify('Error running git status: ' .. output, vim.log.levels.ERROR)
+    return {}
+  end
+  
+  local files = {}
+  for line in output:gmatch('[^\r\n]+') do
+    -- Parse git status porcelain format
+    -- Format: XY filename (or XY old_name -> new_name for renames)
+    -- X = staged, Y = working tree
+    -- We want files that are modified, added, or have changes
+    local status = line:sub(1, 2)
+    local filename = line:sub(4) -- Skip the status and space
+    
+    -- Include modified, added, untracked, or renamed files
+    if status:match('[MAUR]') or status:match('.[MAUR]') then
+      -- Handle renamed files: "old_name -> new_name"
+      if status:match('R') then
+        -- For renamed files, we want to process the new file (destination)
+        -- Use plain text search to avoid pattern matching issues with dashes
+        local arrow_pos = filename:find(' -> ', 1, true)
+        if arrow_pos then
+          local old_filename = filename:sub(1, arrow_pos - 1)
+          filename = filename:sub(arrow_pos + 4) -- Get the new filename after " -> "
+          vim.notify(string.format('Detected rename: %s -> %s', old_filename, filename), vim.log.levels.DEBUG)
+        else
+          -- Handle malformed rename line - fallback to original filename
+          vim.notify(string.format('Malformed rename line: %s', line), vim.log.levels.WARN)
+        end
+      end
+      
+      -- Trim any whitespace from filename (defensive programming)
+      filename = filename:match("^%s*(.-)%s*$") or filename
+      
+      -- Only add the file if it's readable (exists and accessible) and not empty
+      if filename ~= "" and vim.fn.filereadable(filename) == 1 then
+        table.insert(files, filename)
+      else
+        if filename == "" then
+          vim.notify(string.format('Skipping empty filename from line: %s', line), vim.log.levels.WARN)
+        else
+          vim.notify(string.format('Skipping %s (file not found or not readable)', filename), vim.log.levels.DEBUG)
+        end
+      end
+    end
+  end
+  
+  return files
+end
+
+-- Function to delete comments from all uncommitted files
+function M.delete_comments_from_uncommitted_files()
+  local uncommitted_files = get_uncommitted_files()
+  
+  if #uncommitted_files == 0 then
+    vim.notify('No uncommitted files found', vim.log.levels.WARN)
+    return
+  end
+  
+  local processed_count = 0
+  local total_files = #uncommitted_files
+  
+  -- Get current buffer to restore later
+  local original_buf = vim.api.nvim_get_current_buf()
+  
+  vim.notify(string.format('Processing %d uncommitted files...', total_files), vim.log.levels.INFO)
+  
+  for _, filepath in ipairs(uncommitted_files) do
+    -- Open the file in a new buffer
+    vim.cmd('silent! edit ' .. vim.fn.fnameescape(filepath))
+    local bufnr = vim.api.nvim_get_current_buf()
+    
+    -- Check if the file has a supported filetype for comment removal
+    local filetype = vim.bo[bufnr].filetype
+    local supported_filetypes = {
+      'lua', 'javascript', 'typescript', 'typescriptreact', 'javascriptreact',
+      'python', 'vim', 'sh', 'bash', 'css'
+    }
+    
+    local is_supported = false
+    for _, supported_ft in ipairs(supported_filetypes) do
+      if filetype == supported_ft then
+        is_supported = true
+        break
+      end
+    end
+    
+    if is_supported then
+      -- Apply comment deletion to this buffer
+      M.delete_all_comments()
+      processed_count = processed_count + 1
+      
+      -- Save the file
+      vim.cmd('silent! write')
+    else
+      vim.notify(string.format('Skipping %s (filetype: %s - not supported)', filepath, filetype), vim.log.levels.INFO)
+    end
+  end
+  
+  -- Restore original buffer
+  vim.api.nvim_set_current_buf(original_buf)
+  
+  vim.notify(string.format('Processed %d out of %d uncommitted files', processed_count, total_files), vim.log.levels.INFO)
+end
+
 return M
