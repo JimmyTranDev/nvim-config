@@ -58,4 +58,28 @@ function M.refresh_all_lsps_silent()
   vim.defer_fn(function() restart_lsp_for_buffer(true) end, 100)
 end
 
+function M.close_all_buffers_and_restart_lsps()
+  ui_utils.show_progress('Closing all buffers and restarting LSPs...')
+  
+  -- Close all buffers
+  local ok, err = pcall(function()
+    vim.cmd('%bd')
+  end)
+  
+  if not ok then
+    vim.notify('Error closing buffers: ' .. tostring(err), vim.log.levels.WARN)
+    return
+  end
+  
+  -- Stop all LSP clients
+  local stopped_count = stop_all_lsp_clients(true)
+  
+  -- Restart LSPs after a brief delay
+  vim.defer_fn(function()
+    if restart_lsp_for_buffer(true) then
+      ui_utils.show_success('All buffers closed and LSPs restarted')
+    end
+  end, 200)
+end
+
 return M

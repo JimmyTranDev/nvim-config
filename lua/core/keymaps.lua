@@ -101,7 +101,7 @@ map('n', '<leader>lg', gitActions.openOrCreatePullRequest, { desc = '🔗 Open e
 map('n', '<leader>lG', linkActions.open_current_github_repo, { desc = '󰊤 Open current GitHub repo' })
 map('n', '<leader>lp', linkActions.open_current_github_prs, { desc = '󰊤 Open GitHub PRs tab' })
 map('n', '<leader>lw', function() vim.opt.wrap = not vim.opt.wrap:get() end, { desc = '↩️ Toggle text wrap' })
-map('n', '<leader>ll', lspActions.refresh_all_lsps_silent, { desc = '🔄 Refresh all LSPs' })
+map('n', '<leader>ll', lspActions.close_all_buffers_and_restart_lsps, { desc = '🔄 Close all buffers & restart LSPs' })
 map('n', '<leader>lt', '<cmd>Copilot toggle<CR>', { desc = '🤖 Toggle Copilot autocomplete' })
 map('n', '<leader>lK', languageActions.run_knip_fix, { desc = '🔧 Knip fix & remove files' })
 
