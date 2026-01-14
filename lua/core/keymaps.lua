@@ -3,6 +3,7 @@ local keymap = vim.keymap
 local constants = require('core.constants')
 local fileActions = require('custom.actions.files')
 local todoistActions = require('custom.actions.todoist')
+local jiraActions = require('custom.actions.jira')
 local linkActions = require('custom.actions.links')
 local languageActions = require('custom.actions.language')
 local errorsActions = require('custom.actions.errors')
@@ -137,8 +138,12 @@ map('n', '<Leader>w', ':w<CR>', { desc = ' Write' })
 map('n', '<Leader>W', ':wa<CR>', { desc = ' Write all' })
 
 map('n', '<Leader>rr', todoistActions.log_todoist_task(), { desc = '󰎞 Log task (salmon)' })
+map('n', '<Leader>rl', function() vim.notify('Leader rl - functionality not implemented yet') end, { desc = '📝 Link action (placeholder)' })
 map('n', '<Leader>rR', todoistActions.log_todoist_task_all_projects(), { desc = '󰎞 Log task (all projects)' })
 map('n', '<Leader>rC', todoistActions.refresh_todoist_cache(), { desc = '󰑓 Refresh Todoist cache' })
+
+map('n', '<Leader>rj', jiraActions.create_jira_task(), { desc = '🔲 Create Jira task' })
+map('n', '<Leader>rL', linkActions.open_jira_ticket, { desc = '🔗 Open Jira issue link' })
 
 map('n', '<leader>zc', ':Lazy clean<CR>', { desc = 'Lazy clean' })
 map('n', '<leader>zh', ':Lazy health<CR>', { desc = 'Lazy health' })
