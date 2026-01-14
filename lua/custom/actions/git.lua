@@ -77,8 +77,6 @@ function M.createCommit(prefix, emoji, shouldPush, shouldGeneric)
 end
 
 function M.quickCommitUpdate()
-  vim.cmd('Git add .')
-
   local commitMessage = 'feat: ✨ update'
   vim.cmd(string.format('Git commit --no-verify -m "%s"', commitMessage))
 end
