@@ -1,12 +1,12 @@
-local gitUtils = require('custom.utils.git')
-local inputUtils = require('custom.utils.input')
-local fileUtils = require('custom.utils.files')
+local git_utils = require('custom.utils.git')
+local input_utils = require('custom.utils.input')
+local file_utils = require('custom.utils.files')
 
 local M = {}
 
 function M.createBranch(prefix)
   return function()
-    local jiraTicket = inputUtils.getInputFromUser('Jira Ticket: ')
+    local jiraTicket = input_utils.get_input('Jira Ticket: ')
     local branchName
     if jiraTicket ~= '' then
       local summary = vim.fn.system(string.format("jira issue view %s --raw | jq -r '.fields.summary'", jiraTicket))
@@ -14,7 +14,7 @@ function M.createBranch(prefix)
       summary = string.gsub(summary, '[^%w%-]', '')
       branchName = string.format('%s/%s_%s', prefix, jiraTicket, summary)
     else
-      local branchDescription = inputUtils.getInputFromUser('Branch Description: ')
+      local branchDescription = input_utils.get_input('Branch Description: ')
       local descriptionPart = string.gsub(branchDescription, '%s+', '-')
       branchName = string.format('%s/%s', prefix, descriptionPart)
     end
@@ -29,7 +29,7 @@ end
 
 function M.createWorktree(prefix)
   return function()
-    local jiraTicket = inputUtils.getInputFromUser('Jira Ticket: ')
+    local jiraTicket = input_utils.get_input('Jira Ticket: ')
     local branchName, worktreeName
     if jiraTicket ~= '' then
       local summary = vim.fn.system(string.format("jira issue view %s --raw | jq -r '.fields.summary'", jiraTicket))
@@ -38,7 +38,7 @@ function M.createWorktree(prefix)
       branchName = string.format('%s/%s_%s', prefix, jiraTicket, summary)
       worktreeName = string.format('~/Programming/%s_%s', prefix, summary)
     else
-      local branchDescription = inputUtils.getInputFromUser('Branch Description: ')
+      local branchDescription = input_utils.get_input('Branch Description: ')
       local descriptionPart = string.gsub(branchDescription, '%s+', '-')
       branchName = string.format('%s/%s', prefix, descriptionPart)
       worktreeName = string.format('~/Programming/%s_%s', prefix, descriptionPart)
@@ -50,14 +50,14 @@ end
 
 function M.createCommit(prefix, emoji, shouldPush, shouldGeneric)
   return function()
-    local branchName = gitUtils.get_current_branch()
-    local jiraTicket = gitUtils.extract_jira_ticket(branchName)
+    local branchName = git_utils.get_current_branch()
+    local jiraTicket = git_utils.extract_jira_ticket(branchName)
 
     local commitMessage = ''
 
     if not shouldGeneric then
-      local commitDescription = inputUtils.getInputFromUser('󰦨 Description: ')
-      local commitScope = inputUtils.getInputFromUser('󰟾 Scope: ')
+      local commitDescription = input_utils.get_input('󰦨 Description: ')
+      local commitScope = input_utils.get_input('󰟾 Scope: ')
 
       if commitDescription == nil then return end
 
@@ -82,7 +82,7 @@ function M.quickCommitUpdate()
 end
 
 function M.createCommitFromBranchName()
-  local branchName = gitUtils.get_current_branch()
+  local branchName = git_utils.get_current_branch()
   if not branchName or branchName == '' or branchName == 'main' or branchName == 'master' then
     vim.notify('Cannot generate commit from current branch name')
     return
@@ -130,7 +130,7 @@ function M.createCommitFromBranchName()
     emoji = '✨'
   end
 
-  local jiraTicket = gitUtils.extract_jira_ticket(branchName)
+  local jiraTicket = git_utils.extract_jira_ticket(branchName)
   local jiraTicketPart = jiraTicket == '' and '' or jiraTicket .. ' '
 
   local description = branchName:gsub('^[^/]+/', '') -- Remove prefix
@@ -150,11 +150,11 @@ function M.createCommitFromBranchName()
 end
 
 function M.addTagToHash()
-  local tagName = inputUtils.getInputFromUser('Tag Name: ')
+  local tagName = input_utils.get_input('Tag Name: ')
   if tagName == '' then return end
 
-  local commitLines, commitLineToSha = gitUtils.get_commit_log(false)
-  local message = inputUtils.getInputFromUser('Tag Message: ')
+  local commitLines, commitLineToSha = git_utils.get_commit_log(false)
+  local message = input_utils.get_input('Tag Message: ')
 
   vim.ui.select(commitLines, {
     prompt = 'Select commit to tag:',
@@ -177,6 +177,9 @@ function M.copyLatestCommitMessage()
     vim.notify('Failed to run git command')
     return
   end
+
+  local message = handle:read('*a')
+  handle:close()
 
   if not message or message == '' then
     vim.notify('No commit message found.')
@@ -527,10 +530,10 @@ function M.resetAllWithConfirm()
 end
 
 function M.openGithubPullRequest()
-  local githubUtils = require('custom.utils.github')
+  local github_utils = require('custom.utils.github')
 
-  local branch = gitUtils.get_current_branch()
-  local repo = githubUtils.getRepoName()
+  local branch = git_utils.get_current_branch()
+  local repo = github_utils.getRepoName()
   local username = vim.env.GITHUB_USERNAME or vim.env.PRI_GITHUB_USERNAME or ''
   if not branch or branch == '' or not repo or repo == '' or username == '' then
     vim.notify('Could not determine branch, repo, or username')
@@ -552,19 +555,19 @@ function M.openGithubPullRequest()
     end
   end
   if prUrl then
-    fileUtils.open(prUrl)
+    file_utils.open(prUrl)
     vim.notify('Opened existing PR for branch: ' .. branch)
   else
     local url = string.format('https://github.com/%s/%s/pull/new/%s', username, repo, branch)
-    fileUtils.open(url)
+    file_utils.open(url)
     vim.notify('Opened new PR creation page for branch: ' .. branch)
   end
 end
 
 function M.openExistingPullRequestOnly()
-  local githubUtils = require('custom.utils.github')
+  local github_utils = require('custom.utils.github')
 
-  local branch = gitUtils.get_current_branch()
+  local branch = git_utils.get_current_branch()
   if not branch or branch == '' then
     vim.notify('Could not determine current branch', vim.log.levels.ERROR)
     return
@@ -598,7 +601,7 @@ function M.openExistingPullRequestOnly()
   end
 
   if prUrl then
-    fileUtils.open(prUrl)
+    file_utils.open(prUrl)
     vim.notify('🔗 Opened PR for branch: ' .. branch, vim.log.levels.INFO)
   else
     vim.notify('❌ No existing PR found for branch: ' .. branch, vim.log.levels.WARN)
@@ -606,9 +609,9 @@ function M.openExistingPullRequestOnly()
 end
 
 function M.openOrCreatePullRequest()
-  local githubUtils = require('custom.utils.github')
+  local github_utils = require('custom.utils.github')
 
-  local branch = gitUtils.get_current_branch()
+  local branch = git_utils.get_current_branch()
   if not branch or branch == '' then
     vim.notify('Could not determine current branch', vim.log.levels.ERROR)
     return
@@ -642,7 +645,7 @@ function M.openOrCreatePullRequest()
   end
 
   if prUrl then
-    fileUtils.open(prUrl)
+    file_utils.open(prUrl)
     vim.notify('🔗 Opened existing PR for branch: ' .. branch, vim.log.levels.INFO)
   else
     vim.notify('No existing PR found. Creating new PR into develop...', vim.log.levels.INFO)

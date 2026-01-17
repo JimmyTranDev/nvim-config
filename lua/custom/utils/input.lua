@@ -5,12 +5,15 @@ function M.get_input(prompt, default_text, allow_empty)
 
   if input == ' ' then return '' end
 
-  if input == '' and not allow_empty then return M.get_input(prompt, default_text, allow_empty) end
+  if input == '' and not allow_empty then 
+    return M.get_input(prompt, default_text, allow_empty) 
+  end
 
   return input
 end
 
-function M.getInputFromUser(prompt, text) return M.get_input(prompt, text, false) end
+-- Legacy alias for backwards compatibility
+M.getInputFromUser = M.get_input
 
 function M.get_selected_text()
   local old_reg = vim.fn.getreg('"')
@@ -20,6 +23,7 @@ function M.get_selected_text()
   return selected
 end
 
+-- Specialized selected text functions for different use cases
 function M.getSelectedText()
   vim.cmd('normal! y')
   local selected_text = vim.fn.getreg('"')

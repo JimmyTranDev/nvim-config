@@ -3,26 +3,15 @@ local errors_utils = require('custom.utils.errors')
 local M = {}
 
 function M.copy_diagnostic_under_cursor()
-  local cursor_pos = vim.api.nvim_win_get_cursor(0)
-  local line = cursor_pos[1] - 1 -- Convert to 0-indexed
-  local col = cursor_pos[2]
-
-  local bufnr = vim.api.nvim_get_current_buf()
-  local line_diagnostics = vim.diagnostic.get(bufnr, { lnum = line })
-
-  for _, diagnostic in ipairs(line_diagnostics) do
-    local start_col = diagnostic.col
-    local end_col = diagnostic.end_col or diagnostic.col
-
-    if col >= start_col and col <= end_col then
-      local diagnostic_text = errors_utils.getDiagnosticTextsUnderCursor()
-      vim.fn.setreg('+', diagnostic_text)
-      vim.notify('Copied diagnostic to clipboard: ' .. diagnostic.message, vim.log.levels.INFO)
-      return
-    end
+  local diagnostic_text = errors_utils.getDiagnosticTextsUnderCursor()
+  
+  if diagnostic_text == 'No diagnostics found under cursor' then
+    vim.notify(diagnostic_text, vim.log.levels.WARN)
+    return
   end
-
-  vim.notify('No diagnostic found under cursor', vim.log.levels.WARN)
+  
+  vim.fn.setreg('+', diagnostic_text)
+  vim.notify('Copied diagnostic to clipboard', vim.log.levels.INFO)
 end
 
 function M.copy_all_buffer_diagnostics()
@@ -49,16 +38,12 @@ end
 
 function M.jump_and_copy_next_diagnostic()
   vim.diagnostic.goto_next()
-
-  vim.defer_fn(function() M.copy_diagnostic_under_cursor() end, 50)
+  vim.defer_fn(M.copy_diagnostic_under_cursor, 50)
 end
 
 function M.jump_and_copy_prev_diagnostic()
   vim.diagnostic.goto_prev()
-
-  vim.defer_fn(function() M.copy_diagnostic_under_cursor() end, 50)
+  vim.defer_fn(M.copy_diagnostic_under_cursor, 50)
 end
-
-M.copyDiagnosticUnderCursor = M.copy_diagnostic_under_cursor
 
 return M
