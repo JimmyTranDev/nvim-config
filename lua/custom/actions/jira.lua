@@ -4,7 +4,7 @@ local M = {}
 
 local CONFIG = {
   CACHE_DIR = vim.fn.stdpath('data'),
-  JQL_QUERY = 'issuekey in portfolioChildIssuesOf(BW-6111) AND type = "Epic"',
+  PARENT_ISSUE = 'BW-6111', -- Parent portfolio issue - update as needed for higher ticket numbers
   JIRA_BASE_URL = 'https://' .. os.getenv('ORG_NAME') .. '.atlassian.net/browse',
   DEFAULT_PROJECT = 'BW',
   LIMIT = 50,
@@ -60,9 +60,28 @@ end
 
 local function parse_csv_line(line)
   local fields = {}
-  for field in line:gmatch('([^,]+)') do
-    table.insert(fields, field:gsub('"', ''))
+  local field = ''
+  local in_quotes = false
+  local i = 1
+  
+  while i <= #line do
+    local char = line:sub(i, i)
+    
+    if char == '"' then
+      in_quotes = not in_quotes
+    elseif char == ',' and not in_quotes then
+      table.insert(fields, field:match('^%s*(.-)%s*$')) -- trim whitespace
+      field = ''
+    else
+      field = field .. char
+    end
+    
+    i = i + 1
   end
+  
+  -- Add the last field
+  table.insert(fields, field:match('^%s*(.-)%s*$'))
+  
   return fields
 end
 
@@ -115,7 +134,8 @@ local function fetch_parent_issues(callback)
     return
   end
 
-  local cmd = string.format('acli jira workitem search --jql "%s" --fields "key,summary,status" --limit %d --csv', CONFIG.JQL_QUERY, CONFIG.LIMIT)
+  local jql_query = string.format('issuekey in portfolioChildIssuesOf(%s) AND type = "Epic"', CONFIG.PARENT_ISSUE)
+  local cmd = string.format('acli jira workitem search --jql "%s" --fields "key,summary,status" --limit %d --csv', jql_query, CONFIG.LIMIT)
 
   vim.notify('Fetching available parent issues...', vim.log.levels.INFO)
 
@@ -145,7 +165,7 @@ local function fetch_parent_issues(callback)
         save_parents_cache(parents)
         callback(parents)
       else
-        vim.notify('No parent issues found under BW-6111', vim.log.levels.WARN)
+        vim.notify(string.format('No parent issues found under %s', CONFIG.PARENT_ISSUE), vim.log.levels.WARN)
         callback(nil)
       end
     end)
