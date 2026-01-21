@@ -10,40 +10,105 @@ local todoistPriorityOptions = {
   { name = 'Priority None', value = 'p4' },
 }
 
-local RECENT_PROJECT_FILE = vim.fn.stdpath('data') .. '/todoist_recent_project.txt'
-local function get_recent_project_id()
-  local f = io.open(RECENT_PROJECT_FILE, 'r')
+local RECENT_PROJECTS_FILE = vim.fn.stdpath('data') .. '/todoist_recent_projects.json'
+local MAX_RECENT_PROJECTS = 10 -- Track up to 10 recent projects
+
+-- Load recent projects queue from file
+local function get_recent_projects()
+  local f = io.open(RECENT_PROJECTS_FILE, 'r')
   if f then
-    local id = f:read('*l')
+    local content = f:read('*a')
     f:close()
-    return id
+    local success, data = pcall(vim.json.decode, content)
+    if success and type(data) == 'table' and data.recent_projects then
+      return data.recent_projects
+    end
   end
-  return nil
+  return {}
 end
-local function set_recent_project_id(id)
-  local f = io.open(RECENT_PROJECT_FILE, 'w')
+
+-- Save recent projects queue to file
+local function save_recent_projects(recent_projects)
+  local f = io.open(RECENT_PROJECTS_FILE, 'w')
   if f then
-    f:write(id)
+    local data = { recent_projects = recent_projects }
+    f:write(vim.json.encode(data))
     f:close()
   end
+end
+
+-- Add project to recent queue (most recent first)
+local function add_recent_project_id(id)
+  local recent_projects = get_recent_projects()
+  
+  -- Remove the project if it already exists in the queue
+  for i, project_id in ipairs(recent_projects) do
+    if project_id == id then
+      table.remove(recent_projects, i)
+      break
+    end
+  end
+  
+  -- Insert at the beginning (most recent)
+  table.insert(recent_projects, 1, id)
+  
+  -- Keep only the most recent projects
+  while #recent_projects > MAX_RECENT_PROJECTS do
+    table.remove(recent_projects, #recent_projects)
+  end
+  
+  save_recent_projects(recent_projects)
+end
+
+-- Get priority score for a project (lower is better, most recent gets 0)
+local function get_project_priority_score(project_id)
+  local recent_projects = get_recent_projects()
+  for i, recent_id in ipairs(recent_projects) do
+    if recent_id == project_id then
+      return i - 1 -- 0 for most recent, 1 for second most recent, etc.
+    end
+  end
+  return 999 -- Not in recent queue
+end
+
+-- Legacy function for backward compatibility
+local function get_recent_project_id()
+  local recent_projects = get_recent_projects()
+  return recent_projects[1] -- Return most recent project
+end
+
+-- Legacy function for backward compatibility  
+local function set_recent_project_id(id)
+  add_recent_project_id(id)
 end
 
 local function create_task_with_navigation(taskName, projects, fallbackProjectName)
   local select_project, select_section, select_priority
 
   select_project = function()
-    local recent_id = get_recent_project_id()
+    local recent_projects = get_recent_projects()
+    
+    -- Enhanced sorting with multi-project recency support
     table.sort(projects, function(a, b)
-      if a.id == recent_id then return true end
-      if b.id == recent_id then return false end
-      -- Use Todoist's native ordering (child_order) instead of alphabetical
-      -- If child_order is the same, fall back to view_order, then alphabetical
+      local a_priority = get_project_priority_score(a.id)
+      local b_priority = get_project_priority_score(b.id)
+      
+      -- If both projects have different recency priorities, sort by recency
+      if a_priority ~= b_priority then
+        return a_priority < b_priority
+      end
+      
+      -- If recency is the same, use Todoist's native ordering (child_order)
       if a.child_order ~= b.child_order then
         return a.child_order < b.child_order
       end
+      
+      -- If child_order is the same, fall back to view_order
       if a.view_order ~= b.view_order then
         return a.view_order < b.view_order  
       end
+      
+      -- Final fallback: alphabetical
       return a.name < b.name
     end)
 
@@ -64,7 +129,7 @@ local function create_task_with_navigation(taskName, projects, fallbackProjectNa
         vim.notify('Task creation cancelled', vim.log.levels.INFO)
         return
       end
-      set_recent_project_id(selected_project.id)
+      add_recent_project_id(selected_project.id)
       select_section(selected_project)
     end)
   end

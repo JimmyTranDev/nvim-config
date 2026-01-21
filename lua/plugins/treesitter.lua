@@ -30,6 +30,7 @@ return {
         'gitattributes',
         'gitcommit',
         'gitignore',
+        'go',
       },
       auto_install = false,
       sync_install = false,
