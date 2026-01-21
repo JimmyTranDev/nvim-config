@@ -154,6 +154,7 @@ local function get_comment_patterns(filetype)
     typescript = { single_line = '^%s*//', inline_single = '%s//', block_start = '^%s*/%*', block_end = '%*/', inline_block_start = '%s/%*' },
     python = { single_line = '^%s*#', inline_single = '%s#', block_start = '^%s*"""', block_end = '"""', block_start_alt = "^%s*'''", block_end_alt = "'''" },
     css = { block_start = '^%s*/%*', block_end = '%*/', inline_block_start = '%s/%*' },
+    go = { single_line = '^%s*//', inline_single = '%s//', block_start = '^%s*/%*', block_end = '%*/', inline_block_start = '%s/%*' },
   }
   
   -- Reuse patterns for similar filetypes
@@ -298,7 +299,7 @@ end
 
 -- Extract comment content based on filetype
 function M.extract_comment_content(line, filetype)
-  if filetype == 'javascript' or filetype == 'typescript' or filetype == 'typescriptreact' or filetype == 'javascriptreact' then
+  if filetype == 'javascript' or filetype == 'typescript' or filetype == 'typescriptreact' or filetype == 'javascriptreact' or filetype == 'go' then
     return line:match('//%s*(.*)')
   elseif filetype == 'lua' then
     return line:match('--%s*(.*)')
@@ -525,7 +526,7 @@ function M.delete_comments_from_uncommitted_files()
     local filetype = vim.bo[bufnr].filetype
     local supported_filetypes = {
       'lua', 'javascript', 'typescript', 'typescriptreact', 'javascriptreact',
-      'python', 'vim', 'sh', 'bash', 'css'
+      'python', 'vim', 'sh', 'bash', 'css', 'go'
     }
     
     local is_supported = false
@@ -537,8 +538,13 @@ function M.delete_comments_from_uncommitted_files()
     end
     
     if is_supported then
-      -- Apply comment deletion to this buffer
-      M.delete_all_comments()
+      -- Use enhanced LSP + Tree-sitter approach for Go files
+      if filetype == 'go' then
+        M.delete_go_comments_with_lsp_context(bufnr)
+      else
+        -- Apply standard comment deletion to other supported files
+        M.delete_all_comments()
+      end
       processed_count = processed_count + 1
       
       -- Save the file
@@ -552,6 +558,170 @@ function M.delete_comments_from_uncommitted_files()
   vim.api.nvim_set_current_buf(original_buf)
   
   vim.notify(string.format('Processed %d out of %d uncommitted files', processed_count, total_files), vim.log.levels.INFO)
+end
+
+-- Enhanced Go comment removal using LSP + Tree-sitter
+local function get_go_comment_nodes(bufnr)
+  -- Check if tree-sitter parser is available for Go
+  local has_parser, parser = pcall(vim.treesitter.get_parser, bufnr, 'go')
+  if not has_parser then
+    vim.notify('Tree-sitter Go parser not available, falling back to regex patterns', vim.log.levels.WARN)
+    return nil
+  end
+  
+  local tree = parser:parse()[1]
+  local root = tree:root()
+  local comments = {}
+  
+  -- Tree-sitter query to find all comments
+  local has_query, query = pcall(vim.treesitter.query.parse, 'go', [[
+    (comment) @comment
+  ]])
+  
+  if not has_query then
+    vim.notify('Tree-sitter Go query not available, falling back to regex patterns', vim.log.levels.WARN)
+    return nil
+  end
+  
+  for id, node in query:iter_captures(root, bufnr) do
+    local name = query.captures[id]
+    if name == 'comment' then
+      local start_row, start_col, end_row, end_col = node:range()
+      local comment_text = vim.treesitter.get_node_text(node, bufnr)
+      table.insert(comments, {
+        node = node,
+        start_row = start_row,
+        start_col = start_col,
+        end_row = end_row,
+        end_col = end_col,
+        text = comment_text
+      })
+    end
+  end
+  
+  return comments
+end
+
+-- Get LSP document symbols for context analysis
+local function get_go_document_symbols(bufnr)
+  local symbols = {}
+  local params = vim.lsp.util.make_text_document_params(bufnr)
+  
+  -- Request document symbols from gopls
+  local results = vim.lsp.buf_request_sync(bufnr, 'textDocument/documentSymbol', params, 2000)
+  
+  for _, result in pairs(results or {}) do
+    if result.result and not result.err then
+      symbols = result.result
+      break
+    end
+  end
+  
+  return symbols
+end
+
+-- Check if comment should be preserved based on LSP context
+local function should_preserve_go_comment_with_lsp_context(comment_node, document_symbols)
+  local comment_row = comment_node.start_row
+  local comment_text = comment_node.text
+  
+  -- First check existing ignore patterns
+  if should_ignore_comment(comment_text) then
+    return true
+  end
+  
+  -- Check if comment is within or near important Go structures
+  for _, symbol in ipairs(document_symbols or {}) do
+    if symbol.range then
+      local symbol_start = symbol.range.start.line
+      local symbol_end = symbol.range['end'].line
+      
+      -- Preserve comments that are immediately before exported functions/types
+      -- In Go, exported symbols start with uppercase letters
+      if symbol.name and symbol.name:match('^[A-Z]') then
+        -- Comment is on the line immediately before the symbol
+        if comment_row == symbol_start - 1 then
+          return true
+        end
+        -- Comment is within the symbol's range (like function body comments for exported functions)
+        if comment_row >= symbol_start and comment_row <= symbol_end then
+          -- Check if it's a function or type declaration
+          local symbol_kind = symbol.kind
+          if symbol_kind == vim.lsp.protocol.SymbolKind.Function or 
+             symbol_kind == vim.lsp.protocol.SymbolKind.Struct or
+             symbol_kind == vim.lsp.protocol.SymbolKind.Interface then
+            return true
+          end
+        end
+      end
+    end
+  end
+  
+  return false
+end
+
+-- Enhanced Go comment deletion using LSP + Tree-sitter
+function M.delete_go_comments_with_lsp_context(bufnr)
+  bufnr = bufnr or vim.api.nvim_get_current_buf()
+  local filetype = vim.bo[bufnr].filetype
+  
+  if filetype ~= 'go' then
+    vim.notify('This function is specifically for Go files', vim.log.levels.WARN)
+    return
+  end
+  
+  -- Try to get tree-sitter comment nodes
+  local comment_nodes = get_go_comment_nodes(bufnr)
+  
+  -- If tree-sitter is not available, fall back to regex approach
+  if not comment_nodes then
+    vim.notify('Using fallback regex approach for Go comment removal', vim.log.levels.INFO)
+    M.delete_all_comments()
+    return
+  end
+  
+  -- Get LSP document symbols for context
+  local document_symbols = get_go_document_symbols(bufnr)
+  
+  -- Collect lines to remove
+  local lines_to_remove = {}
+  local preserved_count = 0
+  
+  for _, comment in ipairs(comment_nodes) do
+    local should_preserve = should_preserve_go_comment_with_lsp_context(comment, document_symbols)
+    
+    if not should_preserve then
+      -- Add all lines of this comment to removal list
+      for row = comment.start_row, comment.end_row do
+        table.insert(lines_to_remove, row + 1) -- Convert to 1-based indexing
+      end
+    else
+      preserved_count = preserved_count + 1
+    end
+  end
+  
+  -- Remove duplicate line numbers and sort in reverse order
+  local unique_lines = {}
+  for _, line_num in ipairs(lines_to_remove) do
+    unique_lines[line_num] = true
+  end
+  
+  local sorted_lines = {}
+  for line_num in pairs(unique_lines) do
+    table.insert(sorted_lines, line_num)
+  end
+  table.sort(sorted_lines, function(a, b) return a > b end)
+  
+  -- Remove lines in reverse order to maintain line number integrity
+  for _, line_num in ipairs(sorted_lines) do
+    vim.api.nvim_buf_set_lines(bufnr, line_num - 1, line_num, false, {})
+  end
+  
+  local removed_count = #sorted_lines
+  vim.notify(string.format(
+    'Go LSP + Tree-sitter: Removed %d comment lines, preserved %d important comments (exported symbols, etc.)',
+    removed_count, preserved_count
+  ), vim.log.levels.INFO)
 end
 
 return M
