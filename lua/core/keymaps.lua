@@ -179,6 +179,7 @@ map('n', '<Leader>rC', todoistActions.refresh_todoist_cache(), { desc = '󰑓 Re
 
 map('n', '<Leader>rj', jiraActions.create_jira_task(), { desc = '🔲 Create Jira task' })
 map('n', '<Leader>rL', jiraActions.create_jira_task_with_link(), { desc = '🔗 Create Jira task + open link' })
+map('n', '<Leader>rJ', jiraActions.refresh_jira_cache, { desc = '🔄 Refresh Jira cache' })
 
 map('n', '<leader>zc', ':Lazy clean<CR>', { desc = 'Lazy clean' })
 map('n', '<leader>zh', ':Lazy health<CR>', { desc = 'Lazy health' })

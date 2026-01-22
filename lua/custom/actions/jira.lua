@@ -8,6 +8,10 @@ local CONFIG = {
   JIRA_BASE_URL = 'https://' .. os.getenv('ORG_NAME') .. '.atlassian.net/browse',
   DEFAULT_PROJECT = 'BW',
   LIMIT = 50,
+  -- Epic filtering disabled - showing all epics regardless of status
+  -- ACTIVE_EPIC_STATUSES = { 'To Do', 'In Progress', 'In Development', 'Code Review', 'Testing', 'Ready for QA', 'Open', 'Reopened' },
+  -- Auto-transition new tasks to "Done" status
+  AUTO_TRANSITION_TO_DONE = true,
 }
 
 local ISSUE_TYPES = {
@@ -56,6 +60,47 @@ local function load_parents_cache()
     if success and parents then return parents end
   end
   return nil
+end
+
+-- Clear/refresh the parent issues cache
+local function clear_parents_cache()
+  local file = io.open(cache_files.parents, 'w')
+  if file then
+    file:close()
+    vim.notify('Jira parent issues cache cleared', vim.log.levels.INFO)
+    return true
+  end
+  vim.notify('Failed to clear Jira parent issues cache', vim.log.levels.ERROR)
+  return false
+end
+
+-- Filter parents to only show active epics (DISABLED - showing all epics)
+-- local function filter_active_parents(parents)
+--   if not parents then return nil end
+--   
+--   local active_parents = {}
+--   for _, parent in ipairs(parents) do
+--     -- Check if the status is in the active statuses list
+--     local is_active = false
+--     for _, active_status in ipairs(CONFIG.ACTIVE_EPIC_STATUSES) do
+--       if parent.status and parent.status:lower() == active_status:lower() then
+--         is_active = true
+--         break
+--       end
+--     end
+--     
+--     if is_active then
+--       table.insert(active_parents, parent)
+--     end
+--   end
+--   
+--   return active_parents
+-- end
+
+-- Get current user email for assignee
+local function get_current_user_email()
+  local email = os.getenv('ORG_EMAIL')
+  return email and email:match('^%s*(.-)%s*$') -- trim whitespace
 end
 
 local function parse_csv_line(line)
@@ -126,15 +171,18 @@ local function get_user_input(prompt, default)
   return input
 end
 
-local function fetch_parent_issues(callback)
-  local cached_parents = load_parents_cache()
-  if cached_parents then
-    vim.notify('Using cached parent issues', vim.log.levels.INFO)
-    callback(cached_parents)
-    return
+local function fetch_parent_issues(callback, force_refresh)
+  -- If not forcing refresh, try to load from cache first
+  if not force_refresh then
+    local cached_parents = load_parents_cache()
+    if cached_parents then
+      vim.notify('Using cached parent issues', vim.log.levels.INFO)
+      callback(cached_parents)
+      return
+    end
   end
 
-  local jql_query = string.format('issuekey in portfolioChildIssuesOf(%s) AND type = "Epic"', CONFIG.PARENT_ISSUE)
+  local jql_query = 'project = "Bank Web" AND (issuekey in portfolioChildIssuesOf(BW-6111) OR issuekey in portfolioChildIssuesOf(BW-6716) OR issuekey in portfolioChildIssuesOf(BW-7069) OR issuekey in portfolioChildIssuesOf(BW-7217) OR issuekey in portfolioChildIssuesOf(BW-7890) OR issuekey in portfolioChildIssuesOf(BW-9748)) AND issuetype in (Initiative, Epic) and status != Closed ORDER BY parent'
   local cmd = string.format('acli jira workitem search --jql "%s" --fields "key,summary,status" --limit %d --csv', jql_query, CONFIG.LIMIT)
 
   vim.notify('Fetching available parent issues...', vim.log.levels.INFO)
@@ -212,12 +260,17 @@ local function create_jira_task_workflow(summary, fallback_project, should_open_
 
         save_last_parent(selected_parent.value)
 
+        -- Get current user email for assignee
+        local assignee_email = get_current_user_email()
+        local assignee_flag = assignee_email and string.format(' --assignee "%s"', assignee_email) or ''
+
         local cmd = string.format(
-          'acli jira workitem create --summary "%s" --project "%s" --type "%s" --parent "%s"',
+          'acli jira workitem create --summary "%s" --project "%s" --type "%s" --parent "%s"%s',
           summary:gsub('"', '\\"'),
           project,
           selected_type.value,
-          selected_parent.value
+          selected_parent.value,
+          assignee_flag
         )
 
         vim.notify('Creating Jira task...', vim.log.levels.INFO)
@@ -231,10 +284,34 @@ local function create_jira_task_workflow(summary, fallback_project, should_open_
 
               if work_item_id then
                 vim.notify(string.format('Task %s created successfully', work_item_id), vim.log.levels.INFO)
-
-                if should_open_link then
-                  local jira_url = string.format('%s/%s', CONFIG.JIRA_BASE_URL, work_item_id)
-                  vim.system({ 'open', jira_url })
+                
+                -- Transition the task to "Done" status if enabled
+                if CONFIG.AUTO_TRANSITION_TO_DONE then
+                  local transition_cmd = string.format('acli jira workitem transition --key "%s" --status "Done" --yes', work_item_id)
+                  
+                  vim.system(
+                    { 'sh', '-c', transition_cmd },
+                    { text = true },
+                    vim.schedule_wrap(function(transition_result)
+                      if transition_result.code == 0 then
+                        vim.notify(string.format('Task %s transitioned to Done status', work_item_id), vim.log.levels.INFO)
+                      else
+                        local transition_error = transition_result.stderr ~= '' and transition_result.stderr or transition_result.stdout
+                        vim.notify(string.format('Task %s created but failed to transition to Done: %s', work_item_id, transition_error), vim.log.levels.WARN)
+                      end
+                      
+                      if should_open_link then
+                        local jira_url = string.format('%s/%s', CONFIG.JIRA_BASE_URL, work_item_id)
+                        vim.system({ 'open', jira_url })
+                      end
+                    end)
+                  )
+                else
+                  -- Open link immediately if not transitioning
+                  if should_open_link then
+                    local jira_url = string.format('%s/%s', CONFIG.JIRA_BASE_URL, work_item_id)
+                    vim.system({ 'open', jira_url })
+                  end
                 end
               else
                 vim.notify(string.format("Jira task '%s' created in project '%s'", summary, project), vim.log.levels.INFO)
@@ -269,5 +346,11 @@ end
 
 M.create_jira_task = create_task_handler(false)
 M.create_jira_task_with_link = create_task_handler(true)
+
+-- Function to refresh/clear the parent issues cache
+M.refresh_jira_cache = function()
+  clear_parents_cache()
+  vim.notify('Jira parent cache refreshed. Next task creation will fetch fresh data.', vim.log.levels.INFO)
+end
 
 return M
