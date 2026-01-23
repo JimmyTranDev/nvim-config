@@ -16,10 +16,10 @@ return {
         java = { 'google-java-format' },
         lua = { 'stylua' },
 
-        javascript = { 'prettier' },
-        javascriptreact = { 'prettier' },
-        typescript = { 'prettier' },
-        typescriptreact = { 'prettier' },
+        javascript = { 'prettier', 'eslint' },
+        javascriptreact = { 'prettier', 'eslint' },
+        typescript = { 'prettier', 'eslint' },
+        typescriptreact = { 'prettier', 'eslint' },
 
         json = { 'prettier' },
         jsonc = { 'prettier' },
