@@ -13,6 +13,8 @@ return {
             ['if'] = '@function.inner',
             ['ap'] = '@parameter.outer',
             ['ip'] = '@parameter.inner',
+            ['ao'] = '@block.outer',
+            ['io'] = '@block.inner',
           },
           selection_modes = {
             ['@function.outer'] = 'V',
