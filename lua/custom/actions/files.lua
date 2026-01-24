@@ -124,6 +124,26 @@ function M.copy_current_file_url()
   vim.notify('Copied file URL to clipboard: ' .. file_url, vim.log.levels.INFO)
 end
 
+function M.copy_opencode_link()
+  local current_file = vim.fn.expand('%:p')
+  
+  if current_file == '' then
+    vim.notify('No file is currently open', vim.log.levels.WARN)
+    return
+  end
+
+  local cwd = vim.fn.getcwd()
+  local relative_path = vim.fn.fnamemodify(current_file, ':.')
+  
+  local current_line = vim.fn.line('.')
+  
+  local opencode_link = string.format('opencode://file?path=%s&line=%d', 
+    vim.fn.shellescape(relative_path), current_line)
+  
+  vim.fn.setreg('+', opencode_link)
+  vim.notify('Copied OpenCode link to clipboard: ' .. opencode_link, vim.log.levels.INFO)
+end
+
 -- Helper function to check if a comment should be ignored
 local function should_ignore_comment(comment_content)
   if not comment_content then return false end

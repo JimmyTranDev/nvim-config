@@ -94,6 +94,7 @@ map('n', '<leader>;;', checkboxActions.toggle, { desc = '☑️  Toggle checkbox
 
 map('n', '<leader>lfc', fileActions.copy_all_files_content, { desc = '📁 Copy all files content' })
 map('n', '<leader>lfu', fileActions.copy_current_file_url, { desc = '🔗 Copy current file link' })
+map('n', '<leader>lf', fileActions.copy_opencode_link, { desc = '🔗 Copy OpenCode link' })
 map('n', '<leader>lfd', fileActions.open_current_dir, { desc = '📁 Open directory' })
 map('n', '<leader>le', errorsActions.copy_diagnostic_under_cursor, { desc = '📋 Copy diagnostic' })
 map('n', '<leader>lc', fileActions.delete_all_comments, { desc = '🧹 Delete all comments' })
