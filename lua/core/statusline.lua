@@ -158,8 +158,6 @@ create_left_bubble(function() return { fg = colors.sapphire, gui = 'bold' } end,
 
 create_left_bubble(function() return { fg = colors.mauve, gui = 'bold' } end, '', { get_git_branch })
 
-create_left_bubble(function() return { fg = colors.green, gui = 'bold' } end, '', { 'datetime', style = '%H:%M' })
-
 table.insert(config.sections.lualine_c, {
   'diff',
   symbols = { added = ' ', modified = ' ', removed = ' ' },

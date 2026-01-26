@@ -122,10 +122,7 @@ return {
     {
       mode = 'n',
       '<leader>tnf',
-      function()
-        languageActions.create_package_command_runner(9, 'fms:types', true)()
-        languageActions.create_package_command_runner(10, 'fms:gen', true)()
-      end,
+      function() languageActions.create_package_command_runner(9, 'fms:types', true)() end,
       silent = true,
       desc = 'Npm FMS Types and Gen',
     },

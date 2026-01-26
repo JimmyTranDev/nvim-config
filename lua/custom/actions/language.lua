@@ -205,23 +205,60 @@ function M.run_eslint_picker()
   ui_utils.show_progress('Running ESLint...')
 
   local npx_cmd = language_utils.getNpxEquivalent()
-  local cmd = npx_cmd .. ' eslint . --ext ts,tsx,js,jsx --format unix 2>&1 | grep -oE "^[^:]+:[0-9]+" | cut -d: -f1 | sort -u'
-  local file_links = vim.fn.systemlist(cmd)
-
-  local items = {}
-  for idx, file_path in ipairs(file_links) do
+  local eslint_cmd = npx_cmd .. ' eslint . --ext ts,tsx,js,jsx --format stylish'
+  
+  local handle = io.popen(eslint_cmd .. ' 2>&1')
+  if not handle then
+    vim.notify('Failed to run ESLint command', vim.log.levels.ERROR)
+    return
+  end
+  
+  local output = handle:read('*a')
+  local success, exit_type, exit_code = handle:close()
+  
+  if not exit_code then
+    exit_code = success and 0 or 1
+  end
+  
+  if exit_code >= 2 then
+    local error_msg = 'ESLint failed to run (exit code ' .. exit_code .. ')'
+    if output:match('eslint%.config') then
+      error_msg = error_msg .. '\n\nESLint configuration file not found.\nCreate eslint.config.js for ESLint v9+\nOr use --config flag to specify a config file.'
+    else
+      error_msg = error_msg .. '\n\nOutput:\n' .. output:sub(1, 500)
+    end
+    ui_utils.show_error(error_msg)
+    return
+  end
+  
+  local file_set = {}
+  for line in output:gmatch('[^\r\n]+') do
+    local file_path = line:match('^([^%s].+%.tsx?)$') or line:match('^([^%s].+%.jsx?)$')
     if file_path and file_path ~= '' then
-      local item = {
-        idx = idx,
-        text = vim.fn.fnamemodify(file_path, ':~'),
-        file = file_path,
-      }
-      table.insert(items, item)
+      file_set[file_path] = true
     end
   end
+  
+  local items = {}
+  local idx = 1
+  for file_path, _ in pairs(file_set) do
+    local item = {
+      idx = idx,
+      text = vim.fn.fnamemodify(file_path, ':~'),
+      file = file_path,
+    }
+    table.insert(items, item)
+    idx = idx + 1
+  end
+  
+  table.sort(items, function(a, b) return a.file < b.file end)
 
   if #items == 0 then
-    ui_utils.show_success('No ESLint issues found!')
+    if exit_code == 0 then
+      ui_utils.show_success('No ESLint issues found!')
+    else
+      ui_utils.show_warning('ESLint exited with code ' .. (exit_code or 'unknown') .. ' but no errors were parsed.\nOutput:\n' .. output:sub(1, 300))
+    end
     return
   end
 
