@@ -413,6 +413,161 @@ function M.run_knip_fix()
   })
 end
 
+function M.run_knip_current_folder()
+  local package_manager = language_utils.getJavascriptPackageManager()
+  if not package_manager or package_manager == '' then
+    vim.notify('No JavaScript package manager found. Make sure you are in a JS/TS project with a lockfile.', vim.log.levels.ERROR)
+    return
+  end
+
+  local current_file = vim.fn.expand('%:p')
+  if current_file == '' then
+    vim.notify('No current file', vim.log.levels.WARN)
+    return
+  end
+
+  local current_dir = vim.fn.fnamemodify(current_file, ':h')
+  local project_root = vim.fn.getcwd()
+  local relative_dir = vim.fn.fnamemodify(current_dir, ':.')
+  
+  if relative_dir == '' or relative_dir == '.' then
+    relative_dir = '.'
+  end
+
+  local cmd = package_manager .. ' dlx knip --reporter json --include-entry-exports "' .. relative_dir .. '/**/*"'
+
+  ui_utils.show_progress('Running knip analysis for folder: ' .. relative_dir)
+
+  local stdout_data = {}
+  local stderr_data = {}
+
+  vim.fn.jobstart(cmd, {
+    stdout_buffered = true,
+    stderr_buffered = true,
+    on_stdout = function(_, data)
+      if data then vim.list_extend(stdout_data, data) end
+    end,
+    on_stderr = function(_, data)
+      if data then vim.list_extend(stderr_data, data) end
+    end,
+    on_exit = function(_, code)
+      if code ~= 0 and code ~= 1 then
+        local error_msg = 'Knip failed with exit code: ' .. code
+        if #stderr_data > 0 then error_msg = error_msg .. '\nError output:\n' .. table.concat(stderr_data, '\n') end
+        vim.notify(error_msg, vim.log.levels.ERROR)
+        return
+      end
+
+      if not stdout_data or #stdout_data == 0 or (stdout_data[1] == '' and #stdout_data == 1) then
+        vim.notify('No unused code found in ' .. relative_dir, vim.log.levels.INFO)
+        return
+      end
+
+      local json_str = table.concat(stdout_data, '\n')
+      local ok, result = pcall(vim.fn.json_decode, json_str)
+
+      if not ok or not result then
+        vim.notify('Failed to parse knip JSON output', vim.log.levels.ERROR)
+        return
+      end
+
+      local items = {}
+
+      if result.files and type(result.files) == 'table' then
+        for _, file in ipairs(result.files) do
+          if file:find(relative_dir, 1, true) then
+            table.insert(items, {
+              file = file,
+              line = 1,
+              col = 1,
+              type = 'orphaned file',
+              name = file,
+              text = string.format('[%s] Orphaned file (unused)', file),
+            })
+          end
+        end
+      end
+
+      if result.issues and type(result.issues) == 'table' then
+        for _, issue in ipairs(result.issues) do
+          local file = issue.file
+          if file:find(relative_dir, 1, true) then
+            if issue.exports then
+              for _, export in ipairs(issue.exports) do
+                table.insert(items, {
+                  file = file,
+                  line = export.line or 1,
+                  col = export.col or 1,
+                  type = 'unused export',
+                  name = export.name or 'unknown',
+                  text = string.format('[%s:%d] Unused export: %s', file, export.line or 1, export.name or 'unknown'),
+                })
+              end
+            end
+
+            if issue.types then
+              for _, typ in ipairs(issue.types) do
+                table.insert(items, {
+                  file = file,
+                  line = typ.line or 1,
+                  col = typ.col or 1,
+                  type = 'unused type',
+                  name = typ.name or 'unknown',
+                  text = string.format('[%s:%d] Unused type: %s', file, typ.line or 1, typ.name or 'unknown'),
+                })
+              end
+            end
+          end
+        end
+      end
+
+      if #items == 0 then
+        vim.notify('No unused code found in ' .. relative_dir, vim.log.levels.INFO)
+        return
+      end
+
+      local ok_snacks, snacks = pcall(require, 'snacks')
+      if not ok_snacks then
+        vim.notify('Snacks plugin not available', vim.log.levels.ERROR)
+        return
+      end
+
+      snacks.picker({
+        title = string.format('Knip Results for %s (%d items)', relative_dir, #items),
+        layout = { preset = 'default' },
+        items = items,
+        format = function(item, _)
+          local icon, icon_hl = snacks.util.icon(item.file, 'file')
+          local type_icon, type_hl = '🏷️', 'DiagnosticWarn'
+          if item.type == 'orphaned file' then
+            type_icon = '🗂️'
+            type_hl = 'DiagnosticError'
+          elseif item.type == 'unused type' then
+            type_icon = '🏷️'
+          elseif item.type == 'unused export' then
+            type_icon = '🚪'
+          end
+
+          return {
+            { type_icon, type_hl },
+            { ' ' },
+            { icon, icon_hl },
+            { ' ' },
+            { item.text, 'Normal' },
+          }
+        end,
+        confirm = function(picker, item)
+          picker:close()
+          vim.cmd('edit ' .. vim.fn.fnameescape(item.file))
+          vim.api.nvim_win_set_cursor(0, { item.line, item.col - 1 })
+        end,
+      })
+
+      ui_utils.show_success(string.format('Knip analysis complete for %s - found %d issues', relative_dir, #items))
+    end,
+  })
+end
+
 function M.run_knip_unused_code()
   local package_manager = language_utils.getJavascriptPackageManager()
   if not package_manager or package_manager == '' then

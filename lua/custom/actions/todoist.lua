@@ -88,27 +88,22 @@ local function create_task_with_navigation(taskName, projects, fallbackProjectNa
   select_project = function()
     local recent_projects = get_recent_projects()
     
-    -- Enhanced sorting with multi-project recency support
     table.sort(projects, function(a, b)
       local a_priority = get_project_priority_score(a.id)
       local b_priority = get_project_priority_score(b.id)
       
-      -- If both projects have different recency priorities, sort by recency
       if a_priority ~= b_priority then
         return a_priority < b_priority
       end
       
-      -- If recency is the same, use Todoist's native ordering (child_order)
       if a.child_order ~= b.child_order then
         return a.child_order < b.child_order
       end
       
-      -- If child_order is the same, fall back to view_order
       if a.view_order ~= b.view_order then
         return a.view_order < b.view_order  
       end
       
-      -- Final fallback: alphabetical
       return a.name < b.name
     end)
 

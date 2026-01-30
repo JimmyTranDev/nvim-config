@@ -145,6 +145,7 @@ map('n', '<leader>lK', languageActions.run_knip_fix, { desc = '🔧 Knip fix & r
 map('n', '<leader>ve', languageActions.run_eslint_picker, { desc = '🔍 ESLint analysis picker' })
 map('n', '<leader>vK', languageActions.run_knip_unused_files, { desc = '📁 Knip unused files' })
 map('n', '<leader>vk', languageActions.run_knip_unused_code, { desc = '🔧 Knip unused code' })
+map('n', '<leader>vf', languageActions.run_knip_current_folder, { desc = '📂 Knip current folder' })
 
 map('n', '<leader><leader>ri', replacementActions.replace_interactive, { desc = '🎯 Interactive replace' })
 map('n', '<leader><leader>rb', replacementActions.replace_buffer, { desc = '📄 Replace in buffer' })

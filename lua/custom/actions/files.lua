@@ -152,8 +152,14 @@ local function should_ignore_comment(comment_content)
   
   local ignore_patterns = {
     '^[Nn]ote:', '^[Tt]his is a placeholder', '^[Aa]ctual .* would use', '^[Pp]laceholder',
-    '^TODO:', '^todo:', '^Todo:', '^FIXME:', '^fixme:', '^Fixme:', '^HACK:', '^hack:', '^Hack:',
+    '^TODO:', '^todo:', '^Todo:', '^TODO ', '^todo ', '^Todo ',
+    '^FIXME:', '^fixme:', '^Fixme:', '^FIXME ', '^fixme ', '^Fixme ',
+    '^HACK:', '^hack:', '^Hack:', '^HACK ', '^hack ', '^Hack ',
     '^WARNING:', '^warning:', '^BUG:', '^bug:', '^DEBUG:', '^debug:',
+    '^XXX:', '^XXX ', '^OPTIMIZE:', '^OPTIMIZE ', '^REVIEW:', '^REVIEW ',
+    '^eslint%-disable', '^eslint%-enable',
+    '^@ts%-ignore', '^@ts%-expect%-error', '^@ts%-nocheck',
+    '^prettier%-ignore', '^stylelint%-disable',
     '^const ', '^let ', '^var ', '^function ', '^class ', '^import ', '^export ', '^return ',
     '^if ', '^for ', '^while ', '^await ', '^console%.', '%.then%(', '%.catch%(', '%.map%(',
     '%.filter%(', '%.forEach%(',
@@ -170,16 +176,15 @@ end
 local function get_comment_patterns(filetype)
   local patterns = {
     lua = { single_line = '^%s*%-%-', inline_single = '%s%-%-', block_start = '^%s*%-%-%[%[', block_end = '%]%]' },
-    javascript = { single_line = '^%s*//', inline_single = '%s//', block_start = '^%s*/%*', block_end = '%*/', inline_block_start = '%s/%*' },
+    javascript = { single_line = '^%s*//', inline_single = '%s//', block_start = '^%s*/%*', block_end = '%*/', inline_block_start = '%s/%*', jsx_comment = '{/%*.*%*/}' },
     typescript = { single_line = '^%s*//', inline_single = '%s//', block_start = '^%s*/%*', block_end = '%*/', inline_block_start = '%s/%*' },
     python = { single_line = '^%s*#', inline_single = '%s#', block_start = '^%s*"""', block_end = '"""', block_start_alt = "^%s*'''", block_end_alt = "'''" },
     css = { block_start = '^%s*/%*', block_end = '%*/', inline_block_start = '%s/%*' },
     go = { single_line = '^%s*//', inline_single = '%s//', block_start = '^%s*/%*', block_end = '%*/', inline_block_start = '%s/%*' },
   }
   
-  -- Reuse patterns for similar filetypes
-  patterns.typescriptreact = patterns.typescript
-  patterns.javascriptreact = patterns.javascript
+  patterns.typescriptreact = { single_line = '^%s*//', inline_single = '%s//', block_start = '^%s*/%*', block_end = '%*/', inline_block_start = '%s/%*', jsx_comment = '{/%*.*%*/}' }
+  patterns.javascriptreact = { single_line = '^%s*//', inline_single = '%s//', block_start = '^%s*/%*', block_end = '%*/', inline_block_start = '%s/%*', jsx_comment = '{/%*.*%*/}' }
   patterns.vim = { single_line = '^%s*"', inline_single = '%s"' }
   patterns.sh = { single_line = '^%s*#', inline_single = '%s#' }
   patterns.bash = patterns.sh
