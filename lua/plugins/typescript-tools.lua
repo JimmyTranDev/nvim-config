@@ -7,7 +7,7 @@ return {
   keys = {
     {
       mode = 'n',
-      '<leader>lq',
+      '<leader>vq',
       function()
         vim.cmd('TSToolsFixAll')
         vim.defer_fn(function()

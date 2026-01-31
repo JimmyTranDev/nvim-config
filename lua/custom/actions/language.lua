@@ -315,9 +315,12 @@ function M.run_knip_unused_files()
     end,
     on_exit = function(_, code)
       if code ~= 0 and code ~= 1 then
-        local error_msg = 'Knip failed with exit code: ' .. code
-        if #stderr_data > 0 then error_msg = error_msg .. '\nError output:\n' .. table.concat(stderr_data, '\n') end
-        vim.notify(error_msg, vim.log.levels.ERROR)
+        local error_parts = { 'Knip failed with exit code: ' .. code }
+        local stderr_output = table.concat(stderr_data, '\n'):gsub('^%s*(.-)%s*$', '%1')
+        local stdout_output = table.concat(stdout_data, '\n'):gsub('^%s*(.-)%s*$', '%1')
+        if stderr_output ~= '' then table.insert(error_parts, 'stderr: ' .. stderr_output) end
+        if stdout_output ~= '' then table.insert(error_parts, 'stdout: ' .. stdout_output) end
+        vim.notify(table.concat(error_parts, '\n'), vim.log.levels.ERROR)
         return
       end
 
@@ -330,13 +333,17 @@ function M.run_knip_unused_files()
       local ok, result = pcall(vim.fn.json_decode, json_str)
 
       if not ok or not result then
-        vim.notify('Failed to parse knip JSON output', vim.log.levels.ERROR)
+        local error_parts = { 'Failed to parse knip JSON output' }
+        if result then table.insert(error_parts, 'Parse error: ' .. tostring(result)) end
+        local stderr_output = table.concat(stderr_data, '\n'):gsub('^%s*(.-)%s*$', '%1')
+        if stderr_output ~= '' then table.insert(error_parts, 'stderr: ' .. stderr_output) end
+        local preview = json_str:sub(1, 500)
+        if preview ~= '' then table.insert(error_parts, 'Output preview: ' .. preview) end
+        vim.notify(table.concat(error_parts, '\n'), vim.log.levels.ERROR)
         return
       end
 
       local items = {}
-
-      -- Only process orphaned files (unused files)
       if result.files and type(result.files) == 'table' then
         for _, file in ipairs(result.files) do
           table.insert(items, {
@@ -399,15 +406,152 @@ function M.run_knip_fix()
   end
 
   local cmd = package_manager .. ' dlx knip --fix --allow-remove-files'
-  
+
   ui_utils.show_progress('Running knip fix with: ' .. cmd)
-  
+
+  local stdout_data = {}
+  local stderr_data = {}
+
   vim.fn.jobstart(cmd, {
+    stdout_buffered = true,
+    stderr_buffered = true,
+    on_stdout = function(_, data)
+      if data then vim.list_extend(stdout_data, data) end
+    end,
+    on_stderr = function(_, data)
+      if data then vim.list_extend(stderr_data, data) end
+    end,
     on_exit = function(_, code)
-      if code == 0 then
-        ui_utils.show_success('Knip fix completed successfully')
+      local stdout_output = table.concat(stdout_data, '\n'):gsub('^%s*(.-)%s*$', '%1')
+      if code == 0 or code == 1 then
+        if stdout_output ~= '' then
+          ui_utils.show_success('Knip fix completed:\n' .. stdout_output)
+        else
+          ui_utils.show_success('Knip fix completed - no issues found')
+        end
       else
-        vim.notify('Knip fix failed with exit code: ' .. code, vim.log.levels.ERROR)
+        local error_parts = { 'Knip fix failed with exit code: ' .. code }
+        local stderr_output = table.concat(stderr_data, '\n'):gsub('^%s*(.-)%s*$', '%1')
+        if stderr_output ~= '' then table.insert(error_parts, 'stderr: ' .. stderr_output) end
+        if stdout_output ~= '' then table.insert(error_parts, 'stdout: ' .. stdout_output) end
+        vim.notify(table.concat(error_parts, '\n'), vim.log.levels.ERROR)
+      end
+    end,
+  })
+end
+
+function M.run_knip_fix_current_folder()
+  local package_manager = language_utils.getJavascriptPackageManager()
+  if not package_manager or package_manager == '' then
+    vim.notify('No JavaScript package manager found. Make sure you are in a JS/TS project with a lockfile.', vim.log.levels.ERROR)
+    return
+  end
+
+  local current_file = vim.fn.expand('%:p')
+  if current_file == '' then
+    vim.notify('No current file', vim.log.levels.WARN)
+    return
+  end
+
+  local current_dir = vim.fn.fnamemodify(current_file, ':h')
+  local relative_dir = vim.fn.fnamemodify(current_dir, ':.')
+
+  if relative_dir == '' or relative_dir == '.' then
+    relative_dir = '.'
+  end
+
+  local dir_pattern = '^' .. vim.pesc(relative_dir) .. '/'
+
+  local analysis_cmd = package_manager .. ' dlx knip --reporter json'
+  ui_utils.show_progress('Analyzing project with knip for folder: ' .. relative_dir)
+
+  local stdout_data = {}
+  local stderr_data = {}
+
+  vim.fn.jobstart(analysis_cmd, {
+    stdout_buffered = true,
+    stderr_buffered = true,
+    on_stdout = function(_, data)
+      if data then vim.list_extend(stdout_data, data) end
+    end,
+    on_stderr = function(_, data)
+      if data then vim.list_extend(stderr_data, data) end
+    end,
+    on_exit = function(_, code)
+      if code ~= 0 and code ~= 1 then
+        local error_parts = { 'Knip analysis failed with exit code: ' .. code }
+        local stderr_output = table.concat(stderr_data, '\n'):gsub('^%s*(.-)%s*$', '%1')
+        if stderr_output ~= '' then table.insert(error_parts, 'stderr: ' .. stderr_output) end
+        vim.notify(table.concat(error_parts, '\n'), vim.log.levels.ERROR)
+        return
+      end
+
+      local json_output = table.concat(stdout_data, '\n')
+      local ok, parsed = pcall(vim.json.decode, json_output)
+      if not ok or not parsed then
+        vim.notify('Failed to parse knip JSON output', vim.log.levels.ERROR)
+        return
+      end
+
+      local files_to_remove = {}
+      if parsed.files then
+        for _, file in ipairs(parsed.files) do
+          if file:match(dir_pattern) or (relative_dir == '.' and not file:match('/')) or file:sub(1, #relative_dir + 1) == relative_dir .. '/' then
+            table.insert(files_to_remove, file)
+          end
+        end
+      end
+
+      local files_to_fix = {}
+      local issue_types = { 'exports', 'types', 'enumMembers', 'duplicates', 'dependencies', 'devDependencies' }
+      for _, issue_type in ipairs(issue_types) do
+        if parsed[issue_type] then
+          for _, issue in ipairs(parsed[issue_type]) do
+            local file_path = type(issue) == 'table' and (issue.file or issue.name) or nil
+            if file_path and (file_path:match(dir_pattern) or (relative_dir == '.' and not file_path:match('/')) or file_path:sub(1, #relative_dir + 1) == relative_dir .. '/') then
+              files_to_fix[file_path] = true
+            end
+          end
+        end
+      end
+
+      if #files_to_remove == 0 and vim.tbl_count(files_to_fix) == 0 then
+        vim.notify('No issues found in ' .. relative_dir, vim.log.levels.INFO)
+        return
+      end
+
+      local actions_taken = {}
+
+      for _, file in ipairs(files_to_remove) do
+        local full_path = vim.fn.getcwd() .. '/' .. file
+        local success = os.remove(full_path)
+        if success then
+          table.insert(actions_taken, 'Removed: ' .. file)
+        end
+      end
+
+      if vim.tbl_count(files_to_fix) > 0 then
+        local fix_cmd = package_manager .. ' dlx knip --fix'
+        vim.fn.jobstart(fix_cmd, {
+          stdout_buffered = true,
+          stderr_buffered = true,
+          on_exit = function(_, fix_code)
+            vim.schedule(function()
+              if fix_code == 0 or fix_code == 1 then
+                table.insert(actions_taken, 'Applied fixes to exports/types in ' .. relative_dir)
+              end
+              if #actions_taken > 0 then
+                ui_utils.show_success('Knip fix completed for ' .. relative_dir .. ':\n' .. table.concat(actions_taken, '\n'))
+              else
+                vim.notify('Knip fix completed but no changes made in ' .. relative_dir, vim.log.levels.INFO)
+              end
+            end)
+          end,
+        })
+      else
+        if #actions_taken > 0 then
+          ui_utils.show_success('Knip fix completed for ' .. relative_dir .. ':\n' .. table.concat(actions_taken, '\n'))
+        end
       end
     end,
   })
@@ -427,14 +571,13 @@ function M.run_knip_current_folder()
   end
 
   local current_dir = vim.fn.fnamemodify(current_file, ':h')
-  local project_root = vim.fn.getcwd()
   local relative_dir = vim.fn.fnamemodify(current_dir, ':.')
-  
+
   if relative_dir == '' or relative_dir == '.' then
     relative_dir = '.'
   end
 
-  local cmd = package_manager .. ' dlx knip --reporter json --include-entry-exports "' .. relative_dir .. '/**/*"'
+  local cmd = package_manager .. ' dlx knip --reporter json --include-entry-exports --workspace "' .. relative_dir .. '"'
 
   ui_utils.show_progress('Running knip analysis for folder: ' .. relative_dir)
 
@@ -452,9 +595,12 @@ function M.run_knip_current_folder()
     end,
     on_exit = function(_, code)
       if code ~= 0 and code ~= 1 then
-        local error_msg = 'Knip failed with exit code: ' .. code
-        if #stderr_data > 0 then error_msg = error_msg .. '\nError output:\n' .. table.concat(stderr_data, '\n') end
-        vim.notify(error_msg, vim.log.levels.ERROR)
+        local error_parts = { 'Knip failed for ' .. relative_dir .. ' with exit code: ' .. code }
+        local stderr_output = table.concat(stderr_data, '\n'):gsub('^%s*(.-)%s*$', '%1')
+        local stdout_output = table.concat(stdout_data, '\n'):gsub('^%s*(.-)%s*$', '%1')
+        if stderr_output ~= '' then table.insert(error_parts, 'stderr: ' .. stderr_output) end
+        if stdout_output ~= '' then table.insert(error_parts, 'stdout: ' .. stdout_output) end
+        vim.notify(table.concat(error_parts, '\n'), vim.log.levels.ERROR)
         return
       end
 
@@ -467,7 +613,13 @@ function M.run_knip_current_folder()
       local ok, result = pcall(vim.fn.json_decode, json_str)
 
       if not ok or not result then
-        vim.notify('Failed to parse knip JSON output', vim.log.levels.ERROR)
+        local error_parts = { 'Failed to parse knip JSON output for ' .. relative_dir }
+        if result then table.insert(error_parts, 'Parse error: ' .. tostring(result)) end
+        local stderr_output = table.concat(stderr_data, '\n'):gsub('^%s*(.-)%s*$', '%1')
+        if stderr_output ~= '' then table.insert(error_parts, 'stderr: ' .. stderr_output) end
+        local preview = json_str:sub(1, 500)
+        if preview ~= '' then table.insert(error_parts, 'Output preview: ' .. preview) end
+        vim.notify(table.concat(error_parts, '\n'), vim.log.levels.ERROR)
         return
       end
 
@@ -593,9 +745,12 @@ function M.run_knip_unused_code()
     end,
     on_exit = function(_, code)
       if code ~= 0 and code ~= 1 then
-        local error_msg = 'Knip failed with exit code: ' .. code
-        if #stderr_data > 0 then error_msg = error_msg .. '\nError output:\n' .. table.concat(stderr_data, '\n') end
-        vim.notify(error_msg, vim.log.levels.ERROR)
+        local error_parts = { 'Knip failed with exit code: ' .. code }
+        local stderr_output = table.concat(stderr_data, '\n'):gsub('^%s*(.-)%s*$', '%1')
+        local stdout_output = table.concat(stdout_data, '\n'):gsub('^%s*(.-)%s*$', '%1')
+        if stderr_output ~= '' then table.insert(error_parts, 'stderr: ' .. stderr_output) end
+        if stdout_output ~= '' then table.insert(error_parts, 'stdout: ' .. stdout_output) end
+        vim.notify(table.concat(error_parts, '\n'), vim.log.levels.ERROR)
         return
       end
 
@@ -608,7 +763,13 @@ function M.run_knip_unused_code()
       local ok, result = pcall(vim.fn.json_decode, json_str)
 
       if not ok or not result then
-        vim.notify('Failed to parse knip JSON output', vim.log.levels.ERROR)
+        local error_parts = { 'Failed to parse knip JSON output' }
+        if result then table.insert(error_parts, 'Parse error: ' .. tostring(result)) end
+        local stderr_output = table.concat(stderr_data, '\n'):gsub('^%s*(.-)%s*$', '%1')
+        if stderr_output ~= '' then table.insert(error_parts, 'stderr: ' .. stderr_output) end
+        local preview = json_str:sub(1, 500)
+        if preview ~= '' then table.insert(error_parts, 'Output preview: ' .. preview) end
+        vim.notify(table.concat(error_parts, '\n'), vim.log.levels.ERROR)
         return
       end
 
