@@ -92,10 +92,10 @@ map('n', '<leader><leader>fu', fileActions.copy_current_file_url, { desc = '🔗
 map('x', '<leader><leader>tr', [["zy:%s/\V<C-r>=escape(@z, '/')<CR>//gc<left><left><left>]], { desc = '🔍 Visual search replace' })
 map('n', '<leader>;;', checkboxActions.toggle, { desc = '☑️  Toggle checkbox' })
 
-map('n', '<leader>lfc', fileActions.copy_all_files_content, { desc = '📁 Copy all files content' })
-map('n', '<leader>lfu', fileActions.copy_current_file_url, { desc = '🔗 Copy current file link' })
+map('n', '<leader>lc', fileActions.copy_all_files_content, { desc = '📁 Copy all files content' })
+map('n', '<leader>lu', fileActions.copy_current_file_url, { desc = '🔗 Copy current file link' })
 map('n', '<leader>lf', fileActions.copy_opencode_link, { desc = '🔗 Copy OpenCode link' })
-map('n', '<leader>lfd', fileActions.open_current_dir, { desc = '📁 Open directory' })
+map('n', '<leader>ld', fileActions.open_current_dir, { desc = '📁 Open directory' })
 map('n', '<leader>le', errorsActions.copy_diagnostic_under_cursor, { desc = '📋 Copy diagnostic' })
 map('n', '<leader>vc', fileActions.delete_all_comments, { desc = '🧹 Delete all comments' })
 map('n', '<leader>vC', fileActions.delete_comments_from_uncommitted_files, { desc = '🧹 Delete comments from uncommitted files' })
