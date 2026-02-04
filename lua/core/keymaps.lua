@@ -92,13 +92,14 @@ map('n', '<leader><leader>fu', fileActions.copy_current_file_url, { desc = '🔗
 map('x', '<leader><leader>tr', [["zy:%s/\V<C-r>=escape(@z, '/')<CR>//gc<left><left><left>]], { desc = '🔍 Visual search replace' })
 map('n', '<leader>;;', checkboxActions.toggle, { desc = '☑️  Toggle checkbox' })
 
-map('n', '<leader>lc', fileActions.copy_all_files_content, { desc = '📁 Copy all files content' })
-map('n', '<leader>lu', fileActions.copy_current_file_url, { desc = '🔗 Copy current file link' })
-map('n', '<leader>lf', fileActions.copy_opencode_link, { desc = '🔗 Copy OpenCode link' })
-map('n', '<leader>ld', fileActions.open_current_dir, { desc = '📁 Open directory' })
-map('n', '<leader>le', errorsActions.copy_diagnostic_under_cursor, { desc = '📋 Copy diagnostic' })
 map('n', '<leader>vc', fileActions.delete_all_comments, { desc = '🧹 Delete all comments' })
 map('n', '<leader>vC', fileActions.delete_comments_from_uncommitted_files, { desc = '🧹 Delete comments from uncommitted files' })
+
+map('n', '<leader>la', fileActions.copy_all_files_content, { desc = '📁 Copy all files content' })
+map('n', '<leader>lu', fileActions.copy_current_file_url, { desc = '🔗 Copy current file link' })
+map('n', '<leader>lo', fileActions.copy_opencode_link, { desc = '🔗 Copy OpenCode link' })
+map('n', '<leader>ld', fileActions.open_current_dir, { desc = '📁 Open directory' })
+map('n', '<leader>le', errorsActions.copy_diagnostic_under_cursor, { desc = '📋 Copy diagnostic' })
 map('n', '<leader>lg', gitActions.openOrCreatePullRequest, { desc = '🔗 Open existing PR or create new one' })
 map('n', '<leader>lG', linkActions.open_current_github_repo, { desc = '󰊤 Open current GitHub repo' })
 map('n', '<leader>lp', linkActions.open_current_github_prs, { desc = '󰊤 Open GitHub PRs tab' })
@@ -106,35 +107,28 @@ map('n', '<leader>lw', function() vim.opt.wrap = not vim.opt.wrap:get() end, { d
 map('n', '<leader>ll', function()
   local current_buf = vim.api.nvim_get_current_buf()
   local buffers_to_keep = {}
-  
+
   -- Get all buffers and identify which ones to keep
   for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
     if vim.api.nvim_buf_is_valid(bufnr) and vim.api.nvim_buf_is_loaded(bufnr) then
       local bufname = vim.api.nvim_buf_get_name(bufnr)
       local filetype = vim.api.nvim_buf_get_option(bufnr, 'filetype')
       local buftype = vim.api.nvim_buf_get_option(bufnr, 'buftype')
-      
+
       -- Keep OpenCode, ToggleTerm, and other special buffers
-      if filetype == 'toggleterm' or 
-         bufname:match('term://') or
-         bufname:match('opencode') or
-         filetype == 'opencode' or
-         buftype == 'terminal' then
+      if filetype == 'toggleterm' or bufname:match('term://') or bufname:match('opencode') or filetype == 'opencode' or buftype == 'terminal' then
         buffers_to_keep[bufnr] = true
       end
     end
   end
-  
+
   -- Close all other buffers except the ones we want to keep
   for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.api.nvim_buf_is_valid(bufnr) and 
-       vim.api.nvim_buf_is_loaded(bufnr) and 
-       not buffers_to_keep[bufnr] and
-       bufnr ~= current_buf then
+    if vim.api.nvim_buf_is_valid(bufnr) and vim.api.nvim_buf_is_loaded(bufnr) and not buffers_to_keep[bufnr] and bufnr ~= current_buf then
       pcall(vim.api.nvim_buf_delete, bufnr, { force = false })
     end
   end
-  
+
   -- Create a new empty buffer and switch to it
   vim.cmd('enew')
   vim.api.nvim_buf_set_name(0, '')
