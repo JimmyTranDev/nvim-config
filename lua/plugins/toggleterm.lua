@@ -75,11 +75,15 @@ return {
     { mode = 'n', '<leader>tnum', languageActions.create_npm_update_executor(7, 'minor'), silent = true, desc = 'Npm Update Minor' },
     { mode = 'n', '<leader>tnun', languageActions.create_npm_update_executor(7, 'major'), silent = true, desc = 'Npm Update Major' },
     { mode = 'n', '<leader>tnup', languageActions.create_npm_update_executor(7, 'patch'), silent = true, desc = 'Npm Update Patch' },
-    { mode = 'n', '<leader>tnuf', languageActions.runNpmCheckUpdatesFilter, silent = true, desc = 'Npm Check Updates' },
     { mode = 'n', '<leader>tnui', languageActions.create_npm_update_executor(7, 'interactive'), silent = true, desc = 'Npm Update Interactive' },
-
-    { mode = 'n', '<leader>tnx', toggleTermActions.killAllToggleTerm, silent = true, desc = 'Kill All Terminals' },
     { mode = 'n', '<leader>tni', languageActions.create_package_command_runner(7, 'install'), silent = true, desc = 'Npm Install' },
+    { mode = 'n', '<leader>tnt', languageActions.create_package_command_runner(7, 'test'), silent = true, desc = 'Npm Test' },
+    { mode = 'n', '<leader>tnc', languageActions.create_package_command_runner(7, 'lint'), silent = true, desc = 'Npm Lint' },
+    { mode = 'n', '<leader>tnb', languageActions.create_package_command_runner(7, 'check'), silent = true, desc = 'Npm Check' },
+
+    { mode = 'n', '<leader>tnuf', languageActions.runNpmCheckUpdatesFilter, silent = true, desc = 'Npm Check Updates' },
+    { mode = 'n', '<leader>tnx', toggleTermActions.killAllToggleTerm, silent = true, desc = 'Kill All Terminals' },
+
     { mode = 'n', '<leader>tnd', languageActions.create_package_command_runner(6, 'dev'), silent = true, desc = 'Npm Install' },
     { mode = 'n', '<leader>tns', languageActions.create_package_command_runner(5, 'start'), silent = true, desc = 'Npm Install' },
 
