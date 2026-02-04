@@ -227,8 +227,7 @@ function M.log_todoist_task(fallbackProjectName)
         return
       end
       if #projects == 0 then
-        vim.notify('No salmon projects found, using fallback', vim.log.levels.WARN)
-        M.logTodoistTaskLegacy(fallbackProjectName)()
+        vim.notify('No salmon projects found', vim.log.levels.WARN)
         return
       end
 
@@ -259,8 +258,7 @@ function M.log_todoist_task_all_projects(fallbackProjectName)
       end
 
       if #projects == 0 then
-        vim.notify('No projects found, using fallback', vim.log.levels.WARN)
-        M.logTodoistTaskLegacy(fallbackProjectName)()
+        vim.notify('No projects found', vim.log.levels.WARN)
         return
       end
 

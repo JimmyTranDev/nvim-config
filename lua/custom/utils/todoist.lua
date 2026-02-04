@@ -21,7 +21,7 @@ function M.get_projects(callback)
     'curl',
     '-X',
     'GET',
-    'https://api.todoist.com/rest/v2/projects',
+    'https://api.todoist.com/api/v1/projects',
     '-H',
     'Authorization: Bearer ' .. token,
     '-H',
@@ -35,32 +35,36 @@ function M.get_projects(callback)
       return
     end
 
-    local json_result = result:match('^%s*%[.*%]%s*$')
-    if json_result then
-      local projects = {}
-      for project_json in result:gmatch('{[^}]*"name"[^}]*}') do
-        local id = project_json:match('"id":%s*"([^"]*)"') or project_json:match('"id":%s*([^,}]+)')
-        local name = project_json:match('"name":%s*"([^"]*)"')
-        local color = project_json:match('"color":%s*"([^"]*)"')
-        local child_order = project_json:match('"child_order":%s*([%d]+)')
-        local view_order = project_json:match('"view_order":%s*([%d]+)')
-
-        if id and name then table.insert(projects, {
-          id = id,
-          name = name,
-          color = color or 'grey',
-          child_order = tonumber(child_order) or 0,
-          view_order = tonumber(view_order) or 0,
-        }) end
-      end
-
-      projects_cache = projects
-      print('Successfully fetched ' .. #projects .. ' projects')
-      if callback then callback(true, projects) end
-    else
+    local ok, data = pcall(vim.json.decode, result)
+    if not ok then
       print('Error: Invalid JSON response for projects - ' .. result)
       if callback then callback(false, 'Invalid JSON response') end
+      return
     end
+
+    local results = data.results or data
+    if type(results) ~= 'table' then
+      print('Error: Unexpected response format for projects')
+      if callback then callback(false, 'Unexpected response format') end
+      return
+    end
+
+    local projects = {}
+    for _, project in ipairs(results) do
+      if project.id and project.name and not project.is_archived then
+        table.insert(projects, {
+          id = tostring(project.id),
+          name = project.name,
+          color = project.color or 'grey',
+          child_order = tonumber(project.child_order) or 0,
+          view_order = tonumber(project.view_order) or 0,
+        })
+      end
+    end
+
+    projects_cache = projects
+    print('Successfully fetched ' .. #projects .. ' projects')
+    if callback then callback(true, projects) end
   end)
 end
 
@@ -97,7 +101,7 @@ function M.get_sections(project_id, callback)
     'curl',
     '-X',
     'GET',
-    'https://api.todoist.com/rest/v2/sections?project_id=' .. project_id,
+    'https://api.todoist.com/api/v1/sections?project_id=' .. project_id,
     '-H',
     'Authorization: Bearer ' .. token,
     '-H',
@@ -111,37 +115,42 @@ function M.get_sections(project_id, callback)
       return
     end
 
-    local json_result = result:match('^%s*%[.*%]%s*$')
-    if json_result then
-      local sections = {}
-      for section_json in result:gmatch('{[^}]*"name"[^}]*}') do
-        local id = section_json:match('"id":%s*"([^"]*)"') or section_json:match('"id":%s*([^,}]+)')
-        local name = section_json:match('"name":%s*"([^"]*)"')
-        local order = section_json:match('"order":%s*([%d]+)')
-
-        if id and name then table.insert(sections, {
-          id = id,
-          name = name,
-          project_id = project_id,
-          order = tonumber(order) or 0,
-        }) end
-      end
-
-      -- Sort sections by their order index
-      table.sort(sections, function(a, b)
-        if a.order ~= b.order then
-          return a.order < b.order
-        end
-        return a.name < b.name
-      end)
-
-      sections_cache[project_id] = sections
-      print('Successfully fetched ' .. #sections .. ' sections for project ' .. project_id)
-      if callback then callback(true, sections) end
-    else
+    local ok, data = pcall(vim.json.decode, result)
+    if not ok then
       print('Error: Invalid JSON response for sections - ' .. result)
       if callback then callback(false, 'Invalid JSON response') end
+      return
     end
+
+    local results = data.results or data
+    if type(results) ~= 'table' then
+      print('Error: Unexpected response format for sections')
+      if callback then callback(false, 'Unexpected response format') end
+      return
+    end
+
+    local sections = {}
+    for _, section in ipairs(results) do
+      if section.id and section.name then
+        table.insert(sections, {
+          id = tostring(section.id),
+          name = section.name,
+          project_id = project_id,
+          order = tonumber(section.section_order) or tonumber(section.order) or 0,
+        })
+      end
+    end
+
+    table.sort(sections, function(a, b)
+      if a.order ~= b.order then
+        return a.order < b.order
+      end
+      return a.name < b.name
+    end)
+
+    sections_cache[project_id] = sections
+    print('Successfully fetched ' .. #sections .. ' sections for project ' .. project_id)
+    if callback then callback(true, sections) end
   end)
 end
 
@@ -205,7 +214,7 @@ function M.create_task_with_project(content, project_id, section_id, priority, d
     'curl',
     '-X',
     'POST',
-    'https://api.todoist.com/rest/v2/tasks',
+    'https://api.todoist.com/api/v1/tasks',
     '-H',
     'Authorization: Bearer ' .. token,
     '-H',
@@ -248,7 +257,7 @@ function M.create_task(text, callback)
     'curl',
     '-X',
     'POST',
-    'https://api.todoist.com/rest/v2/tasks',
+    'https://api.todoist.com/api/v1/tasks',
     '-H',
     'Authorization: Bearer ' .. token,
     '-H',
@@ -291,7 +300,7 @@ function M.create_task_quick(text, callback)
     'curl',
     '-X',
     'POST',
-    'https://api.todoist.com/sync/v9/quick/add',
+    'https://api.todoist.com/api/v1/tasks/quick',
     '-H',
     'Authorization: Bearer ' .. token,
     '-d',
