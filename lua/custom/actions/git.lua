@@ -715,4 +715,55 @@ function M.rebaseChooseOurs()
   end)
 end
 
+function M.init_repo_and_push()
+  local cwd = vim.fn.getcwd()
+  local folder_name = vim.fn.fnamemodify(cwd, ':t')
+
+  if folder_name == '' then
+    vim.notify('Could not determine folder name', vim.log.levels.ERROR)
+    return
+  end
+
+  local git_check = vim.fn.system('git rev-parse --is-inside-work-tree 2>/dev/null')
+  if vim.v.shell_error == 0 and git_check:match('true') then
+    vim.notify('Already a git repository', vim.log.levels.WARN)
+    return
+  end
+
+  vim.ui.input({
+    prompt = string.format('Create private repo "%s" and push? (y/n): ', folder_name),
+  }, function(confirmation)
+    if confirmation ~= 'y' then
+      vim.notify('Cancelled.')
+      return
+    end
+
+    local init_result = vim.fn.system('git init')
+    if vim.v.shell_error ~= 0 then
+      vim.notify('Failed to init git repo: ' .. init_result, vim.log.levels.ERROR)
+      return
+    end
+
+    local add_result = vim.fn.system('git add .')
+    if vim.v.shell_error ~= 0 then
+      vim.notify('Failed to add files: ' .. add_result, vim.log.levels.ERROR)
+      return
+    end
+
+    local commit_result = vim.fn.system('git commit -m "🎉 init: initial commit"')
+    if vim.v.shell_error ~= 0 then
+      vim.notify('Failed to create initial commit: ' .. commit_result, vim.log.levels.ERROR)
+      return
+    end
+
+    local create_result = vim.fn.system(string.format('gh repo create %s --private --source=. --push', folder_name))
+    if vim.v.shell_error ~= 0 then
+      vim.notify('Failed to create GitHub repo: ' .. create_result, vim.log.levels.ERROR)
+      return
+    end
+
+    vim.notify(string.format('🎉 Created private repo "%s" and pushed initial commit', folder_name), vim.log.levels.INFO)
+  end)
+end
+
 return M

@@ -26,7 +26,7 @@ return {
 
     -- RISKY
     { mode = 'n', '<Leader>gS', gitActions.openGithubPullRequest, desc = ' Open GitHub PR', silent = true },
-    { mode = 'n', '<Leader>gI', ':Git init<CR>', desc = '󱩵 Init', silent = true },
+    { mode = 'n', '<Leader>gI', gitActions.init_repo_and_push, desc = '󱩵 Init repo, create private GitHub repo & push', silent = true },
     { mode = 'n', '<Leader>gF', ':Git push --force-with-lease<CR>', desc = ' Push force', silent = true },
     { mode = 'n', '<Leader>gH', ':Git branch -D holding <Bar> Git branch holding<CR>', desc = '󱩵 Recreate holding branch', silent = true },
     { mode = 'n', '<Leader>gM', ':Git commit --amend --no-verify --no-edit<CR>', desc = ' Amend', silent = true },
