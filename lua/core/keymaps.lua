@@ -13,6 +13,8 @@ local lspActions = require('custom.actions.lsp')
 local documentationActions = require('custom.actions.documentation')
 local gitActions = require('custom.actions.git')
 local githubActions = require('custom.actions.github')
+local editorActions = require('custom.actions.editor')
+local bufferActions = require('custom.actions.buffers')
 
 -- Helper to set keymaps with silent and noremap by default
 local function map(mode, lhs, rhs, opts)
@@ -84,7 +86,7 @@ map('n', '<leader><leader>mc', documentationActions.add_convention_to_readme, { 
 -- ===============================
 map('n', '<leader><leader>fc', fileActions.save_clipboard_to_file, { desc = '💾 Save clipboard to file' })
 map('n', '<leader><leader>fr', fileActions.run_clipboard_command, { desc = '▶️  Run command from clipboard' })
-map('n', '<leader><leader>fs', function() vim.cmd('set spell!') end, { desc = '📝 Toggle spellcheck' })
+map('n', '<leader><leader>fs', editorActions.toggle_spellcheck, { desc = '📝 Toggle spellcheck' })
 map('n', '<leader><leader>fC', ':!rm -r ' .. constants.NEOVIM_STATE_DIR .. '<CR>', { desc = '🗑️  Clear swap files' })
 map('n', '<leader><leader>fG', fileActions.link_github_copilot_instructions, { desc = '🔗 Link .github from dotfiles' })
 map('n', '<leader><leader>fu', fileActions.copy_current_file_url, { desc = '🔗 Copy file absolute URL' })
@@ -103,36 +105,8 @@ map('n', '<leader>le', errorsActions.copy_diagnostic_under_cursor, { desc = '�
 map('n', '<leader>lg', gitActions.openOrCreatePullRequest, { desc = '🔗 Open existing PR or create new one' })
 map('n', '<leader>lG', linkActions.open_current_github_repo, { desc = '󰊤 Open current GitHub repo' })
 map('n', '<leader>lp', linkActions.open_current_github_prs, { desc = '󰊤 Open GitHub PRs tab' })
-map('n', '<leader>lw', function() vim.opt.wrap = not vim.opt.wrap:get() end, { desc = '↩️ Toggle text wrap' })
-map('n', '<leader>ll', function()
-  local current_buf = vim.api.nvim_get_current_buf()
-  local buffers_to_keep = {}
-
-  -- Get all buffers and identify which ones to keep
-  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.api.nvim_buf_is_valid(bufnr) and vim.api.nvim_buf_is_loaded(bufnr) then
-      local bufname = vim.api.nvim_buf_get_name(bufnr)
-      local filetype = vim.api.nvim_buf_get_option(bufnr, 'filetype')
-      local buftype = vim.api.nvim_buf_get_option(bufnr, 'buftype')
-
-      -- Keep OpenCode, ToggleTerm, and other special buffers
-      if filetype == 'toggleterm' or bufname:match('term://') or bufname:match('opencode') or filetype == 'opencode' or buftype == 'terminal' then
-        buffers_to_keep[bufnr] = true
-      end
-    end
-  end
-
-  -- Close all other buffers except the ones we want to keep
-  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.api.nvim_buf_is_valid(bufnr) and vim.api.nvim_buf_is_loaded(bufnr) and not buffers_to_keep[bufnr] and bufnr ~= current_buf then
-      pcall(vim.api.nvim_buf_delete, bufnr, { force = false })
-    end
-  end
-
-  -- Create a new empty buffer and switch to it
-  vim.cmd('enew')
-  vim.api.nvim_buf_set_name(0, '')
-end, { desc = '🗂️ Close other buffers and create empty buffer' })
+map('n', '<leader>lw', editorActions.toggle_wrap, { desc = '↩️ Toggle text wrap' })
+map('n', '<leader>ll', bufferActions.close_other_buffers_and_create_empty, { desc = '🗂️ Close other buffers and create empty buffer' })
 map('n', '<leader>lt', '<cmd>Copilot toggle<CR>', { desc = '🤖 Toggle Copilot autocomplete' })
 map('n', '<leader>vx', languageActions.run_knip_fix_current_folder, { desc = '🔧 Knip fix current folder' })
 map('n', '<leader>vX', languageActions.run_knip_fix, { desc = '🔧 Knip fix & remove files (global)' })
