@@ -10,8 +10,8 @@ local CONFIG = {
   LIMIT = 50,
   -- Epic filtering disabled - showing all epics regardless of status
   -- ACTIVE_EPIC_STATUSES = { 'To Do', 'In Progress', 'In Development', 'Code Review', 'Testing', 'Ready for QA', 'Open', 'Reopened' },
-  -- Auto-transition new tasks to "Done" status
   AUTO_TRANSITION_TO_DONE = true,
+  TRANSITION_STATUSES = { 'In Progress Concept', 'Done Concept' },
 }
 
 local ISSUE_TYPES = {
@@ -285,29 +285,39 @@ local function create_jira_task_workflow(summary, fallback_project, should_open_
               if work_item_id then
                 vim.notify(string.format('Task %s created successfully', work_item_id), vim.log.levels.INFO)
                 
-                -- Transition the task to "Done" status if enabled
                 if CONFIG.AUTO_TRANSITION_TO_DONE then
-                  local transition_cmd = string.format('acli jira workitem transition --key "%s" --status "Done" --yes', work_item_id)
+                  local function run_transitions(statuses, index, on_complete)
+                    if index > #statuses then
+                      on_complete()
+                      return
+                    end
+                    
+                    local status = statuses[index]
+                    local transition_cmd = string.format('acli jira workitem transition --key "%s" --status "%s" --yes', work_item_id, status)
+                    
+                    vim.system(
+                      { 'sh', '-c', transition_cmd },
+                      { text = true },
+                      vim.schedule_wrap(function(transition_result)
+                        if transition_result.code == 0 then
+                          vim.notify(string.format('Task %s transitioned to %s', work_item_id, status), vim.log.levels.INFO)
+                          run_transitions(statuses, index + 1, on_complete)
+                        else
+                          local transition_error = transition_result.stderr ~= '' and transition_result.stderr or transition_result.stdout
+                          vim.notify(string.format('Task %s failed to transition to %s: %s', work_item_id, status, transition_error), vim.log.levels.WARN)
+                          on_complete()
+                        end
+                      end)
+                    )
+                  end
                   
-                  vim.system(
-                    { 'sh', '-c', transition_cmd },
-                    { text = true },
-                    vim.schedule_wrap(function(transition_result)
-                      if transition_result.code == 0 then
-                        vim.notify(string.format('Task %s transitioned to Done status', work_item_id), vim.log.levels.INFO)
-                      else
-                        local transition_error = transition_result.stderr ~= '' and transition_result.stderr or transition_result.stdout
-                        vim.notify(string.format('Task %s created but failed to transition to Done: %s', work_item_id, transition_error), vim.log.levels.WARN)
-                      end
-                      
-                      if should_open_link then
-                        local jira_url = string.format('%s/%s', CONFIG.JIRA_BASE_URL, work_item_id)
-                        vim.system({ 'open', jira_url })
-                      end
-                    end)
-                  )
+                  run_transitions(CONFIG.TRANSITION_STATUSES, 1, function()
+                    if should_open_link then
+                      local jira_url = string.format('%s/%s', CONFIG.JIRA_BASE_URL, work_item_id)
+                      vim.system({ 'open', jira_url })
+                    end
+                  end)
                 else
-                  -- Open link immediately if not transitioning
                   if should_open_link then
                     local jira_url = string.format('%s/%s', CONFIG.JIRA_BASE_URL, work_item_id)
                     vim.system({ 'open', jira_url })
