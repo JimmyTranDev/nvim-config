@@ -12,6 +12,7 @@ local CONFIG = {
   -- ACTIVE_EPIC_STATUSES = { 'To Do', 'In Progress', 'In Development', 'Code Review', 'Testing', 'Ready for QA', 'Open', 'Reopened' },
   AUTO_TRANSITION_TO_DONE = true,
   TRANSITION_STATUSES = { 'In Progress Concept', 'Done Concept' },
+  EXCLUDED_EPIC_STATUSES = { 'Received' },
 }
 
 local ISSUE_TYPES = {
@@ -72,6 +73,28 @@ local function clear_parents_cache()
   end
   vim.notify('Failed to clear Jira parent issues cache', vim.log.levels.ERROR)
   return false
+end
+
+-- Filter parents to exclude epics with certain statuses
+local function filter_active_parents(parents)
+  if not parents then return nil end
+  
+  local filtered = {}
+  for _, parent in ipairs(parents) do
+    local is_excluded = false
+    for _, excluded_status in ipairs(CONFIG.EXCLUDED_EPIC_STATUSES) do
+      if parent.status and parent.status:lower() == excluded_status:lower() then
+        is_excluded = true
+        break
+      end
+    end
+    
+    if not is_excluded then
+      table.insert(filtered, parent)
+    end
+  end
+  
+  return filtered
 end
 
 -- Filter parents to only show active epics (DISABLED - showing all epics)
@@ -177,7 +200,7 @@ local function fetch_parent_issues(callback, force_refresh)
     local cached_parents = load_parents_cache()
     if cached_parents then
       vim.notify('Using cached parent issues', vim.log.levels.INFO)
-      callback(cached_parents)
+      callback(filter_active_parents(cached_parents))
       return
     end
   end
@@ -211,7 +234,7 @@ local function fetch_parent_issues(callback, force_refresh)
 
       if #parents > 0 then
         save_parents_cache(parents)
-        callback(parents)
+        callback(filter_active_parents(parents))
       else
         vim.notify(string.format('No parent issues found under %s', CONFIG.PARENT_ISSUE), vim.log.levels.WARN)
         callback(nil)
