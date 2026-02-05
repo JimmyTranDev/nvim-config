@@ -111,6 +111,7 @@ map('n', '<leader>ld', fileActions.open_current_dir, { desc = 'Open directory' }
 map('n', '<leader>le', errorsActions.copy_diagnostic_under_cursor, { desc = 'Copy diagnostic' })
 map('n', '<leader>lg', gitActions.openOrCreatePullRequest, { desc = 'Open existing PR or create new one' })
 map('n', '<leader>lG', linkActions.open_current_github_repo, { desc = 'Open current GitHub repo' })
+map('n', '<leader>lI', function() require('custom.actions.github').open_org_repo_by_folder() end, { desc = 'Open org repo by folder name' })
 map('n', '<leader>lp', linkActions.open_current_github_prs, { desc = 'Open GitHub PRs tab' })
 map('n', '<leader>lw', editorActions.toggle_wrap, { desc = 'Toggle text wrap' })
 map('n', '<leader>ll', bufferActions.close_other_buffers_and_create_empty, { desc = 'Close other buffers and create empty buffer' })

@@ -21,6 +21,12 @@ local ISSUE_TYPES = {
   { name = 'Epic', value = 'Epic' },
 }
 
+local LABELS = {
+  { name = 'None', value = nil },
+  { name = 'Frontend', value = 'Frontend' },
+  { name = 'Backend', value = 'Backend' },
+}
+
 local cache_files = {
   last_parent = CONFIG.CACHE_DIR .. '/jira_last_parent.txt',
   parents = CONFIG.CACHE_DIR .. '/jira_parents_cache.txt',
@@ -209,105 +215,122 @@ local function create_jira_task_workflow(summary, fallback_project, should_open_
 
     if selected_type.value == '__back__' then return create_jira_task_workflow(summary, fallback_project, should_open_link) end
 
-    fetch_parent_issues(function(parents)
-      if not parents then
-        vim.notify('Failed to fetch parent issues - task creation cancelled', vim.log.levels.ERROR)
+    local label_options = vim.tbl_deep_extend('force', {}, LABELS)
+    add_back_option(label_options, 'Back to type')
+
+    vim.ui.select(label_options, {
+      prompt = 'Select label:',
+      format_item = function(item) return item.name end,
+    }, function(selected_label)
+      if not selected_label then
+        vim.notify('Task creation cancelled', vim.log.levels.INFO)
         return
       end
 
-      local parent_options = build_parent_options(parents)
-      add_back_option(parent_options, 'Back to type')
+      if selected_label.value == '__back__' then return create_jira_task_workflow(summary, fallback_project, should_open_link) end
 
-      vim.ui.select(parent_options, {
-        prompt = 'Select parent issue:',
-        format_item = function(item) return item.name end,
-      }, function(selected_parent)
-        if not selected_parent then
-          vim.notify('Task creation cancelled', vim.log.levels.INFO)
+      fetch_parent_issues(function(parents)
+        if not parents then
+          vim.notify('Failed to fetch parent issues - task creation cancelled', vim.log.levels.ERROR)
           return
         end
 
-        if selected_parent.value == '__back__' then return create_jira_task_workflow(summary, fallback_project, should_open_link) end
+        local parent_options = build_parent_options(parents)
+        add_back_option(parent_options, 'Back to label')
 
-        save_last_parent(selected_parent.value)
+        vim.ui.select(parent_options, {
+          prompt = 'Select parent issue:',
+          format_item = function(item) return item.name end,
+        }, function(selected_parent)
+          if not selected_parent then
+            vim.notify('Task creation cancelled', vim.log.levels.INFO)
+            return
+          end
 
-        local assignee_email = get_current_user_email()
-        local assignee_flag = assignee_email and string.format(' --assignee "%s"', assignee_email) or ''
+          if selected_parent.value == '__back__' then return create_jira_task_workflow(summary, fallback_project, should_open_link) end
 
-        local cmd = string.format(
-          'acli jira workitem create --summary "%s" --project "%s" --type "%s" --parent "%s"%s',
-          summary:gsub('"', '\\"'),
-          project,
-          selected_type.value,
-          selected_parent.value,
-          assignee_flag
-        )
+          save_last_parent(selected_parent.value)
 
-        vim.notify('Creating Jira task...', vim.log.levels.INFO)
+          local assignee_email = get_current_user_email()
+          local assignee_flag = assignee_email and string.format(' --assignee "%s"', assignee_email) or ''
+          local label_flag = selected_label.value and string.format(' --labels "%s"', selected_label.value) or ''
 
-        vim.system(
-          { 'sh', '-c', cmd },
-          { text = true },
-          vim.schedule_wrap(function(result)
-            if result.code == 0 then
-              local work_item_id = result.stdout:match('([A-Z]+-[0-9]+)')
+          local cmd = string.format(
+            'acli jira workitem create --summary "%s" --project "%s" --type "%s" --parent "%s"%s%s',
+            summary:gsub('"', '\\"'),
+            project,
+            selected_type.value,
+            selected_parent.value,
+            assignee_flag,
+            label_flag
+          )
 
-              if work_item_id then
-                vim.notify(string.format('Task %s created successfully', work_item_id), vim.log.levels.INFO)
+          vim.notify('Creating Jira task...', vim.log.levels.INFO)
 
-                if CONFIG.AUTO_TRANSITION_TO_DONE then
-                  local function run_transitions(statuses, index, on_complete)
-                    if index > #statuses then
-                      on_complete()
-                      return
+          vim.system(
+            { 'sh', '-c', cmd },
+            { text = true },
+            vim.schedule_wrap(function(result)
+              if result.code == 0 then
+                local work_item_id = result.stdout:match('([A-Z]+-[0-9]+)')
+
+                if work_item_id then
+                  vim.notify(string.format('Task %s created successfully', work_item_id), vim.log.levels.INFO)
+
+                  if CONFIG.AUTO_TRANSITION_TO_DONE then
+                    local function run_transitions(statuses, index, on_complete)
+                      if index > #statuses then
+                        on_complete()
+                        return
+                      end
+
+                      local status = statuses[index]
+                      local transition_cmd = string.format('acli jira workitem transition --key "%s" --status "%s" --yes', work_item_id, status)
+
+                      vim.system(
+                        { 'sh', '-c', transition_cmd },
+                        { text = true },
+                        vim.schedule_wrap(function(transition_result)
+                          if transition_result.code == 0 then
+                            vim.notify(string.format('Task %s transitioned to %s', work_item_id, status), vim.log.levels.INFO)
+                            run_transitions(statuses, index + 1, on_complete)
+                          else
+                            local transition_error = transition_result.stderr ~= '' and transition_result.stderr or transition_result.stdout
+                            vim.notify(string.format('Task %s failed to transition to %s: %s', work_item_id, status, transition_error), vim.log.levels.WARN)
+                            on_complete()
+                          end
+                        end)
+                      )
                     end
 
-                    local status = statuses[index]
-                    local transition_cmd = string.format('acli jira workitem transition --key "%s" --status "%s" --yes', work_item_id, status)
-
-                    vim.system(
-                      { 'sh', '-c', transition_cmd },
-                      { text = true },
-                      vim.schedule_wrap(function(transition_result)
-                        if transition_result.code == 0 then
-                          vim.notify(string.format('Task %s transitioned to %s', work_item_id, status), vim.log.levels.INFO)
-                          run_transitions(statuses, index + 1, on_complete)
-                        else
-                          local transition_error = transition_result.stderr ~= '' and transition_result.stderr or transition_result.stdout
-                          vim.notify(string.format('Task %s failed to transition to %s: %s', work_item_id, status, transition_error), vim.log.levels.WARN)
-                          on_complete()
-                        end
-                      end)
-                    )
-                  end
-
-                  run_transitions(CONFIG.TRANSITION_STATUSES, 1, function()
+                    run_transitions(CONFIG.TRANSITION_STATUSES, 1, function()
+                      if should_open_link then
+                        vim.system({ 'open', string.format('%s/%s', CONFIG.JIRA_BASE_URL, work_item_id) })
+                      end
+                    end)
+                  else
                     if should_open_link then
                       vim.system({ 'open', string.format('%s/%s', CONFIG.JIRA_BASE_URL, work_item_id) })
                     end
-                  end)
-                else
-                  if should_open_link then
-                    vim.system({ 'open', string.format('%s/%s', CONFIG.JIRA_BASE_URL, work_item_id) })
                   end
+                else
+                  vim.notify(string.format("Jira task '%s' created in project '%s'", summary, project), vim.log.levels.INFO)
                 end
               else
-                vim.notify(string.format("Jira task '%s' created in project '%s'", summary, project), vim.log.levels.INFO)
-              end
-            else
-              local error_msg = result.stderr ~= '' and result.stderr or result.stdout
-              vim.notify('Failed to create Jira task: ' .. error_msg, vim.log.levels.ERROR)
+                local error_msg = result.stderr ~= '' and result.stderr or result.stdout
+                vim.notify('Failed to create Jira task: ' .. error_msg, vim.log.levels.ERROR)
 
-              vim.ui.select(
-                { { name = 'Try again', value = 'retry' }, { name = 'Cancel', value = 'cancel' } },
-                { prompt = 'Task creation failed. What would you like to do?' },
-                function(choice)
-                  if choice and choice.value == 'retry' then create_jira_task_workflow(summary, fallback_project, should_open_link) end
-                end
-              )
-            end
-          end)
-        )
+                vim.ui.select(
+                  { { name = 'Try again', value = 'retry' }, { name = 'Cancel', value = 'cancel' } },
+                  { prompt = 'Task creation failed. What would you like to do?' },
+                  function(choice)
+                    if choice and choice.value == 'retry' then create_jira_task_workflow(summary, fallback_project, should_open_link) end
+                  end
+                )
+              end
+            end)
+          )
+        end)
       end)
     end)
   end)

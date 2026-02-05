@@ -4,9 +4,7 @@ local todoistUtils = require('custom.utils.todoist')
 local M = {}
 
 local todoistPriorityOptions = {
-  { name = 'Priority High', value = 'p1' },
-  { name = 'Priority Medium', value = 'p2' },
-  { name = 'Priority Low', value = 'p3' },
+  { name = 'Priority Top', value = 'p1' },
   { name = 'Priority None', value = 'p4' },
 }
 
