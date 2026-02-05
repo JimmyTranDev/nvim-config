@@ -12,7 +12,7 @@ local CONFIG = {
   -- ACTIVE_EPIC_STATUSES = { 'To Do', 'In Progress', 'In Development', 'Code Review', 'Testing', 'Ready for QA', 'Open', 'Reopened' },
   AUTO_TRANSITION_TO_DONE = true,
   TRANSITION_STATUSES = { 'In Progress Concept', 'Done Concept' },
-  EXCLUDED_EPIC_STATUSES = { 'Received' },
+  EXCLUDED_EPIC_STATUSES = { 'Received', 'Closed' },
 }
 
 local ISSUE_TYPES = {
@@ -75,50 +75,13 @@ local function clear_parents_cache()
   return false
 end
 
--- Filter parents to exclude epics with certain statuses
-local function filter_active_parents(parents)
-  if not parents then return nil end
-  
-  local filtered = {}
-  for _, parent in ipairs(parents) do
-    local is_excluded = false
-    for _, excluded_status in ipairs(CONFIG.EXCLUDED_EPIC_STATUSES) do
-      if parent.status and parent.status:lower() == excluded_status:lower() then
-        is_excluded = true
-        break
-      end
-    end
-    
-    if not is_excluded then
-      table.insert(filtered, parent)
-    end
+local function build_status_exclusion_jql()
+  local exclusions = {}
+  for _, status in ipairs(CONFIG.EXCLUDED_EPIC_STATUSES) do
+    table.insert(exclusions, 'status != "' .. status .. '"')
   end
-  
-  return filtered
+  return table.concat(exclusions, ' AND ')
 end
-
--- Filter parents to only show active epics (DISABLED - showing all epics)
--- local function filter_active_parents(parents)
---   if not parents then return nil end
---   
---   local active_parents = {}
---   for _, parent in ipairs(parents) do
---     -- Check if the status is in the active statuses list
---     local is_active = false
---     for _, active_status in ipairs(CONFIG.ACTIVE_EPIC_STATUSES) do
---       if parent.status and parent.status:lower() == active_status:lower() then
---         is_active = true
---         break
---       end
---     end
---     
---     if is_active then
---       table.insert(active_parents, parent)
---     end
---   end
---   
---   return active_parents
--- end
 
 -- Get current user email for assignee
 local function get_current_user_email()
@@ -195,17 +158,17 @@ local function get_user_input(prompt, default)
 end
 
 local function fetch_parent_issues(callback, force_refresh)
-  -- If not forcing refresh, try to load from cache first
   if not force_refresh then
     local cached_parents = load_parents_cache()
     if cached_parents then
       vim.notify('Using cached parent issues', vim.log.levels.INFO)
-      callback(filter_active_parents(cached_parents))
+      callback(cached_parents)
       return
     end
   end
 
-  local jql_query = 'project = "' .. CONFIG.DEFAULT_PROJECT .. '" AND (issuekey in portfolioChildIssuesOf(BW-6111) OR issuekey in portfolioChildIssuesOf(BW-6716) OR issuekey in portfolioChildIssuesOf(BW-7069) OR issuekey in portfolioChildIssuesOf(BW-7217) OR issuekey in portfolioChildIssuesOf(BW-7890) OR issuekey in portfolioChildIssuesOf(BW-9748)) AND issuetype in (Initiative, Epic) and status != Closed ORDER BY parent'
+  local status_exclusion = build_status_exclusion_jql()
+  local jql_query = 'project = "' .. CONFIG.DEFAULT_PROJECT .. '" AND (issuekey in portfolioChildIssuesOf(BW-6111) OR issuekey in portfolioChildIssuesOf(BW-6716) OR issuekey in portfolioChildIssuesOf(BW-7069) OR issuekey in portfolioChildIssuesOf(BW-7217) OR issuekey in portfolioChildIssuesOf(BW-7890) OR issuekey in portfolioChildIssuesOf(BW-9748)) AND issuetype in (Initiative, Epic) AND ' .. status_exclusion .. ' ORDER BY parent'
   local cmd = string.format('acli jira workitem search --jql "%s" --fields "key,summary,status" --limit %d --csv', jql_query, CONFIG.LIMIT)
 
   vim.notify('Fetching available parent issues...', vim.log.levels.INFO)
@@ -228,13 +191,13 @@ local function fetch_parent_issues(callback, force_refresh)
         local line = lines[i]
         if line:match('^[^,]*BW%-') then
           local fields = parse_csv_line(line)
-          if #fields >= 3 then table.insert(parents, create_parent_entry(fields[1], fields[2], fields[3])) end
+          if #fields >= 3 then table.insert(parents, create_parent_entry(fields[1], fields[3], fields[2])) end
         end
       end
 
       if #parents > 0 then
         save_parents_cache(parents)
-        callback(filter_active_parents(parents))
+        callback(parents)
       else
         vim.notify(string.format('No parent issues found under %s', CONFIG.PARENT_ISSUE), vim.log.levels.WARN)
         callback(nil)
