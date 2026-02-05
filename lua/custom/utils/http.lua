@@ -1,13 +1,18 @@
 local M = {}
 
-local function build_curl_command(method, url, headers, data)
-  local cmd = { 'curl', '-s', '-X', method, url }
+local CHATGPT_CONFIG = {
+  url = 'https://api.openai.com/v1/chat/completions',
+  model = 'gpt-3.5-turbo',
+  max_tokens = 500,
+  temperature = 0.7,
+}
 
-  if headers then
-    for key, value in pairs(headers) do
-      table.insert(cmd, '-H')
-      table.insert(cmd, string.format('%s: %s', key, value))
-    end
+local function build_curl_command(url, headers, data)
+  local cmd = { 'curl', '-s', '-X', 'POST', url }
+
+  for key, value in pairs(headers or {}) do
+    table.insert(cmd, '-H')
+    table.insert(cmd, string.format('%s: %s', key, value))
   end
 
   if data then
@@ -17,64 +22,6 @@ local function build_curl_command(method, url, headers, data)
 
   return cmd
 end
-
-local function execute_curl_sync(method, url, headers, data)
-  if not method or not url then return false, 'Method and URL are required' end
-
-  local cmd = build_curl_command(method, url, headers, data)
-  local result = vim.fn.systemlist(cmd)
-
-  if vim.v.shell_error ~= 0 then return false, 'HTTP request failed with exit code: ' .. vim.v.shell_error end
-
-  local response_text = table.concat(result, '\n')
-
-  local ok, parsed_response = pcall(vim.fn.json_decode, response_text)
-  if ok then
-    return true, parsed_response
-  else
-    return true, response_text -- Return raw text if not valid JSON
-  end
-end
-
-local function execute_http_async(method, url, headers, data, callback)
-  if not callback then error('Callback function is required') end
-
-  vim.schedule(function()
-    local success, response = execute_curl_sync(method, url, headers, data)
-    callback(success, response)
-  end)
-end
-
-local function merge_json_headers(provided_headers)
-  local default_headers = { ['Content-Type'] = 'application/json' }
-  return vim.tbl_extend('force', default_headers, provided_headers or {})
-end
-
-function M.get(url, headers, callback) execute_http_async('GET', url, headers, nil, callback) end
-
-function M.post(url, data, headers, callback)
-  local merged_headers = merge_json_headers(headers)
-  execute_http_async('POST', url, merged_headers, data, callback)
-end
-
-function M.patch(url, data, headers, callback)
-  local merged_headers = merge_json_headers(headers)
-  execute_http_async('PATCH', url, merged_headers, data, callback)
-end
-
-function M.put(url, data, headers, callback)
-  local merged_headers = merge_json_headers(headers)
-  execute_http_async('PUT', url, merged_headers, data, callback)
-end
-
-function M.delete(url, headers, callback) execute_http_async('DELETE', url, headers, nil, callback) end
-
-local CHATGPT_CONFIG = {
-  url = 'https://api.openai.com/v1/chat/completions',
-  model = 'gpt-3.5-turbo',
-  max_tokens = 500,
-  temperature = 0.7,
-}
 
 function M.chatgpt_request(prompt, callback, options)
   if not prompt or not callback then error('Prompt and callback are required') end
@@ -95,25 +42,33 @@ function M.chatgpt_request(prompt, callback, options)
 
   local request_data = {
     model = config.model,
-    messages = {
-      {
-        role = 'user',
-        content = prompt,
-      },
-    },
+    messages = { { role = 'user', content = prompt } },
     max_tokens = config.max_tokens,
     temperature = config.temperature,
   }
 
-  M.post(config.url, request_data, headers, function(success, response)
-    if success and response and response.choices and response.choices[1] then
+  vim.schedule(function()
+    local cmd = build_curl_command(config.url, headers, request_data)
+    local result = vim.fn.systemlist(cmd)
+
+    if vim.v.shell_error ~= 0 then
+      vim.notify('ChatGPT API request failed', vim.log.levels.ERROR)
+      callback(nil)
+      return
+    end
+
+    local ok, response = pcall(vim.fn.json_decode, table.concat(result, '\n'))
+
+    if ok and response and response.choices and response.choices[1] then
       callback({
         content = response.choices[1].message.content,
         usage = response.usage,
       })
     else
       local error_msg = 'ChatGPT API request failed'
-      if response and response.error then error_msg = error_msg .. ': ' .. (response.error.message or 'Unknown error') end
+      if response and response.error then
+        error_msg = error_msg .. ': ' .. (response.error.message or 'Unknown error')
+      end
       vim.notify(error_msg, vim.log.levels.ERROR)
       callback(nil)
     end

@@ -40,32 +40,27 @@ local function grep_markdown_headings()
   })
 end
 
-vim.keymap.set('n', '<leader>tnuf', function()
+local function filter_npm_packages_prompt()
   vim.ui.input({ prompt = 'Enter package prefix to filter: ' }, function(input)
     if input then languageActions.filter_npm_packages(input) end
   end)
-end, { silent = true, desc = 'Npm Filter Packages by Prefix' })
+end
 
 return {
   'akinsho/nvim-toggleterm.lua',
   keys = {
-    -- Markdown Headings Picker
     { mode = 'n', '<leader>fm', grep_markdown_headings, desc = 'Find Markdown Headings', silent = true },
 
-    -- Misc
     { mode = 'n', '<leader>tl', ':4TermExec cmd="live-server --port=9090"<CR>', desc = 'Live Server', silent = true },
-    { mode = 'n', '<leader>tM', languageActions.compileMjmlFile, desc = 'Compile Mjml Html', silent = true },
+    { mode = 'n', '<leader>tM', languageActions.compile_mjml_file, desc = 'Compile Mjml Html', silent = true },
 
-    -- Markdown
     { mode = 'n', '<leader>tdD', ':3TermExec cmd="mkdocs gh-deploy"<CR>', desc = 'Mkdocs Deploy', silent = true },
     { mode = 'n', '<leader>tds', ':4TermExec cmd="mkdocs serve"<CR>', desc = 'Mkdocs Serve', silent = true },
-    { mode = 'n', '<leader>tdd', languageActions.runMarkdownFileFolder, desc = 'Markserve', silent = true },
+    { mode = 'n', '<leader>tdd', languageActions.serve_markdown_folder, desc = 'Markserve', silent = true },
 
-    -- Close Terminal
     { mode = 'n', '<leader>t1', ':1ToggleTerm<CR>', desc = 'Toggle Terminal 1', silent = true },
     { mode = 'n', '<leader>t2', ':2ToggleTerm<Cr>', desc = 'Toggle Terminal 2', silent = true },
 
-    -- Terminal mode keybindings
     { mode = 't', '<C-h>', [[<Cmd>wincmd h<CR>]], desc = 'Terminal left window', silent = true },
     { mode = 't', '<C-j>', [[<Cmd>wincmd j<CR>]], desc = 'Terminal down window', silent = true },
     { mode = 't', '<C-k>', [[<Cmd>wincmd k<CR>]], desc = 'Terminal up window', silent = true },
@@ -81,20 +76,20 @@ return {
     { mode = 'n', '<leader>tnc', languageActions.create_package_command_runner(7, 'lint'), silent = true, desc = 'Npm Lint' },
     { mode = 'n', '<leader>tnb', languageActions.create_package_command_runner(7, 'check'), silent = true, desc = 'Npm Check' },
 
-    { mode = 'n', '<leader>tnuf', languageActions.runNpmCheckUpdatesFilter, silent = true, desc = 'Npm Check Updates' },
+    { mode = 'n', '<leader>tnuf', filter_npm_packages_prompt, silent = true, desc = 'Npm Filter Packages by Prefix' },
     { mode = 'n', '<leader>tnx', toggleTermActions.killAllToggleTerm, silent = true, desc = 'Kill All Terminals' },
 
-    { mode = 'n', '<leader>tnd', languageActions.create_package_command_runner(6, 'dev'), silent = true, desc = 'Npm Install' },
-    { mode = 'n', '<leader>tns', languageActions.create_package_command_runner(5, 'start'), silent = true, desc = 'Npm Install' },
+    { mode = 'n', '<leader>tnd', languageActions.create_package_command_runner(6, 'dev'), silent = true, desc = 'Npm Dev' },
+    { mode = 'n', '<leader>tns', languageActions.create_package_command_runner(5, 'start'), silent = true, desc = 'Npm Start' },
 
-    { mode = 'n', '<leader>tnj', function() languageActions.run_package_script(1) end, silent = true, desc = 'Npm Script 2' },
-    { mode = 'n', '<leader>tnJ', toggleTermActions.create_kill_toggle_term(1), silent = true, desc = 'Npm Script 2 Exit' },
-    { mode = 'n', '<leader>tnk', function() languageActions.run_package_script(2) end, silent = true, desc = 'Npm Script 3' },
-    { mode = 'n', '<leader>tnK', toggleTermActions.create_kill_toggle_term(2), silent = true, desc = 'Npm Script 3 Exit' },
+    { mode = 'n', '<leader>tnj', function() languageActions.run_package_script(1) end, silent = true, desc = 'Npm Script 1' },
+    { mode = 'n', '<leader>tnJ', toggleTermActions.create_kill_toggle_term(1), silent = true, desc = 'Npm Script 1 Exit' },
+    { mode = 'n', '<leader>tnk', function() languageActions.run_package_script(2) end, silent = true, desc = 'Npm Script 2' },
+    { mode = 'n', '<leader>tnK', toggleTermActions.create_kill_toggle_term(2), silent = true, desc = 'Npm Script 2 Exit' },
     { mode = 'n', '<leader>tnl', function() languageActions.run_package_script(3) end, silent = true, desc = 'Npm Script 3' },
-    { mode = 'n', '<leader>tnl', toggleTermActions.create_kill_toggle_term(3), silent = true, desc = 'Npm Script 3 Exit' },
+    { mode = 'n', '<leader>tnL', toggleTermActions.create_kill_toggle_term(3), silent = true, desc = 'Npm Script 3 Exit' },
     { mode = 'n', '<leader>tn;', function() languageActions.run_package_script(4) end, silent = true, desc = 'Npm Script 4' },
-    { mode = 'n', '<leader>tn;', toggleTermActions.create_kill_toggle_term(4), silent = true, desc = 'Npm Script 4 Exit' },
+    { mode = 'n', '<leader>tn:', toggleTermActions.create_kill_toggle_term(4), silent = true, desc = 'Npm Script 4 Exit' },
 
     {
       mode = 'n',
@@ -126,7 +121,6 @@ return {
       desc = 'Npm Kill All (build, lint, test)',
     },
 
-    -- Make
     {
       mode = 'n',
       '<leader>tma',
@@ -135,7 +129,7 @@ return {
         vim.cmd('3TermExec cmd="make start-server"')
       end,
       silent = true,
-      desc = 'Npm All (start-app, start-server)',
+      desc = 'Make All (start-app, start-server)',
     },
     { mode = 'n', '<leader>tmj', languageActions.create_make_command_runner(1), desc = 'Run Makefile Target', silent = true },
     { mode = 'n', '<leader>tmJ', toggleTermActions.create_kill_toggle_term(1), desc = 'Makefile Exit', silent = true },
@@ -145,11 +139,10 @@ return {
     { mode = 'n', '<leader>tmM', toggleTermActions.create_kill_toggle_term(3), desc = 'Makefile Exit', silent = true },
     { mode = 'n', '<leader>tms', ':1TermExec cmd="make start"<CR>', desc = 'Make Start', silent = true },
 
-    -- Cargo
-    { mode = 'n', '<leader>tcc', ':4TermExec cmd="cargo run"<CR>', desc = 'Cargo Run', silent = true },
+    { mode = 'n', '<leader>tcr', ':4TermExec cmd="cargo run"<CR>', desc = 'Cargo Run', silent = true },
     { mode = 'n', '<leader>tcb', ':3TermExec cmd="cargo build"<CR>', desc = 'Cargo Build', silent = true },
     { mode = 'n', '<leader>tct', ':3TermExec cmd="cargo test"<CR>', desc = 'Cargo Test', silent = true },
-    { mode = 'n', '<leader>tcr', ':3TermExec cmd="cargo run --release"<CR>', desc = 'Cargo Release', silent = true },
+    { mode = 'n', '<leader>tcR', ':3TermExec cmd="cargo run --release"<CR>', desc = 'Cargo Release', silent = true },
     { mode = 'n', '<leader>tcu', ':3TermExec cmd="cargo update"<CR>', desc = 'Cargo Update', silent = true },
     { mode = 'n', '<leader>tcd', ':3TermExec cmd="cargo doc"<CR>', desc = 'Cargo Doc', silent = true },
     { mode = 'n', '<leader>tcl', ':3TermExec cmd="cargo clippy"<CR>', desc = 'Cargo Clippy', silent = true },
@@ -157,10 +150,8 @@ return {
     { mode = 'n', '<leader>tcc', ':3TermExec cmd="cargo check"<CR>', desc = 'Cargo Check', silent = true },
     { mode = 'n', '<leader>tca', ':3TermExec cmd="cargo audit"<CR>', desc = 'Cargo Audit', silent = true },
 
-    -- Flutter
     { mode = 'n', '<leader>tfb', ':3TermExec cmd="flutter pub run build_runner build"<CR>', desc = 'Build', silent = true },
 
-    -- Maven
     { mode = 'n', '<leader>tvs', ':3TermExec cmd="mvn spring-boot:run"<CR>', desc = 'Maven Spring Boot', silent = true },
     { mode = 'n', '<leader>tvc', ':3TermExec cmd="mvn compile"<CR>', desc = 'Maven Compile', silent = true },
     { mode = 'n', '<leader>tvt', ':3TermExec cmd="mvn test"<CR>', desc = 'Maven Test', silent = true },
@@ -177,7 +168,7 @@ return {
       open_mapping = [[<c-\>]],
       shade_filetypes = {},
       shade_terminals = true,
-      shading_factor = 1, -- the degree by which to darken to terminal colour, default: 1 for dark backgrounds, 3 for light
+      shading_factor = 1,
       start_in_insert = true,
       direction = 'horizontal',
     })

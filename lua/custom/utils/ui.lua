@@ -5,9 +5,7 @@ function M.safe_select(items, opts, callback)
     vim.notify('No items available for selection', vim.log.levels.WARN)
     return
   end
-
   if not callback then error('Callback function is required') end
-
   vim.ui.select(items, opts or {}, function(selected)
     if selected then callback(selected) end
   end)
@@ -37,11 +35,7 @@ end
 
 function M.select_file(dir, prompt, callback)
   local file_utils = require('custom.utils.files')
-  local files = file_utils.list_files(dir)
-
-  M.safe_select(files, {
-    prompt = prompt or 'Select file:',
-  }, callback)
+  M.safe_select(file_utils.list_files(dir), { prompt = prompt or 'Select file:' }, callback)
 end
 
 function M.safe_input(opts, validator, callback)
@@ -49,14 +43,10 @@ function M.safe_input(opts, validator, callback)
     callback = validator
     validator = nil
   end
-
   if not callback then error('Callback function is required') end
 
   vim.ui.input(opts, function(input)
-    if not input or input == '' then
-      return -- User cancelled or provided empty input
-    end
-
+    if not input or input == '' then return end
     if validator then
       local is_valid, error_msg = validator(input)
       if not is_valid then
@@ -64,16 +54,13 @@ function M.safe_input(opts, validator, callback)
         return
       end
     end
-
     callback(input)
   end)
 end
 
 function M.input_with_confirmation(opts, confirmation_prompt, callback)
   M.safe_input(opts, function(input)
-    M.safe_input({
-      prompt = confirmation_prompt .. ' (type "yes" to confirm): ',
-    }, function(confirmation)
+    M.safe_input({ prompt = confirmation_prompt .. ' (type "yes" to confirm): ' }, function(confirmation)
       if confirmation == 'yes' then
         callback(input)
       else
@@ -83,40 +70,23 @@ function M.input_with_confirmation(opts, confirmation_prompt, callback)
   end)
 end
 
-function M.show_progress(message, level) return vim.notify(message, level or vim.log.levels.INFO) end
+M.show_success = function(msg) vim.notify(msg, vim.log.levels.INFO) end
+M.show_error = function(msg) vim.notify(msg, vim.log.levels.ERROR) end
+M.show_warning = function(msg) vim.notify(msg, vim.log.levels.WARN) end
+M.show_progress = M.show_success
 
-function M.update_progress(notification, message, level)
-  vim.notify(message, level or vim.log.levels.INFO, {
-    replace = notification,
-  })
-end
-
-function M.show_success(message) vim.notify(message, vim.log.levels.INFO) end
-
-function M.show_error(message) vim.notify(message, vim.log.levels.ERROR) end
-
-function M.show_warning(message) vim.notify(message, vim.log.levels.WARN) end
-
-function M.exec_with_feedback(cmd, success_msg, terminal_id)
+function M.exec_in_terminal(cmd, success_msg, terminal_id)
   if not cmd then error('Command is required') end
-
-  local term_id = terminal_id or 5
-  local term_cmd = string.format("TermExec%d cmd='%s'", term_id, cmd)
-
-  vim.cmd(term_cmd)
-
+  vim.cmd(string.format("TermExec%d cmd='%s'", terminal_id or 5, cmd))
   if success_msg then
-    vim.defer_fn(function() M.show_success(success_msg) end, 500) -- Small delay to let command start
+    vim.defer_fn(function() vim.notify(success_msg, vim.log.levels.INFO) end, 500)
   end
 end
-
-function M.exec_background(cmd, success_msg) M.exec_with_feedback(cmd, success_msg, 5) end
+M.exec_with_feedback = M.exec_in_terminal
+M.exec_background = function(cmd, msg) M.exec_in_terminal(cmd, msg, 5) end
 
 function M.create_workflow()
-  local workflow = {
-    steps = {},
-    current_step = 1,
-  }
+  local workflow = { steps = {}, current_step = 1 }
 
   function workflow:add_step(name, fn)
     table.insert(self.steps, { name = name, fn = fn })
@@ -125,13 +95,11 @@ function M.create_workflow()
 
   function workflow:next()
     if self.current_step > #self.steps then
-      M.show_success('Workflow completed')
+      vim.notify('Workflow completed', vim.log.levels.INFO)
       return
     end
-
     local step = self.steps[self.current_step]
-    M.show_progress('Executing: ' .. step.name)
-
+    vim.notify('Executing: ' .. step.name, vim.log.levels.INFO)
     step.fn(function()
       self.current_step = self.current_step + 1
       self:next()
@@ -140,10 +108,9 @@ function M.create_workflow()
 
   function workflow:execute()
     if #self.steps == 0 then
-      M.show_warning('No steps defined in workflow')
+      vim.notify('No steps defined in workflow', vim.log.levels.WARN)
       return
     end
-
     self.current_step = 1
     self:next()
   end

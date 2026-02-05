@@ -1,16 +1,8 @@
 local M = {}
 
-local augroup = function(name) return vim.api.nvim_create_augroup('nvim_config_' .. name, { clear = true }) end
-
-local WHICH_KEY_COLORS = {
-  WhichKey = { fg = '#cdd6f4', bold = true },
-  WhichKeyGroup = { fg = '#f38ba8', bold = true },
-  WhichKeyDesc = { fg = '#a6e3a1' },
-  WhichKeySeparator = { fg = '#6c7086' },
-  WhichKeyFloat = { bg = '#181825' },
-  WhichKeyBorder = { fg = '#6c7086' },
-  WhichKeyValue = { fg = '#fab387' },
-}
+local function augroup(name)
+  return vim.api.nvim_create_augroup('nvim_config_' .. name, { clear = true })
+end
 
 local function setup_filetype_associations()
   vim.api.nvim_create_autocmd('BufRead', {
@@ -40,10 +32,9 @@ local function setup_formatting()
     pattern = '*',
     callback = function(args)
       local ok, conform = pcall(require, 'conform')
-      if ok then conform.format({
-        bufnr = args.buf,
-        timeout_ms = 3000,
-      }) end
+      if ok then
+        conform.format({ bufnr = args.buf, timeout_ms = 3000 })
+      end
     end,
     desc = 'Format file on save using conform.nvim',
   })
@@ -54,10 +45,7 @@ local function setup_visual_enhancements()
     group = augroup('visual_enhancements'),
     pattern = '*',
     callback = function()
-      vim.highlight.on_yank({
-        higroup = 'Visual',
-        timeout = 200,
-      })
+      vim.highlight.on_yank({ higroup = 'Visual', timeout = 200 })
     end,
     desc = 'Highlight yanked text briefly',
   })
@@ -75,13 +63,10 @@ local function setup_git_integration()
     group = augroup('git_integration'),
     pattern = 'GitConflictDetected',
     callback = function()
-      local file = vim.fn.expand('<afile>')
-      vim.notify('Git conflict detected in: ' .. file, vim.log.levels.WARN)
-
-      vim.keymap.set('n', 'cww', function() vim.notify('Git conflict resolution functionality not yet implemented', vim.log.levels.INFO) end, {
-        buffer = true,
-        desc = 'Resolve git conflicts',
-      })
+      vim.notify('Git conflict detected in: ' .. vim.fn.expand('<afile>'), vim.log.levels.WARN)
+      vim.keymap.set('n', 'cww', function()
+        vim.notify('Git conflict resolution functionality not yet implemented', vim.log.levels.INFO)
+      end, { buffer = true, desc = 'Resolve git conflicts' })
     end,
     desc = 'Handle git conflict detection and setup resolution keymaps',
   })
@@ -89,17 +74,16 @@ end
 
 local function setup_lsp_progress()
   local progress = vim.defaulttable()
+  local spinner = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' }
 
   vim.api.nvim_create_autocmd('LspProgress', {
     group = augroup('lsp_progress'),
     callback = function(ev)
       local client = vim.lsp.get_client_by_id(ev.data.client_id)
       local value = ev.data.params.value
-
       if not client or type(value) ~= 'table' then return end
 
       local p = progress[client.id]
-
       for i = 1, #p + 1 do
         if i == #p + 1 or p[i].token == ev.data.params.token then
           p[i] = {
@@ -121,13 +105,13 @@ local function setup_lsp_progress()
         return not v.done
       end, p)
 
-      local spinner = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' }
-      local spinner_idx = math.floor(vim.uv.hrtime() / (1e6 * 80)) % #spinner + 1
-
+      local idx = math.floor(vim.uv.hrtime() / (1e6 * 80)) % #spinner + 1
       vim.notify(table.concat(msg, '\n'), vim.log.levels.INFO, {
         id = 'lsp_progress',
         title = client.name,
-        opts = function(notif) notif.icon = #progress[client.id] == 0 and ' ' or spinner[spinner_idx] end,
+        opts = function(notif)
+          notif.icon = #progress[client.id] == 0 and ' ' or spinner[idx]
+        end,
       })
     end,
     desc = 'Show LSP progress notifications with spinner',
@@ -135,10 +119,8 @@ local function setup_lsp_progress()
 end
 
 local function cleanup_default_keymaps()
-  local default_lsp_maps = { 'gra', 'gri', 'grn', 'grr' }
-
-  for _, map in ipairs(default_lsp_maps) do
-    pcall(vim.keymap.del, 'n', map)
+  for _, m in ipairs({ 'gra', 'gri', 'grn', 'grr' }) do
+    pcall(vim.keymap.del, 'n', m)
   end
 end
 

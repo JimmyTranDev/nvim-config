@@ -2,28 +2,17 @@ local M = {}
 
 function M.create_kill_toggle_term(index)
   return function()
-    local all_terms = require('toggleterm.terminal').get_all()
-    local term = all_terms[index]
-
-    if term then
-      term:shutdown()
-    else
-    end
+    local term = require('toggleterm.terminal').get_all()[index]
+    if term then term:shutdown() end
   end
 end
 
 function M.killAllToggleTerm()
-  local all_terms = require('toggleterm.terminal').get_all()
-  for _, term in pairs(all_terms) do
+  for _, term in pairs(require('toggleterm.terminal').get_all()) do
     term:shutdown()
   end
 end
 
-function M.kill_all_toggle_term()
-  local all_terms = require('toggleterm.terminal').get_all()
-  for _, term in pairs(all_terms) do
-    term:shutdown()
-  end
-end
+M.kill_all_toggle_term = M.killAllToggleTerm
 
 return M

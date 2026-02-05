@@ -1,18 +1,17 @@
 local M = {}
 
-function M.convertSnakeCaseToNormalCase(snakeCase)
-  if not snakeCase or type(snakeCase) ~= 'string' then return '' end
-  return snakeCase:gsub('_', ' ')
+function M.snake_to_normal(str)
+  if type(str) ~= 'string' then return '' end
+  return str:gsub('_', ' ')
 end
 
-function M.escape_string(str)
-  if not str or type(str) ~= 'string' then return '' end
-  return str:gsub('([%^%$%(%)%%%.%[%]%*%+%-%?])', '%%%1')
-end
+M.convertSnakeCaseToNormalCase = M.snake_to_normal
 
 function M.escape_pattern(str)
-  if not str or type(str) ~= 'string' then return '' end
+  if type(str) ~= 'string' then return '' end
   return str:gsub('[%^%$%(%)%%%.%[%]%*%+%-%?]', '%%%1')
 end
+
+M.escape_string = M.escape_pattern
 
 return M

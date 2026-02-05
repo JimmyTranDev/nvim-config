@@ -9,40 +9,37 @@ local ui_utils = require('custom.utils.ui')
 
 local M = {}
 
-local function get_organization_names()
-  local orgs = {
-    vim.env.PRI_GITHUB_USERNAME,
-  }
-
-  local valid_orgs = {}
-  for _, org in ipairs(orgs) do
-    if org and org ~= '' then table.insert(valid_orgs, org) end
-  end
-
-  return valid_orgs
-end
-
 local function get_project_names_with_current()
-  local project_names = {}
   local current_repo = github_utils.getRepoName()
-
   if current_repo and current_repo ~= '' then
-    array_utils.tableMerge({ current_repo }, link_constants.projectNames or {}, project_names)
-  else
-    project_names = link_constants.projectNames or {}
+    local result = {}
+    array_utils.tableMerge({ current_repo }, link_constants.projectNames or {}, result)
+    return result
   end
-
-  return project_names
+  return link_constants.projectNames or {}
 end
 
-local function open_url_safe(url, description)
+local function open_url(url, description)
   if not url or url == '' then
     vim.notify('Invalid URL', vim.log.levels.ERROR)
     return
   end
-
   file_utils.open(url)
-  if description then ui_utils.show_success('Opened: ' .. description) end
+  if description then vim.notify('Opened: ' .. description, vim.log.levels.INFO) end
+end
+
+local function get_current_repo_url()
+  local handle = io.popen('gh repo view --json url 2>/dev/null')
+  if not handle then return nil end
+
+  local output = handle:read('*a')
+  handle:close()
+
+  if vim.v.shell_error ~= 0 then return nil end
+
+  local ok, repo_info = pcall(vim.fn.json_decode, output)
+  if ok and repo_info and repo_info.url then return repo_info.url end
+  return nil
 end
 
 function M.open_private_github_repo()
@@ -59,73 +56,25 @@ function M.open_private_github_repo()
     return
   end
 
-  local url = github_utils.getRepoUrl(github_username, current_repo)
-  open_url_safe(url, string.format('Private repo: %s', current_repo))
+  open_url(github_utils.getRepoUrl(github_username, current_repo), 'Private repo: ' .. current_repo)
 end
 
 function M.open_current_github_repo()
-  local handle = io.popen('gh repo view --json url 2>/dev/null')
-  if not handle then
-    vim.notify('Failed to run gh command', vim.log.levels.ERROR)
-    return
-  end
-
-  local output = handle:read('*a')
-  handle:close()
-
-  if vim.v.shell_error ~= 0 then
+  local url = get_current_repo_url()
+  if not url then
     vim.notify('Failed to get repository info. Make sure you are in a git repository and gh CLI is authenticated.', vim.log.levels.ERROR)
     return
   end
-
-  local ok, repo_info = pcall(vim.fn.json_decode, output)
-  if not ok or not repo_info or not repo_info.url then
-    vim.notify('Could not determine repository URL', vim.log.levels.ERROR)
-    return
-  end
-
-  open_url_safe(repo_info.url, 'Current GitHub repository')
+  open_url(url, 'Current GitHub repository')
 end
 
 function M.open_current_github_prs()
-  local handle = io.popen('gh repo view --json url 2>/dev/null')
-  if not handle then
-    vim.notify('Failed to run gh command', vim.log.levels.ERROR)
-    return
-  end
-
-  local output = handle:read('*a')
-  handle:close()
-
-  if vim.v.shell_error ~= 0 then
+  local url = get_current_repo_url()
+  if not url then
     vim.notify('Failed to get repository info. Make sure you are in a git repository and gh CLI is authenticated.', vim.log.levels.ERROR)
     return
   end
-
-  local ok, repo_info = pcall(vim.fn.json_decode, output)
-  if not ok or not repo_info or not repo_info.url then
-    vim.notify('Could not determine repository URL', vim.log.levels.ERROR)
-    return
-  end
-
-  local pr_url = repo_info.url .. '/pulls'
-  open_url_safe(pr_url, 'GitHub pull requests')
-end
-
-local function open_environment_link(link_template, description)
-  if not link_template then
-    vim.notify(description .. ' link not configured', vim.log.levels.ERROR)
-    return
-  end
-
-  local project_names = get_project_names_with_current()
-
-  ui_utils.safe_select(project_names, {
-    prompt = 'Select repository for ' .. description:lower() .. ':',
-  }, function(project_name)
-    local url = string.format(link_template, project_name)
-    open_url_safe(url, string.format('%s - %s', description, project_name))
-  end)
+  open_url(url .. '/pulls', 'GitHub pull requests')
 end
 
 function M.open_dev_server() language_utils.openServerUrl('dev') end
@@ -139,12 +88,10 @@ function M.open_useful_link()
     return
   end
 
-  ui_utils.safe_select(link_names, {
-    prompt = 'Select link to open:',
-  }, function(link_name)
+  ui_utils.safe_select(link_names, { prompt = 'Select link to open:' }, function(link_name)
     local url = useful_links[link_name]
     if url then
-      open_url_safe(url, link_name)
+      open_url(url, link_name)
     else
       vim.notify('Link not found: ' .. link_name, vim.log.levels.ERROR)
     end
@@ -166,7 +113,7 @@ function M.open_jira_ticket()
 
   local jira_link = link_utils.getJiraLinkWithTicket(jira_ticket)
   if jira_link then
-    open_url_safe(jira_link, 'JIRA ticket: ' .. jira_ticket)
+    open_url(jira_link, 'JIRA ticket: ' .. jira_ticket)
   else
     vim.notify('Could not generate JIRA link for: ' .. jira_ticket, vim.log.levels.ERROR)
   end
@@ -174,10 +121,8 @@ end
 
 function M.open_npm_url()
   local old_reg = vim.fn.getreg('"')
-
   vim.cmd('normal! yiW')
   local package_name = vim.fn.getreg('"')
-
   vim.fn.setreg('"', old_reg)
 
   if not package_name or package_name == '' then
@@ -186,10 +131,9 @@ function M.open_npm_url()
   end
 
   package_name = package_name:gsub('["\':,]', '')
-
   local npm_url = link_utils.getNpmUrl(package_name)
   if npm_url then
-    open_url_safe(npm_url, 'NPM package: ' .. package_name)
+    open_url(npm_url, 'NPM package: ' .. package_name)
   else
     vim.notify('Could not generate NPM URL for: ' .. package_name, vim.log.levels.ERROR)
   end

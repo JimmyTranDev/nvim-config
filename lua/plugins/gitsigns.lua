@@ -58,7 +58,7 @@ return {
     },
     {
       mode = 'n',
-      '<leader>jb',
+      '<leader>jB',
       function() require('gitsigns').toggle_current_line_blame() end,
       desc = 'Toggle Current Line Blame',
     },
@@ -72,11 +72,11 @@ return {
       mode = 'n',
       '<leader>jD',
       function() require('gitsigns').diffthis('~') end,
-      desc = 'Diff This',
+      desc = 'Diff This (previous)',
     },
     {
       mode = 'n',
-      '<leader>jd',
+      '<leader>jt',
       function() require('gitsigns').toggle_deleted() end,
       desc = 'Toggle Deleted',
     },

@@ -35,9 +35,7 @@ function M.searchGithub(orgName, searchQuery)
   vim.ui.select(searchTypes, {
     prompt = 'Select GitHub search type: ',
   }, function(selected)
-    if not selected then
-      return -- User cancelled, exit
-    end
+    if not selected then return end
 
     local searchUrl = string.format('https://github.com/search?q=%s%s&type=%s', orgQuery, encodedSearchQuery, selected)
 

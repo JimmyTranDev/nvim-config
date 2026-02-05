@@ -4,12 +4,10 @@ local M = {}
 
 local CONFIG = {
   CACHE_DIR = vim.fn.stdpath('data'),
-  PARENT_ISSUE = 'BW-6111', -- Parent portfolio issue - update as needed for higher ticket numbers
+  PARENT_ISSUE = 'BW-6111',
   JIRA_BASE_URL = 'https://' .. os.getenv('ORG_NAME') .. '.atlassian.net/browse',
   DEFAULT_PROJECT = 'BW',
   LIMIT = 50,
-  -- Epic filtering disabled - showing all epics regardless of status
-  -- ACTIVE_EPIC_STATUSES = { 'To Do', 'In Progress', 'In Development', 'Code Review', 'Testing', 'Ready for QA', 'Open', 'Reopened' },
   AUTO_TRANSITION_TO_DONE = true,
   TRANSITION_STATUSES = { 'In Progress Concept', 'Done Concept' },
   EXCLUDED_EPIC_STATUSES = { 'Received', 'Closed' },
@@ -21,6 +19,11 @@ local ISSUE_TYPES = {
   { name = 'Subtask', value = 'Subtask' },
   { name = 'Story', value = 'Story' },
   { name = 'Epic', value = 'Epic' },
+}
+
+local cache_files = {
+  last_parent = CONFIG.CACHE_DIR .. '/jira_last_parent.txt',
+  parents = CONFIG.CACHE_DIR .. '/jira_parents_cache.txt',
 }
 
 local function save_to_file(filepath, content)
@@ -43,11 +46,6 @@ local function load_from_file(filepath)
   return nil
 end
 
-local cache_files = {
-  last_parent = CONFIG.CACHE_DIR .. '/jira_last_parent.txt',
-  parents = CONFIG.CACHE_DIR .. '/jira_parents_cache.txt',
-}
-
 local function save_last_parent(parent_key) save_to_file(cache_files.last_parent, parent_key) end
 
 local function load_last_parent() return load_from_file(cache_files.last_parent) end
@@ -63,18 +61,6 @@ local function load_parents_cache()
   return nil
 end
 
--- Clear/refresh the parent issues cache
-local function clear_parents_cache()
-  local file = io.open(cache_files.parents, 'w')
-  if file then
-    file:close()
-    vim.notify('Jira parent issues cache cleared', vim.log.levels.INFO)
-    return true
-  end
-  vim.notify('Failed to clear Jira parent issues cache', vim.log.levels.ERROR)
-  return false
-end
-
 local function build_status_exclusion_jql()
   local exclusions = {}
   for _, status in ipairs(CONFIG.EXCLUDED_EPIC_STATUSES) do
@@ -83,10 +69,9 @@ local function build_status_exclusion_jql()
   return table.concat(exclusions, ' AND ')
 end
 
--- Get current user email for assignee
 local function get_current_user_email()
   local email = os.getenv('ORG_EMAIL')
-  return email and email:match('^%s*(.-)%s*$') -- trim whitespace
+  return email and email:match('^%s*(.-)%s*$')
 end
 
 local function parse_csv_line(line)
@@ -94,25 +79,21 @@ local function parse_csv_line(line)
   local field = ''
   local in_quotes = false
   local i = 1
-  
+
   while i <= #line do
     local char = line:sub(i, i)
-    
     if char == '"' then
       in_quotes = not in_quotes
     elseif char == ',' and not in_quotes then
-      table.insert(fields, field:match('^%s*(.-)%s*$')) -- trim whitespace
+      table.insert(fields, field:match('^%s*(.-)%s*$'))
       field = ''
     else
       field = field .. char
     end
-    
     i = i + 1
   end
-  
-  -- Add the last field
+
   table.insert(fields, field:match('^%s*(.-)%s*$'))
-  
   return fields
 end
 
@@ -132,7 +113,6 @@ local function build_parent_options(parents)
 
   for _, parent in ipairs(parents) do
     local option = { name = parent.display, value = parent.key }
-
     if last_parent and parent.key == last_parent then
       option.name = option.name .. ' (Last used)'
       last_used_option = option
@@ -142,11 +122,12 @@ local function build_parent_options(parents)
   end
 
   if last_used_option then table.insert(options, 1, last_used_option) end
-
   return options
 end
 
-local function add_back_option(options, text, value) table.insert(options, { name = '← ' .. text, value = value or '__back__' }) end
+local function add_back_option(options, text, value)
+  table.insert(options, { name = '← ' .. text, value = value or '__back__' })
+end
 
 local function get_user_input(prompt, default)
   local input = inputUtils.getInputFromUser(prompt, default or '')
@@ -168,7 +149,11 @@ local function fetch_parent_issues(callback, force_refresh)
   end
 
   local status_exclusion = build_status_exclusion_jql()
-  local jql_query = 'project = "' .. CONFIG.DEFAULT_PROJECT .. '" AND (issuekey in portfolioChildIssuesOf(BW-6111) OR issuekey in portfolioChildIssuesOf(BW-6716) OR issuekey in portfolioChildIssuesOf(BW-7069) OR issuekey in portfolioChildIssuesOf(BW-7217) OR issuekey in portfolioChildIssuesOf(BW-7890) OR issuekey in portfolioChildIssuesOf(BW-9748)) AND issuetype in (Initiative, Epic) AND ' .. status_exclusion .. ' ORDER BY parent'
+  local jql_query = 'project = "'
+    .. CONFIG.DEFAULT_PROJECT
+    .. '" AND (issuekey in portfolioChildIssuesOf(BW-6111) OR issuekey in portfolioChildIssuesOf(BW-6716) OR issuekey in portfolioChildIssuesOf(BW-7069) OR issuekey in portfolioChildIssuesOf(BW-7217) OR issuekey in portfolioChildIssuesOf(BW-7890) OR issuekey in portfolioChildIssuesOf(BW-9748)) AND issuetype in (Initiative, Epic) AND '
+    .. status_exclusion
+    .. ' ORDER BY parent'
   local cmd = string.format('acli jira workitem search --jql "%s" --fields "key,summary,status" --limit %d --csv', jql_query, CONFIG.LIMIT)
 
   vim.notify('Fetching available parent issues...', vim.log.levels.INFO)
@@ -246,7 +231,6 @@ local function create_jira_task_workflow(summary, fallback_project, should_open_
 
         save_last_parent(selected_parent.value)
 
-        -- Get current user email for assignee
         local assignee_email = get_current_user_email()
         local assignee_flag = assignee_email and string.format(' --assignee "%s"', assignee_email) or ''
 
@@ -270,17 +254,17 @@ local function create_jira_task_workflow(summary, fallback_project, should_open_
 
               if work_item_id then
                 vim.notify(string.format('Task %s created successfully', work_item_id), vim.log.levels.INFO)
-                
+
                 if CONFIG.AUTO_TRANSITION_TO_DONE then
                   local function run_transitions(statuses, index, on_complete)
                     if index > #statuses then
                       on_complete()
                       return
                     end
-                    
+
                     local status = statuses[index]
                     local transition_cmd = string.format('acli jira workitem transition --key "%s" --status "%s" --yes', work_item_id, status)
-                    
+
                     vim.system(
                       { 'sh', '-c', transition_cmd },
                       { text = true },
@@ -296,17 +280,15 @@ local function create_jira_task_workflow(summary, fallback_project, should_open_
                       end)
                     )
                   end
-                  
+
                   run_transitions(CONFIG.TRANSITION_STATUSES, 1, function()
                     if should_open_link then
-                      local jira_url = string.format('%s/%s', CONFIG.JIRA_BASE_URL, work_item_id)
-                      vim.system({ 'open', jira_url })
+                      vim.system({ 'open', string.format('%s/%s', CONFIG.JIRA_BASE_URL, work_item_id) })
                     end
                   end)
                 else
                   if should_open_link then
-                    local jira_url = string.format('%s/%s', CONFIG.JIRA_BASE_URL, work_item_id)
-                    vim.system({ 'open', jira_url })
+                    vim.system({ 'open', string.format('%s/%s', CONFIG.JIRA_BASE_URL, work_item_id) })
                   end
                 end
               else
@@ -343,10 +325,14 @@ end
 M.create_jira_task = create_task_handler(false)
 M.create_jira_task_with_link = create_task_handler(true)
 
--- Function to refresh/clear the parent issues cache
 M.refresh_jira_cache = function()
-  clear_parents_cache()
-  vim.notify('Jira parent cache refreshed. Next task creation will fetch fresh data.', vim.log.levels.INFO)
+  local file = io.open(cache_files.parents, 'w')
+  if file then
+    file:close()
+    vim.notify('Jira parent cache refreshed. Next task creation will fetch fresh data.', vim.log.levels.INFO)
+  else
+    vim.notify('Failed to clear Jira parent issues cache', vim.log.levels.ERROR)
+  end
 end
 
 return M

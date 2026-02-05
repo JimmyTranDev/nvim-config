@@ -217,7 +217,7 @@ return {
     },
 
     {
-      '<leader>fc',
+      '<leader>fC',
       function() Snacks.picker.files({ cwd = vim.fn.stdpath('config') }) end,
       desc = 'Find Config File',
     },
@@ -230,11 +230,6 @@ return {
       '<leader>fo',
       function() Snacks.picker.recent() end,
       desc = 'Recent',
-    },
-    {
-      '<leader>fg',
-      function() Snacks.picker.grep() end,
-      desc = 'Grep',
     },
     {
       '<leader>fw',

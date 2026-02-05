@@ -6,33 +6,30 @@ local function setup_editor_basics()
 
   vim.o.mouse = 'a'
 
-  vim.o.undofile = true -- Persistent undo across sessions
-  vim.o.hidden = true -- Keep modified buffers in background
+  vim.o.undofile = true
+  vim.o.hidden = true
 
   vim.o.completeopt = 'menuone,noselect'
 
-  vim.o.updatetime = 250 -- Faster CursorHold events (default 4000ms)
-  vim.o.timeoutlen = 300 -- Faster which-key popup (default 1000ms)
-  vim.o.ttimeoutlen = 10 -- Faster escape sequences
-  vim.o.redrawtime = 1500 -- Allow more time for syntax highlighting
-  vim.o.synmaxcol = 240 -- Limit syntax highlighting to 240 columns
+  vim.o.ttimeoutlen = 10
+  vim.o.synmaxcol = 240
 end
 
 local function setup_display()
   vim.wo.number = true
   vim.wo.relativenumber = true
-  vim.wo.signcolumn = 'yes' -- Always show sign column
+  vim.wo.signcolumn = 'yes'
 
   vim.opt.cursorline = true
-  vim.o.scrolloff = 99999 -- Auto-center screen (extreme scrolloff)
+  vim.o.scrolloff = 99999
 
   vim.wo.wrap = false
   vim.wo.linebreak = true
   vim.wo.list = false
   vim.o.foldenable = false
 
-  vim.o.laststatus = 3 -- Global status line
-  vim.o.termguicolors = true -- Enable 24-bit RGB colors
+  vim.o.laststatus = 3
+  vim.o.termguicolors = true
 end
 
 local function setup_indentation()
@@ -40,7 +37,7 @@ local function setup_indentation()
   vim.opt.shiftwidth = 2
   vim.opt.softtabstop = 2
   vim.opt.expandtab = true
-  vim.o.breakindent = true -- Maintain indent when wrapping
+  vim.o.breakindent = true
 end
 
 local function setup_search() vim.o.ignorecase = true end
@@ -66,24 +63,16 @@ local function setup_clipboard()
 end
 
 local function setup_performance()
-  vim.o.updatetime = 250 -- Faster completion and diagnostics
-  vim.o.timeoutlen = 300 -- Faster key sequence timeout
-  vim.o.redrawtime = 1500 -- More time for complex syntax highlighting
-  vim.o.lazyredraw = true -- Don't redraw during macros
-
-  vim.o.history = 1000 -- Reasonable command history size
-  vim.o.maxmempattern = 20000 -- More memory for pattern matching
-end
-
-local function setup_performance()
-  vim.o.swapfile = false -- Disable swap files for better performance
-  vim.o.backup = false -- Disable backup files
-  vim.o.writebackup = false -- Don't create backup before overwriting
-
-  vim.o.maxmempattern = 20000 -- Increase memory for pattern matching
-  vim.o.history = 1000 -- Limit command history (default 10000)
-
+  vim.o.updatetime = 250
+  vim.o.timeoutlen = 300
+  vim.o.redrawtime = 1500
   vim.o.lazyredraw = true
+  vim.o.history = 1000
+  vim.o.maxmempattern = 20000
+
+  vim.o.swapfile = false
+  vim.o.backup = false
+  vim.o.writebackup = false
 
   vim.g.loaded_python3_provider = 0
   vim.g.loaded_ruby_provider = 0
@@ -93,10 +82,9 @@ local function setup_performance()
   vim.opt.diffopt:append('algorithm:patience')
   vim.opt.diffopt:append('indent-heuristic')
 
-  vim.o.foldmethod = 'manual' -- Fastest folding method
-  vim.o.foldlevelstart = 99 -- Start with all folds open
-
-  vim.o.regexpengine = 0 -- Automatically select fastest engine
+  vim.o.foldmethod = 'manual'
+  vim.o.foldlevelstart = 99
+  vim.o.regexpengine = 0
 
   vim.cmd('filetype on')
   vim.cmd('filetype plugin on')

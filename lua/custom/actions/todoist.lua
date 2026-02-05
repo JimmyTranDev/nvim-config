@@ -11,9 +11,8 @@ local todoistPriorityOptions = {
 }
 
 local RECENT_PROJECTS_FILE = vim.fn.stdpath('data') .. '/todoist_recent_projects.json'
-local MAX_RECENT_PROJECTS = 10 -- Track up to 10 recent projects
+local MAX_RECENT_PROJECTS = 10
 
--- Load recent projects queue from file
 local function get_recent_projects()
   local f = io.open(RECENT_PROJECTS_FILE, 'r')
   if f then
@@ -27,83 +26,52 @@ local function get_recent_projects()
   return {}
 end
 
--- Save recent projects queue to file
 local function save_recent_projects(recent_projects)
   local f = io.open(RECENT_PROJECTS_FILE, 'w')
   if f then
-    local data = { recent_projects = recent_projects }
-    f:write(vim.json.encode(data))
+    f:write(vim.json.encode({ recent_projects = recent_projects }))
     f:close()
   end
 end
 
--- Add project to recent queue (most recent first)
 local function add_recent_project_id(id)
   local recent_projects = get_recent_projects()
-  
-  -- Remove the project if it already exists in the queue
+
   for i, project_id in ipairs(recent_projects) do
     if project_id == id then
       table.remove(recent_projects, i)
       break
     end
   end
-  
-  -- Insert at the beginning (most recent)
+
   table.insert(recent_projects, 1, id)
-  
-  -- Keep only the most recent projects
+
   while #recent_projects > MAX_RECENT_PROJECTS do
     table.remove(recent_projects, #recent_projects)
   end
-  
+
   save_recent_projects(recent_projects)
 end
 
--- Get priority score for a project (lower is better, most recent gets 0)
 local function get_project_priority_score(project_id)
   local recent_projects = get_recent_projects()
   for i, recent_id in ipairs(recent_projects) do
-    if recent_id == project_id then
-      return i - 1 -- 0 for most recent, 1 for second most recent, etc.
-    end
+    if recent_id == project_id then return i - 1 end
   end
-  return 999 -- Not in recent queue
-end
-
--- Legacy function for backward compatibility
-local function get_recent_project_id()
-  local recent_projects = get_recent_projects()
-  return recent_projects[1] -- Return most recent project
-end
-
--- Legacy function for backward compatibility  
-local function set_recent_project_id(id)
-  add_recent_project_id(id)
+  return 999
 end
 
 local function create_task_with_navigation(taskName, projects, fallbackProjectName)
   local select_project, select_section, select_priority
 
   select_project = function()
-    local recent_projects = get_recent_projects()
-    
     table.sort(projects, function(a, b)
       local a_priority = get_project_priority_score(a.id)
       local b_priority = get_project_priority_score(b.id)
-      
-      if a_priority ~= b_priority then
-        return a_priority < b_priority
-      end
-      
-      if a.child_order ~= b.child_order then
-        return a.child_order < b.child_order
-      end
-      
-      if a.view_order ~= b.view_order then
-        return a.view_order < b.view_order  
-      end
-      
+
+      if a_priority ~= b_priority then return a_priority < b_priority end
+      if a.child_order ~= b.child_order then return a.child_order < b.child_order end
+      if a.view_order ~= b.view_order then return a.view_order < b.view_order end
       return a.name < b.name
     end)
 
@@ -120,7 +88,7 @@ local function create_task_with_navigation(taskName, projects, fallbackProjectNa
       prompt = 'Select a project:',
       format_item = function(item) return item.name end,
     }, function(selected_project)
-      if selected_project == nil then
+      if not selected_project then
         vim.notify('Task creation cancelled', vim.log.levels.INFO)
         return
       end
@@ -138,10 +106,7 @@ local function create_task_with_navigation(taskName, projects, fallbackProjectNa
 
       local section_options = {}
       for _, section in ipairs(sections) do
-        table.insert(section_options, {
-          name = section.name,
-          id = section.id,
-        })
+        table.insert(section_options, { name = section.name, id = section.id })
       end
       table.insert(section_options, { name = '← Back to projects', id = '__back__' })
 
@@ -149,7 +114,7 @@ local function create_task_with_navigation(taskName, projects, fallbackProjectNa
         prompt = 'Select a section:',
         format_item = function(item) return item.name end,
       }, function(selected_section)
-        if selected_section == nil then
+        if not selected_section then
           vim.notify('Task creation cancelled', vim.log.levels.INFO)
           return
         end
@@ -165,17 +130,14 @@ local function create_task_with_navigation(taskName, projects, fallbackProjectNa
   end
 
   select_priority = function(selected_project, selected_section)
-    local priority_options = {}
-    for _, option in ipairs(todoistPriorityOptions) do
-      table.insert(priority_options, option)
-    end
+    local priority_options = vim.list_extend({}, todoistPriorityOptions)
     table.insert(priority_options, { name = '← Back to sections', value = '__back__' })
 
     vim.ui.select(priority_options, {
       prompt = 'Select a priority for the task:',
       format_item = function(item) return item.name end,
     }, function(priorityOption)
-      if priorityOption == nil then
+      if not priorityOption then
         vim.notify('Task creation cancelled', vim.log.levels.INFO)
         return
       end
@@ -190,7 +152,7 @@ local function create_task_with_navigation(taskName, projects, fallbackProjectNa
         selected_project.id,
         selected_section.id,
         priorityOption.value,
-        '', -- Empty deadline
+        '',
         function(task_success, response)
           if task_success then
             vim.notify(
@@ -216,7 +178,7 @@ end
 function M.log_todoist_task(fallbackProjectName)
   return function()
     local taskName = inputUtils.getInputFromUser('Enter the task name: ')
-    if taskName == nil then
+    if not taskName then
       vim.notify('No task name provided', vim.log.levels.WARN)
       return
     end
@@ -246,7 +208,7 @@ end
 function M.log_todoist_task_all_projects(fallbackProjectName)
   return function()
     local taskName = inputUtils.getInputFromUser('Enter the task name: ')
-    if taskName == nil then
+    if not taskName then
       vim.notify('No task name provided', vim.log.levels.WARN)
       return
     end

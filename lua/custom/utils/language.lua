@@ -29,7 +29,7 @@ local function findWorkspaceRoot(startPath)
     end
 
     local parent = vim.fn.fnamemodify(path, ':h')
-    if parent == path then break end -- Reached root
+    if parent == path then break end
     path = parent
   end
 

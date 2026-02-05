@@ -73,11 +73,11 @@ local config = {
   },
 }
 
-local function create_left_bubble(color_fn, icon, component)
+local function create_bubble(section, color_fn, icon, component)
   local cond = component.cond
   component.color = color_fn
 
-  table.insert(config.sections.lualine_c, {
+  table.insert(section, {
     function() return icon end,
     cond = cond,
     color = color_fn,
@@ -96,33 +96,15 @@ local function create_left_bubble(color_fn, icon, component)
     component.fmt = truncate_text
   end
 
-  table.insert(config.sections.lualine_c, component)
+  table.insert(section, component)
 end
 
-local function create_right_bubble(color_fn, icon, component)
-  local cond = component.cond
-  component.color = color_fn
+local function left_bubble(color_fn, icon, component)
+  create_bubble(config.sections.lualine_c, color_fn, icon, component)
+end
 
-  table.insert(config.sections.lualine_x, {
-    function() return icon end,
-    cond = cond,
-    color = color_fn,
-    padding = { left = 1, right = 0 },
-  })
-
-  if type(component[1]) == 'function' then
-    local orig_fn = component[1]
-    component[1] = function(...) return truncate_text(orig_fn(...)) end
-  end
-
-  if component.fmt then
-    local orig_fmt = component.fmt
-    component.fmt = function(text, ...) return truncate_text(orig_fmt(text, ...)) end
-  else
-    component.fmt = truncate_text
-  end
-
-  table.insert(config.sections.lualine_x, component)
+local function right_bubble(color_fn, icon, component)
+  create_bubble(config.sections.lualine_x, color_fn, icon, component)
 end
 
 local function get_lsp_client()
@@ -150,13 +132,13 @@ local function get_git_branch()
   return status
 end
 
-create_left_bubble(function() return { fg = colors.green, gui = 'bold' } end, '', { 'mode' })
+left_bubble(function() return { fg = colors.green, gui = 'bold' } end, '', { 'mode' })
 
-create_left_bubble(function() return { fg = colors.peach, gui = 'bold' } end, '󰕥', { get_lsp_client })
+left_bubble(function() return { fg = colors.peach, gui = 'bold' } end, '󰕥', { get_lsp_client })
 
-create_left_bubble(function() return { fg = colors.sapphire, gui = 'bold' } end, '', { get_directory_name })
+left_bubble(function() return { fg = colors.sapphire, gui = 'bold' } end, '', { get_directory_name })
 
-create_left_bubble(function() return { fg = colors.mauve, gui = 'bold' } end, '', { get_git_branch })
+left_bubble(function() return { fg = colors.mauve, gui = 'bold' } end, '', { get_git_branch })
 
 table.insert(config.sections.lualine_c, {
   'diff',

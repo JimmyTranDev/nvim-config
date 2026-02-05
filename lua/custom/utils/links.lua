@@ -3,16 +3,12 @@ local urlUtils = require('custom.utils.url')
 
 local M = {}
 
-function M.openUrl(url) vim.cmd('silent !firefox ' .. url) end
-
 function M.getGoogleSearchUrl(query)
-  local encodedQuery = urlUtils.urlencode(query)
-  return 'https://www.google.com/search?q=' .. encodedQuery
+  return 'https://www.google.com/search?q=' .. urlUtils.urlencode(query)
 end
 
 function M.getNpmUrl(query)
-  local encodedQuery = urlUtils.urlencode(query)
-  return 'https://www.npmjs.com/package/' .. encodedQuery
+  return 'https://www.npmjs.com/package/' .. urlUtils.urlencode(query)
 end
 
 function M.getJiraLinkWithTicket(ticket) return linkConstants.jiraTicketUrl .. ticket end

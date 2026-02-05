@@ -1,5 +1,4 @@
 local M = {}
-local gitUtils = require('custom.utils.git')
 
 local function is_vscode_window_open()
   local git_root = vim.fn.system('git rev-parse --show-toplevel 2>/dev/null'):gsub('\n', '')
