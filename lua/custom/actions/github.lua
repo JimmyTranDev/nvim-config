@@ -291,9 +291,9 @@ function M.list_contributed_repos_and_open()
 end
 
 function M.open_org_repo_by_folder()
-  local org_name = vim.env.GITHUB_ORGANIZATION_NAME
+  local org_name = vim.env.GITHUB_ORGANIZATION_NAME or vim.env.ORG_NAME
   if not org_name or org_name == '' then
-    vim.notify('GITHUB_ORGANIZATION_NAME not set', vim.log.levels.ERROR)
+    vim.notify('GITHUB_ORGANIZATION_NAME or ORG_NAME not set', vim.log.levels.ERROR)
     return
   end
 
