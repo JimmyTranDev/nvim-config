@@ -29,12 +29,7 @@ local function open_url(url, description)
 end
 
 local function get_current_repo_url()
-  local handle = io.popen('gh repo view --json url 2>/dev/null')
-  if not handle then return nil end
-
-  local output = handle:read('*a')
-  handle:close()
-
+  local output = vim.fn.system('gh repo view --json url 2>/dev/null')
   if vim.v.shell_error ~= 0 then return nil end
 
   local ok, repo_info = pcall(vim.fn.json_decode, output)

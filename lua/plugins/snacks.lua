@@ -579,12 +579,12 @@ return {
       desc = 'Package.json Packages',
     },
     {
-      '<leader>fgr',
+      '<leader>fjr',
       function() require('custom.actions.github').list_org_repos_and_open() end,
       desc = 'List Org Repos',
     },
     {
-      '<leader>fgc',
+      '<leader>fjc',
       function() require('custom.actions.github').list_contributed_repos_and_open() end,
       desc = 'Contributed Repos',
     },

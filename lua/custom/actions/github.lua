@@ -269,8 +269,9 @@ function M.list_contributed_repos_and_open()
 
       local items = {}
       for _, repo in ipairs(repos) do
+        local desc = type(repo.description) == 'string' and repo.description or nil
         table.insert(items, {
-          text = repo.nameWithOwner .. (repo.description and (' - ' .. repo.description) or ''),
+          text = repo.nameWithOwner .. (desc and (' - ' .. desc) or ''),
           name = repo.nameWithOwner,
           url = repo.url,
         })
