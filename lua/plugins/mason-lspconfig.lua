@@ -10,6 +10,7 @@ return {
   lazy = false,
   opts = {
     servers = {
+      jdtls = {},
       lua_ls = {
         filetypes = { 'lua' },
         settings = {
