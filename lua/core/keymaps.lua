@@ -11,6 +11,7 @@ local documentationActions = require('custom.actions.documentation')
 local gitActions = require('custom.actions.git')
 local editorActions = require('custom.actions.editor')
 local bufferActions = require('custom.actions.buffers')
+local journalActions = require('custom.actions.journal')
 
 local function map(mode, lhs, rhs, opts)
   opts = vim.tbl_extend('force', { silent = true, noremap = true }, opts or {})
@@ -144,13 +145,13 @@ map('n', '<Leader>w', ':w<CR>', { desc = 'Write' })
 map('n', '<Leader>W', ':wa<CR>', { desc = 'Write all' })
 
 map('n', '<Leader>rr', todoistActions.log_todoist_task(), { desc = 'Log task (salmon)' })
-map('n', '<Leader>rl', function() vim.notify('Leader rl - functionality not implemented yet') end, { desc = 'Link action (placeholder)' })
 map('n', '<Leader>rR', todoistActions.log_todoist_task_all_projects(), { desc = 'Log task (all projects)' })
 map('n', '<Leader>rC', todoistActions.refresh_todoist_cache(), { desc = 'Refresh Todoist cache' })
 
 map('n', '<Leader>rj', jiraActions.create_jira_task(), { desc = 'Create Jira task' })
 map('n', '<Leader>rL', jiraActions.create_jira_task_with_link(), { desc = 'Create Jira task + open link' })
 map('n', '<Leader>rJ', jiraActions.refresh_jira_cache, { desc = 'Refresh Jira cache' })
+map('n', '<Leader>rl', journalActions.add_journal_entry, { desc = 'Add journal entry' })
 
 maps('n', {
   { '<leader>zc', ':Lazy clean<CR>', 'Lazy clean' },

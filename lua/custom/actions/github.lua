@@ -170,6 +170,7 @@ M.open_prs_in_current_repo = M.open_current_repo_prs
 function M.list_org_repos_and_open()
   local orgs = {
     vim.env.GITHUB_ORGANIZATION_NAME,
+    vim.env.ORG_NAME,
     vim.env.PRI_GITHUB_USERNAME,
   }
 
