@@ -253,7 +253,7 @@ local function create_jira_task_workflow(summary, fallback_project, should_open_
 
           local assignee_email = get_current_user_email()
           local assignee_flag = assignee_email and string.format(' --assignee "%s"', assignee_email) or ''
-          local label_flag = selected_label.value and string.format(' --labels "%s"', selected_label.value) or ''
+          local label_flag = selected_label.value and string.format(' --label "%s"', selected_label.value) or ''
 
           local cmd = string.format(
             'acli jira workitem create --summary "%s" --project "%s" --type "%s" --parent "%s"%s%s',
