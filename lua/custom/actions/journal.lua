@@ -146,4 +146,48 @@ function M.add_journal_entry()
   end)
 end
 
+function M.open_journal()
+  local filepath = get_journal_path()
+  ensure_directory_exists(filepath)
+
+  local today = tonumber(os.date('%d'))
+  local lines = read_file(filepath)
+  local existing_days = parse_existing_days(lines)
+
+  if not existing_days[today] then
+    local header = format_day_header()
+    local insert_line, after_day = find_insertion_point(lines, today, existing_days)
+    local new_content = { '## ' .. header, '', '' }
+
+    if after_day then
+      for i = #new_content, 1, -1 do
+        table.insert(lines, insert_line, new_content[i])
+      end
+    else
+      if insert_line <= #lines then
+        for i = 1, #new_content do
+          table.insert(lines, insert_line + i - 1, new_content[i])
+        end
+      else
+        if #lines > 0 and lines[#lines] ~= '' then
+          table.insert(lines, '')
+        end
+        for _, line in ipairs(new_content) do
+          table.insert(lines, line)
+        end
+      end
+    end
+
+    write_file(filepath, lines)
+    existing_days = parse_existing_days(lines)
+  end
+
+  vim.cmd('edit ' .. vim.fn.fnameescape(filepath))
+
+  if existing_days[today] then
+    vim.api.nvim_win_set_cursor(0, { existing_days[today] + 1, 0 })
+    vim.cmd('normal! zz')
+  end
+end
+
 return M
