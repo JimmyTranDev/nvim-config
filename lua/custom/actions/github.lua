@@ -239,9 +239,9 @@ function M.list_org_repos_and_open()
 end
 
 function M.list_contributed_repos_and_open()
-  local username = vim.env.PRI_GITHUB_USERNAME
-  if not username or username == '' then
-    vim.notify('PRI_GITHUB_USERNAME not set', vim.log.levels.ERROR)
+  local org_name = vim.env.GITHUB_ORGANIZATION_NAME or vim.env.ORG_NAME
+  if not org_name or org_name == '' then
+    vim.notify('GITHUB_ORGANIZATION_NAME or ORG_NAME not set', vim.log.levels.ERROR)
     return
   end
 
@@ -270,16 +270,24 @@ function M.list_contributed_repos_and_open()
 
       local items = {}
       for _, repo in ipairs(repos) do
-        local desc = type(repo.description) == 'string' and repo.description or nil
-        table.insert(items, {
-          text = repo.nameWithOwner .. (desc and (' - ' .. desc) or ''),
-          name = repo.nameWithOwner,
-          url = repo.url,
-        })
+        local repo_org = repo.nameWithOwner:match('^([^/]+)/')
+        if repo_org and repo_org:lower() == org_name:lower() then
+          local desc = type(repo.description) == 'string' and repo.description or nil
+          table.insert(items, {
+            text = repo.nameWithOwner .. (desc and (' - ' .. desc) or ''),
+            name = repo.nameWithOwner,
+            url = repo.url,
+          })
+        end
+      end
+
+      if #items == 0 then
+        vim.notify('No contributed repos found for ' .. org_name, vim.log.levels.INFO)
+        return
       end
 
       Snacks.picker({
-        title = 'Contributed Repos',
+        title = 'Contributed Repos: ' .. org_name,
         items = items,
         format = function(item) return { { item.text, 'Normal' } } end,
         confirm = function(picker, item)
