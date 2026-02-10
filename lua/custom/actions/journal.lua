@@ -93,11 +93,20 @@ local function find_entry_insert_line(lines, today, existing_days)
   return #lines + 1
 end
 
+local function capitalize_first_char(str)
+  if not str or str == '' then
+    return str
+  end
+  return str:sub(1, 1):upper() .. str:sub(2)
+end
+
 function M.add_journal_entry()
   vim.ui.input({ prompt = 'Journal entry: ' }, function(input)
     if not input or input == '' then
       return
     end
+
+    input = capitalize_first_char(input)
 
     local filepath = get_journal_path()
     ensure_directory_exists(filepath)
