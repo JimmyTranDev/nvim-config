@@ -11,6 +11,12 @@ function M.getNpmUrl(query)
   return 'https://www.npmjs.com/package/' .. urlUtils.urlencode(query)
 end
 
-function M.getJiraLinkWithTicket(ticket) return linkConstants.jiraTicketUrl .. ticket end
+function M.getJiraLinkWithTicket(ticket)
+  if not linkConstants.jiraTicketUrl or linkConstants.jiraTicketUrl == '' then
+    vim.notify('ORG_JIRA_TICKET_LINK not set', vim.log.levels.ERROR)
+    return nil
+  end
+  return linkConstants.jiraTicketUrl .. ticket
+end
 
 return M
