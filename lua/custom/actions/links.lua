@@ -2,22 +2,11 @@ local link_utils = require('custom.utils.links')
 local git_utils = require('custom.utils.git')
 local link_constants = require('custom.constants.links')
 local github_utils = require('custom.utils.github')
-local array_utils = require('custom.utils.array')
 local language_utils = require('custom.utils.language')
 local file_utils = require('custom.utils.files')
 local ui_utils = require('custom.utils.ui')
 
 local M = {}
-
-local function get_project_names_with_current()
-  local current_repo = github_utils.getRepoName()
-  if current_repo and current_repo ~= '' then
-    local result = {}
-    array_utils.tableMerge({ current_repo }, link_constants.projectNames or {}, result)
-    return result
-  end
-  return link_constants.projectNames or {}
-end
 
 local function open_url(url, description)
   if not url or url == '' then

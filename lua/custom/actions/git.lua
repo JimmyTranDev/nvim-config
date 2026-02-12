@@ -53,7 +53,7 @@ function M.createCommit(prefix, emoji, shouldPush, shouldGeneric)
     local branchName = git_utils.get_current_branch()
     local jiraTicket = git_utils.extract_jira_ticket(branchName)
 
-    local commitMessage = ''
+    local commitMessage
 
     if not shouldGeneric then
       local commitDescription = input_utils.get_input('󰦨 Description: ')
@@ -88,9 +88,9 @@ function M.createCommitFromBranchName()
     return
   end
 
-  local commitMessage = branchName
-  local emoji = ''
-  local prefix = ''
+  local commitMessage
+  local emoji
+  local prefix
 
   if branchName:find('^feat/') or branchName:find('^feature/') then
     prefix = 'feat'

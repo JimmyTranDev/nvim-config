@@ -59,7 +59,7 @@ local function get_project_priority_score(project_id)
   return 999
 end
 
-local function create_task_with_navigation(taskName, projects, fallbackProjectName)
+local function create_task_with_navigation(taskName, projects, _fallbackProjectName)
   local select_project, select_section, select_priority
 
   select_project = function()

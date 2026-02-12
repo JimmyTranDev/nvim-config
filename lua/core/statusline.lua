@@ -103,10 +103,6 @@ local function left_bubble(color_fn, icon, component)
   create_bubble(config.sections.lualine_c, color_fn, icon, component)
 end
 
-local function right_bubble(color_fn, icon, component)
-  create_bubble(config.sections.lualine_x, color_fn, icon, component)
-end
-
 local function get_lsp_client()
   local buf_ft = vim.bo.filetype
   local clients = vim.lsp.get_clients()

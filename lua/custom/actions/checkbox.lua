@@ -8,11 +8,6 @@ local function has_unchecked_checkbox(line)
   return line:find(UNCHECKED_PATTERN) ~= nil
 end
 
-local function has_checked_checkbox(line)
-  if not line then return false end
-  return line:find(CHECKED_PATTERN) ~= nil
-end
-
 local function has_any_checkbox(line)
   if not line then return false end
   return line:find('^%s*[-%d].*%[[x ]%]') ~= nil

@@ -1,5 +1,6 @@
 local inputUtils = require('custom.utils.input')
 local git_utils = require('custom.utils.git')
+local Snacks = require('snacks')
 
 local M = {}
 
@@ -465,6 +466,131 @@ M.copy_ticket_with_title = function()
       vim.notify('Copied: ' .. ticket_with_title, vim.log.levels.INFO)
     end)
   )
+end
+
+local COPY_FORMATS = {
+  { name = 'Test', value = 'test' },
+  { name = 'QUA', value = 'qua' },
+}
+
+local function fetch_assigned_issues(callback)
+  local assignee_email = get_current_user_email()
+  if not assignee_email then
+    vim.notify('ORG_EMAIL environment variable not set', vim.log.levels.ERROR)
+    return
+  end
+
+  local escaped_email = assignee_email:gsub('@', '\\u0040')
+  local jql_query = string.format(
+    "assignee = '%s' AND status NOT IN ('Done', 'Closed', 'Cancelled') ORDER BY updated DESC",
+    escaped_email
+  )
+
+  local cmd = string.format(
+    "acli jira workitem search --jql \"%s\" --fields 'key,summary,status' --limit 100 --csv",
+    jql_query
+  )
+
+  vim.notify('Fetching assigned issues...', vim.log.levels.INFO)
+
+  vim.system(
+    { 'sh', '-c', cmd },
+    { text = true },
+    vim.schedule_wrap(function(result)
+      if result.code ~= 0 then
+        local error_msg = result.stderr ~= '' and result.stderr or result.stdout
+        vim.notify('Failed to fetch issues: ' .. error_msg, vim.log.levels.ERROR)
+        callback(nil)
+        return
+      end
+
+      local lines = vim.split(result.stdout, '\n', { trimempty = true })
+      if #lines <= 1 then
+        vim.notify('No assigned issues found', vim.log.levels.WARN)
+        callback(nil)
+        return
+      end
+
+      local issues = {}
+      for i = 2, #lines do
+        local fields = parse_csv_line(lines[i])
+        if #fields >= 3 then
+          table.insert(issues, {
+            key = fields[1],
+            status = fields[2],
+            summary = fields[3],
+            display = string.format('%s - %s (%s)', fields[1], fields[3], fields[2]),
+          })
+        end
+      end
+
+      callback(issues)
+    end)
+  )
+end
+
+local function format_issues_for_copy(issues, format_type)
+  local formatted_lines = {}
+  for _, issue in ipairs(issues) do
+    local line
+    if format_type == 'test' then
+      line = string.format('test %s: %s', issue.key, issue.summary)
+    else
+      line = string.format('qua %s: %s', issue.key, issue.summary)
+    end
+    table.insert(formatted_lines, line)
+  end
+  return table.concat(formatted_lines, '\n')
+end
+
+M.copy_assigned_issues_for_testing = function()
+  fetch_assigned_issues(function(issues)
+    if not issues or #issues == 0 then return end
+
+    local picker_items = {}
+    for _, issue in ipairs(issues) do
+      table.insert(picker_items, {
+        text = issue.display,
+        issue = issue,
+      })
+    end
+
+    Snacks.picker({
+      title = 'Select Issues to Copy',
+      items = picker_items,
+      format = function(item) return { { item.text, 'Normal' } } end,
+      multi = true,
+      confirm = function(picker)
+        local selected_items = picker:selected({ fallback = true })
+        picker:close()
+
+        if not selected_items or #selected_items == 0 then
+          vim.notify('No issues selected', vim.log.levels.INFO)
+          return
+        end
+
+        local selected_issues = {}
+        for _, item in ipairs(selected_items) do
+          table.insert(selected_issues, item.issue)
+        end
+
+        vim.ui.select(COPY_FORMATS, {
+          prompt = 'Select format:',
+          format_item = function(item) return item.name end,
+        }, function(selected_format)
+          if not selected_format then
+            vim.notify('Cancelled', vim.log.levels.INFO)
+            return
+          end
+
+          local formatted = format_issues_for_copy(selected_issues, selected_format.value)
+          vim.fn.setreg('+', formatted)
+          vim.notify(string.format('Copied %d issue(s) as %s format', #selected_issues, selected_format.name), vim.log.levels.INFO)
+        end)
+      end,
+      layout = { preset = 'default', preview = false },
+    })
+  end)
 end
 
 return M

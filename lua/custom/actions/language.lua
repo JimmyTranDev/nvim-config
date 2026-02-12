@@ -161,7 +161,7 @@ function M.run_eslint_picker()
   })
 end
 
-local function run_knip(args, title, process_result)
+local function run_knip(args, _title, process_result)
   local pm = get_pm()
   if not pm then return end
 
