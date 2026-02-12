@@ -11,21 +11,18 @@ return {
       function()
         vim.cmd('TSToolsFixAll')
         vim.defer_fn(function()
-          vim.cmd('TSToolsRemoveUnusedImports')
+          vim.cmd('TSToolsRemoveUnused')
           vim.defer_fn(function()
-            vim.cmd('TSToolsRemoveUnused')
+            vim.cmd('TSToolsRemoveUnusedImports')
             vim.defer_fn(function()
               vim.cmd('TSToolsAddMissingImports')
               vim.defer_fn(function()
                 vim.cmd('TSToolsOrganizeImports')
-                vim.defer_fn(function()
-                  vim.cmd('TSToolsSortImports')
-                  vim.notify('Complete TypeScript cleanup finished: fixed all issues, cleaned imports, organized code', vim.log.levels.INFO)
-                end, 100)
+                vim.notify('Complete TypeScript cleanup finished', vim.log.levels.INFO)
               end, 100)
             end, 100)
           end, 100)
-        end, 200) -- Longer delay for FixAll to complete
+        end, 200)
       end,
       desc = 'Complete TS Cleanup (fix all, clean imports, organize)',
       silent = true,
