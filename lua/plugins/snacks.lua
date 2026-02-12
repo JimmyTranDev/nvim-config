@@ -474,12 +474,6 @@ return {
       desc = 'Find Git Conflicts',
     },
     {
-      '<leader>fjh',
-      function() require('custom.actions.github').open_current_commit_in_github() end,
-      desc = 'Open Current Commit in GitHub',
-    },
-
-    {
       '<leader>fv/',
       function() Snacks.picker.search_history() end,
       desc = 'Search History',
@@ -579,12 +573,12 @@ return {
       desc = 'Package.json Packages',
     },
     {
-      '<leader>fjr',
+      '<leader>ug',
       function() require('custom.actions.github').list_org_repos_and_open() end,
       desc = 'List Org Repos',
     },
     {
-      '<leader>fjc',
+      '<leader>uG',
       function() require('custom.actions.github').list_contributed_repos_and_open() end,
       desc = 'Contributed Repos',
     },
