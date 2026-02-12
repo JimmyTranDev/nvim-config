@@ -11,39 +11,6 @@ function M.open_current_dir()
   end
 end
 
-function M.move_file_to_assets(source_dir)
-  return function()
-    if not source_dir then
-      vim.notify('Source directory not specified', vim.log.levels.ERROR)
-      return
-    end
-
-    local asset_dirs = file_utils.find_dirs_with_name('assets')
-    if #asset_dirs == 0 then
-      vim.notify('No assets folder found in project', vim.log.levels.WARN)
-      return
-    end
-
-    local target_dir = vim.fn.getcwd() .. '/' .. asset_dirs[1]
-    local origin_dir = file_utils.get_path_from_home(source_dir)
-    local files = file_utils.list_files(origin_dir)
-
-    if #files == 0 then
-      vim.notify('No files found in source directory', vim.log.levels.WARN)
-      return
-    end
-
-    vim.ui.select(files, { prompt = 'Select file to move to assets:' }, function(filename)
-      if not filename then return end
-      local new_filename = file_utils.rename_file_interactive(filename, origin_dir, target_dir)
-      if new_filename then
-        file_utils.paste_markdown_link(new_filename)
-        vim.notify('File moved and markdown link pasted', vim.log.levels.INFO)
-      end
-    end)
-  end
-end
-
 function M.yank_word_and_open()
   vim.cmd('normal! "ayW')
   local word = vim.fn.getreg('a')

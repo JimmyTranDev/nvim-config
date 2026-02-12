@@ -300,24 +300,4 @@ function M.list_contributed_repos_and_open()
   )
 end
 
-function M.open_org_repo_by_folder()
-  local org_name = vim.env.GITHUB_ORGANIZATION_NAME or vim.env.ORG_NAME
-  if not org_name or org_name == '' then
-    vim.notify('GITHUB_ORGANIZATION_NAME or ORG_NAME not set', vim.log.levels.ERROR)
-    return
-  end
-
-  local cwd = vim.fn.getcwd()
-  local folder_name = vim.fn.fnamemodify(cwd, ':t')
-
-  if not folder_name or folder_name == '' then
-    vim.notify('Could not determine folder name', vim.log.levels.ERROR)
-    return
-  end
-
-  local url = 'https://github.com/' .. org_name .. '/' .. folder_name
-  open_url(url)
-  vim.notify('Opened ' .. org_name .. '/' .. folder_name .. ' in browser', vim.log.levels.INFO)
-end
-
 return M
