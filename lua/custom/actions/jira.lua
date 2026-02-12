@@ -1,4 +1,5 @@
 local inputUtils = require('custom.utils.input')
+local git_utils = require('custom.utils.git')
 
 local M = {}
 
@@ -356,6 +357,114 @@ M.refresh_jira_cache = function()
   else
     vim.notify('Failed to clear Jira parent issues cache', vim.log.levels.ERROR)
   end
+end
+
+M.generate_done_md = function()
+  local assignee_email = get_current_user_email()
+  if not assignee_email then
+    vim.notify('ORG_EMAIL environment variable not set', vim.log.levels.ERROR)
+    return
+  end
+
+  local escaped_email = assignee_email:gsub('@', '\\u0040')
+  local jql_query = string.format(
+    "assignee was '%s' AND status changed to 'In Progress Development' AFTER -7d ORDER BY updated DESC",
+    escaped_email
+  )
+
+  local cmd = string.format(
+    "acli jira workitem search --jql \"%s\" --fields 'key,summary,status' --limit 100 --csv",
+    jql_query
+  )
+
+  vim.notify('Fetching completed tasks...', vim.log.levels.INFO)
+
+  vim.system(
+    { 'sh', '-c', cmd },
+    { text = true },
+    vim.schedule_wrap(function(result)
+      if result.code ~= 0 then
+        local error_msg = result.stderr ~= '' and result.stderr or result.stdout
+        vim.notify('Failed to fetch tasks: ' .. error_msg, vim.log.levels.ERROR)
+        return
+      end
+
+      local lines = vim.split(result.stdout, '\n', { trimempty = true })
+      if #lines <= 1 then
+        vim.notify('No completed tasks found', vim.log.levels.WARN)
+        return
+      end
+
+      local md_lines = { '# Done Tasks', '', '| Ticket | Summary | Status |', '|--------|---------|--------|' }
+
+      for i = 2, #lines do
+        local fields = parse_csv_line(lines[i])
+        if #fields >= 3 then
+          local key = fields[1]
+          local status = fields[2]
+          local summary = fields[3]:gsub('|', '\\|')
+          local ticket_link = string.format('[%s](%s/%s)', key, CONFIG.JIRA_BASE_URL, key)
+          table.insert(md_lines, string.format('| %s | %s | %s |', ticket_link, summary, status))
+        end
+      end
+
+      local root_dir = vim.fn.getcwd()
+      local done_file = root_dir .. '/DONE.md'
+      local content = table.concat(md_lines, '\n')
+
+      local file = io.open(done_file, 'w')
+      if file then
+        file:write(content)
+        file:close()
+        vim.notify(string.format('Generated %s with %d tasks', done_file, #lines - 1), vim.log.levels.INFO)
+      else
+        vim.notify('Failed to write DONE.md', vim.log.levels.ERROR)
+      end
+    end)
+  )
+end
+
+M.copy_ticket_with_title = function()
+  local branch_name = git_utils.get_current_branch()
+  if not branch_name or branch_name == '' then
+    vim.notify('Not in a git repository or no branch found', vim.log.levels.WARN)
+    return
+  end
+
+  local jira_ticket = git_utils.extract_jira_ticket(branch_name)
+  if not jira_ticket or jira_ticket == '' then
+    vim.notify('No JIRA ticket found in branch name: ' .. branch_name, vim.log.levels.WARN)
+    return
+  end
+
+  local cmd = string.format("acli jira workitem view --key '%s' --fields 'summary' --csv", jira_ticket)
+
+  vim.notify('Fetching ticket title...', vim.log.levels.INFO)
+
+  vim.system(
+    { 'sh', '-c', cmd },
+    { text = true },
+    vim.schedule_wrap(function(result)
+      if result.code ~= 0 then
+        local error_msg = result.stderr ~= '' and result.stderr or result.stdout
+        vim.notify('Failed to fetch ticket: ' .. error_msg, vim.log.levels.ERROR)
+        return
+      end
+
+      local lines = vim.split(result.stdout, '\n', { trimempty = true })
+      if #lines < 2 then
+        vim.notify('No ticket data found', vim.log.levels.WARN)
+        return
+      end
+
+      local fields = parse_csv_line(lines[2])
+      local summary = fields[1] or ''
+      local ticket_with_title = string.format('%s: %s', jira_ticket, summary)
+
+      vim.fn.setreg('+', ticket_with_title)
+      vim.notify('Copied: ' .. ticket_with_title, vim.log.levels.INFO)
+    end)
+  )
 end
 
 return M

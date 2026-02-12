@@ -147,6 +147,8 @@ map('n', '<Leader>rC', todoistActions.refresh_todoist_cache(), { desc = 'Refresh
 map('n', '<Leader>rj', jiraActions.create_jira_task(), { desc = 'Create Jira task' })
 map('n', '<Leader>rK', jiraActions.create_jira_task_with_link(), { desc = 'Create Jira task + open link' })
 map('n', '<Leader>rJ', jiraActions.refresh_jira_cache, { desc = 'Refresh Jira cache' })
+map('n', '<Leader>rM', jiraActions.generate_done_md, { desc = 'Generate DONE.md from Jira' })
+map('n', '<Leader>rk', jiraActions.copy_ticket_with_title, { desc = 'Copy Jira ticket with title' })
 map('n', '<Leader>rd', journalActions.add_journal_entry, { desc = 'Add journal entry' })
 map('n', '<Leader>rD', journalActions.open_journal, { desc = 'Open journal' })
 
