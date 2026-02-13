@@ -18,8 +18,6 @@ return {
   config = function()
     vim.g.opencode_opts = {}
 
-    vim.o.autoread = true
-
     vim.api.nvim_create_autocmd('VimEnter', {
       callback = function()
         vim.defer_fn(function()

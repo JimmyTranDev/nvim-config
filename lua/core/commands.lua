@@ -124,6 +124,28 @@ local function cleanup_default_keymaps()
   end
 end
 
+local function setup_auto_refresh()
+  vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold', 'CursorHoldI' }, {
+    group = augroup('auto_refresh'),
+    pattern = '*',
+    callback = function()
+      if vim.fn.getcmdwintype() == '' then
+        vim.cmd('checktime')
+      end
+    end,
+    desc = 'Check for external file changes and reload buffers',
+  })
+
+  vim.api.nvim_create_autocmd('FileChangedShellPost', {
+    group = augroup('auto_refresh_notify'),
+    pattern = '*',
+    callback = function()
+      vim.notify('File changed on disk. Buffer reloaded.', vim.log.levels.INFO)
+    end,
+    desc = 'Notify when a file is reloaded due to external changes',
+  })
+end
+
 function M.setup()
   setup_filetype_associations()
   setup_language_settings()
@@ -131,6 +153,7 @@ function M.setup()
   setup_visual_enhancements()
   setup_git_integration()
   setup_lsp_progress()
+  setup_auto_refresh()
   cleanup_default_keymaps()
 end
 

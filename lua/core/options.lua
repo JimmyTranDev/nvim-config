@@ -8,6 +8,7 @@ local function setup_editor_basics()
 
   vim.o.undofile = true
   vim.o.hidden = true
+  vim.o.autoread = true
 
   vim.o.completeopt = 'menuone,noselect'
 
