@@ -14,6 +14,20 @@ A **performance-focused**, **productivity-driven** Neovim configuration built wi
 - **Modular architecture** with clear separation between core, plugins, and custom utilities
 - **Battle-tested** plugin choices focused on stability and performance
 
+## Tech Stack
+
+| Component | Technologies |
+|-----------|--------------|
+| **Core** | Neovim 0.10+, Lua 5.1+, lazy.nvim |
+| **Completion** | Blink.cmp (Rust-based), GitHub Copilot |
+| **LSP** | Mason, nvim-lspconfig (20+ language servers) |
+| **Syntax** | Treesitter, nvim-treesitter-textobjects |
+| **AI** | OpenCode.nvim, CopilotChat.nvim, WTF.nvim |
+| **Git** | LazyGit, Fugitive, GitSigns |
+| **Navigation** | Snacks.picker, Yazi, Hop, Leap, Arrow |
+| **UI** | Catppuccin, Lualine, Snacks.nvim, Dropbar |
+| **Integrations** | Todoist API, Jira API, GitHub API |
+
 ### Unique Custom Features
 - **Todoist Integration** - Full API integration with project management and priority setting
 - **Jira Integration** - Direct task creation and linking from within Neovim
