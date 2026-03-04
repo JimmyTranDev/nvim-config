@@ -13,6 +13,4 @@ function M.killAllToggleTerm()
   end
 end
 
-M.kill_all_toggle_term = M.killAllToggleTerm
-
 return M

@@ -30,13 +30,4 @@ function M.get_commit_log(include_all)
   return commit_lines, line_to_sha
 end
 
-function M.get_latest_commit_sha()
-  return run_cmd('git rev-parse HEAD')
-end
-
-function M.is_git_repo()
-  local result = run_cmd('git rev-parse --git-dir')
-  return result ~= nil and result ~= ''
-end
-
 return M

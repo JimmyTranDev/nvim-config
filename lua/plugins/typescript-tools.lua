@@ -27,8 +27,5 @@ return {
       desc = 'Complete TS Cleanup (fix all, clean imports, organize)',
       silent = true,
     },
-    -- { mode = 'n', '<leader>cd', ':TSToolsGoToSourceDefinition<CR>', desc = 'Go to Source Definition' },
-    -- { mode = 'n', '<leader>cR', ':TSToolsRenameFile<CR>', desc = 'Rename File' },
-    -- { mode = 'n', '<leader>cr', ':TSToolsFileReferences<CR>', desc = 'File References' },
   },
 }

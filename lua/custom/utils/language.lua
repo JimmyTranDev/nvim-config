@@ -109,27 +109,6 @@ function M.getJavascriptPackageManagerDevArg()
   end
 end
 
-function M.getPackageManagerExecutable(workspaceContext)
-  local packageManager = M.getJavascriptPackageManager()
-  local isInWs = M.isInWorkspace()
-
-  if not packageManager or packageManager == '' then return 'npm' end
-
-  if workspaceContext and isInWs then
-    if packageManager == 'pnpm' then
-      return 'pnpm --filter'
-    elseif packageManager == 'yarn' then
-      return 'yarn workspace'
-    elseif packageManager == 'npm' then
-      return 'npm --workspace'
-    elseif packageManager == 'bun' then
-      return 'bun --filter'
-    end
-  end
-
-  return packageManager
-end
-
 function M.getNpxEquivalent()
   local packageManager = M.getJavascriptPackageManager()
 
@@ -177,68 +156,6 @@ function M.getScriptsFromPackageJson(packageJsonPath)
   local ok, scripts = pcall(vim.fn.json_decode, result)
   if ok and scripts then return scripts end
   return {}
-end
-
-function M.getWorkspacePackages()
-  local workspaceRoot = M.getWorkspaceRoot()
-  if not workspaceRoot or not M.isInWorkspace() then return {} end
-
-  local packageManager = M.getJavascriptPackageManager()
-  local command = nil
-
-  if packageManager == 'pnpm' then
-    command = 'pnpm list --recursive --depth=-1 --json'
-  elseif packageManager == 'yarn' then
-    command = 'yarn workspaces list --json'
-  elseif packageManager == 'npm' then
-    command = 'npm ls --workspaces --json'
-  elseif packageManager == 'bun' then
-    command = 'bun pm ls --all --json'
-  end
-
-  if command then
-    local handle = io.popen('cd "' .. workspaceRoot .. '" && ' .. command .. ' 2>/dev/null')
-    if handle then
-      local result = handle:read('*a')
-      handle:close()
-
-      local ok, data = pcall(vim.fn.json_decode, result)
-      if ok and data then return M.extractWorkspaceNames(data, packageManager) end
-    end
-  end
-
-  return {}
-end
-
-function M.extractWorkspaceNames(data, packageManager)
-  local names = {}
-
-  if packageManager == 'pnpm' and type(data) == 'table' then
-    for _, pkg in ipairs(data) do
-      if pkg.name and pkg.path then table.insert(names, pkg.name) end
-    end
-  elseif packageManager == 'yarn' and type(data) == 'string' then
-    for line in data:gmatch('[^\r\n]+') do
-      local ok, workspace = pcall(vim.fn.json_decode, line)
-      if ok and workspace and workspace.name then table.insert(names, workspace.name) end
-    end
-  elseif packageManager == 'npm' and data.dependencies then
-    for name, _ in pairs(data.dependencies) do
-      table.insert(names, name)
-    end
-  elseif packageManager == 'bun' and type(data) == 'table' then
-    if data.packages then
-      for _, pkg in ipairs(data.packages) do
-        if pkg.name then table.insert(names, pkg.name) end
-      end
-    elseif type(data) == 'table' then
-      for _, pkg in ipairs(data) do
-        if type(pkg) == 'table' and pkg.name then table.insert(names, pkg.name) end
-      end
-    end
-  end
-
-  return names
 end
 
 function M.openServerUrl(type)

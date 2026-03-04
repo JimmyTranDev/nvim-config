@@ -42,9 +42,4 @@ function M.parse_json_from_file(file_path)
   end
 end
 
-function M.reset_notification_flags()
-  notified_secrets_missing = false
-  missing_files = {}
-end
-
 return M

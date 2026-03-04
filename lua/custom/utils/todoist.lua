@@ -176,8 +176,4 @@ function M.create_task_with_project(content, project_id, section_id, priority, d
   end)
 end
 
-function M.create_task(text, callback)
-  M.create_task_with_project(text, nil, nil, nil, nil, callback)
-end
-
 return M

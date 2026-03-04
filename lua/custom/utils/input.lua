@@ -22,16 +22,4 @@ function M.get_selected_text(clean)
   return selected
 end
 
-M.getSelectedText = function() return M.get_selected_text(true) end
-M.getSelectedTextPure = function() return M.get_selected_text(false) end
-
-function M.get_buffer_content()
-  return table.concat(vim.api.nvim_buf_get_lines(0, 0, -1, false), '\n')
-end
-
-function M.replace_buffer_content(new_content)
-  if type(new_content) ~= 'string' then error('New content must be a string') end
-  vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(new_content, '\n'))
-end
-
 return M

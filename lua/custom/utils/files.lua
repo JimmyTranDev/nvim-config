@@ -1,13 +1,5 @@
 local M = {}
 
-function M.get_cwd_name()
-  return vim.fn.getcwd():match('([^/]+)$') or ''
-end
-
-function M.get_current_dir()
-  return vim.cmd('pwd')
-end
-
 function M.list_files(dir)
   if type(dir) ~= 'string' then return {} end
   local result = vim.fn.systemlist('ls -t ' .. vim.fn.shellescape(dir))

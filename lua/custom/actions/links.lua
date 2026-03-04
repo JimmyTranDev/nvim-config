@@ -1,7 +1,6 @@
 local link_utils = require('custom.utils.links')
 local git_utils = require('custom.utils.git')
 local link_constants = require('custom.constants.links')
-local github_utils = require('custom.utils.github')
 local language_utils = require('custom.utils.language')
 local file_utils = require('custom.utils.files')
 local ui_utils = require('custom.utils.ui')
@@ -24,23 +23,6 @@ local function get_current_repo_url()
   local ok, repo_info = pcall(vim.fn.json_decode, output)
   if ok and repo_info and repo_info.url then return repo_info.url end
   return nil
-end
-
-function M.open_private_github_repo()
-  local github_username = link_constants.githubUsername
-  local current_repo = github_utils.getRepoName()
-
-  if not current_repo then
-    vim.notify('Git remote origin not found', vim.log.levels.WARN)
-    return
-  end
-
-  if not github_username then
-    vim.notify('GitHub username not configured', vim.log.levels.ERROR)
-    return
-  end
-
-  open_url(github_utils.getRepoUrl(github_username, current_repo), 'Private repo: ' .. current_repo)
 end
 
 function M.open_current_github_repo()

@@ -1,4 +1,5 @@
 local github_utils = require('custom.utils.github')
+local Snacks = require('snacks')
 
 local M = {}
 
@@ -52,16 +53,6 @@ function M.create_draft_pr()
     vim.notify('Draft PR created and opened in browser', vim.log.levels.INFO)
   else
     vim.notify('Failed to create draft PR: ' .. result, vim.log.levels.ERROR)
-  end
-end
-
-function M.create_pr_into_develop()
-  local result = vim.fn.system('gh pr create --base develop --web 2>&1')
-
-  if vim.v.shell_error == 0 then
-    vim.notify('PR created into develop and opened in browser', vim.log.levels.INFO)
-  else
-    vim.notify('Failed to create PR into develop: ' .. result, vim.log.levels.ERROR)
   end
 end
 

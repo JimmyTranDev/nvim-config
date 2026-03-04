@@ -10,13 +10,4 @@ function M.urlencode(url)
   return url
 end
 
-local function hex_to_char(x) return string.char(tonumber(x, 16)) end
-
-function M.urldecode(url)
-  if url == nil then return end
-  url = url:gsub('+', ' ')
-  url = url:gsub('%%(%x%x)', hex_to_char)
-  return url
-end
-
 return M

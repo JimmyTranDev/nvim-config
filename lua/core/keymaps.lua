@@ -36,13 +36,6 @@ maps('n', {
   { 'gp', ':vsplit<CR>', 'Vertical split' },
 })
 
-maps('t', {
-  { '<C-h>', '<C-W><C-H>', 'Move to left window from terminal' },
-  { '<C-j>', '<C-W><C-J>', 'Move to bottom window from terminal' },
-  { '<C-k>', '<C-W><C-K>', 'Move to top window from terminal' },
-  { '<C-l>', '<C-W><C-L>', 'Move to right window from terminal' },
-})
-
 map('', '<S-J>', '<C-D>', { desc = 'Scroll down half page' })
 map('', '<S-K>', '<C-U>', { desc = 'Scroll up half page' })
 
