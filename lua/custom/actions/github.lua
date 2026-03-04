@@ -1,6 +1,5 @@
 local github_utils = require('custom.utils.github')
 local file_utils = require('custom.utils.files')
-local Snacks = require('snacks')
 
 local M = {}
 
@@ -191,7 +190,7 @@ function M.list_org_repos_and_open()
           })
         end
 
-        Snacks.picker({
+        require('snacks').picker({
           title = 'Repos: ' .. org_name,
           items = items,
           format = function(item) return { { item.text, 'Normal' } } end,
@@ -265,7 +264,7 @@ function M.list_contributed_repos_and_open()
         return
       end
 
-      Snacks.picker({
+      require('snacks').picker({
         title = 'Contributed Repos: ' .. org_name,
         items = items,
         format = function(item) return { { item.text, 'Normal' } } end,
