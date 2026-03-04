@@ -6,8 +6,8 @@ local missing_files = {}
 function M.parse_json_from_file(file_path)
   local file, err = io.open(file_path, 'r')
   if not file then
-    if string.match(file_path, 'Programming/secrets') then
-      local secrets_path = os.getenv('HOME') .. '/Programming/secrets'
+    if string.match(file_path, 'Programming/JimmyTranDev/secrets') then
+      local secrets_path = os.getenv('HOME') .. '/Programming/JimmyTranDev/secrets'
       local stat = vim.uv.fs_stat(secrets_path)
       local secrets_dir_exists = stat and stat.type == 'directory'
 

@@ -43,7 +43,7 @@ function M.createWorktree(prefix)
         summary = string.gsub(summary, '%s+', '-')
         summary = string.gsub(summary, '[^%w%-]', '')
         local branchName = string.format('%s/%s_%s', prefix, jiraTicket, summary)
-        local worktreeName = string.format('~/Programming/%s_%s', prefix, summary)
+        local worktreeName = string.format('~/Programming/Worktrees/%s_%s', prefix, summary)
 
         vim.cmd(string.format('Git worktree add -b %s %s', branchName, worktreeName))
       else
@@ -51,7 +51,7 @@ function M.createWorktree(prefix)
           if not branchDescription then return end
           local descriptionPart = string.gsub(branchDescription, '%s+', '-')
           local branchName = string.format('%s/%s', prefix, descriptionPart)
-          local worktreeName = string.format('~/Programming/%s_%s', prefix, descriptionPart)
+          local worktreeName = string.format('~/Programming/Worktrees/%s_%s', prefix, descriptionPart)
 
           vim.cmd(string.format('Git worktree add -b %s %s', branchName, worktreeName))
         end)

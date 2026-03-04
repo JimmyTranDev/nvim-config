@@ -212,7 +212,7 @@ end
 
 function M.link_github_copilot_instructions()
   vim.fn.system('mkdir -p ./.github')
-  local result = vim.fn.system('ln -sf ~/Programming/dotfiles/etc/.github/copilot-instructions.md ./.github/copilot-instructions.md')
+  local result = vim.fn.system('ln -sf ~/Programming/JimmyTranDev/dotfiles/etc/.github/copilot-instructions.md ./.github/copilot-instructions.md')
   if vim.v.shell_error == 0 then
     vim.notify('Successfully linked copilot instructions', vim.log.levels.INFO)
   else

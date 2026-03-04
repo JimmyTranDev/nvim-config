@@ -66,7 +66,7 @@ local function generate_lazy_config()
     },
 
     dev = {
-      path = '~/Programming', -- Local development plugin path
+      path = '~/Programming/JimmyTranDev', -- Local development plugin path
       patterns = {}, -- Patterns for local development plugins
       fallback = false, -- Don't fallback to git when local plugin not found
     },
