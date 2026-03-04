@@ -80,15 +80,7 @@ function M.select_and_open_pr()
 end
 
 function M.select_repo_and_open_pr(org_name)
-  local handle = io.popen('gh repo list ' .. org_name .. ' --limit 30 --json name,url 2>/dev/null')
-  if not handle then
-    vim.notify('Failed to fetch repositories', vim.log.levels.ERROR)
-    return
-  end
-
-  local output = handle:read('*a')
-  handle:close()
-
+  local output = vim.fn.system('gh repo list ' .. org_name .. ' --limit 30 --json name,url 2>/dev/null')
   if vim.v.shell_error ~= 0 then
     vim.notify('Failed to fetch repositories for ' .. org_name, vim.log.levels.ERROR)
     return
@@ -116,15 +108,7 @@ function M.select_repo_and_open_pr(org_name)
 end
 
 function M.open_current_commit_in_github()
-  local handle = io.popen('git rev-parse HEAD 2>/dev/null')
-  if not handle then
-    vim.notify('Failed to get current commit hash', vim.log.levels.ERROR)
-    return
-  end
-
-  local commit_hash = handle:read('*a'):gsub('%s+', '')
-  handle:close()
-
+  local commit_hash = vim.fn.system('git rev-parse HEAD 2>/dev/null'):gsub('%s+', '')
   if vim.v.shell_error ~= 0 or not commit_hash or commit_hash == '' then
     vim.notify('Could not determine current commit hash', vim.log.levels.ERROR)
     return
@@ -142,7 +126,6 @@ function M.open_current_commit_in_github()
   vim.notify(string.format('Opened commit %s in GitHub', commit_hash:sub(1, 7)), vim.log.levels.INFO)
 end
 
-M.open_prs_in_current_repo = M.open_current_repo_prs
 
 function M.list_org_repos_and_open()
   local orgs = {

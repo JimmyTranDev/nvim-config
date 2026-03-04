@@ -1,6 +1,35 @@
 local M = {}
 
 local JOURNAL_BASE_PATH = vim.fn.expand('~/Programming/notes.md/journal')
+local NOTES_REPO_PATH = vim.fn.expand('~/Programming/notes.md')
+
+local function get_iso_week()
+  return tonumber(os.date('%W')), tonumber(os.date('%Y'))
+end
+
+local function sync_journal_repo()
+  local repo = NOTES_REPO_PATH
+  vim.system({ 'git', '-C', repo, 'add', '.' }, {}, function(add_result)
+    if add_result.code ~= 0 then return end
+
+    local week, year = get_iso_week()
+    local last_log = vim.fn.system('git -C ' .. repo .. ' log -1 --format=%s 2>/dev/null'):gsub('%s+$', '')
+    local expected_prefix = 'journal: week '
+
+    local commit_args
+    if last_log:sub(1, #expected_prefix) == expected_prefix then
+      commit_args = { 'git', '-C', repo, 'commit', '--amend', '--no-edit' }
+    else
+      local msg = string.format('journal: week %d %d', week, year)
+      commit_args = { 'git', '-C', repo, 'commit', '-m', msg }
+    end
+
+    vim.system(commit_args, {}, function(commit_result)
+      if commit_result.code ~= 0 then return end
+      vim.system({ 'git', '-C', repo, 'push', '--force-with-lease' })
+    end)
+  end)
+end
 
 local function format_day_header()
   local weekday = os.date('%A')
@@ -149,6 +178,7 @@ function M.add_journal_entry()
 
     if write_file(filepath, lines) then
       vim.notify('Journal entry added', vim.log.levels.INFO)
+      sync_journal_repo()
     else
       vim.notify('Failed to write journal entry', vim.log.levels.ERROR)
     end

@@ -75,17 +75,32 @@ end
 
 function M.run_package_script(term_id)
   local scripts = language_utils.listPackageJsonCommands()
-  if #scripts == 0 then
-    vim.notify('No scripts found', vim.log.levels.WARN)
+  if #scripts > 0 then
+    ui_utils.safe_select(scripts, { prompt = 'Select script:' }, function(script)
+      local pm = get_pm()
+      if pm then
+        ui_utils.exec_in_terminal(pm .. ' ' .. script, 'Running: ' .. script, term_id or 3)
+      end
+    end)
     return
   end
 
-  ui_utils.safe_select(scripts, { prompt = 'Select script:' }, function(script)
-    local pm = get_pm()
-    if pm then
-      ui_utils.exec_in_terminal(pm .. ' ' .. script, 'Running: ' .. script, term_id or 3)
+  if vim.fn.filereadable('Makefile') == 1 then
+    local targets = {}
+    for line in io.lines('Makefile') do
+      local target = line:match('^(%w[%w-_%.]*)%s*:')
+      if target and target ~= 'PHONY' then table.insert(targets, target) end
     end
-  end)
+
+    if #targets > 0 then
+      ui_utils.safe_select(targets, { prompt = 'Make target:' }, function(target)
+        vim.cmd((':%dTermExec cmd="make %s"'):format(term_id or 1, target))
+      end)
+      return
+    end
+  end
+
+  vim.notify('No package.json or Makefile found', vim.log.levels.WARN)
 end
 
 function M.create_package_command_runner(term_id, command, should_exit, args)
@@ -105,10 +120,7 @@ end
 function M.run_eslint_picker()
   ui_utils.show_success('Running ESLint...')
   local npx = language_utils.getNpxEquivalent()
-  local handle = io.popen(npx .. ' eslint . --ext ts,tsx,js,jsx --format stylish 2>&1')
-  if not handle then return end
-  local output = handle:read('*a')
-  handle:close()
+  local output = vim.fn.system(npx .. ' eslint . --ext ts,tsx,js,jsx --format stylish 2>&1')
 
   local files = {}
   for line in output:gmatch('[^\r\n]+') do
@@ -247,13 +259,11 @@ end
 
 function M.launch_android_emulator()
   local emulator = os.getenv('HOME') .. '/Library/Android/sdk/emulator/emulator'
-  local handle = io.popen(emulator .. ' -list-avds 2>/dev/null')
-  if not handle then return end
+  local avd_output = vim.fn.system(emulator .. ' -list-avds 2>/dev/null')
   local avds = {}
-  for line in handle:lines() do
+  for line in avd_output:gmatch('[^\n]+') do
     if line ~= '' then table.insert(avds, line) end
   end
-  handle:close()
 
   if #avds == 0 then
     vim.notify('No AVDs found', vim.log.levels.WARN)

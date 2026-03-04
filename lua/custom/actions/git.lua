@@ -151,13 +151,8 @@ function M.createCommitFromBranchName()
 end
 
 function M.resetToReflog()
-  local handle = io.popen('git reflog --oneline -n 20')
-  if not handle then vim.notify('Failed to run git reflog command') end
-
-  local reflog_output = handle:read('*a')
-  handle:close()
-
-  if not reflog_output or reflog_output == '' then
+  local reflog_output = vim.fn.system('git reflog --oneline -n 20')
+  if vim.v.shell_error ~= 0 or not reflog_output or reflog_output == '' then
     vim.notify('No reflog entries found.')
     return
   end
@@ -253,16 +248,8 @@ function M.stashKeepChanges()
 end
 
 function M.selectAndPopStash()
-  local handle = io.popen('git stash list')
-  if not handle then
-    vim.notify('Failed to run git stash list command')
-    return
-  end
-
-  local stash_output = handle:read('*a')
-  handle:close()
-
-  if not stash_output or stash_output == '' then
+  local stash_output = vim.fn.system('git stash list')
+  if vim.v.shell_error ~= 0 or not stash_output or stash_output == '' then
     vim.notify('No stashes found.')
     return
   end
@@ -374,12 +361,7 @@ function M.resetAllWithConfirm()
 end
 
 local function get_pr_for_branch(branch)
-  local handle = io.popen('gh pr list --json number,headRefName,url')
-  if not handle then return nil end
-
-  local prListJson = handle:read('*a')
-  handle:close()
-
+  local prListJson = vim.fn.system('gh pr list --json number,headRefName,url')
   if vim.v.shell_error ~= 0 or not prListJson or prListJson == '' then return nil end
 
   local ok, prList = pcall(vim.fn.json_decode, prListJson)
@@ -414,7 +396,6 @@ function M.openOrCreatePullRequest()
   end
 end
 
-M.openGithubPullRequest = M.openOrCreatePullRequest
 
 function M.rebaseChooseOurs()
   local current_branch = git_utils.get_current_branch()
@@ -423,17 +404,9 @@ function M.rebaseChooseOurs()
     return
   end
 
-  local handle = io.popen('git branch -a --format="%(refname:short)" | grep -v "^' .. current_branch .. '$" | head -20')
-  if not handle then
-    vim.notify('❌ Failed to get branch list', vim.log.levels.ERROR)
-    return
-  end
-
-  local branch_output = handle:read('*a')
-  handle:close()
-
-  if not branch_output or branch_output == '' then
-    vim.notify('❌ No other branches found', vim.log.levels.ERROR)
+  local branch_output = vim.fn.system('git branch -a --format="%(refname:short)" | grep -v "^' .. current_branch .. '$" | head -20')
+  if vim.v.shell_error ~= 0 or not branch_output or branch_output == '' then
+    vim.notify('No other branches found', vim.log.levels.ERROR)
     return
   end
 

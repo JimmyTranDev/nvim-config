@@ -1,5 +1,3 @@
-local fileAction = require('custom.actions.files')
-
 local function get_diagnostics_by_file()
   if vim.g.vscode then return {} end
 
@@ -273,7 +271,7 @@ return {
     },
     {
       'gx',
-      fileAction.yankWordAndOpen,
+      require('custom.actions.files').yankWordAndOpen,
       desc = 'Open File Under Cursor',
       mode = { 'n', 'v' },
     },

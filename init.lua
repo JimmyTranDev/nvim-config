@@ -1,19 +1,16 @@
--- Core Neovim Configuration
--- Load configuration modules in order of dependency
-
--- Plugin manager setup
 require('core.lazy')
 
--- Basic options and settings
-require('core.options')
+local modules = {
+  'core.options',
+  'core.plugins',
+  'core.commands',
+  'core.statusline',
+  'core.keymaps',
+}
 
--- Plugin configurations
-require('core.plugins')
-
--- Autocommands and custom commands
-require('core.commands')
-
--- Status line configuration
-require('core.statusline')
-
-require('core.keymaps')
+for _, mod in ipairs(modules) do
+  local ok, err = pcall(require, mod)
+  if not ok then
+    vim.notify('Failed to load ' .. mod .. ': ' .. err, vim.log.levels.ERROR)
+  end
+end

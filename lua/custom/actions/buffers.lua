@@ -7,8 +7,8 @@ function M.close_other_buffers_and_create_empty()
   for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
     if vim.api.nvim_buf_is_valid(bufnr) and vim.api.nvim_buf_is_loaded(bufnr) then
       local bufname = vim.api.nvim_buf_get_name(bufnr)
-      local filetype = vim.api.nvim_buf_get_option(bufnr, 'filetype')
-      local buftype = vim.api.nvim_buf_get_option(bufnr, 'buftype')
+      local filetype = vim.bo[bufnr].filetype
+      local buftype = vim.bo[bufnr].buftype
 
       if filetype == 'toggleterm' or bufname:match('term://') or bufname:match('opencode') or filetype == 'opencode' or buftype == 'terminal' then
         buffers_to_keep[bufnr] = true

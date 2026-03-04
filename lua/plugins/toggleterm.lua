@@ -40,12 +40,6 @@ local function grep_markdown_headings()
   })
 end
 
-local function filter_npm_packages_prompt()
-  vim.ui.input({ prompt = 'Enter package prefix to filter: ' }, function(input)
-    if input then languageActions.filter_npm_packages(input) end
-  end)
-end
-
 return {
   'akinsho/nvim-toggleterm.lua',
   keys = {
@@ -76,7 +70,6 @@ return {
     { mode = 'n', '<leader>tnc', languageActions.create_package_command_runner(7, 'lint'), silent = true, desc = 'Npm Lint' },
     { mode = 'n', '<leader>tnb', languageActions.create_package_command_runner(7, 'check'), silent = true, desc = 'Npm Check' },
 
-    { mode = 'n', '<leader>tnuf', filter_npm_packages_prompt, silent = true, desc = 'Npm Filter Packages by Prefix' },
     { mode = 'n', '<leader>tnx', toggleTermActions.killAllToggleTerm, silent = true, desc = 'Kill All Terminals' },
 
     { mode = 'n', '<leader>tnd', languageActions.create_package_command_runner(6, 'dev'), silent = true, desc = 'Npm Dev' },

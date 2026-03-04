@@ -1,7 +1,6 @@
 local linkConstants = require('custom.constants.links')
 local githubUtils = require('custom.utils.github')
 local fileUtils = require('custom.utils.files')
-local arrayUtils = require('custom.utils.array')
 local M = {}
 
 function M.getCurrentJavaClass()
@@ -147,20 +146,16 @@ function M.listPackageJsonCommands()
 end
 
 function M.getScriptsFromPackageJson(packageJsonPath)
-  local command = "jq '.scripts | keys' " .. packageJsonPath
-  local handle = io.popen(command)
-  if handle == nil then return {} end
-  local result = handle:read('*a')
-  handle:close()
-
+  local result = vim.fn.system("jq '.scripts | keys' " .. packageJsonPath)
+  if vim.v.shell_error ~= 0 then return {} end
   local ok, scripts = pcall(vim.fn.json_decode, result)
   if ok and scripts then return scripts end
   return {}
 end
 
 function M.openServerUrl(type)
-  local projectNames = {}
-  arrayUtils.tableMerge({ githubUtils.getRepoName() }, linkConstants.projectNames, projectNames)
+  local projectNames = { githubUtils.getRepoName() }
+  vim.list_extend(projectNames, linkConstants.projectNames)
   vim.ui.select(projectNames, {
     prompt = 'Select repo to open:',
   }, function(projectName)

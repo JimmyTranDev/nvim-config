@@ -1,11 +1,9 @@
 local M = {}
 
 local function run_cmd(cmd)
-  local handle = io.popen(cmd .. ' 2>/dev/null')
-  if not handle then return nil end
-  local result = handle:read('*l')
-  handle:close()
-  return result
+  local result = vim.fn.system(cmd .. ' 2>/dev/null')
+  if vim.v.shell_error ~= 0 then return nil end
+  return result:match('^([^\n]*)')
 end
 
 function M.get_current_branch()

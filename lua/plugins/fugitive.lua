@@ -10,7 +10,7 @@ return {
   keys = {
     { mode = 'n', '<Leader>ghc', githubActions.create_draft_pr, desc = 'View Repo Summary', silent = true },
     { mode = 'n', '<Leader>ghP', githubActions.select_and_open_pr, desc = 'View Repo Summary', silent = true },
-    { mode = 'n', '<Leader>ghp', githubActions.open_prs_in_current_repo, desc = 'View PRs in Current Repo', silent = true },
+    { mode = 'n', '<Leader>ghp', githubActions.open_current_repo_prs, desc = 'View PRs in Current Repo', silent = true },
 
     -- SAFE
     { mode = 'n', '<Leader>gf', ':Git fetch --prune --all<CR>', desc = '󰓦 Fetch prune', silent = true },
@@ -25,7 +25,7 @@ return {
     { mode = 'n', '<Leader>ghH', gitActions.selectAndPopStash, desc = '📦 Select and pop stash', silent = true },
 
     -- RISKY
-    { mode = 'n', '<Leader>gS', gitActions.openGithubPullRequest, desc = ' Open GitHub PR', silent = true },
+    { mode = 'n', '<Leader>gS', gitActions.openOrCreatePullRequest, desc = ' Open GitHub PR', silent = true },
     { mode = 'n', '<Leader>gI', gitActions.init_repo_and_push, desc = '󱩵 Init repo, create private GitHub repo & push', silent = true },
     { mode = 'n', '<Leader>gF', ':Git push --force-with-lease<CR>', desc = ' Push force', silent = true },
     { mode = 'n', '<Leader>gH', ':Git branch -D holding <Bar> Git branch holding<CR>', desc = '󱩵 Recreate holding branch', silent = true },

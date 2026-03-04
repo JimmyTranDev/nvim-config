@@ -1,6 +1,5 @@
 local inputUtils = require('custom.utils.input')
 local git_utils = require('custom.utils.git')
-local Snacks = require('snacks')
 
 local M = {}
 
@@ -555,7 +554,7 @@ M.copy_assigned_issues_for_testing = function()
       })
     end
 
-    Snacks.picker({
+    require('snacks').picker({
       title = 'Select Issues to Copy',
       items = picker_items,
       format = function(item) return { { item.text, 'Normal' } } end,

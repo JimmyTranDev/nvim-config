@@ -50,7 +50,7 @@ return {
       },
       copilot_node_command = 'node',
       server_opts_overrides = {
-        trace = 'verbose',
+        trace = 'off',
         settings = {
           advanced = {
             listCount = 10,
@@ -58,12 +58,6 @@ return {
           },
         },
       },
-    })
-
-    vim.api.nvim_create_autocmd('VimEnter', {
-      callback = function()
-        vim.defer_fn(function() vim.cmd('Copilot auth') end, 1000)
-      end,
     })
 
     vim.keymap.set('n', '<leader>ct', '<cmd>Copilot toggle<CR>', { desc = 'Toggle Copilot' })

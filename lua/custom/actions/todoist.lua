@@ -16,7 +16,7 @@ local function get_recent_projects()
   if f then
     local content = f:read('*a')
     f:close()
-    local success, data = pcall(vim.json.decode, content)
+    local success, data = pcall(vim.fn.json_decode, content)
     if success and type(data) == 'table' and data.recent_projects then
       return data.recent_projects
     end

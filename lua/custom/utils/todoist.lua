@@ -36,7 +36,7 @@ local function todoist_request(method, endpoint, data, callback)
       return
     end
 
-    local ok, decoded = pcall(vim.json.decode, result)
+    local ok, decoded = pcall(vim.fn.json_decode, result)
     if not ok then
       if callback then callback(false, 'Invalid JSON response') end
       return
