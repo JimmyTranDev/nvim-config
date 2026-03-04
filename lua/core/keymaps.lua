@@ -140,17 +140,18 @@ map('n', '<Leader>Q', ':qa!<CR>', { desc = 'Force quit all' })
 map('n', '<Leader>w', ':w<CR>', { desc = 'Write' })
 map('n', '<Leader>W', ':wa<CR>', { desc = 'Write all' })
 
-map('n', '<Leader>rr', todoistActions.log_todoist_task(), { desc = 'Log task (salmon)' })
-map('n', '<Leader>rR', todoistActions.log_todoist_task_all_projects(), { desc = 'Log task (all projects)' })
-map('n', '<Leader>rC', todoistActions.refresh_todoist_cache(), { desc = 'Refresh Todoist cache' })
+map('n', '<Leader>rt', todoistActions.log_todoist_task(), { desc = 'Log task (salmon)' })
+map('n', '<Leader>rT', todoistActions.log_todoist_task_all_projects(), { desc = 'Log task (all projects)' })
+map('n', '<Leader>rw', jiraActions.create_jira_task(), { desc = 'Create Jira task' })
+map('n', '<Leader>rW', jiraActions.create_jira_task_with_link(), { desc = 'Create Jira task + open link' })
+map('n', '<Leader>rj', journalActions.add_journal_entry, { desc = 'Add journal entry' })
+map('n', '<Leader>rJ', journalActions.open_journal, { desc = 'Open journal' })
 
-map('n', '<Leader>rj', jiraActions.create_jira_task(), { desc = 'Create Jira task' })
-map('n', '<Leader>rK', jiraActions.create_jira_task_with_link(), { desc = 'Create Jira task + open link' })
-map('n', '<Leader>rJ', jiraActions.refresh_jira_cache, { desc = 'Refresh Jira cache' })
-map('n', '<Leader>rM', jiraActions.generate_done_md, { desc = 'Generate DONE.md from Jira' })
-map('n', '<Leader>rk', jiraActions.copy_ticket_with_title, { desc = 'Copy Jira ticket with title' })
-map('n', '<Leader>rd', journalActions.add_journal_entry, { desc = 'Add journal entry' })
-map('n', '<Leader>rD', journalActions.open_journal, { desc = 'Open journal' })
+map('n', '<Leader>rct', todoistActions.refresh_todoist_cache(), { desc = 'Refresh Todoist cache' })
+map('n', '<Leader>rcw', jiraActions.refresh_jira_cache, { desc = 'Refresh Jira cache' })
+
+map('n', '<Leader>ras', jiraActions.generate_done_md, { desc = 'Generate this week jira tasks' })
+map('n', '<Leader>ryj', jiraActions.copy_ticket_with_title, { desc = 'Copy Jira ticket with title' })
 
 maps('n', {
   { '<leader>zc', ':Lazy clean<CR>', 'Lazy clean' },
