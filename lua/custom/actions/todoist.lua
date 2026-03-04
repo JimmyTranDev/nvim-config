@@ -1,4 +1,3 @@
-local inputUtils = require('custom.utils.input')
 local todoistUtils = require('custom.utils.todoist')
 
 local M = {}
@@ -11,13 +10,14 @@ local todoistPriorityOptions = {
 local RECENT_PROJECTS_FILE = vim.fn.stdpath('data') .. '/todoist_recent_projects.json'
 local MAX_RECENT_PROJECTS = 10
 
-local function get_user_input(prompt, default)
-  local input = inputUtils.get_input(prompt, default or '')
-  if not input or input == '' then
-    vim.notify('Task creation cancelled', vim.log.levels.INFO)
-    return nil
-  end
-  return input
+local function get_user_input(prompt, callback)
+  vim.ui.input({ prompt = prompt }, function(input)
+    if not input or input == '' then
+      vim.notify('Task creation cancelled', vim.log.levels.INFO)
+      return
+    end
+    callback(input)
+  end)
 end
 
 local function add_back_option(options, text, value)
@@ -188,20 +188,19 @@ end
 
 function M.log_todoist_task(fallbackProjectName)
   return function()
-    local taskName = get_user_input('Enter task summary: ')
-    if not taskName then return end
+    get_user_input('Enter task summary: ', function(taskName)
+      todoistUtils.get_salmon_projects(function(success, projects)
+        if not success then
+          vim.notify('Failed to fetch projects: ' .. projects, vim.log.levels.ERROR)
+          return
+        end
+        if #projects == 0 then
+          vim.notify('No salmon projects found', vim.log.levels.WARN)
+          return
+        end
 
-    todoistUtils.get_salmon_projects(function(success, projects)
-      if not success then
-        vim.notify('Failed to fetch projects: ' .. projects, vim.log.levels.ERROR)
-        return
-      end
-      if #projects == 0 then
-        vim.notify('No salmon projects found', vim.log.levels.WARN)
-        return
-      end
-
-      create_task_with_navigation(taskName, projects, fallbackProjectName)
+        create_task_with_navigation(taskName, projects, fallbackProjectName)
+      end)
     end)
   end
 end
@@ -215,21 +214,20 @@ end
 
 function M.log_todoist_task_all_projects(fallbackProjectName)
   return function()
-    local taskName = get_user_input('Enter task summary: ')
-    if not taskName then return end
+    get_user_input('Enter task summary: ', function(taskName)
+      todoistUtils.get_projects(function(success, projects)
+        if not success then
+          vim.notify('Failed to fetch projects: ' .. projects, vim.log.levels.ERROR)
+          return
+        end
 
-    todoistUtils.get_projects(function(success, projects)
-      if not success then
-        vim.notify('Failed to fetch projects: ' .. projects, vim.log.levels.ERROR)
-        return
-      end
+        if #projects == 0 then
+          vim.notify('No projects found', vim.log.levels.WARN)
+          return
+        end
 
-      if #projects == 0 then
-        vim.notify('No projects found', vim.log.levels.WARN)
-        return
-      end
-
-      create_task_with_navigation(taskName, projects, fallbackProjectName)
+        create_task_with_navigation(taskName, projects, fallbackProjectName)
+      end)
     end)
   end
 end

@@ -10,45 +10,53 @@ end
 
 function M.createBranch(prefix)
   return function()
-    local jiraTicket = input_utils.get_input('Jira Ticket: ')
-    local branchName
-    if jiraTicket ~= '' then
-      local summary = vim.fn.system(string.format("jira issue view %s --raw | jq -r '.fields.summary'", jiraTicket))
-      summary = string.gsub(summary, '%s+', '-')
-      summary = string.gsub(summary, '[^%w%-]', '')
-      branchName = string.format('%s/%s_%s', prefix, jiraTicket, summary)
-    else
-      local branchDescription = input_utils.get_input('Branch Description: ')
-      local descriptionPart = string.gsub(branchDescription, '%s+', '-')
-      branchName = string.format('%s/%s', prefix, descriptionPart)
-    end
+    input_utils.get_input('Jira Ticket: ', function(jiraTicket)
+      if jiraTicket then
+        local summary = vim.fn.system(string.format("jira issue view %s --raw | jq -r '.fields.summary'", jiraTicket))
+        summary = string.gsub(summary, '%s+', '-')
+        summary = string.gsub(summary, '[^%w%-]', '')
+        local branchName = string.format('%s/%s_%s', prefix, jiraTicket, summary)
 
-    vim.cmd(string.format('Git checkout -b %s', branchName))
+        vim.cmd(string.format('Git checkout -b %s', branchName))
+        vim.cmd("TermExec5 open=0 cmd='git add .'")
+        vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', shell_escape_message(branchName)))
+      else
+        input_utils.get_input('Branch Description: ', function(branchDescription)
+          if not branchDescription then return end
+          local descriptionPart = string.gsub(branchDescription, '%s+', '-')
+          local branchName = string.format('%s/%s', prefix, descriptionPart)
 
-    vim.cmd("TermExec5 open=0 cmd='git add .'")
-
-    vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', shell_escape_message(branchName)))
+          vim.cmd(string.format('Git checkout -b %s', branchName))
+          vim.cmd("TermExec5 open=0 cmd='git add .'")
+          vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', shell_escape_message(branchName)))
+        end)
+      end
+    end)
   end
 end
 
 function M.createWorktree(prefix)
   return function()
-    local jiraTicket = input_utils.get_input('Jira Ticket: ')
-    local branchName, worktreeName
-    if jiraTicket ~= '' then
-      local summary = vim.fn.system(string.format("jira issue view %s --raw | jq -r '.fields.summary'", jiraTicket))
-      summary = string.gsub(summary, '%s+', '-')
-      summary = string.gsub(summary, '[^%w%-]', '')
-      branchName = string.format('%s/%s_%s', prefix, jiraTicket, summary)
-      worktreeName = string.format('~/Programming/%s_%s', prefix, summary)
-    else
-      local branchDescription = input_utils.get_input('Branch Description: ')
-      local descriptionPart = string.gsub(branchDescription, '%s+', '-')
-      branchName = string.format('%s/%s', prefix, descriptionPart)
-      worktreeName = string.format('~/Programming/%s_%s', prefix, descriptionPart)
-    end
+    input_utils.get_input('Jira Ticket: ', function(jiraTicket)
+      if jiraTicket then
+        local summary = vim.fn.system(string.format("jira issue view %s --raw | jq -r '.fields.summary'", jiraTicket))
+        summary = string.gsub(summary, '%s+', '-')
+        summary = string.gsub(summary, '[^%w%-]', '')
+        local branchName = string.format('%s/%s_%s', prefix, jiraTicket, summary)
+        local worktreeName = string.format('~/Programming/%s_%s', prefix, summary)
 
-    vim.cmd(string.format('Git worktree add -b %s %s', branchName, worktreeName))
+        vim.cmd(string.format('Git worktree add -b %s %s', branchName, worktreeName))
+      else
+        input_utils.get_input('Branch Description: ', function(branchDescription)
+          if not branchDescription then return end
+          local descriptionPart = string.gsub(branchDescription, '%s+', '-')
+          local branchName = string.format('%s/%s', prefix, descriptionPart)
+          local worktreeName = string.format('~/Programming/%s_%s', prefix, descriptionPart)
+
+          vim.cmd(string.format('Git worktree add -b %s %s', branchName, worktreeName))
+        end)
+      end
+    end)
   end
 end
 
@@ -59,26 +67,28 @@ function M.createCommit(prefix, emoji, shouldPush, shouldGeneric)
     local branchName = git_utils.get_current_branch()
     local jiraTicket = git_utils.extract_jira_ticket(branchName)
 
-    local commitMessage
-
-    if not shouldGeneric then
-      local commitDescription = input_utils.get_input('󰦨 Description: ')
-      local commitScope = input_utils.get_input('󰟾 Scope: ')
-
-      if commitDescription == nil then return end
-
-      local jiraTicketPart = jiraTicket == '' and '' or jiraTicket .. ' '
-      local commitScopePart = commitScope == '' and '' or '(' .. commitScope .. ')'
-      local emojiPart = emoji == '' and '' or ' ' .. emoji
-
-      commitMessage = (prefix or '') .. commitScopePart .. ':' .. emojiPart .. ' ' .. jiraTicketPart .. commitDescription
-    else
-      commitMessage = prefix .. ': update'
+    if shouldGeneric then
+      local commitMessage = prefix .. ': update'
+      vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', shell_escape_message(commitMessage)))
+      if shouldPush then vim.cmd("TermExec3 open=0 cmd='git push'") end
+      return
     end
 
-    vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', shell_escape_message(commitMessage)))
+    input_utils.get_input('Description: ', function(commitDescription)
+      if not commitDescription then return end
 
-    if shouldPush then vim.cmd("TermExec3 open=0 cmd='git push'") end
+      input_utils.get_input('Scope: ', function(commitScope)
+        local jiraTicketPart = jiraTicket == '' and '' or jiraTicket .. ' '
+        local commitScopePart = (not commitScope or commitScope == '') and '' or '(' .. commitScope .. ')'
+        local emojiPart = emoji == '' and '' or ' ' .. emoji
+
+        local commitMessage = (prefix or '') .. commitScopePart .. ':' .. emojiPart .. ' ' .. jiraTicketPart .. commitDescription
+
+        vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', shell_escape_message(commitMessage)))
+
+        if shouldPush then vim.cmd("TermExec3 open=0 cmd='git push'") end
+      end)
+    end)
   end
 end
 

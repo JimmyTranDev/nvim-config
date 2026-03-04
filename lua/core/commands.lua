@@ -146,6 +146,34 @@ local function setup_auto_refresh()
   })
 end
 
+local function setup_toggleterm_whichkey_fix()
+  vim.api.nvim_create_autocmd('TermClose', {
+    group = augroup('toggleterm_whichkey'),
+    callback = function()
+      vim.schedule(function()
+        local ok, wk = pcall(require, 'which-key')
+        if ok then
+          vim.o.timeout = true
+          vim.o.timeoutlen = 300
+        end
+      end)
+    end,
+    desc = 'Re-enable which-key timeout after terminal closes',
+  })
+
+  vim.api.nvim_create_autocmd('ModeChanged', {
+    group = augroup('toggleterm_whichkey_mode'),
+    pattern = 't:n',
+    callback = function()
+      vim.schedule(function()
+        vim.o.timeout = true
+        vim.o.timeoutlen = 300
+      end)
+    end,
+    desc = 'Restore which-key timeout when leaving terminal mode',
+  })
+end
+
 local function setup_spell()
   vim.api.nvim_create_autocmd('FileType', {
     group = augroup('spell_check'),
@@ -164,6 +192,7 @@ function M.setup()
   setup_git_integration()
   setup_lsp_progress()
   setup_auto_refresh()
+  setup_toggleterm_whichkey_fix()
   cleanup_default_keymaps()
 end
 

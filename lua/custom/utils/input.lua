@@ -1,10 +1,13 @@
 local M = {}
 
-function M.get_input(prompt, default_text, allow_empty)
-  local input = vim.fn.input(prompt, default_text or '')
-  if input == ' ' then return '' end
-  if input == '' and not allow_empty then return nil end
-  return input
+function M.get_input(prompt, callback, default_text)
+  vim.ui.input({ prompt = prompt, default = default_text or '' }, function(input)
+    if not input or input == '' then
+      callback(nil)
+      return
+    end
+    callback(input)
+  end)
 end
 
 function M.get_selected_text(clean)

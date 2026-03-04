@@ -5,6 +5,7 @@ local language_utils = require('custom.utils.language')
 local file_utils = require('custom.utils.files')
 local github_utils = require('custom.utils.github')
 local ui_utils = require('custom.utils.ui')
+local url_utils = require('custom.utils.url')
 
 local M = {}
 
@@ -95,6 +96,25 @@ function M.open_npm_url()
   else
     vim.notify('Could not generate NPM URL for: ' .. package_name, vim.log.levels.ERROR)
   end
+end
+
+function M.search_google()
+  local mode = vim.fn.mode()
+  if mode == 'v' or mode == 'V' or mode == '\22' then
+    vim.cmd('normal! "zy')
+    local text = vim.fn.getreg('z')
+    if text and text ~= '' then
+      local encoded = url_utils.urlencode(text)
+      file_utils.open('https://www.google.com/search?q=' .. encoded)
+      return
+    end
+  end
+
+  vim.ui.input({ prompt = 'Google: ' }, function(input)
+    if not input or input == '' then return end
+    local encoded = url_utils.urlencode(input)
+    file_utils.open('https://www.google.com/search?q=' .. encoded)
+  end)
 end
 
 return M

@@ -1,27 +1,28 @@
 local input_utils = require('custom.utils.input')
 local http_utils = require('custom.utils.http')
 local ui_utils = require('custom.utils.ui')
-local validation = require('custom.utils.validation')
 
 local M = {}
 
-local function get_convention_input()
-  local convention_name = input_utils.get_input('Enter convention name: ')
-  if not validation.is_non_empty_string(convention_name) then
-    vim.notify('Convention name is required', vim.log.levels.WARN)
-    return nil
-  end
+local function get_convention_input(callback)
+  input_utils.get_input('Enter convention name: ', function(convention_name)
+    if not convention_name then
+      vim.notify('Convention name is required', vim.log.levels.WARN)
+      return
+    end
 
-  local convention_description = input_utils.get_input('Enter convention description: ')
-  if not validation.is_non_empty_string(convention_description) then
-    vim.notify('Convention description is required', vim.log.levels.WARN)
-    return nil
-  end
+    input_utils.get_input('Enter convention description: ', function(convention_description)
+      if not convention_description then
+        vim.notify('Convention description is required', vim.log.levels.WARN)
+        return
+      end
 
-  return {
-    name = convention_name,
-    description = convention_description,
-  }
+      callback({
+        name = convention_name,
+        description = convention_description,
+      })
+    end)
+  end)
 end
 
 local function generate_convention_prompt(convention)
@@ -91,29 +92,28 @@ local function update_readme_content(readme_path, convention_entry)
 end
 
 function M.add_convention_to_readme()
-  local convention = get_convention_input()
-  if not convention then return end
+  get_convention_input(function(convention)
+    local readme_path = find_or_create_readme()
+    if not readme_path then return end
 
-  local readme_path = find_or_create_readme()
-  if not readme_path then return end
+    local prompt = generate_convention_prompt(convention)
+    ui_utils.show_success('Generating example with ChatGPT...')
 
-  local prompt = generate_convention_prompt(convention)
-  ui_utils.show_success('Generating example with ChatGPT...')
+    http_utils.chatgpt_request(prompt, function(response)
+      if not response or not response.content then
+        vim.notify('Failed to generate example with ChatGPT', vim.log.levels.ERROR)
+        return
+      end
 
-  http_utils.chatgpt_request(prompt, function(response)
-    if not response or not response.content then
-      vim.notify('Failed to generate example with ChatGPT', vim.log.levels.ERROR)
-      return
-    end
+      local convention_entry = format_convention_entry(convention, response.content)
 
-    local convention_entry = format_convention_entry(convention, response.content)
+      if update_readme_content(readme_path, convention_entry) then
+        local filename = vim.fn.fnamemodify(readme_path, ':t')
+        ui_utils.show_success(string.format('Added convention "%s" to %s', convention.name, filename))
 
-    if update_readme_content(readme_path, convention_entry) then
-      local filename = vim.fn.fnamemodify(readme_path, ':t')
-      ui_utils.show_success(string.format('Added convention "%s" to %s', convention.name, filename))
-
-      vim.cmd('edit ' .. readme_path)
-    end
+        vim.cmd('edit ' .. readme_path)
+      end
+    end)
   end)
 end
 

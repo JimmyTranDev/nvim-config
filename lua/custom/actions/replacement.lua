@@ -1,7 +1,6 @@
 local input_utils = require('custom.utils.input')
 local string_utils = require('custom.utils.string')
 local ui_utils = require('custom.utils.ui')
-local validation = require('custom.utils.validation')
 
 local M = {}
 
@@ -55,36 +54,34 @@ local function get_prefill_text()
   end
 end
 
-local function get_replacement_inputs(prefill_search, prefill_replace)
+local function get_replacement_inputs(prefill_search, prefill_replace, callback)
   local search_text = prefill_search and get_prefill_text() or ''
   local replace_text = prefill_replace and search_text or ''
 
-  local search_input = vim.fn.input({
+  vim.ui.input({
     prompt = 'Search for: ',
     default = search_text,
-    completion = 'command',
-  })
+  }, function(search_input)
+    if not search_input or search_input == '' then
+      vim.notify('No search text provided!', vim.log.levels.WARN)
+      return
+    end
 
-  if not validation.is_non_empty_string(search_input) then
-    vim.notify('No search text provided!', vim.log.levels.WARN)
-    return nil
-  end
+    vim.ui.input({
+      prompt = 'Replace with: ',
+      default = replace_text,
+    }, function(replace_input)
+      if replace_input == nil then
+        vim.notify('Replacement cancelled', vim.log.levels.WARN)
+        return
+      end
 
-  local replace_input = vim.fn.input({
-    prompt = 'Replace with: ',
-    default = replace_text,
-    completion = 'command',
-  })
-
-  if replace_input == nil then
-    vim.notify('Replacement cancelled', vim.log.levels.WARN)
-    return nil
-  end
-
-  return {
-    search = search_input,
-    replace = replace_input,
-  }
+      callback({
+        search = search_input,
+        replace = replace_input,
+      })
+    end)
+  end)
 end
 
 local function build_replacement_command(scope, search_text, replace_text)
@@ -112,19 +109,18 @@ local function replace_with_options(scope, prefill_search, prefill_replace)
     return
   end
 
-  local inputs = get_replacement_inputs(prefill_search, prefill_replace)
-  if not inputs then return end
+  get_replacement_inputs(prefill_search, prefill_replace, function(inputs)
+    local cmd = build_replacement_command(scope, inputs.search, inputs.replace)
+    if not cmd then return end
 
-  local cmd = build_replacement_command(scope, inputs.search, inputs.replace)
-  if not cmd then return end
+    local success, error_msg = pcall(vim.cmd, cmd)
 
-  local success, error_msg = pcall(vim.cmd, cmd)
-
-  if success then
-    ui_utils.show_success(string.format('Replaced "%s" with "%s" in %s', inputs.search, inputs.replace, scope_config.description))
-  else
-    vim.notify(string.format('Replacement failed: %s', error_msg), vim.log.levels.ERROR)
-  end
+    if success then
+      ui_utils.show_success(string.format('Replaced "%s" with "%s" in %s', inputs.search, inputs.replace, scope_config.description))
+    else
+      vim.notify(string.format('Replacement failed: %s', error_msg), vim.log.levels.ERROR)
+    end
+  end)
 end
 
 function M.replace_buffer() replace_with_options('buffer', false, false) end

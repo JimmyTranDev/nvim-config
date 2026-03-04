@@ -398,17 +398,29 @@ return {
           format = function(item) return item.text end,
           confirm = function(picker, item)
             picker:close()
-            local choice = vim.fn.input('Action (apply/pop/show/drop): ', 'show')
-            if choice == 'apply' then
-              vim.cmd('!git stash apply ' .. item.stash_ref)
-            elseif choice == 'pop' then
-              vim.cmd('!git stash pop ' .. item.stash_ref)
-            elseif choice == 'show' then
-              vim.cmd('!git stash show -p ' .. item.stash_ref)
-            elseif choice == 'drop' then
-              local confirm = vim.fn.input('Drop stash ' .. item.stash_ref .. '? (y/N): ')
-              if confirm:lower() == 'y' then vim.cmd('!git stash drop ' .. item.stash_ref) end
-            end
+            local actions = {
+              { name = 'Show', value = 'show' },
+              { name = 'Apply', value = 'apply' },
+              { name = 'Pop', value = 'pop' },
+              { name = 'Drop', value = 'drop' },
+            }
+            vim.ui.select(actions, {
+              prompt = 'Stash action:',
+              format_item = function(a) return a.name end,
+            }, function(selected)
+              if not selected then return end
+              if selected.value == 'apply' then
+                vim.cmd('!git stash apply ' .. item.stash_ref)
+              elseif selected.value == 'pop' then
+                vim.cmd('!git stash pop ' .. item.stash_ref)
+              elseif selected.value == 'show' then
+                vim.cmd('!git stash show -p ' .. item.stash_ref)
+              elseif selected.value == 'drop' then
+                vim.ui.input({ prompt = 'Drop stash ' .. item.stash_ref .. '? (y/N): ' }, function(confirm)
+                  if confirm and confirm:lower() == 'y' then vim.cmd('!git stash drop ' .. item.stash_ref) end
+                end)
+              end
+            end)
           end,
         })
       end,

@@ -165,3 +165,5 @@ map('n', '<Leader>uP', linkActions.open_current_github_prs, { desc = 'Open GitHu
 map('n', '<Leader>uu', linkActions.open_useful_link, { desc = 'Open useful link' })
 map('n', '<Leader>ug', githubActions.list_org_repos_and_open, { desc = 'List Org Repos' })
 map('n', '<Leader>uG', githubActions.list_contributed_repos_and_open, { desc = 'Contributed Repos' })
+map('n', '<Leader>us', linkActions.search_google, { desc = 'Search Google' })
+map('v', '<Leader>us', linkActions.search_google, { desc = 'Search Google (selection)' })
