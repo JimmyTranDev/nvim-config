@@ -22,8 +22,6 @@ function M.yank_word_and_open()
   if not ok then vim.notify('Failed to open file: ' .. err, vim.log.levels.ERROR) end
 end
 
-M.yankWordAndOpen = M.yank_word_and_open
-
 function M.copy_all_files_content()
   if vim.fn.expand('%:p') == '' then
     vim.notify('No current file', vim.log.levels.WARN)
@@ -209,7 +207,7 @@ function M.run_clipboard_command()
     return
   end
   vim.notify('Running: ' .. content, vim.log.levels.INFO)
-  vim.cmd(':TermExec cmd="' .. content .. '"')
+  vim.cmd(':TermExec cmd="' .. content:gsub('[\\"]', '\\%0') .. '"')
 end
 
 function M.link_github_copilot_instructions()

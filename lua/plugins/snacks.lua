@@ -271,7 +271,7 @@ return {
     },
     {
       'gx',
-      require('custom.actions.files').yankWordAndOpen,
+      require('custom.actions.files').yank_word_and_open,
       desc = 'Open File Under Cursor',
       mode = { 'n', 'v' },
     },

@@ -129,66 +129,8 @@ local function capitalize_first_char(str)
   return str:sub(1, 1):upper() .. str:sub(2)
 end
 
-function M.add_journal_entry()
-  vim.ui.input({ prompt = 'Journal entry: ' }, function(input)
-    if not input or input == '' then
-      return
-    end
-
-    input = capitalize_first_char(input)
-
-    local filepath = get_journal_path()
-    ensure_directory_exists(filepath)
-
-    local today = tonumber(os.date('%d'))
-    local lines = read_file(filepath)
-    local existing_days = parse_existing_days(lines)
-
-    if not existing_days[today] then
-      local header = format_day_header()
-      local insert_line, after_day = find_insertion_point(lines, today, existing_days)
-      local new_content = { '## ' .. header, '', '' }
-
-      if after_day then
-        for i = #new_content, 1, -1 do
-          table.insert(lines, insert_line, new_content[i])
-        end
-      else
-        if insert_line <= #lines then
-          for i = 1, #new_content do
-            table.insert(lines, insert_line + i - 1, new_content[i])
-          end
-        else
-          if #lines > 0 and lines[#lines] ~= '' then
-            table.insert(lines, '')
-          end
-          for _, line in ipairs(new_content) do
-            table.insert(lines, line)
-          end
-        end
-      end
-
-      existing_days = parse_existing_days(lines)
-    end
-
-    local entry_line = find_entry_insert_line(lines, today, existing_days)
-    if entry_line then
-      table.insert(lines, entry_line, '- ' .. input)
-    end
-
-    if write_file(filepath, lines) then
-      vim.notify('Journal entry added', vim.log.levels.INFO)
-      sync_journal_repo()
-    else
-      vim.notify('Failed to write journal entry', vim.log.levels.ERROR)
-    end
-  end)
-end
-
-function M.open_journal()
-  local filepath = get_journal_path()
+local function ensure_today_header(filepath)
   ensure_directory_exists(filepath)
-
   local today = tonumber(os.date('%d'))
   local lines = read_file(filepath)
   local existing_days = parse_existing_days(lines)
@@ -220,6 +162,38 @@ function M.open_journal()
     write_file(filepath, lines)
     existing_days = parse_existing_days(lines)
   end
+
+  return lines, existing_days, today
+end
+
+function M.add_journal_entry()
+  vim.ui.input({ prompt = 'Journal entry: ' }, function(input)
+    if not input or input == '' then
+      return
+    end
+
+    input = capitalize_first_char(input)
+
+    local filepath = get_journal_path()
+    local lines, existing_days, today = ensure_today_header(filepath)
+
+    local entry_line = find_entry_insert_line(lines, today, existing_days)
+    if entry_line then
+      table.insert(lines, entry_line, '- ' .. input)
+    end
+
+    if write_file(filepath, lines) then
+      vim.notify('Journal entry added', vim.log.levels.INFO)
+      sync_journal_repo()
+    else
+      vim.notify('Failed to write journal entry', vim.log.levels.ERROR)
+    end
+  end)
+end
+
+function M.open_journal()
+  local filepath = get_journal_path()
+  local _, existing_days, today = ensure_today_header(filepath)
 
   vim.cmd('edit ' .. vim.fn.fnameescape(filepath))
 

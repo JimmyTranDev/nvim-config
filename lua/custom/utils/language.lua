@@ -65,11 +65,6 @@ function M.getWorkspaceRoot()
   return rootPath
 end
 
-function M.isInWorkspace()
-  local rootPath = M.getWorkspaceRoot()
-  return isWorkspace(rootPath)
-end
-
 function M.getJavascriptPackageManager()
   local rootPath, packageManager = findWorkspaceRoot()
 
@@ -161,7 +156,12 @@ function M.openServerUrl(type)
   }, function(projectName)
     if projectName == nil then return end
 
-    local url = linkConstants.projectNameToRouteObject[projectName][type]
+    local routes = linkConstants.projectNameToRouteObject[projectName]
+    if not routes then
+      vim.notify('No routes found for project: ' .. projectName, vim.log.levels.WARN)
+      return
+    end
+    local url = routes[type]
     if url == nil then
       vim.notify('No url found for type ' .. type .. ' of project: ' .. projectName, vim.log.levels.WARN)
       return

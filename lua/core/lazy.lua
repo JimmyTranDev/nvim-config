@@ -4,13 +4,8 @@ local LAZY_REPO = 'https://github.com/folke/lazy.nvim.git'
 local LAZY_BRANCH = 'stable'
 
 local function is_git_available()
-  local handle = io.popen('git --version 2>/dev/null')
-  if not handle then return false end
-
-  local result = handle:read('*a')
-  handle:close()
-
-  return result and result:match('git version') ~= nil
+  local result = vim.fn.system('git --version')
+  return vim.v.shell_error == 0 and result and result:match('git version') ~= nil
 end
 
 local function show_error_and_exit(title, message, details)
@@ -33,7 +28,7 @@ end
 
 local function validate_lazy_installation(lazypath)
   local init_file = lazypath .. '/lua/lazy/init.lua'
-  local stat = (vim.uv or vim.loop).fs_stat(init_file)
+  local stat = vim.uv.fs_stat(init_file)
 
   return stat and stat.type == 'file'
 end
@@ -41,7 +36,7 @@ end
 function M.bootstrap()
   local lazypath = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
 
-  if (vim.uv or vim.loop).fs_stat(lazypath) then
+  if vim.uv.fs_stat(lazypath) then
     if validate_lazy_installation(lazypath) then
       vim.opt.rtp:prepend(lazypath)
       return true

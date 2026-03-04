@@ -4,6 +4,10 @@ local file_utils = require('custom.utils.files')
 
 local M = {}
 
+local function shell_escape_message(msg)
+  return msg:gsub('[$`"\\!]', '\\%0')
+end
+
 function M.createBranch(prefix)
   return function()
     local jiraTicket = input_utils.get_input('Jira Ticket: ')
@@ -23,7 +27,7 @@ function M.createBranch(prefix)
 
     vim.cmd("TermExec5 open=0 cmd='git add .'")
 
-    vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', branchName))
+    vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', shell_escape_message(branchName)))
   end
 end
 
@@ -72,7 +76,7 @@ function M.createCommit(prefix, emoji, shouldPush, shouldGeneric)
       commitMessage = prefix .. ': update'
     end
 
-    vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', commitMessage))
+    vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', shell_escape_message(commitMessage)))
 
     if shouldPush then vim.cmd("TermExec3 open=0 cmd='git push'") end
   end
@@ -144,8 +148,7 @@ function M.createCommitFromBranchName()
 
   vim.cmd('Git add .')
 
-  local escapedMessage = commitMessage:gsub('"', '\\"')
-  vim.cmd(string.format('Git commit --no-verify -m "%s"', escapedMessage))
+  vim.cmd(string.format('Git commit --no-verify -m "%s"', shell_escape_message(commitMessage)))
 
   vim.notify('Committed: ' .. commitMessage)
 end
@@ -215,36 +218,28 @@ function M.resetToReflog()
   end)
 end
 
-function M.stashAllChanges()
+local function stash_with_flags(extra_flags, success_msg)
   vim.ui.input({
     prompt = 'Stash message (optional): ',
   }, function(message)
     local cmd
     if message and message ~= '' then
-      cmd = string.format('git stash push -m "%s"', message)
+      cmd = string.format('git stash push%s -m "%s"', extra_flags, shell_escape_message(message))
     else
-      cmd = 'git stash'
+      cmd = 'git stash' .. extra_flags
     end
 
     vim.cmd(string.format("TermExec5 cmd='%s'", cmd))
-    vim.notify('📦 Changes stashed successfully')
+    vim.notify(success_msg)
   end)
 end
 
-function M.stashKeepChanges()
-  vim.ui.input({
-    prompt = 'Stash message (optional): ',
-  }, function(message)
-    local cmd
-    if message and message ~= '' then
-      cmd = string.format('git stash push --keep-index -m "%s"', message)
-    else
-      cmd = 'git stash --keep-index'
-    end
+function M.stashAllChanges()
+  stash_with_flags('', '📦 Changes stashed successfully')
+end
 
-    vim.cmd(string.format("TermExec5 cmd='%s'", cmd))
-    vim.notify('📦 Changes stashed (keeping staged changes)')
-  end)
+function M.stashKeepChanges()
+  stash_with_flags(' --keep-index', '📦 Changes stashed (keeping staged changes)')
 end
 
 function M.selectAndPopStash()
@@ -404,17 +399,22 @@ function M.rebaseChooseOurs()
     return
   end
 
-  local branch_output = vim.fn.system('git branch -a --format="%(refname:short)" | grep -v "^' .. current_branch .. '$" | head -20')
+  local branch_output = vim.fn.system({ 'git', 'branch', '-a', '--format=%(refname:short)' })
   if vim.v.shell_error ~= 0 or not branch_output or branch_output == '' then
     vim.notify('No other branches found', vim.log.levels.ERROR)
     return
   end
 
   local branches = {}
+  local seen = {}
   for line in branch_output:gmatch('[^\n]+') do
     if line ~= '' and line ~= current_branch then
       local clean_branch = line:gsub('origin/', '')
-      if not vim.tbl_contains(branches, clean_branch) then table.insert(branches, clean_branch) end
+      if not seen[clean_branch] then
+        seen[clean_branch] = true
+        table.insert(branches, clean_branch)
+        if #branches >= 20 then break end
+      end
     end
   end
 

@@ -11,6 +11,19 @@ local todoistPriorityOptions = {
 local RECENT_PROJECTS_FILE = vim.fn.stdpath('data') .. '/todoist_recent_projects.json'
 local MAX_RECENT_PROJECTS = 10
 
+local function get_user_input(prompt, default)
+  local input = inputUtils.get_input(prompt, default or '')
+  if not input or input == '' then
+    vim.notify('Task creation cancelled', vim.log.levels.INFO)
+    return nil
+  end
+  return input
+end
+
+local function add_back_option(options, text, value)
+  table.insert(options, { name = '← ' .. text, value = value or '__back__' })
+end
+
 local function get_recent_projects()
   local f = io.open(RECENT_PROJECTS_FILE, 'r')
   if f then
@@ -106,7 +119,7 @@ local function create_task_with_navigation(taskName, projects, _fallbackProjectN
       for _, section in ipairs(sections) do
         table.insert(section_options, { name = section.name, id = section.id })
       end
-      table.insert(section_options, { name = '← Back to projects', id = '__back__' })
+      add_back_option(section_options, 'Back to projects')
 
       vim.ui.select(section_options, {
         prompt = 'Select a section:',
@@ -129,7 +142,7 @@ local function create_task_with_navigation(taskName, projects, _fallbackProjectN
 
   select_priority = function(selected_project, selected_section)
     local priority_options = vim.list_extend({}, todoistPriorityOptions)
-    table.insert(priority_options, { name = '← Back to sections', value = '__back__' })
+    add_back_option(priority_options, 'Back to sections')
 
     vim.ui.select(priority_options, {
       prompt = 'Select a priority for the task:',
@@ -175,11 +188,8 @@ end
 
 function M.log_todoist_task(fallbackProjectName)
   return function()
-    local taskName = inputUtils.get_input('Enter the task name: ')
-    if not taskName then
-      vim.notify('No task name provided', vim.log.levels.WARN)
-      return
-    end
+    local taskName = get_user_input('Enter task summary: ')
+    if not taskName then return end
 
     todoistUtils.get_salmon_projects(function(success, projects)
       if not success then
@@ -205,11 +215,8 @@ end
 
 function M.log_todoist_task_all_projects(fallbackProjectName)
   return function()
-    local taskName = inputUtils.get_input('Enter the task name: ')
-    if not taskName then
-      vim.notify('No task name provided', vim.log.levels.WARN)
-      return
-    end
+    local taskName = get_user_input('Enter task summary: ')
+    if not taskName then return end
 
     todoistUtils.get_projects(function(success, projects)
       if not success then
