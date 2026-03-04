@@ -44,7 +44,11 @@ return {
     {
       mode = 'n',
       '<Leader>gyy',
-      ':Git add . <Bar> :Git commit --no-verify -m "feat: ✨ update" <Bar> :Git push<CR>',
+      function()
+        vim.cmd('Git add .')
+        gitActions.quickCommitUpdate()
+        vim.cmd('Git push')
+      end,
       desc = ' Commit and push',
       silent = true,
     },

@@ -175,7 +175,7 @@ end
 
 function M.log_todoist_task(fallbackProjectName)
   return function()
-    local taskName = inputUtils.getInputFromUser('Enter the task name: ')
+    local taskName = inputUtils.get_input('Enter the task name: ')
     if not taskName then
       vim.notify('No task name provided', vim.log.levels.WARN)
       return
@@ -205,7 +205,7 @@ end
 
 function M.log_todoist_task_all_projects(fallbackProjectName)
   return function()
-    local taskName = inputUtils.getInputFromUser('Enter the task name: ')
+    local taskName = inputUtils.get_input('Enter the task name: ')
     if not taskName then
       vim.notify('No task name provided', vim.log.levels.WARN)
       return

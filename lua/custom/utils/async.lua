@@ -5,6 +5,8 @@ function M.execute(cmd, callback)
 
   local stdout, stderr = {}, {}
   vim.fn.jobstart(cmd, {
+    stdout_buffered = true,
+    stderr_buffered = true,
     on_stdout = function(_, data)
       if data then
         for _, line in ipairs(data) do
@@ -23,6 +25,21 @@ function M.execute(cmd, callback)
       callback(code == 0, table.concat(stdout, '\n'), table.concat(stderr, '\n'), code)
     end,
   })
+end
+
+function M.run(cmd, on_success, on_error)
+  if not cmd then error('Command is required') end
+
+  M.execute(cmd, function(success, stdout, stderr, code)
+    if success or code == 1 then
+      local out = stdout:gsub('^%s*(.-)%s*$', '%1')
+      on_success(out, code)
+    else
+      local out = stdout:gsub('^%s*(.-)%s*$', '%1')
+      local err = stderr:gsub('^%s*(.-)%s*$', '%1')
+      on_error(out, err, code)
+    end
+  end)
 end
 
 function M.execute_curl(cmd, callback)

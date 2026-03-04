@@ -1,5 +1,6 @@
 local language_utils = require('custom.utils.language')
 local ui_utils = require('custom.utils.ui')
+local async_utils = require('custom.utils.async')
 local validation = require('custom.utils.validation')
 
 local M = {}
@@ -13,33 +14,14 @@ local function get_pm()
   return pm
 end
 
-local function run_async_job(cmd, on_success, on_error)
-  local stdout, stderr = {}, {}
-  vim.fn.jobstart(cmd, {
-    stdout_buffered = true,
-    stderr_buffered = true,
-    on_stdout = function(_, data) if data then vim.list_extend(stdout, data) end end,
-    on_stderr = function(_, data) if data then vim.list_extend(stderr, data) end end,
-    on_exit = function(_, code)
-      local out = table.concat(stdout, '\n'):gsub('^%s*(.-)%s*$', '%1')
-      local err = table.concat(stderr, '\n'):gsub('^%s*(.-)%s*$', '%1')
-      if code == 0 or code == 1 then
-        on_success(out, code)
-      else
-        on_error(out, err, code)
-      end
-    end,
-  })
-end
-
 function M.run_java_class_maven()
   local class = language_utils.getCurrentJavaClass()
   if not class or class == '' then
     vim.notify('No Java class found', vim.log.levels.WARN)
     return
   end
-  ui_utils.exec_background('mvn compile', 'Maven compile started')
-  ui_utils.exec_with_feedback('mvn exec:java -Dexec.mainClass=' .. class, 'Running: ' .. class, 3)
+  ui_utils.exec_in_terminal('mvn compile', 'Maven compile started')
+  ui_utils.exec_in_terminal('mvn exec:java -Dexec.mainClass=' .. class, 'Running: ' .. class, 3)
 end
 
 function M.run_java_class_javac()
@@ -57,7 +39,7 @@ function M.serve_markdown_folder()
     vim.notify('Could not determine current folder', vim.log.levels.ERROR)
     return
   end
-  ui_utils.exec_with_feedback(('markserv -b -p 5454 "%s"'):format(folder), 'Markdown server started', 4)
+  ui_utils.exec_in_terminal(('markserv -b -p 5454 "%s"'):format(folder), 'Markdown server started', 4)
 end
 
 function M.compile_mjml_file()
@@ -86,7 +68,7 @@ function M.install_javascript_package()
       if pkg_type == 'development' then
         cmd = cmd .. ' ' .. language_utils.getJavascriptPackageManagerDevArg()
       end
-      ui_utils.exec_with_feedback(cmd, 'Installing: ' .. pkg_name, 3)
+      ui_utils.exec_in_terminal(cmd, 'Installing: ' .. pkg_name, 3)
     end)
   end)
 end
@@ -101,7 +83,7 @@ function M.run_package_script(term_id)
   ui_utils.safe_select(scripts, { prompt = 'Select script:' }, function(script)
     local pm = get_pm()
     if pm then
-      ui_utils.exec_with_feedback(pm .. ' ' .. script, 'Running: ' .. script, term_id or 3)
+      ui_utils.exec_in_terminal(pm .. ' ' .. script, 'Running: ' .. script, term_id or 3)
     end
   end)
 end
@@ -121,7 +103,7 @@ function M.next_eslint_quickfix()
 end
 
 function M.run_eslint_picker()
-  ui_utils.show_progress('Running ESLint...')
+  ui_utils.show_success('Running ESLint...')
   local npx = language_utils.getNpxEquivalent()
   local handle = io.popen(npx .. ' eslint . --ext ts,tsx,js,jsx --format stylish 2>&1')
   if not handle then return end
@@ -166,9 +148,9 @@ local function run_knip(args, _title, process_result)
   if not pm then return end
 
   local cmd = pm .. ' dlx knip ' .. args
-  ui_utils.show_progress('Running knip...')
+  ui_utils.show_success('Running knip...')
 
-  run_async_job(cmd, function(output, code)
+  async_utils.run(cmd, function(output, code)
     if output == '' then
       vim.notify('No issues found', vim.log.levels.INFO)
       return
@@ -244,8 +226,8 @@ end
 function M.run_knip_fix()
   local pm = get_pm()
   if not pm then return end
-  ui_utils.show_progress('Running knip fix...')
-  run_async_job(pm .. ' dlx knip --fix --allow-remove-files', function(out)
+  ui_utils.show_success('Running knip fix...')
+  async_utils.run(pm .. ' dlx knip --fix --allow-remove-files', function(out)
     ui_utils.show_success('Knip fix completed' .. (out ~= '' and ':\n' .. out or ''))
   end, function(_, err, code)
     vim.notify(('Knip fix failed (code %d): %s'):format(code, err), vim.log.levels.ERROR)
@@ -257,7 +239,7 @@ function M.run_knip_fix_current_folder()
   if not pm then return end
   local dir = vim.fn.fnamemodify(vim.fn.expand('%:p'), ':h:.')
   if dir == '' then dir = '.' end
-  ui_utils.show_progress('Knip fix for: ' .. dir)
+  ui_utils.show_success('Knip fix for: ' .. dir)
   vim.fn.jobstart(pm .. ' dlx knip --fix', { on_exit = function()
     vim.notify('Knip fix completed for ' .. dir, vim.log.levels.INFO)
   end })
@@ -285,7 +267,7 @@ function M.launch_android_emulator()
 end
 
 function M.fix_and_organize_typescript_imports()
-  ui_utils.show_progress('Finding TypeScript files...')
+  ui_utils.show_success('Finding TypeScript files...')
   local files = vim.fn.systemlist("find . -type f \\( -name '*.ts' -o -name '*.tsx' \\) -not -path '*/node_modules/*'")
   if #files == 0 then
     vim.notify('No TypeScript files found', vim.log.levels.WARN)

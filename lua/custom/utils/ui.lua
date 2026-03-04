@@ -32,7 +32,6 @@ function M.safe_input(opts, validator, callback)
 end
 
 M.show_success = function(msg) vim.notify(msg, vim.log.levels.INFO) end
-M.show_progress = M.show_success
 
 function M.exec_in_terminal(cmd, success_msg, terminal_id)
   if not cmd then error('Command is required') end
@@ -41,7 +40,5 @@ function M.exec_in_terminal(cmd, success_msg, terminal_id)
     vim.defer_fn(function() vim.notify(success_msg, vim.log.levels.INFO) end, 500)
   end
 end
-M.exec_with_feedback = M.exec_in_terminal
-M.exec_background = function(cmd, msg) M.exec_in_terminal(cmd, msg, 5) end
 
 return M

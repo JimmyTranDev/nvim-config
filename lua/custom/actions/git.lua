@@ -48,6 +48,8 @@ function M.createWorktree(prefix)
   end
 end
 
+local QUICK_UPDATE_MESSAGE = 'feat: ✨ update'
+
 function M.createCommit(prefix, emoji, shouldPush, shouldGeneric)
   return function()
     local branchName = git_utils.get_current_branch()
@@ -77,8 +79,7 @@ function M.createCommit(prefix, emoji, shouldPush, shouldGeneric)
 end
 
 function M.quickCommitUpdate()
-  local commitMessage = 'feat: ✨ update'
-  vim.cmd(string.format('Git commit --no-verify -m "%s"', commitMessage))
+  vim.cmd(string.format('Git commit --no-verify -m "%s"', QUICK_UPDATE_MESSAGE))
 end
 
 function M.createCommitFromBranchName()
@@ -372,41 +373,6 @@ function M.resetAllWithConfirm()
   end)
 end
 
-function M.openGithubPullRequest()
-  local github_utils = require('custom.utils.github')
-
-  local branch = git_utils.get_current_branch()
-  local repo = github_utils.getRepoName()
-  local username = vim.env.GITHUB_USERNAME or vim.env.PRI_GITHUB_USERNAME or ''
-  if not branch or branch == '' or not repo or repo == '' or username == '' then
-    vim.notify('Could not determine branch, repo, or username')
-    return
-  end
-  local handle = io.popen('gh pr list --json number,headRefName,url')
-  local prListJson = handle and handle:read('*a') or ''
-  if handle then handle:close() end
-  local prUrl = nil
-  if prListJson and prListJson ~= '' then
-    local ok, prList = pcall(vim.fn.json_decode, prListJson)
-    if ok and prList then
-      for _, pr in ipairs(prList) do
-        if pr.headRefName == branch and pr.url then
-          prUrl = pr.url
-          break
-        end
-      end
-    end
-  end
-  if prUrl then
-    file_utils.open(prUrl)
-    vim.notify('Opened existing PR for branch: ' .. branch)
-  else
-    local url = string.format('https://github.com/%s/%s/pull/new/%s', username, repo, branch)
-    file_utils.open(url)
-    vim.notify('Opened new PR creation page for branch: ' .. branch)
-  end
-end
-
 local function get_pr_for_branch(branch)
   local handle = io.popen('gh pr list --json number,headRefName,url')
   if not handle then return nil end
@@ -435,21 +401,23 @@ function M.openOrCreatePullRequest()
   local prUrl = get_pr_for_branch(branch)
   if prUrl then
     file_utils.open(prUrl)
-    vim.notify('🔗 Opened existing PR for branch: ' .. branch, vim.log.levels.INFO)
+    vim.notify('Opened existing PR for branch: ' .. branch, vim.log.levels.INFO)
   else
     vim.notify('No existing PR found. Creating new PR into develop...', vim.log.levels.INFO)
     local result = vim.fn.system('gh pr create --base develop --web 2>&1')
 
     if vim.v.shell_error == 0 then
-      vim.notify('🔀 PR created into develop and opened in browser', vim.log.levels.INFO)
+      vim.notify('PR created into develop and opened in browser', vim.log.levels.INFO)
     else
       vim.notify('Failed to create PR into develop: ' .. result, vim.log.levels.ERROR)
     end
   end
 end
 
+M.openGithubPullRequest = M.openOrCreatePullRequest
+
 function M.rebaseChooseOurs()
-  local current_branch = vim.fn.systemlist('git branch --show-current')[1]
+  local current_branch = git_utils.get_current_branch()
   if not current_branch or current_branch == '' then
     vim.notify('❌ Could not determine current branch', vim.log.levels.ERROR)
     return

@@ -9,8 +9,6 @@ function M.get_input(prompt, default_text, allow_empty)
   return input
 end
 
-M.getInputFromUser = M.get_input
-
 function M.get_selected_text(clean)
   local old_reg = vim.fn.getreg('"')
   vim.cmd('normal! ""y')

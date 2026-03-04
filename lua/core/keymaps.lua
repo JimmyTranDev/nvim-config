@@ -32,8 +32,6 @@ maps('n', {
   { '<C-l>', '<C-W><C-L>', 'Move to right window' },
   { ']', ':cnext<CR>', 'Next quickfix item' },
   { '[', ':cprev<CR>', 'Previous quickfix item' },
-  { 'gP', ':split<CR>', 'Horizontal split' },
-  { 'gp', ':vsplit<CR>', 'Vertical split' },
 })
 
 map('', '<S-J>', '<C-D>', { desc = 'Scroll down half page' })
@@ -91,7 +89,6 @@ map('n', '<leader><leader>fr', fileActions.run_clipboard_command, { desc = 'Run 
 map('n', '<leader><leader>fs', editorActions.toggle_spellcheck, { desc = 'Toggle spellcheck' })
 map('n', '<leader><leader>fC', ':!rm -r ' .. constants.NEOVIM_STATE_DIR .. '<CR>', { desc = 'Clear swap files' })
 map('n', '<leader><leader>fG', fileActions.link_github_copilot_instructions, { desc = 'Link .github from dotfiles' })
-map('n', '<leader><leader>fu', fileActions.copy_current_file_url, { desc = 'Copy file absolute URL' })
 
 map('x', '<leader><leader>tr', [["zy:%s/\V<C-r>=escape(@z, '/')<CR>//gc<left><left><left>]], { desc = 'Visual search replace' })
 map('n', '<leader>;;', checkboxActions.toggle, { desc = 'Toggle checkbox' })
@@ -105,7 +102,6 @@ map('n', '<leader>lo', fileActions.copy_opencode_link, { desc = 'Copy OpenCode l
 map('n', '<leader>le', errorsActions.copy_diagnostic_under_cursor, { desc = 'Copy diagnostic' })
 map('n', '<leader>lw', editorActions.toggle_wrap, { desc = 'Toggle text wrap' })
 map('n', '<leader>ll', bufferActions.close_other_buffers_and_create_empty, { desc = 'Close other buffers and create empty buffer' })
-map('n', '<leader>lt', '<cmd>Copilot toggle<CR>', { desc = 'Toggle Copilot autocomplete' })
 map('n', '<leader>vx', languageActions.run_knip_fix_current_folder, { desc = 'Knip fix current folder' })
 map('n', '<leader>vX', languageActions.run_knip_fix, { desc = 'Knip fix & remove files (global)' })
 

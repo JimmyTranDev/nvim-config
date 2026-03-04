@@ -138,7 +138,7 @@ local function add_back_option(options, text, value)
 end
 
 local function get_user_input(prompt, default)
-  local input = inputUtils.getInputFromUser(prompt, default or '')
+  local input = inputUtils.get_input(prompt, default or '')
   if not input or input == '' then
     vim.notify('Task creation cancelled', vim.log.levels.INFO)
     return nil

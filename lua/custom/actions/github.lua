@@ -1,24 +1,10 @@
 local github_utils = require('custom.utils.github')
+local file_utils = require('custom.utils.files')
 local Snacks = require('snacks')
 
 local M = {}
 
-local function get_current_repo_info()
-  local handle = io.popen('gh repo view --json name,owner,nameWithOwner 2>/dev/null')
-  if not handle then return nil end
-
-  local output = handle:read('*a')
-  handle:close()
-
-  if vim.v.shell_error ~= 0 then return nil end
-
-  local ok, repo_info = pcall(vim.fn.json_decode, output)
-  return ok and repo_info or nil
-end
-
 local function format_pr_display(pr) return string.format('#%d %s [%s]', pr.number, pr.title, pr.state) end
-
-local function open_url(url) vim.fn.system('open ' .. vim.fn.shellescape(url)) end
 
 local function select_and_open_pr_from_list(pulls, context_name)
   if #pulls == 0 then
@@ -38,7 +24,7 @@ local function select_and_open_pr_from_list(pulls, context_name)
 
     for _, pr in ipairs(pulls) do
       if selected_display:find('#' .. pr.number) then
-        open_url(pr.url)
+        file_utils.open(pr.url)
         vim.notify('Opened PR #' .. pr.number .. ' in browser', vim.log.levels.INFO)
         return
       end
@@ -57,7 +43,7 @@ function M.create_draft_pr()
 end
 
 function M.open_current_repo_prs()
-  local repo_info = get_current_repo_info()
+  local repo_info = github_utils.get_repo_info()
   if not repo_info or not repo_info.owner or not repo_info.name then
     vim.notify('Could not determine current repository', vim.log.levels.ERROR)
     return
@@ -145,7 +131,7 @@ function M.open_current_commit_in_github()
     return
   end
 
-  local repo_info = get_current_repo_info()
+  local repo_info = github_utils.get_repo_info()
   if not repo_info or not repo_info.nameWithOwner then
     vim.notify('Could not determine repository', vim.log.levels.ERROR)
     return
@@ -153,7 +139,7 @@ function M.open_current_commit_in_github()
 
   local github_url = string.format('https://github.com/%s/commit/%s', repo_info.nameWithOwner, commit_hash)
 
-  open_url(github_url)
+  file_utils.open(github_url)
   vim.notify(string.format('Opened commit %s in GitHub', commit_hash:sub(1, 7)), vim.log.levels.INFO)
 end
 
@@ -211,7 +197,7 @@ function M.list_org_repos_and_open()
           format = function(item) return { { item.text, 'Normal' } } end,
           confirm = function(picker, item)
             picker:close()
-            open_url(item.url)
+            file_utils.open(item.url)
             vim.notify('Opened ' .. item.name .. ' in browser', vim.log.levels.INFO)
           end,
         })
@@ -285,7 +271,7 @@ function M.list_contributed_repos_and_open()
         format = function(item) return { { item.text, 'Normal' } } end,
         confirm = function(picker, item)
           picker:close()
-          open_url(item.url)
+          file_utils.open(item.url)
           vim.notify('Opened ' .. item.name .. ' in browser', vim.log.levels.INFO)
         end,
       })

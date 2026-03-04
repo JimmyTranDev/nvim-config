@@ -3,6 +3,7 @@ local git_utils = require('custom.utils.git')
 local link_constants = require('custom.constants.links')
 local language_utils = require('custom.utils.language')
 local file_utils = require('custom.utils.files')
+local github_utils = require('custom.utils.github')
 local ui_utils = require('custom.utils.ui')
 
 local M = {}
@@ -16,31 +17,22 @@ local function open_url(url, description)
   if description then vim.notify('Opened: ' .. description, vim.log.levels.INFO) end
 end
 
-local function get_current_repo_url()
-  local output = vim.fn.system('gh repo view --json url 2>/dev/null')
-  if vim.v.shell_error ~= 0 then return nil end
-
-  local ok, repo_info = pcall(vim.fn.json_decode, output)
-  if ok and repo_info and repo_info.url then return repo_info.url end
-  return nil
-end
-
 function M.open_current_github_repo()
-  local url = get_current_repo_url()
-  if not url then
+  local repo_info = github_utils.get_repo_info()
+  if not repo_info or not repo_info.url then
     vim.notify('Failed to get repository info. Make sure you are in a git repository and gh CLI is authenticated.', vim.log.levels.ERROR)
     return
   end
-  open_url(url, 'Current GitHub repository')
+  open_url(repo_info.url, 'Current GitHub repository')
 end
 
 function M.open_current_github_prs()
-  local url = get_current_repo_url()
-  if not url then
+  local repo_info = github_utils.get_repo_info()
+  if not repo_info or not repo_info.url then
     vim.notify('Failed to get repository info. Make sure you are in a git repository and gh CLI is authenticated.', vim.log.levels.ERROR)
     return
   end
-  open_url(url .. '/pulls', 'GitHub pull requests')
+  open_url(repo_info.url .. '/pulls', 'GitHub pull requests')
 end
 
 function M.open_dev_server() language_utils.openServerUrl('dev') end
