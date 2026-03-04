@@ -91,13 +91,6 @@ function M.setup()
   return true
 end
 
-function M.get_config() return vim.deepcopy(config) end
-
-function M.update_config(new_config)
-  config = vim.tbl_deep_extend('force', config, new_config)
-  vim.notify('Plugin configuration updated. Restart required for full effect.', vim.log.levels.INFO)
-end
-
 M.setup()
 
 return M

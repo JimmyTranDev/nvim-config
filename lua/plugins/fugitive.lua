@@ -108,7 +108,7 @@ return {
     { mode = 'n', '<Leader>gct', gitActions.createCommit('test', '🧪'), desc = '🧪 Commit test' },
     { mode = 'n', '<Leader>gcF', gitActions.createCommit('fix', '🐛'), desc = '🐛 Commit fix' },
     { mode = 'n', '<Leader>gcR', gitActions.createCommit('revert', '⏪'), desc = '⏪ Commit revert' },
-    { mode = 'n', '<Leader>gCu', gitActions.createCommit('feat', '✨', false, true), desc = '⏪ Commit update' },
+    { mode = 'n', '<Leader>gcu', gitActions.createCommit('feat', '✨', false, true), desc = '⏪ Commit update' },
     { mode = 'n', '<Leader>gcx', gitActions.createCommitFromBranchName, desc = '󰊢 Commit from branch name', silent = true },
 
     -- WORKTREE

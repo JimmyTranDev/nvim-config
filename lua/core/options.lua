@@ -45,7 +45,6 @@ local function setup_search() vim.o.ignorecase = true end
 
 local function setup_clipboard()
   vim.o.clipboard = 'unnamedplus'
-  vim.opt.clipboard = 'unnamedplus'
 
   if vim.fn.has('wsl') == 1 then
     vim.g.clipboard = {
@@ -94,8 +93,6 @@ end
 
 local function setup_plugin_globals()
   vim.g.copilot_no_tab_map = true
-
-  vim.g.netrw_sort_sequence = 'r'
 end
 
 local function setup_diagnostics()

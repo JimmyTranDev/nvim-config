@@ -5,7 +5,6 @@ return {
   dependencies = {
     'nvim-lua/plenary.nvim',
   },
-  cond = false,
   config = function()
     require('copilot').setup({
       panel = {

@@ -76,35 +76,15 @@ return {
   config = function(_, opts)
     require('leetcode').setup(opts)
 
-    local keymap = vim.keymap
-    local function map(mode, lhs, rhs, desc) keymap.set(mode, lhs, rhs, { desc = desc, silent = true, noremap = true }) end
-
-    map('n', '<leader>tll', '<cmd>Leet<CR>', '󰞷 Open LeetCode')
-    map('n', '<leader>tlm', '<cmd>Leet menu<CR>', '󰍉 LeetCode menu')
-    map('n', '<leader>tlc', '<cmd>Leet console<CR>', '󰆍 Open console')
-    map('n', '<leader>tli', '<cmd>Leet info<CR>', 'ℹ️  Problem info')
-
-    map('n', '<leader>tlL', '<cmd>Leet list<CR>', '📋 List problems')
-    map('n', '<leader>tld', '<cmd>Leet daily<CR>', '📅 Daily challenge')
-    map('n', '<leader>tlR', '<cmd>Leet random<CR>', '🎲 Random problem')
-
-    map('n', '<leader>tlr', '<cmd>Leet run<CR>', '▶️  Run code')
-    map('n', '<leader>tlS', '<cmd>Leet submit<CR>', '📤 Submit solution')
-    map('n', '<leader>tlT', '<cmd>Leet test<CR>', '🧪 Run tests')
-
-    map('n', '<leader>tls', '<cmd>Leet session<CR>', '🔗 Manage session')
-    map('n', '<leader>tly', '<cmd>Leet yank<CR>', '📋 Yank solution')
-
-    map('n', '<leader>tlg', '<cmd>Leet lang<CR>', '🌐 Change language')
-    map('n', '<leader>tlD', '<cmd>Leet desc<CR>', '📖 Toggle description')
-    map('n', '<leader>tlC', '<cmd>Leet cache<CR>', '💾 Cache operations')
-
     vim.api.nvim_create_autocmd('FileType', {
       pattern = 'leetcode.nvim',
       callback = function()
-        map('n', '<CR>', '<cmd>Leet run<CR>', '▶️  Run code')
-        map('n', 's', '<cmd>Leet submit<CR>', '📤 Submit solution')
-        map('n', 't', '<cmd>Leet test<CR>', '🧪 Run tests')
+        local keymap = vim.keymap
+        local function map(mode, lhs, rhs, desc) keymap.set(mode, lhs, rhs, { desc = desc, silent = true, noremap = true }) end
+
+        map('n', '<CR>', '<cmd>Leet run<CR>', 'Run code')
+        map('n', 's', '<cmd>Leet submit<CR>', 'Submit solution')
+        map('n', 't', '<cmd>Leet test<CR>', 'Run tests')
       end,
     })
   end,

@@ -149,50 +149,6 @@ function M.createCommitFromBranchName()
   vim.notify('Committed: ' .. commitMessage)
 end
 
-function M.addTagToHash()
-  local tagName = input_utils.get_input('Tag Name: ')
-  if tagName == '' then return end
-
-  local commitLines, commitLineToSha = git_utils.get_commit_log(false)
-  local message = input_utils.get_input('Tag Message: ')
-
-  vim.ui.select(commitLines, {
-    prompt = 'Select commit to tag:',
-  }, function(commitLine)
-    if commitLine == nil then return end
-
-    local sha = commitLineToSha[commitLine]
-
-    if message == '' then
-      vim.cmd('Git tag -f ' .. tagName .. ' ' .. sha)
-    else
-      vim.cmd('Git tag -f -a ' .. tagName .. ' -m ' .. message .. ' ' .. sha)
-    end
-  end)
-end
-
-function M.copyLatestCommitMessage()
-  local handle = io.popen('git log -1 --pretty=%B')
-  if not handle then
-    vim.notify('Failed to run git command')
-    return
-  end
-
-  local message = handle:read('*a')
-  handle:close()
-
-  if not message or message == '' then
-    vim.notify('No commit message found.')
-    return
-  end
-
-  local cleaned = message:gsub('[%z\1-\127\194-\244][\128-\191]+', ''):gsub(':[%w_]+:', ''):gsub('[%p%c%s]*[\xF0-\xF4][\x80-\xBF][\x80-\xBF][\x80-\xBF]', '')
-
-  cleaned = cleaned:gsub('^%s+', ''):gsub('%s+$', '')
-  vim.fn.setreg('+', cleaned)
-  vim.notify('Cleaned commit message copied to clipboard.')
-end
-
 function M.resetToReflog()
   local handle = io.popen('git reflog --oneline -n 20')
   if not handle then vim.notify('Failed to run git reflog command') end
@@ -262,77 +218,6 @@ function M.resetToReflog()
     end)
   end)
 end
-
-local function reset_to_commit(reset_type)
-  local flag = reset_type == 'hard' and '--hard' or '--soft'
-  local emoji = reset_type == 'hard' and '🔥' or '💿'
-  local desc = reset_type == 'hard' and '⚠️  This will discard ALL changes' or 'changes will be kept staged'
-
-  local handle = io.popen('git log --oneline -n 20')
-  if not handle then
-    vim.notify('Failed to run git log command')
-    return
-  end
-
-  local log_output = handle:read('*a')
-  handle:close()
-
-  if not log_output or log_output == '' then
-    vim.notify('No commit entries found.')
-    return
-  end
-
-  local commit_entries = {}
-  local commit_hashes = {}
-
-  for line in log_output:gmatch('[^\n]+') do
-    if line ~= '' then
-      local hash = line:match('^(%S+)')
-      if hash then
-        table.insert(commit_entries, line)
-        commit_hashes[line] = hash
-      end
-    end
-  end
-
-  if #commit_entries == 0 then
-    vim.notify('No commit entries to display.')
-    return
-  end
-
-  vim.ui.select(commit_entries, {
-    prompt = 'Select commit to reset ' .. reset_type .. ' to (' .. desc .. '):',
-    format_item = function(item) return item end,
-  }, function(selected_entry)
-    if not selected_entry then return end
-
-    local hash = commit_hashes[selected_entry]
-    if not hash then
-      vim.notify('Failed to extract hash from commit entry')
-      return
-    end
-
-    if reset_type == 'hard' then
-      vim.ui.input({
-        prompt = string.format("⚠️  Reset HARD to %s? This will discard ALL changes! Type 'yes' to confirm: ", hash:sub(1, 7)),
-      }, function(confirmation)
-        if confirmation ~= 'yes' then
-          vim.notify('Reset cancelled.')
-          return
-        end
-        vim.cmd(string.format("TermExec5 cmd='git reset %s %s'", flag, hash))
-        vim.notify(string.format('%s Reset %s to %s', emoji, flag, hash:sub(1, 7)))
-      end)
-    else
-      vim.cmd(string.format("TermExec5 cmd='git reset %s %s'", flag, hash))
-      vim.notify(string.format('%s Reset %s to %s (changes kept staged)', emoji, flag, hash:sub(1, 7)))
-    end
-  end)
-end
-
-function M.resetHardToCommit() reset_to_commit('hard') end
-
-function M.resetSoftToCommit() reset_to_commit('soft') end
 
 function M.stashAllChanges()
   vim.ui.input({
@@ -538,22 +423,6 @@ local function get_pr_for_branch(branch)
     if pr.headRefName == branch and pr.url then return pr.url end
   end
   return nil
-end
-
-function M.openExistingPullRequestOnly()
-  local branch = git_utils.get_current_branch()
-  if not branch or branch == '' then
-    vim.notify('Could not determine current branch', vim.log.levels.ERROR)
-    return
-  end
-
-  local prUrl = get_pr_for_branch(branch)
-  if prUrl then
-    file_utils.open(prUrl)
-    vim.notify('🔗 Opened PR for branch: ' .. branch, vim.log.levels.INFO)
-  else
-    vim.notify('❌ No existing PR found for branch: ' .. branch, vim.log.levels.WARN)
-  end
 end
 
 function M.openOrCreatePullRequest()

@@ -12,5 +12,5 @@ return {
       desc = 'Workspace Diagnostics',
     },
   },
-  config = function() require('lazy').setup({ 'artemave/workspace-diagnostics.nvim' }) end,
+  config = function() require('workspace-diagnostics').setup() end,
 }

@@ -6,13 +6,13 @@ local validation = require('custom.utils.validation')
 local M = {}
 
 local function get_convention_input()
-  local convention_name = input_utils.safe_input('Enter convention name: ')
+  local convention_name = input_utils.get_input('Enter convention name: ')
   if not validation.is_non_empty_string(convention_name) then
     vim.notify('Convention name is required', vim.log.levels.WARN)
     return nil
   end
 
-  local convention_description = input_utils.safe_input('Enter convention description: ')
+  local convention_description = input_utils.get_input('Enter convention description: ')
   if not validation.is_non_empty_string(convention_description) then
     vim.notify('Convention description is required', vim.log.levels.WARN)
     return nil

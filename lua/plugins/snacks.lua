@@ -572,15 +572,5 @@ return {
       show_package_json_picker,
       desc = 'Package.json Packages',
     },
-    {
-      '<leader>ug',
-      function() require('custom.actions.github').list_org_repos_and_open() end,
-      desc = 'List Org Repos',
-    },
-    {
-      '<leader>uG',
-      function() require('custom.actions.github').list_contributed_repos_and_open() end,
-      desc = 'Contributed Repos',
-    },
   },
 }

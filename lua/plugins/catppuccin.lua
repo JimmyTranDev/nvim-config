@@ -41,9 +41,7 @@ return {
         treesitter = true,
         notify = false,
         which_key = true,
-        alpha = true,
         hop = true,
-        harpoon = true,
       },
     })
 
