@@ -27,7 +27,7 @@ end
 local function save_recent_projects(recent_projects)
   local f = io.open(RECENT_PROJECTS_FILE, 'w')
   if f then
-    f:write(vim.json.encode({ recent_projects = recent_projects }))
+    f:write(vim.fn.json_encode({ recent_projects = recent_projects }))
     f:close()
   end
 end

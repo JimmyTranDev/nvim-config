@@ -8,7 +8,7 @@ function M.parse_json_from_file(file_path)
   if not file then
     if string.match(file_path, 'Programming/secrets') then
       local secrets_path = os.getenv('HOME') .. '/Programming/secrets'
-      local stat = vim.loop.fs_stat(secrets_path)
+      local stat = vim.uv.fs_stat(secrets_path)
       local secrets_dir_exists = stat and stat.type == 'directory'
 
       if not secrets_dir_exists then

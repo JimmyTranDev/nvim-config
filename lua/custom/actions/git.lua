@@ -67,7 +67,7 @@ function M.createCommit(prefix, emoji, shouldPush, shouldGeneric)
       local commitScopePart = commitScope == '' and '' or '(' .. commitScope .. ')'
       local emojiPart = emoji == '' and '' or ' ' .. emoji
 
-      commitMessage = prefix .. commitScopePart .. ':' .. emojiPart .. ' ' .. jiraTicketPart .. commitDescription
+      commitMessage = (prefix or '') .. commitScopePart .. ':' .. emojiPart .. ' ' .. jiraTicketPart .. commitDescription
     else
       commitMessage = prefix .. ': update'
     end

@@ -153,19 +153,11 @@ end
 
 function M.replace_quickfix() replace_with_options('quickfix', false, false) end
 
-function M.replace_quickfix_prefilled() replace_with_options('quickfix', true, false) end
-
 function M.replace_quickfix_all() replace_with_options('quickfix_all', false, false) end
-
-function M.replace_quickfix_all_prefilled() replace_with_options('quickfix_all', true, false) end
 
 function M.replace_project() replace_with_options('project', false, false) end
 
-function M.replace_project_prefilled() replace_with_options('project', true, false) end
-
 function M.replace_project_all() replace_with_options('project_all', false, false) end
-
-function M.replace_project_all_prefilled() replace_with_options('project_all', true, false) end
 
 function M.replace_interactive()
   ui_utils.safe_select(INTERACTIVE_SCOPES, {

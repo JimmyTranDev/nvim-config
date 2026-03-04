@@ -146,7 +146,7 @@ function M.create_task_with_project(content, project_id, section_id, priority, d
   end
   if due_string and due_string ~= '' then task_data.due_string = due_string end
 
-  local json_data = vim.json.encode(task_data)
+  local json_data = vim.fn.json_encode(task_data)
 
   local token, err = get_token()
   if not token then

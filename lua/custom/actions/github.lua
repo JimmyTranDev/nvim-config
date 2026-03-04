@@ -173,7 +173,10 @@ function M.list_org_repos_and_open()
           })
         end
 
-        require('snacks').picker({
+        local ok, snacks = pcall(require, 'snacks')
+        if not ok then return end
+
+        snacks.picker({
           title = 'Repos: ' .. org_name,
           items = items,
           format = function(item) return { { item.text, 'Normal' } } end,
@@ -247,7 +250,10 @@ function M.list_contributed_repos_and_open()
         return
       end
 
-      require('snacks').picker({
+      local ok, snacks = pcall(require, 'snacks')
+      if not ok then return end
+
+      snacks.picker({
         title = 'Contributed Repos: ' .. org_name,
         items = items,
         format = function(item) return { { item.text, 'Normal' } } end,

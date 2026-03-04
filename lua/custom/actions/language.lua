@@ -87,9 +87,12 @@ function M.run_package_script(term_id)
 
   if vim.fn.filereadable('Makefile') == 1 then
     local targets = {}
-    for line in io.lines('Makefile') do
-      local target = line:match('^(%w[%w-_%.]*)%s*:')
-      if target and target ~= 'PHONY' then table.insert(targets, target) end
+    local ok, iter = pcall(io.lines, 'Makefile')
+    if ok then
+      for line in iter do
+        local target = line:match('^(%w[%w-_%.]*)%s*:')
+        if target and target ~= 'PHONY' then table.insert(targets, target) end
+      end
     end
 
     if #targets > 0 then
@@ -110,11 +113,6 @@ function M.create_package_command_runner(term_id, command, should_exit, args)
     vim.cmd((':%dTermExec %s cmd="%s %s"'):format(term_id, args or '', pm, command))
     if should_exit then vim.cmd((':%dTermExec cmd="exit"'):format(term_id)) end
   end
-end
-
-function M.next_eslint_quickfix()
-  vim.cmd("cgetexpr system('eslint -f unix .')")
-  pcall(vim.cmd, 'cnext')
 end
 
 function M.run_eslint_picker()
@@ -326,9 +324,12 @@ function M.create_make_command_runner(term_id)
     end
 
     local targets = {}
-    for line in io.lines('Makefile') do
-      local target = line:match('^(%w[%w-_%.]*)%s*:')
-      if target and target ~= 'PHONY' then table.insert(targets, target) end
+    local ok, iter = pcall(io.lines, 'Makefile')
+    if ok then
+      for line in iter do
+        local target = line:match('^(%w[%w-_%.]*)%s*:')
+        if target and target ~= 'PHONY' then table.insert(targets, target) end
+      end
     end
 
     ui_utils.safe_select(targets, { prompt = 'Make target:' }, function(target)
@@ -347,20 +348,6 @@ function M.create_npm_update_executor(term_id, type)
   return function()
     vim.cmd((':%dTermExec cmd="%s"'):format(term_id, M.create_npm_update_command(type)))
   end
-end
-
-M.build_workspace_install_command = function(pm, pkg, type, workspace)
-  local dev = type == 'development'
-  if workspace == 'Root workspace' then
-    return pm .. ' add ' .. pkg .. (dev and ' ' .. language_utils.getJavascriptPackageManagerDevArg() or '')
-  end
-  local cmds = {
-    pnpm = 'pnpm --filter ' .. workspace .. ' add ' .. pkg .. (dev and ' --save-dev' or ''),
-    yarn = 'yarn workspace ' .. workspace .. ' add ' .. pkg .. (dev and ' --dev' or ''),
-    npm = 'npm --workspace=' .. workspace .. ' install ' .. pkg .. (dev and ' --save-dev' or ''),
-    bun = 'bun --filter ' .. workspace .. ' add ' .. pkg .. (dev and ' --dev' or ''),
-  }
-  return cmds[pm] or (pm .. ' add ' .. pkg)
 end
 
 return M

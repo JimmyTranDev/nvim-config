@@ -3,9 +3,7 @@ local M = {}
 function M.get_input(prompt, default_text, allow_empty)
   local input = vim.fn.input(prompt, default_text or '')
   if input == ' ' then return '' end
-  if input == '' and not allow_empty then
-    return M.get_input(prompt, default_text, allow_empty)
-  end
+  if input == '' and not allow_empty then return nil end
   return input
 end
 

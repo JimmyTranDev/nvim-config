@@ -163,7 +163,7 @@ function M.openServerUrl(type)
 
     local url = linkConstants.projectNameToRouteObject[projectName][type]
     if url == nil then
-      print('No url found for type ' .. type .. ' of project: ' .. projectName)
+      vim.notify('No url found for type ' .. type .. ' of project: ' .. projectName, vim.log.levels.WARN)
       return
     end
     fileUtils.open(url)
