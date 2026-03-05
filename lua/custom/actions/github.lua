@@ -127,6 +127,42 @@ function M.open_current_commit_in_github()
 end
 
 
+function M.copy_open_prs()
+  local org_name = vim.env.ORG_GITHUB_NAME
+  if not org_name or org_name == '' then
+    vim.notify('ORG_GITHUB_NAME not set', vim.log.levels.ERROR)
+    return
+  end
+
+  vim.notify('Fetching open PRs for ' .. org_name .. '...', vim.log.levels.INFO)
+
+  vim.system(
+    { 'gh', 'search', 'prs', '--owner', org_name, '--state', 'open', '--author', '@me', '--json', 'number,title,repository,url', '--limit', '100' },
+    { text = true },
+    vim.schedule_wrap(function(result)
+      if result.code ~= 0 then
+        vim.notify('Failed to fetch PRs: ' .. (result.stderr or result.stdout), vim.log.levels.ERROR)
+        return
+      end
+
+      local ok, prs = pcall(vim.fn.json_decode, result.stdout)
+      if not ok or not prs or #prs == 0 then
+        vim.notify('No open PRs found', vim.log.levels.INFO)
+        return
+      end
+
+      local lines = {}
+      for _, pr in ipairs(prs) do
+        table.insert(lines, string.format('%s %s', pr.url, pr.title))
+      end
+
+      local formatted = table.concat(lines, '\n')
+      vim.fn.setreg('+', formatted)
+      vim.notify(string.format('Copied %d PR(s) to clipboard', #prs), vim.log.levels.INFO)
+    end)
+  )
+end
+
 function M.list_org_repos_and_open()
   local programming_dir = vim.fn.expand('~/Programming')
   local org_dirs = {}

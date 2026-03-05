@@ -141,6 +141,7 @@ map('n', '<Leader>rcw', jiraActions.refresh_jira_cache, { desc = 'Refresh Jira c
 
 map('n', '<Leader>ras', jiraActions.generate_done_md, { desc = 'Generate this week jira tasks' })
 map('n', '<Leader>rat', jiraActions.copy_assigned_issues_for_testing, { desc = 'Copy assigned issues for testing' })
+map('n', '<Leader>rap', githubActions.copy_open_prs, { desc = 'Copy open PRs' })
 map('n', '<Leader>ryj', jiraActions.copy_ticket_with_title, { desc = 'Copy Jira ticket with title' })
 
 maps('n', {
