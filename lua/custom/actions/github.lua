@@ -137,7 +137,7 @@ function M.copy_open_prs()
   vim.notify('Fetching open PRs for ' .. org_name .. '...', vim.log.levels.INFO)
 
   vim.system(
-    { 'gh', 'search', 'prs', '--owner', org_name, '--state', 'open', '--author', '@me', '--json', 'number,title,repository,url', '--limit', '100' },
+    { 'gh', 'search', 'prs', 'draft:false', '--owner', org_name, '--state', 'open', '--author', '@me', '--json', 'number,title,repository,url', '--limit', '100' },
     { text = true },
     vim.schedule_wrap(function(result)
       if result.code ~= 0 then
@@ -151,14 +151,46 @@ function M.copy_open_prs()
         return
       end
 
-      local lines = {}
-      for _, pr in ipairs(prs) do
-        table.insert(lines, string.format('%s %s', pr.url, pr.title))
-      end
+      local pending = #prs
+      local pr_data = {}
 
-      local formatted = table.concat(lines, '\n')
-      vim.fn.setreg('+', formatted)
-      vim.notify(string.format('Copied %d PR(s) to clipboard', #prs), vim.log.levels.INFO)
+      for i, pr in ipairs(prs) do
+        local repo_full = pr.repository and pr.repository.nameWithOwner or ''
+        local api_path = string.format('/repos/%s/pulls/%d', repo_full, pr.number)
+
+        vim.system(
+          { 'gh', 'api', api_path .. '/files', '--paginate', '--jq', '[.[] | {filename, additions, deletions}]' },
+          { text = true },
+          vim.schedule_wrap(function(api_result)
+            local additions = 0
+            local deletions = 0
+            if api_result.code == 0 then
+              local s_ok, files = pcall(vim.fn.json_decode, api_result.stdout)
+              if s_ok and files then
+                for _, file in ipairs(files) do
+                  if file.filename ~= 'pnpm-lock.yaml' then
+                    additions = additions + (file.additions or 0)
+                    deletions = deletions + (file.deletions or 0)
+                  end
+                end
+              end
+            end
+
+            pr_data[i] = string.format('%s %s +%d -%d', pr.url, pr.title, additions, deletions)
+            pending = pending - 1
+
+            if pending == 0 then
+              local lines = {}
+              for j = 1, #prs do
+                table.insert(lines, pr_data[j])
+              end
+              local formatted = table.concat(lines, '\n')
+              vim.fn.setreg('+', formatted)
+              vim.notify(string.format('Copied %d PR(s) to clipboard', #prs), vim.log.levels.INFO)
+            end
+          end)
+        )
+      end
     end)
   )
 end
