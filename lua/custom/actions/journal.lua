@@ -12,21 +12,23 @@ local function sync_journal_repo()
   vim.system({ 'git', '-C', repo, 'add', '.' }, {}, function(add_result)
     if add_result.code ~= 0 then return end
 
-    local week, year = get_iso_week()
-    local last_log = vim.fn.system('git -C ' .. repo .. ' log -1 --format=%s 2>/dev/null'):gsub('%s+$', '')
-    local expected_prefix = 'journal: week '
+    vim.system({ 'git', '-C', repo, 'log', '-1', '--format=%s' }, {}, function(log_result)
+      local week, year = get_iso_week()
+      local last_log = (log_result.stdout or ''):gsub('%s+$', '')
+      local expected_prefix = 'journal: week '
 
-    local commit_args
-    if last_log:sub(1, #expected_prefix) == expected_prefix then
-      commit_args = { 'git', '-C', repo, 'commit', '--amend', '--no-edit' }
-    else
-      local msg = string.format('journal: week %d %d', week, year)
-      commit_args = { 'git', '-C', repo, 'commit', '-m', msg }
-    end
+      local commit_args
+      if last_log:sub(1, #expected_prefix) == expected_prefix then
+        commit_args = { 'git', '-C', repo, 'commit', '--amend', '--no-edit' }
+      else
+        local msg = string.format('journal: week %d %d', week, year)
+        commit_args = { 'git', '-C', repo, 'commit', '-m', msg }
+      end
 
-    vim.system(commit_args, {}, function(commit_result)
-      if commit_result.code ~= 0 then return end
-      vim.system({ 'git', '-C', repo, 'push', '--force-with-lease' })
+      vim.system(commit_args, {}, function(commit_result)
+        if commit_result.code ~= 0 then return end
+        vim.system({ 'git', '-C', repo, 'push', '--force-with-lease' })
+      end)
     end)
   end)
 end
@@ -67,7 +69,7 @@ end
 local function write_file(filepath, lines)
   local f = io.open(filepath, 'w')
   if f then
-    f:write(table.concat(lines, '\n'))
+    f:write(table.concat(lines, '\n') .. '\n')
     f:close()
     return true
   end
@@ -116,7 +118,11 @@ local function find_entry_insert_line(lines, today, existing_days)
   local header_line = existing_days[today]
   for i = header_line + 1, #lines do
     if lines[i]:match('^## %a+, %d+ %a+ %d%d%d%d$') then
-      return i
+      local insert_at = i
+      while insert_at > header_line + 1 and lines[insert_at - 1] == '' do
+        insert_at = insert_at - 1
+      end
+      return insert_at
     end
   end
   return #lines + 1
@@ -138,25 +144,18 @@ local function ensure_today_header(filepath)
   if not existing_days[today] then
     local header = format_day_header()
     local insert_line, after_day = find_insertion_point(lines, today, existing_days)
-    local new_content = { '## ' .. header, '', '' }
 
     if after_day then
-      for i = #new_content, 1, -1 do
-        table.insert(lines, insert_line, new_content[i])
-      end
+      table.insert(lines, insert_line, '')
+      table.insert(lines, insert_line + 1, '## ' .. header)
+    elseif insert_line <= #lines then
+      table.insert(lines, insert_line, '## ' .. header)
+      table.insert(lines, insert_line + 1, '')
     else
-      if insert_line <= #lines then
-        for i = 1, #new_content do
-          table.insert(lines, insert_line + i - 1, new_content[i])
-        end
-      else
-        if #lines > 0 and lines[#lines] ~= '' then
-          table.insert(lines, '')
-        end
-        for _, line in ipairs(new_content) do
-          table.insert(lines, line)
-        end
+      if #lines > 0 then
+        table.insert(lines, '')
       end
+      table.insert(lines, '## ' .. header)
     end
 
     write_file(filepath, lines)

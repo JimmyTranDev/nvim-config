@@ -128,143 +128,84 @@ end
 
 
 function M.list_org_repos_and_open()
-  local orgs = {
-    vim.env.ORG_GITHUB_NAME,
-    vim.env.GITHUB_ORGANIZATION_NAME,
-    vim.env.ORG_NAME,
-    vim.env.PRI_GITHUB_USERNAME,
-  }
+  local programming_dir = vim.fn.expand('~/Programming')
+  local org_dirs = {}
 
-  local valid_orgs = {}
-  for _, org in ipairs(orgs) do
-    if org and org ~= '' then table.insert(valid_orgs, org) end
-  end
-
-  if #valid_orgs == 0 then
-    vim.notify('No GitHub organizations configured in environment', vim.log.levels.ERROR)
+  local handle = vim.loop.fs_scandir(programming_dir)
+  if not handle then
+    vim.notify('Could not scan ~/Programming', vim.log.levels.ERROR)
     return
   end
 
-  local function fetch_and_show_repos(org_name)
-    vim.notify('Fetching repositories for ' .. org_name .. '...', vim.log.levels.INFO)
-
-    vim.system(
-      { 'gh', 'repo', 'list', org_name, '--limit', '100', '--json', 'name,url,updatedAt,description' },
-      { text = true },
-      vim.schedule_wrap(function(result)
-        if result.code ~= 0 then
-          vim.notify('Failed to fetch repositories for ' .. org_name, vim.log.levels.ERROR)
-          return
-        end
-
-        local ok, repos = pcall(vim.fn.json_decode, result.stdout)
-        if not ok or #repos == 0 then
-          vim.notify('No repositories found for ' .. org_name, vim.log.levels.INFO)
-          return
-        end
-
-        local items = {}
-        for _, repo in ipairs(repos) do
-          table.insert(items, {
-            text = repo.name .. (repo.description and (' - ' .. repo.description) or ''),
-            name = repo.name,
-            url = repo.url,
-            org = org_name,
-          })
-        end
-
-        local ok, snacks = pcall(require, 'snacks')
-        if not ok then return end
-
-        snacks.picker({
-          title = 'Repos: ' .. org_name,
-          items = items,
-          format = function(item) return { { item.text, 'Normal' } } end,
-          confirm = function(picker, item)
-            picker:close()
-            file_utils.open(item.url)
-            vim.notify('Opened ' .. item.name .. ' in browser', vim.log.levels.INFO)
-          end,
-        })
-      end)
-    )
+  while true do
+    local name, type = vim.loop.fs_scandir_next(handle)
+    if not name then break end
+    if type == 'directory' and name ~= 'Worktrees' then
+      table.insert(org_dirs, name)
+    end
   end
 
-  if #valid_orgs == 1 then
-    fetch_and_show_repos(valid_orgs[1])
+  table.sort(org_dirs)
+
+  if #org_dirs == 0 then
+    vim.notify('No organization folders found in ~/Programming', vim.log.levels.ERROR)
+    return
+  end
+
+  local function show_repos(org_name)
+    local org_path = programming_dir .. '/' .. org_name
+    local repo_handle = vim.loop.fs_scandir(org_path)
+    if not repo_handle then
+      vim.notify('Could not scan ' .. org_path, vim.log.levels.ERROR)
+      return
+    end
+
+    local items = {}
+    while true do
+      local repo_name, repo_type = vim.loop.fs_scandir_next(repo_handle)
+      if not repo_name then break end
+      if repo_type == 'directory' then
+        table.insert(items, {
+          text = repo_name,
+          name = repo_name,
+          url = 'https://github.com/' .. org_name .. '/' .. repo_name,
+          org = org_name,
+        })
+      end
+    end
+
+    table.sort(items, function(a, b) return a.name < b.name end)
+
+    if #items == 0 then
+      vim.notify('No repositories found in ' .. org_name, vim.log.levels.INFO)
+      return
+    end
+
+    local snacks_ok, snacks = pcall(require, 'snacks')
+    if not snacks_ok then return end
+
+    snacks.picker({
+      title = 'Repos: ' .. org_name,
+      items = items,
+      format = function(item) return { { item.text, 'Normal' } } end,
+      confirm = function(picker, item)
+        picker:close()
+        file_utils.open(item.url)
+        vim.notify('Opened ' .. item.name .. ' in browser', vim.log.levels.INFO)
+      end,
+    })
+  end
+
+  if #org_dirs == 1 then
+    show_repos(org_dirs[1])
   else
-    vim.ui.select(valid_orgs, {
+    vim.ui.select(org_dirs, {
       prompt = 'Select organization:',
     }, function(selected_org)
       if not selected_org then return end
-      fetch_and_show_repos(selected_org)
+      show_repos(selected_org)
     end)
   end
-end
-
-function M.list_contributed_repos_and_open()
-  local org_name = vim.env.ORG_GITHUB_NAME or vim.env.GITHUB_ORGANIZATION_NAME or vim.env.ORG_NAME
-  if not org_name or org_name == '' then
-    vim.notify('ORG_GITHUB_NAME not set', vim.log.levels.ERROR)
-    return
-  end
-
-  vim.notify('Fetching repos you contributed to...', vim.log.levels.INFO)
-
-  vim.system(
-    { 'gh', 'api', 'graphql', '-f', 'query=query { viewer { repositoriesContributedTo(first: 100, contributionTypes: [COMMIT, PULL_REQUEST, ISSUE]) { nodes { nameWithOwner url description updatedAt } } } }' },
-    { text = true },
-    vim.schedule_wrap(function(result)
-      if result.code ~= 0 then
-        vim.notify('Failed to fetch contributed repos', vim.log.levels.ERROR)
-        return
-      end
-
-      local ok, data = pcall(vim.fn.json_decode, result.stdout)
-      if not ok or not data.data or not data.data.viewer or not data.data.viewer.repositoriesContributedTo then
-        vim.notify('Failed to parse contributed repos', vim.log.levels.ERROR)
-        return
-      end
-
-      local repos = data.data.viewer.repositoriesContributedTo.nodes
-      if #repos == 0 then
-        vim.notify('No contributed repos found', vim.log.levels.INFO)
-        return
-      end
-
-      local items = {}
-      for _, repo in ipairs(repos) do
-        local repo_org = repo.nameWithOwner:match('^([^/]+)/')
-        if repo_org and repo_org:lower() == org_name:lower() then
-          local desc = type(repo.description) == 'string' and repo.description or nil
-          table.insert(items, {
-            text = repo.nameWithOwner .. (desc and (' - ' .. desc) or ''),
-            name = repo.nameWithOwner,
-            url = repo.url,
-          })
-        end
-      end
-
-      if #items == 0 then
-        vim.notify('No contributed repos found for ' .. org_name, vim.log.levels.INFO)
-        return
-      end
-
-      local ok, snacks = pcall(require, 'snacks')
-      if not ok then return end
-
-      snacks.picker({
-        title = 'Contributed Repos: ' .. org_name,
-        items = items,
-        format = function(item) return { { item.text, 'Normal' } } end,
-        confirm = function(picker, item)
-          picker:close()
-          file_utils.open(item.url)
-          vim.notify('Opened ' .. item.name .. ' in browser', vim.log.levels.INFO)
-        end,
-      })
-    end)
-  )
 end
 
 return M
