@@ -509,7 +509,7 @@ local function fetch_assigned_issues(callback)
 
   local escaped_email = assignee_email:gsub('@', '\\u0040')
   local jql_query = string.format(
-    "assignee = '%s' AND status NOT IN ('Done', 'Closed', 'Cancelled') ORDER BY updated DESC",
+    "assignee = '%s' AND status = 'Ready for Test' ORDER BY updated DESC",
     escaped_email
   )
 
@@ -586,7 +586,6 @@ M.copy_assigned_issues_for_testing = function()
       title = 'Select Issues to Copy',
       items = picker_items,
       format = function(item) return { { item.text, 'Normal' } } end,
-      multi = true,
       confirm = function(picker)
         local selected_items = picker:selected({ fallback = true })
         picker:close()
