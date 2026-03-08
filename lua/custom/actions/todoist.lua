@@ -130,7 +130,7 @@ local function create_task_with_navigation(taskName, projects, _fallbackProjectN
           return
         end
 
-        if selected_section.id == '__back__' then
+        if selected_section.value == '__back__' then
           select_project()
           return
         end
