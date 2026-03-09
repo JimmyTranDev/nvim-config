@@ -141,7 +141,7 @@ function M.create_task_with_project(content, project_id, section_id, priority, d
   if project_id and project_id ~= '' then task_data.project_id = project_id end
   if section_id and section_id ~= '' then task_data.section_id = section_id end
   if priority and priority ~= '' and priority ~= 'p4' then
-    local priority_map = { p1 = '4', p2 = '3', p3 = '2', p4 = '1' }
+    local priority_map = { p1 = '4' }
     task_data.priority = priority_map[priority] or '1'
   end
   if due_string and due_string ~= '' then task_data.due_string = due_string end

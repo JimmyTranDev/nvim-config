@@ -2,7 +2,7 @@ local todoistUtils = require('custom.utils.todoist')
 
 local M = {}
 
-local todoistPriorityOptions = {
+local PRIORITY_OPTIONS = {
   { name = 'Priority Top', value = 'p1' },
   { name = 'Priority None', value = 'p4' },
 }
@@ -20,8 +20,8 @@ local function get_user_input(prompt, callback)
   end)
 end
 
-local function add_back_option(options, text, value)
-  table.insert(options, { name = '← ' .. text, value = value or '__back__' })
+local function add_back_option(options, text)
+  table.insert(options, { name = '← ' .. text, is_back = true })
 end
 
 local function get_recent_projects()
@@ -39,10 +39,12 @@ end
 
 local function save_recent_projects(recent_projects)
   local f = io.open(RECENT_PROJECTS_FILE, 'w')
-  if f then
-    f:write(vim.fn.json_encode({ recent_projects = recent_projects }))
-    f:close()
+  if not f then
+    vim.notify('Failed to save recent projects', vim.log.levels.WARN)
+    return
   end
+  f:write(vim.fn.json_encode({ recent_projects = recent_projects }))
+  f:close()
 end
 
 local function add_recent_project_id(id)
@@ -64,21 +66,24 @@ local function add_recent_project_id(id)
   save_recent_projects(recent_projects)
 end
 
-local function get_project_priority_score(project_id)
+local function build_project_priority_map()
   local recent_projects = get_recent_projects()
-  for i, recent_id in ipairs(recent_projects) do
-    if recent_id == project_id then return i - 1 end
+  local map = {}
+  for i, project_id in ipairs(recent_projects) do
+    map[project_id] = i - 1
   end
-  return 999
+  return map
 end
 
-local function create_task_with_navigation(taskName, projects, _fallbackProjectName)
+local function create_task_with_navigation(taskName, projects)
   local select_project, select_section, select_priority
 
   select_project = function()
+    local priority_map = build_project_priority_map()
+
     table.sort(projects, function(a, b)
-      local a_priority = get_project_priority_score(a.id)
-      local b_priority = get_project_priority_score(b.id)
+      local a_priority = priority_map[a.id] or 999
+      local b_priority = priority_map[b.id] or 999
 
       if a_priority ~= b_priority then return a_priority < b_priority end
       if a.child_order ~= b.child_order then return a.child_order < b.child_order end
@@ -116,6 +121,7 @@ local function create_task_with_navigation(taskName, projects, _fallbackProjectN
       end
 
       local section_options = {}
+      table.insert(section_options, { name = 'No section', id = nil })
       for _, section in ipairs(sections) do
         table.insert(section_options, { name = section.name, id = section.id })
       end
@@ -130,7 +136,7 @@ local function create_task_with_navigation(taskName, projects, _fallbackProjectN
           return
         end
 
-        if selected_section.value == '__back__' then
+        if selected_section.is_back then
           select_project()
           return
         end
@@ -141,19 +147,19 @@ local function create_task_with_navigation(taskName, projects, _fallbackProjectN
   end
 
   select_priority = function(selected_project, selected_section)
-    local priority_options = vim.list_extend({}, todoistPriorityOptions)
+    local priority_options = vim.list_extend({}, PRIORITY_OPTIONS)
     add_back_option(priority_options, 'Back to sections')
 
     vim.ui.select(priority_options, {
       prompt = 'Select a priority for the task:',
       format_item = function(item) return item.name end,
-    }, function(priorityOption)
-      if not priorityOption then
+    }, function(selected_priority)
+      if not selected_priority then
         vim.notify('Task creation cancelled', vim.log.levels.INFO)
         return
       end
 
-      if priorityOption.value == '__back__' then
+      if selected_priority.is_back then
         select_section(selected_project)
         return
       end
@@ -162,7 +168,7 @@ local function create_task_with_navigation(taskName, projects, _fallbackProjectN
         taskName,
         selected_project.id,
         selected_section.id,
-        priorityOption.value,
+        selected_priority.value,
         '',
         function(task_success, response)
           if task_success then
@@ -186,49 +192,37 @@ local function create_task_with_navigation(taskName, projects, _fallbackProjectN
   select_project()
 end
 
-function M.log_todoist_task(fallbackProjectName)
+local function log_task_with_fetcher(fetch_projects, empty_message)
   return function()
     get_user_input('Enter task summary: ', function(taskName)
-      todoistUtils.get_salmon_projects(function(success, projects)
+      fetch_projects(function(success, projects)
         if not success then
           vim.notify('Failed to fetch projects: ' .. projects, vim.log.levels.ERROR)
           return
         end
         if #projects == 0 then
-          vim.notify('No salmon projects found', vim.log.levels.WARN)
+          vim.notify(empty_message, vim.log.levels.WARN)
           return
         end
 
-        create_task_with_navigation(taskName, projects, fallbackProjectName)
+        create_task_with_navigation(taskName, projects)
       end)
     end)
   end
+end
+
+function M.log_todoist_task()
+  return log_task_with_fetcher(todoistUtils.get_salmon_projects, 'No salmon projects found')
+end
+
+function M.log_todoist_task_all_projects()
+  return log_task_with_fetcher(todoistUtils.get_projects, 'No projects found')
 end
 
 function M.refresh_todoist_cache()
   return function()
     todoistUtils.clear_cache()
     vim.notify('Todoist cache cleared. Next API call will fetch fresh data.', vim.log.levels.INFO)
-  end
-end
-
-function M.log_todoist_task_all_projects(fallbackProjectName)
-  return function()
-    get_user_input('Enter task summary: ', function(taskName)
-      todoistUtils.get_projects(function(success, projects)
-        if not success then
-          vim.notify('Failed to fetch projects: ' .. projects, vim.log.levels.ERROR)
-          return
-        end
-
-        if #projects == 0 then
-          vim.notify('No projects found', vim.log.levels.WARN)
-          return
-        end
-
-        create_task_with_navigation(taskName, projects, fallbackProjectName)
-      end)
-    end)
   end
 end
 
