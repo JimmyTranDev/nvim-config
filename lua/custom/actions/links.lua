@@ -57,6 +57,25 @@ function M.open_useful_link()
   end)
 end
 
+function M.open_private_useful_link()
+  local link_names = link_constants.privateUsefulLinkNames
+  local private_useful_links = link_constants.privateUsefulLink
+
+  if not link_names or #link_names == 0 then
+    vim.notify('No private useful links configured', vim.log.levels.WARN)
+    return
+  end
+
+  ui_utils.safe_select(link_names, { prompt = 'Select private link to open:' }, function(link_name)
+    local url = private_useful_links[link_name]
+    if url then
+      open_url(url, link_name)
+    else
+      vim.notify('Link not found: ' .. link_name, vim.log.levels.ERROR)
+    end
+  end)
+end
+
 function M.open_jira_ticket()
   local branch_name = git_utils.get_current_branch()
   if not branch_name or branch_name == '' then
