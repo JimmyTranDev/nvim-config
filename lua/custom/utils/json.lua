@@ -42,4 +42,15 @@ function M.parse_json_from_file(file_path)
   end
 end
 
+function M.write_json_to_file(file_path, data)
+  local f = io.open(file_path, 'w')
+  if not f then
+    vim.notify('Failed to write: ' .. file_path, vim.log.levels.WARN)
+    return false
+  end
+  f:write(vim.fn.json_encode(data))
+  f:close()
+  return true
+end
+
 return M

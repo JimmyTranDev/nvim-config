@@ -1,4 +1,6 @@
-local todoistUtils = require('custom.utils.todoist')
+local todoist_utils = require('custom.utils.todoist')
+local json_utils = require('custom.utils.json')
+local ui_utils = require('custom.utils.ui')
 
 local M = {}
 
@@ -10,41 +12,21 @@ local PRIORITY_OPTIONS = {
 local RECENT_PROJECTS_FILE = vim.fn.stdpath('data') .. '/todoist_recent_projects.json'
 local MAX_RECENT_PROJECTS = 10
 
-local function get_user_input(prompt, callback)
-  vim.ui.input({ prompt = prompt }, function(input)
-    if not input or input == '' then
-      vim.notify('Task creation cancelled', vim.log.levels.INFO)
-      return
-    end
-    callback(input)
-  end)
-end
+local format_by_name = function(item) return item.name end
 
 local function add_back_option(options, text)
   table.insert(options, { name = '← ' .. text, is_back = true })
 end
 
 local function get_recent_projects()
-  local f = io.open(RECENT_PROJECTS_FILE, 'r')
-  if f then
-    local content = f:read('*a')
-    f:close()
-    local success, data = pcall(vim.fn.json_decode, content)
-    if success and type(data) == 'table' and data.recent_projects then
-      return data.recent_projects
-    end
-  end
+  if not vim.uv.fs_stat(RECENT_PROJECTS_FILE) then return {} end
+  local data = json_utils.parse_json_from_file(RECENT_PROJECTS_FILE)
+  if type(data) == 'table' and data.recent_projects then return data.recent_projects end
   return {}
 end
 
 local function save_recent_projects(recent_projects)
-  local f = io.open(RECENT_PROJECTS_FILE, 'w')
-  if not f then
-    vim.notify('Failed to save recent projects', vim.log.levels.WARN)
-    return
-  end
-  f:write(vim.fn.json_encode({ recent_projects = recent_projects }))
-  f:close()
+  json_utils.write_json_to_file(RECENT_PROJECTS_FILE, { recent_projects = recent_projects })
 end
 
 local function add_recent_project_id(id)
@@ -75,7 +57,7 @@ local function build_project_priority_map()
   return map
 end
 
-local function create_task_with_navigation(taskName, projects)
+local function create_task_with_navigation(task_name, projects)
   local select_project, select_section, select_priority
 
   select_project = function()
@@ -100,21 +82,17 @@ local function create_task_with_navigation(taskName, projects)
       })
     end
 
-    vim.ui.select(project_options, {
+    ui_utils.safe_select(project_options, {
       prompt = 'Select a project:',
-      format_item = function(item) return item.name end,
+      format_item = format_by_name,
     }, function(selected_project)
-      if not selected_project then
-        vim.notify('Task creation cancelled', vim.log.levels.INFO)
-        return
-      end
       add_recent_project_id(selected_project.id)
       select_section(selected_project)
     end)
   end
 
   select_section = function(selected_project)
-    todoistUtils.get_sections(selected_project.id, function(sections_success, sections)
+    todoist_utils.get_sections(selected_project.id, function(sections_success, sections)
       if not sections_success then
         vim.notify('Failed to fetch sections: ' .. sections, vim.log.levels.ERROR)
         return
@@ -127,15 +105,10 @@ local function create_task_with_navigation(taskName, projects)
       end
       add_back_option(section_options, 'Back to projects')
 
-      vim.ui.select(section_options, {
+      ui_utils.safe_select(section_options, {
         prompt = 'Select a section:',
-        format_item = function(item) return item.name end,
+        format_item = format_by_name,
       }, function(selected_section)
-        if not selected_section then
-          vim.notify('Task creation cancelled', vim.log.levels.INFO)
-          return
-        end
-
         if selected_section.is_back then
           select_project()
           return
@@ -150,32 +123,26 @@ local function create_task_with_navigation(taskName, projects)
     local priority_options = vim.list_extend({}, PRIORITY_OPTIONS)
     add_back_option(priority_options, 'Back to sections')
 
-    vim.ui.select(priority_options, {
+    ui_utils.safe_select(priority_options, {
       prompt = 'Select a priority for the task:',
-      format_item = function(item) return item.name end,
+      format_item = format_by_name,
     }, function(selected_priority)
-      if not selected_priority then
-        vim.notify('Task creation cancelled', vim.log.levels.INFO)
-        return
-      end
-
       if selected_priority.is_back then
         select_section(selected_project)
         return
       end
 
-      todoistUtils.create_task_with_project(
-        taskName,
+      todoist_utils.create_task(
+        task_name,
         selected_project.id,
         selected_section.id,
         selected_priority.value,
-        '',
         function(task_success, response)
           if task_success then
             vim.notify(
               string.format(
                 "Task '%s' created in project '%s'%s",
-                taskName,
+                task_name,
                 selected_project.project.name,
                 selected_section.id and (' > ' .. selected_section.name) or ''
               ),
@@ -194,7 +161,7 @@ end
 
 local function log_task_with_fetcher(fetch_projects, empty_message)
   return function()
-    get_user_input('Enter task summary: ', function(taskName)
+    ui_utils.safe_input({ prompt = 'Enter task summary: ' }, function(task_name)
       fetch_projects(function(success, projects)
         if not success then
           vim.notify('Failed to fetch projects: ' .. projects, vim.log.levels.ERROR)
@@ -205,23 +172,23 @@ local function log_task_with_fetcher(fetch_projects, empty_message)
           return
         end
 
-        create_task_with_navigation(taskName, projects)
+        create_task_with_navigation(task_name, projects)
       end)
     end)
   end
 end
 
 function M.log_todoist_task()
-  return log_task_with_fetcher(todoistUtils.get_salmon_projects, 'No salmon projects found')
+  return log_task_with_fetcher(todoist_utils.get_salmon_projects, 'No salmon projects found')
 end
 
 function M.log_todoist_task_all_projects()
-  return log_task_with_fetcher(todoistUtils.get_projects, 'No projects found')
+  return log_task_with_fetcher(todoist_utils.get_projects, 'No projects found')
 end
 
 function M.refresh_todoist_cache()
   return function()
-    todoistUtils.clear_cache()
+    todoist_utils.clear_cache()
     vim.notify('Todoist cache cleared. Next API call will fetch fresh data.', vim.log.levels.INFO)
   end
 end
