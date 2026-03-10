@@ -98,6 +98,11 @@ local function create_task_with_navigation(task_name, projects)
         return
       end
 
+      if #sections == 0 then
+        select_priority(selected_project, { name = 'No section', id = nil })
+        return
+      end
+
       local section_options = {}
       table.insert(section_options, { name = 'No section', id = nil })
       for _, section in ipairs(sections) do
