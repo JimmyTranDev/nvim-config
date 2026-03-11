@@ -7,7 +7,7 @@ return {
   },
   config = function()
     require('CopilotChat').setup({
-      debug = true, -- Enable debugging
+      debug = false,
       -- See Configuration section for rest
       window = {
         layout = 'float',

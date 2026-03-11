@@ -104,10 +104,10 @@ local function create_task_with_navigation(task_name, projects)
       end
 
       local section_options = {}
-      table.insert(section_options, { name = 'No section', id = nil })
       for _, section in ipairs(sections) do
         table.insert(section_options, { name = section.name, id = section.id })
       end
+      table.insert(section_options, { name = 'No section', id = nil })
       add_back_option(section_options, 'Back to projects')
 
       ui_utils.safe_select(section_options, {
