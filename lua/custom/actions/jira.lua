@@ -1,12 +1,12 @@
 local inputUtils = require('custom.utils.input')
 local git_utils = require('custom.utils.git')
+local link_utils = require('custom.utils.links')
 
 local M = {}
 
 local CONFIG = {
   CACHE_DIR = vim.fn.stdpath('data'),
   PARENT_ISSUE = 'BW-6111',
-  JIRA_BASE_URL = 'https://' .. (os.getenv('ORG_NAME') or 'unknown') .. '.atlassian.net/browse',
   DEFAULT_PROJECT = 'BW',
   LIMIT = 50,
   AUTO_TRANSITION_TO_DONE = true,
@@ -332,12 +332,14 @@ local function create_jira_task_workflow(summary, fallback_project, should_open_
 
                   run_transitions(CONFIG.TRANSITION_STATUSES, 1, function()
                     if should_open_link then
-                      vim.system({ 'open', string.format('%s/%s', CONFIG.JIRA_BASE_URL, work_item_id) })
+                      local jira_link = link_utils.getJiraLinkWithTicket(work_item_id)
+                      if jira_link then vim.system({ 'open', jira_link }) end
                     end
                   end)
                 else
                   if should_open_link then
-                    vim.system({ 'open', string.format('%s/%s', CONFIG.JIRA_BASE_URL, work_item_id) })
+                    local jira_link = link_utils.getJiraLinkWithTicket(work_item_id)
+                    if jira_link then vim.system({ 'open', jira_link }) end
                   end
                 end
               else
@@ -431,7 +433,8 @@ M.generate_done_md = function()
           local key = fields[1]
           local status = fields[2]
           local summary = fields[3]:gsub('|', '\\|')
-          local ticket_link = string.format('[%s](%s/%s)', key, CONFIG.JIRA_BASE_URL, key)
+          local jira_link = link_utils.getJiraLinkWithTicket(key)
+          local ticket_link = jira_link and string.format('[%s](%s)', key, jira_link) or key
           table.insert(md_lines, string.format('| %s | %s | %s |', ticket_link, summary, status))
         end
       end
