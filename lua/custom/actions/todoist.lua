@@ -69,7 +69,6 @@ local function create_task_with_navigation(task_name, projects)
 
       if a_priority ~= b_priority then return a_priority < b_priority end
       if a.child_order ~= b.child_order then return a.child_order < b.child_order end
-      if a.view_order ~= b.view_order then return a.view_order < b.view_order end
       return a.name < b.name
     end)
 
@@ -194,7 +193,7 @@ end
 function M.refresh_todoist_cache()
   return function()
     todoist_utils.clear_cache()
-    vim.notify('Todoist cache cleared. Next API call will fetch fresh data.', vim.log.levels.INFO)
+    vim.notify('Todoist cache cleared.', vim.log.levels.INFO)
   end
 end
 

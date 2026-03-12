@@ -5,44 +5,22 @@ local async_utils = require('custom.utils.async')
 local projects_cache = nil
 local sections_cache = {}
 
-local function get_token()
-  local token = os.getenv('PRI_TODOIST_API_TOKEN')
-  if not token then return nil, 'PRI_TODOIST_API_TOKEN environment variable not set' end
-  return token
-end
+local function td_command(args, callback)
+  local cmd = vim.list_extend({ 'td' }, args)
 
-local function todoist_request(method, endpoint, data, callback)
-  local token, err = get_token()
-  if not token then
-    callback(false, err)
-    return
-  end
-
-  local cmd = {
-    'curl', '-X', method,
-    'https://api.todoist.com/api/v1/' .. endpoint,
-    '-H', 'Authorization: Bearer ' .. token,
-    '-H', 'Content-Type: application/json',
-  }
-
-  if data then
-    table.insert(cmd, '-d')
-    table.insert(cmd, data)
-  end
-
-  async_utils.execute_curl(cmd, function(success, result)
+  async_utils.execute(cmd, function(success, stdout, stderr)
     if not success then
-      callback(false, result)
+      callback(false, stderr ~= '' and stderr or 'td command failed')
       return
     end
 
-    local ok, decoded = pcall(vim.fn.json_decode, result)
+    local ok, decoded = pcall(vim.fn.json_decode, stdout)
     if not ok then
-      callback(false, 'Invalid JSON response')
+      callback(false, 'Invalid JSON response from td')
       return
     end
 
-    callback(true, decoded.results or decoded)
+    callback(true, decoded)
   end)
 end
 
@@ -52,21 +30,21 @@ function M.get_projects(callback)
     return
   end
 
-  todoist_request('GET', 'projects', nil, function(success, data)
+  td_command({ 'project', 'list', '--json', '--full' }, function(success, data)
     if not success then
       callback(false, data)
       return
     end
 
+    local results = data.results or data
     local projects = {}
-    for _, project in ipairs(data) do
-      if project.id and project.name and not project.is_archived then
+    for _, project in ipairs(results) do
+      if project.id and project.name and not project.isArchived then
         table.insert(projects, {
           id = tostring(project.id),
           name = project.name,
           color = project.color or 'grey',
-          child_order = tonumber(project.child_order) or 0,
-          view_order = tonumber(project.view_order) or 0,
+          child_order = tonumber(project.childOrder) or 0,
         })
       end
     end
@@ -98,19 +76,20 @@ function M.get_sections(project_id, callback)
     return
   end
 
-  todoist_request('GET', 'sections?project_id=' .. project_id, nil, function(success, data)
+  td_command({ 'section', 'list', 'id:' .. project_id, '--json', '--full' }, function(success, data)
     if not success then
       callback(false, data)
       return
     end
 
+    local results = data.results or data
     local sections = {}
-    for _, section in ipairs(data) do
+    for _, section in ipairs(results) do
       if section.id and section.name then
         table.insert(sections, {
           id = tostring(section.id),
           name = section.name,
-          order = tonumber(section.section_order) or tonumber(section.order) or 0,
+          order = tonumber(section.sectionOrder) or 0,
         })
       end
     end
@@ -136,21 +115,31 @@ function M.create_task(content, project_id, section_id, priority, callback)
     return
   end
 
-  local task_data = { content = content }
-  if project_id and project_id ~= '' then task_data.project_id = project_id end
-  if section_id and section_id ~= '' then task_data.section_id = section_id end
-  if priority == 'p1' then task_data.priority = '4' end
+  local cmd = { 'task', 'add', content }
 
-  todoist_request('POST', 'tasks', vim.fn.json_encode(task_data), function(success, data)
-    if not success then
-      callback(false, data)
-      return
-    end
+  if project_id and project_id ~= '' then
+    table.insert(cmd, '--project')
+    table.insert(cmd, 'id:' .. project_id)
+  end
 
-    if data.id then
-      callback(true, data)
+  if section_id and section_id ~= '' then
+    table.insert(cmd, '--section')
+    table.insert(cmd, 'id:' .. section_id)
+  end
+
+  if priority == 'p1' then
+    table.insert(cmd, '--priority')
+    table.insert(cmd, 'p1')
+  end
+
+  local full_cmd = vim.list_extend({ 'td' }, cmd)
+
+  async_utils.execute(full_cmd, function(success, stdout, stderr)
+    if success and stdout:match('Created:') then
+      local task_id = stdout:match('ID:%s*(%S+)')
+      callback(true, { id = task_id or 'unknown' })
     else
-      callback(false, 'Unexpected response: missing task id')
+      callback(false, stderr ~= '' and stderr or stdout)
     end
   end)
 end
