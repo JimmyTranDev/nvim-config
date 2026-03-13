@@ -1,11 +1,25 @@
 local M = {}
 
 local async_utils = require('custom.utils.async')
+local json_utils = require('custom.utils.json')
 
 vim.env.TODOIST_API_TOKEN = vim.env.TODOIST_API_TOKEN or vim.env.PRI_TODOIST_API_TOKEN
 
+local PROJECTS_CACHE_FILE = vim.fn.stdpath('data') .. '/todoist_projects_cache.json'
+
 local projects_cache = nil
 local sections_cache = {}
+
+local function load_projects_from_disk()
+  if not vim.uv.fs_stat(PROJECTS_CACHE_FILE) then return nil end
+  local data = json_utils.parse_json_from_file(PROJECTS_CACHE_FILE)
+  if type(data) == 'table' and data.projects and #data.projects > 0 then return data.projects end
+  return nil
+end
+
+local function save_projects_to_disk(projects)
+  json_utils.write_json_to_file(PROJECTS_CACHE_FILE, { projects = projects })
+end
 
 local function td_command(args, callback)
   local cmd = vim.list_extend({ 'td' }, args)
@@ -32,6 +46,13 @@ function M.get_projects(callback)
     return
   end
 
+  local disk_cache = load_projects_from_disk()
+  if disk_cache then
+    projects_cache = disk_cache
+    callback(true, projects_cache)
+    return
+  end
+
   td_command({ 'project', 'list', '--json', '--full' }, function(success, data)
     if not success then
       callback(false, data)
@@ -52,6 +73,7 @@ function M.get_projects(callback)
     end
 
     projects_cache = projects
+    save_projects_to_disk(projects)
     callback(true, projects)
   end)
 end
@@ -109,6 +131,7 @@ end
 function M.clear_cache()
   projects_cache = nil
   sections_cache = {}
+  os.remove(PROJECTS_CACHE_FILE)
 end
 
 function M.create_task(content, project_id, section_id, priority, callback)
