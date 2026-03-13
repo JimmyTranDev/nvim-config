@@ -2,6 +2,8 @@ local M = {}
 
 local async_utils = require('custom.utils.async')
 
+vim.env.TODOIST_API_TOKEN = vim.env.TODOIST_API_TOKEN or vim.env.PRI_TODOIST_API_TOKEN
+
 local projects_cache = nil
 local sections_cache = {}
 
