@@ -9,8 +9,8 @@ local CONFIG = {
   PARENT_ISSUE = 'BW-6111',
   DEFAULT_PROJECT = 'BW',
   LIMIT = 50,
-  AUTO_TRANSITION_TO_DONE = true,
-  TRANSITION_STATUSES = { 'In Progress Concept', 'Done Concept' },
+  AUTO_TRANSITION = true,
+  TRANSITION_STATUSES = { 'In Progress Concept', 'Done Concept', 'Prioritized Issues Development' },
   EXCLUDED_EPIC_STATUSES = { 'Received', 'Closed' },
 }
 
@@ -304,7 +304,7 @@ local function create_jira_task_workflow(summary, fallback_project, should_open_
               if work_item_id then
                 vim.notify(string.format('Task %s created successfully', work_item_id), vim.log.levels.INFO)
 
-                if CONFIG.AUTO_TRANSITION_TO_DONE then
+                if CONFIG.AUTO_TRANSITION then
                   local function run_transitions(statuses, index, on_complete)
                     if index > #statuses then
                       on_complete()
