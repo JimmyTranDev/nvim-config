@@ -85,7 +85,7 @@ function M.get_sections(project_id, callback)
     local results = data.results or data
     local sections = {}
     for _, section in ipairs(results) do
-      if section.id and section.name then
+      if section.id and section.name and not section.isArchived then
         table.insert(sections, {
           id = tostring(section.id),
           name = section.name,
