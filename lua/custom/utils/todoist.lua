@@ -3,7 +3,7 @@ local M = {}
 local async_utils = require('custom.utils.async')
 local json_utils = require('custom.utils.json')
 
-vim.env.TODOIST_API_TOKEN = vim.env.TODOIST_API_TOKEN or vim.env.PRI_TODOIST_API_TOKEN
+vim.env.TODOIST_API_TOKEN = vim.env.PRI_TODOIST_API_TOKEN or vim.env.TODOIST_API_TOKEN
 
 local PROJECTS_CACHE_FILE = vim.fn.stdpath('data') .. '/todoist_projects_cache.json'
 

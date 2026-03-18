@@ -2,7 +2,7 @@ return {
   'nvim-treesitter/nvim-treesitter',
   lazy = false,
   config = function()
-    require('nvim-treesitter.configs').setup({
+    require('nvim-treesitter').setup({
       ensure_installed = {
         'lua',
         'vim',
@@ -35,23 +35,8 @@ return {
       auto_install = false,
       sync_install = false,
       ignore_install = {},
-
-      highlight = {
-        enable = true,
-        additional_vim_regex_highlighting = false,
-        disable = function(_lang, buf)
-          local max_filesize = 50 * 1024
-          local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(buf))
-          if ok and stats and stats.size > max_filesize then return true end
-          local max_lines = 10000
-          if vim.api.nvim_buf_line_count(buf) > max_lines then return true end
-        end,
-        use_languagetree = true,
-      },
-      context_commentstring = {
-        enable = true,
-        enable_autocmd = false,
-      },
     })
+
+    vim.treesitter.language.register('markdown', 'mdx')
   end,
 }
