@@ -46,11 +46,11 @@ maps('n', {
   { '<leader>nv', ':vsplit<CR>', 'Split window vertically' },
   { '<leader>nc', '<C-W>c', 'Close current window' },
   { '<leader>no', '<C-W>o', 'Close all other windows' },
-  { '<leader>n=', '<C-W>=', 'Equalize window sizes' },
-  { '<leader>n+', '<C-W>+', 'Increase window height' },
-  { '<leader>n-', '<C-W>-', 'Decrease window height' },
-  { '<leader>n>', '<C-W>>', 'Increase window width' },
-  { '<leader>n<', '<C-W><', 'Decrease window width' },
+  { '<A-=>', '<C-W>=', 'Equalize window sizes' },
+  { '<A-Up>', '<C-W>+', 'Increase window height' },
+  { '<A-Down>', '<C-W>-', 'Decrease window height' },
+  { '<A-Right>', '<C-W>>', 'Increase window width' },
+  { '<A-Left>', '<C-W><', 'Decrease window width' },
 })
 
 maps('n', {
