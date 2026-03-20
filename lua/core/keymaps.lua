@@ -136,12 +136,12 @@ map('n', '<Leader>rW', jiraActions.create_jira_task_with_link(), { desc = 'Creat
 map('n', '<Leader>rj', journalActions.add_journal_entry, { desc = 'Add journal entry' })
 map('n', '<Leader>rJ', journalActions.open_journal, { desc = 'Open journal' })
 
-map('n', '<Leader>rct', todoistActions.refresh_todoist_cache(), { desc = 'Refresh Todoist cache' })
-map('n', '<Leader>rcw', jiraActions.refresh_jira_cache, { desc = 'Refresh Jira cache' })
+map('n', '<leader>;ct', todoistActions.refresh_todoist_cache(), { desc = 'Refresh Todoist cache' })
+map('n', '<leader>;cw', jiraActions.refresh_jira_cache, { desc = 'Refresh Jira cache' })
 
-map('n', '<Leader>ras', jiraActions.generate_done_md, { desc = 'Generate this week jira tasks' })
-map('n', '<Leader>rat', jiraActions.copy_assigned_issues_for_testing, { desc = 'Copy assigned issues for testing' })
-map('n', '<Leader>rap', githubActions.copy_open_prs, { desc = 'Copy open PRs' })
+map('n', '<leader>;as', jiraActions.generate_done_md, { desc = 'Generate this week jira tasks' })
+map('n', '<leader>;at', jiraActions.copy_assigned_issues_for_testing, { desc = 'Copy assigned issues for testing' })
+map('n', '<leader>;ap', githubActions.copy_open_prs, { desc = 'Copy open PRs' })
 map('n', '<Leader>ryj', jiraActions.copy_ticket_with_title, { desc = 'Copy Jira ticket with title' })
 
 maps('n', {
