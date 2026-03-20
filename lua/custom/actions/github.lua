@@ -195,6 +195,81 @@ function M.copy_open_prs()
   )
 end
 
+function M.open_worktree_pr()
+  local worktree_output = vim.fn.system('git worktree list --porcelain 2>/dev/null')
+  if vim.v.shell_error ~= 0 or not worktree_output or worktree_output == '' then
+    vim.notify('No worktrees found', vim.log.levels.WARN)
+    return
+  end
+
+  local worktrees = {}
+  local current_worktree = {}
+  for line in worktree_output:gmatch('[^\n]+') do
+    if line:match('^worktree ') then
+      current_worktree = { path = line:match('^worktree (.+)') }
+    elseif line:match('^branch ') then
+      current_worktree.branch = line:match('^branch refs/heads/(.+)')
+      if current_worktree.branch then
+        table.insert(worktrees, current_worktree)
+      end
+    end
+  end
+
+  if #worktrees == 0 then
+    vim.notify('No worktrees with branches found', vim.log.levels.WARN)
+    return
+  end
+
+  local pr_json = vim.fn.system('gh pr list --json number,headRefName,url,title --limit 100 2>/dev/null')
+  if vim.v.shell_error ~= 0 or not pr_json or pr_json == '' then
+    vim.notify('Failed to fetch PRs', vim.log.levels.ERROR)
+    return
+  end
+
+  local ok, prs = pcall(vim.fn.json_decode, pr_json)
+  if not ok or not prs then
+    vim.notify('Failed to parse PR data', vim.log.levels.ERROR)
+    return
+  end
+
+  local pr_by_branch = {}
+  for _, pr in ipairs(prs) do
+    pr_by_branch[pr.headRefName] = pr
+  end
+
+  local items = {}
+  for _, wt in ipairs(worktrees) do
+    local pr = pr_by_branch[wt.branch]
+    local display = pr
+        and string.format('#%d %s (%s)', pr.number, pr.title, wt.branch)
+      or string.format('[no PR] %s', wt.branch)
+    table.insert(items, {
+      text = display,
+      branch = wt.branch,
+      path = wt.path,
+      pr = pr,
+    })
+  end
+
+  local snacks_ok, snacks = pcall(require, 'snacks')
+  if not snacks_ok then return end
+
+  snacks.picker({
+    title = 'Worktree PRs',
+    items = items,
+    format = function(item) return { { item.text, 'Normal' } } end,
+    confirm = function(picker, item)
+      picker:close()
+      if item.pr then
+        file_utils.open(item.pr.url)
+        vim.notify('Opened PR #' .. item.pr.number .. ' in browser', vim.log.levels.INFO)
+      else
+        vim.notify('No PR found for branch: ' .. item.branch, vim.log.levels.WARN)
+      end
+    end,
+  })
+end
+
 function M.list_org_repos_and_open()
   local programming_dir = vim.fn.expand('~/Programming')
   local org_dirs = {}

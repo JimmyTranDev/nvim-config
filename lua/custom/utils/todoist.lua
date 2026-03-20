@@ -94,6 +94,22 @@ function M.get_salmon_projects(callback)
   end)
 end
 
+function M.get_projects_by_color(color, callback)
+  M.get_projects(function(success, projects)
+    if not success then
+      callback(false, projects)
+      return
+    end
+
+    local filtered = {}
+    for _, project in ipairs(projects) do
+      if project.color == color then table.insert(filtered, project) end
+    end
+
+    callback(true, filtered)
+  end)
+end
+
 function M.get_sections(project_id, callback)
   if sections_cache[project_id] then
     callback(true, sections_cache[project_id])

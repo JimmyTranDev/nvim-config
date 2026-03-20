@@ -398,7 +398,7 @@ M.generate_done_md = function()
 
   local escaped_email = assignee_email:gsub('@', '\\u0040')
   local jql_query = string.format(
-    "assignee was '%s' AND status changed to 'In Progress Development' AFTER -7d ORDER BY updated DESC",
+    "assignee was '%s' AND updated >= -7d ORDER BY updated DESC",
     escaped_email
   )
 

@@ -136,4 +136,19 @@ function M.search_google()
   end)
 end
 
+function M.open_firefox_container()
+  vim.ui.input({ prompt = 'Container name: ' }, function(container)
+    if not container or container == '' then return end
+
+    vim.ui.input({ prompt = 'URL: ' }, function(url)
+      if not url or url == '' then return end
+
+      local encoded_url = url_utils.urlencode(url)
+      local container_url = string.format('ext+container:name=%s&url=%s', url_utils.urlencode(container), encoded_url)
+      vim.fn.system({ 'open', '-a', 'Firefox', container_url })
+      vim.notify(string.format('Opened in Firefox [%s]: %s', container, url), vim.log.levels.INFO)
+    end)
+  end)
+end
+
 return M

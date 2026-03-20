@@ -190,6 +190,82 @@ function M.log_todoist_task_all_projects()
   return log_task_with_fetcher(todoist_utils.get_projects, 'No projects found')
 end
 
+function M.log_todoist_task_programming()
+  return function()
+    local programming_dir = vim.fn.expand('~/Programming')
+    local org_dirs = {}
+
+    local handle = vim.loop.fs_scandir(programming_dir)
+    if not handle then
+      vim.notify('Could not scan ~/Programming', vim.log.levels.ERROR)
+      return
+    end
+
+    while true do
+      local name, type = vim.loop.fs_scandir_next(handle)
+      if not name then break end
+      if type == 'directory' then
+        table.insert(org_dirs, name)
+      end
+    end
+
+    table.sort(org_dirs)
+
+    if #org_dirs == 0 then
+      vim.notify('No directories found in ~/Programming', vim.log.levels.WARN)
+      return
+    end
+
+    ui_utils.safe_select(org_dirs, { prompt = 'Select programming project:' }, function(selected_dir)
+      local repo_dirs = {}
+      local repo_path = programming_dir .. '/' .. selected_dir
+      local repo_handle = vim.loop.fs_scandir(repo_path)
+
+      if repo_handle then
+        while true do
+          local repo_name, repo_type = vim.loop.fs_scandir_next(repo_handle)
+          if not repo_name then break end
+          if repo_type == 'directory' then
+            table.insert(repo_dirs, repo_name)
+          end
+        end
+      end
+
+      table.sort(repo_dirs)
+
+      local function proceed_with_task(prefix)
+        ui_utils.safe_input({ prompt = 'Enter task summary: ' }, function(task_name)
+          local full_task = prefix and (prefix .. ': ' .. task_name) or task_name
+          todoist_utils.get_projects(function(success, projects)
+            if not success then
+              vim.notify('Failed to fetch projects: ' .. projects, vim.log.levels.ERROR)
+              return
+            end
+            if #projects == 0 then
+              vim.notify('No projects found', vim.log.levels.WARN)
+              return
+            end
+            create_task_with_navigation(full_task, projects)
+          end)
+        end)
+      end
+
+      if #repo_dirs > 0 then
+        table.insert(repo_dirs, 1, '(none - use org only)')
+        ui_utils.safe_select(repo_dirs, { prompt = 'Select repository:' }, function(repo)
+          if repo == '(none - use org only)' then
+            proceed_with_task(selected_dir)
+          else
+            proceed_with_task(selected_dir .. '/' .. repo)
+          end
+        end)
+      else
+        proceed_with_task(selected_dir)
+      end
+    end)
+  end
+end
+
 function M.refresh_todoist_cache()
   return function()
     todoist_utils.clear_cache()

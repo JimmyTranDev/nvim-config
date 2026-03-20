@@ -376,54 +376,7 @@ return {
     },
     {
       '<leader>fjS',
-      function()
-        local stashes = vim.fn.systemlist('git stash list --oneline')
-        if #stashes == 0 then
-          vim.notify('No stashes found', vim.log.levels.INFO)
-          return
-        end
-
-        local items = {}
-        for i, stash in ipairs(stashes) do
-          local stash_ref = 'stash@{' .. (i - 1) .. '}'
-          table.insert(items, {
-            text = stash,
-            stash_ref = stash_ref,
-          })
-        end
-
-        Snacks.picker({
-          title = 'Git Stashes',
-          items = items,
-          format = function(item) return item.text end,
-          confirm = function(picker, item)
-            picker:close()
-            local actions = {
-              { name = 'Show', value = 'show' },
-              { name = 'Apply', value = 'apply' },
-              { name = 'Pop', value = 'pop' },
-              { name = 'Drop', value = 'drop' },
-            }
-            vim.ui.select(actions, {
-              prompt = 'Stash action:',
-              format_item = function(a) return a.name end,
-            }, function(selected)
-              if not selected then return end
-              if selected.value == 'apply' then
-                vim.cmd('!git stash apply ' .. item.stash_ref)
-              elseif selected.value == 'pop' then
-                vim.cmd('!git stash pop ' .. item.stash_ref)
-              elseif selected.value == 'show' then
-                vim.cmd('!git stash show -p ' .. item.stash_ref)
-              elseif selected.value == 'drop' then
-                vim.ui.input({ prompt = 'Drop stash ' .. item.stash_ref .. '? (y/N): ' }, function(confirm)
-                  if confirm and confirm:lower() == 'y' then vim.cmd('!git stash drop ' .. item.stash_ref) end
-                end)
-              end
-            end)
-          end,
-        })
-      end,
+      function() Snacks.picker.git_stash() end,
       desc = 'Git Stash',
     },
     {
@@ -434,7 +387,12 @@ return {
     {
       '<leader>fjH',
       function()
-        local gs = require('gitsigns')
+        local ok, gs = pcall(require, 'gitsigns')
+        if not ok then
+          vim.notify('gitsigns not available', vim.log.levels.ERROR)
+          return
+        end
+
         local hunks = gs.get_hunks()
         if not hunks or #hunks == 0 then
           vim.notify('No hunks in current buffer', vim.log.levels.INFO)
@@ -446,12 +404,13 @@ return {
         local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
 
         for i, hunk in ipairs(hunks) do
-          local preview_line = lines[hunk.added.start] or ''
+          local start_line = hunk.added and hunk.added.start or 1
+          local preview_line = lines[start_line] or ''
           local type_indicator = hunk.type == 'add' and '+' or (hunk.type == 'delete' and '-' or '~')
           table.insert(items, {
             idx = i,
-            text = string.format('%s L%d: %s', type_indicator, hunk.added.start, preview_line:sub(1, 60)),
-            line = hunk.added.start,
+            text = string.format('%s L%d: %s', type_indicator, start_line, preview_line:sub(1, 60)),
+            line = start_line,
             hunk = hunk,
           })
         end
@@ -470,7 +429,20 @@ return {
     },
     {
       '<leader>fjD',
-      function() Snacks.picker.git_diff({ args = { 'origin/HEAD' } }) end,
+      function()
+        local ref = vim.fn.system('git rev-parse --verify origin/HEAD 2>/dev/null'):gsub('%s+', '')
+        if vim.v.shell_error ~= 0 or ref == '' then
+          ref = vim.fn.system('git rev-parse --verify origin/main 2>/dev/null'):gsub('%s+', '')
+          if vim.v.shell_error ~= 0 or ref == '' then
+            ref = vim.fn.system('git rev-parse --verify origin/master 2>/dev/null'):gsub('%s+', '')
+          end
+        end
+        if vim.v.shell_error ~= 0 or ref == '' then
+          vim.notify('Could not determine origin branch', vim.log.levels.ERROR)
+          return
+        end
+        Snacks.picker.git_diff({ args = { ref } })
+      end,
       desc = 'Git Diff vs Origin',
     },
     {

@@ -1,7 +1,7 @@
 local M = {}
 
-local JOURNAL_BASE_PATH = vim.fn.expand('~/Programming/JimmyTranDev/notes.md/journal')
-local NOTES_REPO_PATH = vim.fn.expand('~/Programming/JimmyTranDev/notes.md')
+local JOURNAL_BASE_PATH = vim.fn.expand('~/Programming/JimmyTranDev/notes/journal')
+local NOTES_REPO_PATH = vim.fn.expand('~/Programming/JimmyTranDev/notes')
 
 local function get_iso_week()
   return tonumber(os.date('%W')), tonumber(os.date('%Y'))

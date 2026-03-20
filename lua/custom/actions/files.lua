@@ -220,4 +220,26 @@ function M.link_github_copilot_instructions()
   end
 end
 
+function M.convert_md_to_pdf()
+  local filepath = vim.fn.expand('%:p')
+  if not filepath:match('%.md$') then
+    vim.notify('Not a markdown file', vim.log.levels.WARN)
+    return
+  end
+
+  local pdf_path = filepath:gsub('%.md$', '.pdf')
+  local cmd = { 'pandoc', filepath, '-o', pdf_path, '--pdf-engine=pdflatex' }
+
+  vim.notify('Converting to PDF...', vim.log.levels.INFO)
+
+  vim.system(cmd, { text = true }, vim.schedule_wrap(function(result)
+    if result.code == 0 then
+      vim.notify('PDF saved: ' .. pdf_path, vim.log.levels.INFO)
+    else
+      local err = result.stderr ~= '' and result.stderr or result.stdout
+      vim.notify('PDF conversion failed: ' .. err, vim.log.levels.ERROR)
+    end
+  end))
+end
+
 return M
