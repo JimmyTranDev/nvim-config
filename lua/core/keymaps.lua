@@ -131,7 +131,7 @@ map('n', '<Leader>Q', ':qa!<CR>', { desc = 'Force quit all' })
 map('n', '<Leader>w', ':w<CR>', { desc = 'Write' })
 map('n', '<Leader>W', ':wa<CR>', { desc = 'Write all' })
 
-map('n', '<Leader>rt', todoistActions.log_todoist_task(), { desc = 'Log task (salmon)' })
+map('n', '<Leader>rt', todoistActions.log_todoist_task(), { desc = 'Log task (non-charcoal)' })
 map('n', '<Leader>rT', todoistActions.log_todoist_task_all_projects(), { desc = 'Log task (all projects)' })
 map('n', '<Leader>rP', todoistActions.log_todoist_task_programming(), { desc = 'Log task (programming)' })
 map('n', '<Leader>rw', jiraActions.create_jira_task(), { desc = 'Create Jira task' })

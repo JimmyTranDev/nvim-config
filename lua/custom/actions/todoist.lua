@@ -183,7 +183,7 @@ local function log_task_with_fetcher(fetch_projects, empty_message)
 end
 
 function M.log_todoist_task()
-  return log_task_with_fetcher(todoist_utils.get_salmon_projects, 'No salmon projects found')
+  return log_task_with_fetcher(todoist_utils.get_non_charcoal_projects, 'No non-charcoal projects found')
 end
 
 function M.log_todoist_task_all_projects()
