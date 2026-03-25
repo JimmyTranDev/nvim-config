@@ -22,13 +22,44 @@ function M.run_project_jar()
     return
   end
 
-  local folder_name = vim.fn.fnamemodify(cwd, ':t')
-  local cmd = 'java -jar'
-    .. ' -Dspring.main.cloud-platform=kubernetes'
-    .. ' -Dspring.profiles.active=local'
-    .. ' target/' .. folder_name .. '.jar'
+  local function find_app_modules()
+    local modules = {}
+    local entries = vim.fn.readdir(cwd, function(name)
+      return vim.fn.isdirectory(cwd .. '/' .. name) == 1
+        and vim.fn.filereadable(cwd .. '/' .. name .. '/pom.xml') == 1
+    end)
+    for _, name in ipairs(entries) do
+      table.insert(modules, name)
+    end
+    return modules
+  end
 
-  ui_utils.exec_in_terminal(cmd, 'Spring Boot: ' .. folder_name, 3)
+  local function run_with_module(module)
+    local jar_path = module
+      and (module .. '/target/' .. module .. '.jar')
+      or ('target/' .. vim.fn.fnamemodify(cwd, ':t') .. '.jar')
+    local label = module or vim.fn.fnamemodify(cwd, ':t')
+    local cmd = 'mvn clean package -DskipTests'
+      .. ' && java -jar'
+      .. ' -Dspring.profiles.active=local'
+      .. ' ' .. jar_path
+    ui_utils.exec_in_terminal(cmd, 'Spring Boot: ' .. label, 3)
+  end
+
+  local modules = find_app_modules()
+  if #modules == 0 then
+    run_with_module(nil)
+    return
+  end
+
+  if #modules == 1 then
+    run_with_module(modules[1])
+    return
+  end
+
+  ui_utils.safe_select(modules, { prompt = 'Select module:' }, function(selected)
+    run_with_module(selected)
+  end)
 end
 
 function M.run_java_class_maven()
