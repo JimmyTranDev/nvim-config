@@ -145,7 +145,7 @@ return {
 
     { mode = 'n', '<leader>tfb', ':3TermExec cmd="flutter pub run build_runner build"<CR>', desc = 'Build', silent = true },
 
-    { mode = 'n', '<leader>tvs', ':3TermExec cmd="mvn spring-boot:run"<CR>', desc = 'Maven Spring Boot', silent = true },
+    { mode = 'n', '<leader>tvs', languageActions.run_maven_spring_boot, desc = 'Start Project (Maven/Node)', silent = true },
     { mode = 'n', '<leader>tvc', ':3TermExec cmd="mvn compile"<CR>', desc = 'Maven Compile', silent = true },
     { mode = 'n', '<leader>tvt', ':3TermExec cmd="mvn test"<CR>', desc = 'Maven Test', silent = true },
     { mode = 'n', '<leader>tvi', ':3TermExec cmd="mvn install"<CR>', desc = 'Maven Install', silent = true },
