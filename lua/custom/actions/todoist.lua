@@ -5,8 +5,10 @@ local ui_utils = require('custom.utils.ui')
 local M = {}
 
 local PRIORITY_OPTIONS = {
-  { name = 'Priority Top', value = 'p1' },
+  { name = 'Priority High', value = 'p2' },
+  { name = 'Priority Medium', value = 'p3' },
   { name = 'Priority None', value = 'p4' },
+  { name = 'Priority Top', value = 'p1' },
 }
 
 local RECENT_PROJECTS_FILE = vim.fn.stdpath('data') .. '/todoist_recent_projects.json'

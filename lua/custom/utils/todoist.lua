@@ -184,9 +184,9 @@ function M.create_task(content, project_id, section_id, priority, callback)
     table.insert(cmd, 'id:' .. section_id)
   end
 
-  if priority == 'p1' then
+  if priority and priority ~= 'p4' then
     table.insert(cmd, '--priority')
-    table.insert(cmd, 'p1')
+    table.insert(cmd, priority)
   end
 
   local full_cmd = vim.list_extend({ 'td' }, cmd)
