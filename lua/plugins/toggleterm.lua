@@ -145,15 +145,8 @@ return {
 
     { mode = 'n', '<leader>tfb', ':3TermExec cmd="flutter pub run build_runner build"<CR>', desc = 'Build', silent = true },
 
-    { mode = 'n', '<leader>tvs', languageActions.run_maven_spring_boot, desc = 'Start Project (Maven/Node)', silent = true },
-    { mode = 'n', '<leader>tvc', ':3TermExec cmd="mvn compile"<CR>', desc = 'Maven Compile', silent = true },
-    { mode = 'n', '<leader>tvt', ':3TermExec cmd="mvn test"<CR>', desc = 'Maven Test', silent = true },
-    { mode = 'n', '<leader>tvi', ':3TermExec cmd="mvn install"<CR>', desc = 'Maven Install', silent = true },
-    { mode = 'n', '<leader>tvC', ':3TermExec cmd="mvn clean"<CR>', desc = 'Maven Clean', silent = true },
+    { mode = 'n', '<leader>tvs', languageActions.run_project_jar, desc = 'Start Project (Maven/Node)', silent = true },
     { mode = 'n', '<leader>tvp', ':3TermExec cmd="mvn package"<CR>', desc = 'Maven Package', silent = true },
-    { mode = 'n', '<leader>tvd', ':3TermExec cmd="mvn deploy"<CR>', desc = 'Maven Deploy', silent = true },
-    { mode = 'n', '<leader>tvJ', languageActions.run_java_class_javac, desc = 'Java Run Javac', silent = true },
-    { mode = 'n', '<leader>tvj', languageActions.run_java_class_maven, desc = 'Maven Run', silent = true },
   },
   config = function()
     require('toggleterm').setup({

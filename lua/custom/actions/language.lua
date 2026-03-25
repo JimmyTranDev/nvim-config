@@ -14,60 +14,21 @@ local function get_pm()
   return pm
 end
 
-function M.run_maven_spring_boot()
+function M.run_project_jar()
   local cwd = vim.fn.getcwd()
-  local buf_path = vim.fn.expand('%:p')
 
   if vim.fn.filereadable(cwd .. '/pom.xml') ~= 1 then
     vim.notify('No pom.xml found in cwd', vim.log.levels.ERROR)
     return
   end
 
-  local function get_submodules()
-    local modules = {}
-    local entries = vim.fn.readdir(cwd, function(name)
-      return vim.fn.isdirectory(cwd .. '/' .. name) == 1
-        and vim.fn.filereadable(cwd .. '/' .. name .. '/pom.xml') == 1
-    end)
-    for _, name in ipairs(entries) do
-      table.insert(modules, name)
-    end
-    return modules
-  end
+  local folder_name = vim.fn.fnamemodify(cwd, ':t')
+  local cmd = 'java -jar'
+    .. ' -Dspring.main.cloud-platform=kubernetes'
+    .. ' -Dspring.profiles.active=local'
+    .. ' target/' .. folder_name .. '.jar'
 
-  local function detect_submodule()
-    if buf_path == '' or buf_path:sub(1, #cwd) ~= cwd then return nil end
-    local relative = buf_path:sub(#cwd + 2)
-    local module_name = relative:match('^([^/]+)/')
-    if module_name and vim.fn.filereadable(cwd .. '/' .. module_name .. '/pom.xml') == 1 then
-      return module_name
-    end
-    return nil
-  end
-
-  local function run_with_module(submodule)
-    local cmd = 'mvn spring-boot:run'
-    if submodule then cmd = cmd .. ' -pl ' .. submodule end
-    cmd = cmd .. ' -Dspring-boot.run.profiles=local -Dmaven.test.skip=true'
-    ui_utils.exec_in_terminal(cmd, 'Maven Spring Boot: ' .. (submodule or 'root'), 3)
-  end
-
-  local submodule = detect_submodule()
-  if submodule then
-    run_with_module(submodule)
-    return
-  end
-
-  local modules = get_submodules()
-  if #modules == 0 then
-    run_with_module(nil)
-    return
-  end
-
-  table.insert(modules, 1, '(root)')
-  ui_utils.safe_select(modules, { prompt = 'Select Maven module:' }, function(selected)
-    run_with_module(selected ~= '(root)' and selected or nil)
-  end)
+  ui_utils.exec_in_terminal(cmd, 'Spring Boot: ' .. folder_name, 3)
 end
 
 function M.run_java_class_maven()
