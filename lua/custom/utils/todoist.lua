@@ -78,22 +78,6 @@ function M.get_projects(callback)
   end)
 end
 
-function M.get_salmon_projects(callback)
-  M.get_projects(function(success, projects)
-    if not success then
-      callback(false, projects)
-      return
-    end
-
-    local salmon_projects = {}
-    for _, project in ipairs(projects) do
-      if project.color == 'salmon' then table.insert(salmon_projects, project) end
-    end
-
-    callback(true, salmon_projects)
-  end)
-end
-
 function M.get_non_charcoal_projects(callback)
   M.get_projects(function(success, projects)
     if not success then
@@ -104,22 +88,6 @@ function M.get_non_charcoal_projects(callback)
     local filtered = {}
     for _, project in ipairs(projects) do
       if project.color ~= 'charcoal' then table.insert(filtered, project) end
-    end
-
-    callback(true, filtered)
-  end)
-end
-
-function M.get_projects_by_color(color, callback)
-  M.get_projects(function(success, projects)
-    if not success then
-      callback(false, projects)
-      return
-    end
-
-    local filtered = {}
-    for _, project in ipairs(projects) do
-      if project.color == color then table.insert(filtered, project) end
     end
 
     callback(true, filtered)

@@ -1,6 +1,8 @@
 local input_utils = require('custom.utils.input')
 local git_utils = require('custom.utils.git')
 local link_utils = require('custom.utils.links')
+local file_utils = require('custom.utils.files')
+local ui_utils = require('custom.utils.ui')
 
 local M = {}
 
@@ -33,37 +35,28 @@ local cache_files = {
   parents = CONFIG.CACHE_DIR .. '/jira_parents_cache.txt',
 }
 
-local function save_to_file(filepath, content)
-  local file = io.open(filepath, 'w')
-  if file then
-    file:write(content)
-    file:close()
-    return true
-  end
-  return false
+local function save_last_parent(parent_key)
+  file_utils.write_lines(cache_files.last_parent, { parent_key })
 end
 
-local function load_from_file(filepath)
-  local file = io.open(filepath, 'r')
-  if file then
-    local content = file:read('*all')
-    file:close()
-    return content and content:match('^%s*(.-)%s*$')
-  end
+local function load_last_parent()
+  local lines = file_utils.read_lines(cache_files.last_parent)
+  if #lines > 0 then return lines[1]:match('^%s*(.-)%s*$') end
   return nil
 end
 
-local function save_last_parent(parent_key) save_to_file(cache_files.last_parent, parent_key) end
-
-local function load_last_parent() return load_from_file(cache_files.last_parent) end
-
-local function save_parents_cache(parents) save_to_file(cache_files.parents, vim.fn.json_encode(parents)) end
+local function save_parents_cache(parents)
+  file_utils.write_lines(cache_files.parents, { vim.fn.json_encode(parents) })
+end
 
 local function load_parents_cache()
-  local content = load_from_file(cache_files.parents)
-  if content then
-    local success, parents = pcall(vim.fn.json_decode, content)
-    if success and parents then return parents end
+  local lines = file_utils.read_lines(cache_files.parents)
+  if #lines > 0 then
+    local content = table.concat(lines, '\n'):match('^%s*(.-)%s*$')
+    if content then
+      local success, parents = pcall(vim.fn.json_decode, content)
+      if success and parents then return parents end
+    end
   end
   return nil
 end
@@ -130,10 +123,6 @@ local function build_parent_options(parents)
 
   if last_used_option then table.insert(options, 1, last_used_option) end
   return options
-end
-
-local function add_back_option(options, text, value)
-  table.insert(options, { name = '← ' .. text, value = value or '__back__' })
 end
 
 local function get_user_input(prompt, callback, default)
@@ -210,7 +199,7 @@ local function create_jira_task_workflow(summary, fallback_project, should_open_
 
   select_type = function(project)
     local type_options = vim.tbl_deep_extend('force', {}, ISSUE_TYPES)
-    add_back_option(type_options, 'Back to project')
+    ui_utils.add_back_option(type_options, 'Back to project')
 
     vim.ui.select(type_options, {
       prompt = 'Select work item type:',
@@ -232,7 +221,7 @@ local function create_jira_task_workflow(summary, fallback_project, should_open_
 
   select_label = function(project, selected_type)
     local label_options = vim.tbl_deep_extend('force', {}, LABELS)
-    add_back_option(label_options, 'Back to type')
+    ui_utils.add_back_option(label_options, 'Back to type')
 
     vim.ui.select(label_options, {
       prompt = 'Select label:',
@@ -260,7 +249,7 @@ local function create_jira_task_workflow(summary, fallback_project, should_open_
       end
 
       local parent_options = build_parent_options(parents)
-      add_back_option(parent_options, 'Back to label')
+      ui_utils.add_back_option(parent_options, 'Back to label')
 
       vim.ui.select(parent_options, {
         prompt = 'Select parent issue:',
@@ -380,13 +369,8 @@ M.create_jira_task = create_task_handler(false)
 M.create_jira_task_with_link = create_task_handler(true)
 
 M.refresh_jira_cache = function()
-  local file = io.open(cache_files.parents, 'w')
-  if file then
-    file:close()
-    vim.notify('Jira parent cache refreshed. Next task creation will fetch fresh data.', vim.log.levels.INFO)
-  else
-    vim.notify('Failed to clear Jira parent issues cache', vim.log.levels.ERROR)
-  end
+  os.remove(cache_files.parents)
+  vim.notify('Jira parent cache refreshed. Next task creation will fetch fresh data.', vim.log.levels.INFO)
 end
 
 M.generate_done_md = function()
@@ -441,12 +425,8 @@ M.generate_done_md = function()
 
       local root_dir = vim.fn.getcwd()
       local done_file = root_dir .. '/DONE.md'
-      local content = table.concat(md_lines, '\n')
 
-      local file = io.open(done_file, 'w')
-      if file then
-        file:write(content)
-        file:close()
+      if file_utils.write_lines(done_file, md_lines) then
         vim.notify(string.format('Generated %s with %d tasks', done_file, #lines - 1), vim.log.levels.INFO)
       else
         vim.notify('Failed to write DONE.md', vim.log.levels.ERROR)

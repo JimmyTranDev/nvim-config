@@ -42,15 +42,4 @@ function M.run(cmd, on_success, on_error)
   end)
 end
 
-function M.execute_curl(cmd, callback)
-  if not cmd or not callback then error('Command and callback are required') end
-  M.execute(cmd, function(success, stdout, stderr, code)
-    if success then
-      callback(true, stdout)
-    else
-      callback(false, stderr ~= '' and stderr or ('Command failed with exit code: ' .. code))
-    end
-  end)
-end
-
 return M

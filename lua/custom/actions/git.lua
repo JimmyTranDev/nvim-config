@@ -1,6 +1,5 @@
 local git_utils = require('custom.utils.git')
 local input_utils = require('custom.utils.input')
-local file_utils = require('custom.utils.files')
 
 local M = {}
 
@@ -8,54 +7,38 @@ local function shell_escape_message(msg)
   return msg:gsub('[$`"\\!]', '\\%0')
 end
 
+local function build_branch_name(prefix, callback)
+  input_utils.get_input('Jira Ticket: ', function(jira_ticket)
+    if jira_ticket then
+      local summary = vim.fn.system(string.format("jira issue view %s --raw | jq -r '.fields.summary'", jira_ticket))
+      summary = string.gsub(summary, '%s+', '-')
+      summary = string.gsub(summary, '[^%w%-]', '')
+      callback(string.format('%s/%s_%s', prefix, jira_ticket, summary), summary)
+    else
+      input_utils.get_input('Branch Description: ', function(branch_description)
+        if not branch_description then return end
+        local description_part = string.gsub(branch_description, '%s+', '-')
+        callback(string.format('%s/%s', prefix, description_part), description_part)
+      end)
+    end
+  end)
+end
+
 function M.create_branch(prefix)
   return function()
-    input_utils.get_input('Jira Ticket: ', function(jira_ticket)
-      if jira_ticket then
-        local summary = vim.fn.system(string.format("jira issue view %s --raw | jq -r '.fields.summary'", jira_ticket))
-        summary = string.gsub(summary, '%s+', '-')
-        summary = string.gsub(summary, '[^%w%-]', '')
-        local branch_name = string.format('%s/%s_%s', prefix, jira_ticket, summary)
-
-        vim.cmd(string.format('Git checkout -b %s', branch_name))
-        vim.cmd("TermExec5 open=0 cmd='git add .'")
-        vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', shell_escape_message(branch_name)))
-      else
-        input_utils.get_input('Branch Description: ', function(branch_description)
-          if not branch_description then return end
-          local description_part = string.gsub(branch_description, '%s+', '-')
-          local branch_name = string.format('%s/%s', prefix, description_part)
-
-          vim.cmd(string.format('Git checkout -b %s', branch_name))
-          vim.cmd("TermExec5 open=0 cmd='git add .'")
-          vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', shell_escape_message(branch_name)))
-        end)
-      end
+    build_branch_name(prefix, function(branch_name)
+      vim.cmd(string.format('Git checkout -b %s', branch_name))
+      vim.cmd("TermExec5 open=0 cmd='git add .'")
+      vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', shell_escape_message(branch_name)))
     end)
   end
 end
 
 function M.create_worktree(prefix)
   return function()
-    input_utils.get_input('Jira Ticket: ', function(jira_ticket)
-      if jira_ticket then
-        local summary = vim.fn.system(string.format("jira issue view %s --raw | jq -r '.fields.summary'", jira_ticket))
-        summary = string.gsub(summary, '%s+', '-')
-        summary = string.gsub(summary, '[^%w%-]', '')
-        local branch_name = string.format('%s/%s_%s', prefix, jira_ticket, summary)
-        local worktree_name = string.format('~/Programming/Worktrees/%s_%s', prefix, summary)
-
-        vim.cmd(string.format('Git worktree add -b %s %s', branch_name, worktree_name))
-      else
-        input_utils.get_input('Branch Description: ', function(branch_description)
-          if not branch_description then return end
-          local description_part = string.gsub(branch_description, '%s+', '-')
-          local branch_name = string.format('%s/%s', prefix, description_part)
-          local worktree_name = string.format('~/Programming/Worktrees/%s_%s', prefix, description_part)
-
-          vim.cmd(string.format('Git worktree add -b %s %s', branch_name, worktree_name))
-        end)
-      end
+    build_branch_name(prefix, function(branch_name, description)
+      local worktree_name = string.format('~/Programming/Worktrees/%s_%s', prefix, description)
+      vim.cmd(string.format('Git worktree add -b %s %s', branch_name, worktree_name))
     end)
   end
 end

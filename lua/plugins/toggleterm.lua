@@ -1,49 +1,11 @@
+local file_actions = require('custom.actions.files')
 local language_actions = require('custom.actions.language')
 local toggle_term_actions = require('custom.actions.toggleterm')
-
-local function grep_markdown_headings()
-  local snacks = require('snacks')
-
-  snacks.picker.grep({
-    search = '^#{1,6} ',
-    prompt = 'Markdown Headings',
-    title = 'Find Markdown Headings',
-    rg = {
-      '--type=md',
-      '--line-number',
-      '--column',
-      '--smart-case',
-      '--no-heading',
-      '--color=never',
-    },
-    layout = {
-      preset = 'default',
-      preview = true,
-    },
-    format = function(item)
-      local text = item.text or ''
-      local level = text:match('^(#{1,6})')
-      local heading_text = text:match('^#{1,6}%s*(.*)')
-
-      if level and heading_text then
-        local indent = string.rep('  ', #level - 1)
-        return {
-          { item.filename and vim.fn.fnamemodify(item.filename, ':t') or '', 'Comment' },
-          { ':' .. (item.lnum or ''), 'LineNr' },
-          { ' ' },
-          { indent .. level .. ' ' .. heading_text, 'Normal' },
-        }
-      else
-        return { { item.text or '', 'Normal' } }
-      end
-    end,
-  })
-end
 
 return {
   'akinsho/nvim-toggleterm.lua',
   keys = {
-    { mode = 'n', '<leader>fm', grep_markdown_headings, desc = 'Find Markdown Headings', silent = true },
+    { mode = 'n', '<leader>fm', file_actions.grep_markdown_headings, desc = 'Find Markdown Headings', silent = true },
 
     { mode = 'n', '<leader>tl', ':4TermExec cmd="live-server --port=9090"<CR>', desc = 'Live Server', silent = true },
     { mode = 'n', '<leader>tM', language_actions.compile_mjml_file, desc = 'Compile Mjml Html', silent = true },

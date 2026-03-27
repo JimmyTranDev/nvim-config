@@ -26,20 +26,6 @@ local function setup_language_settings()
   })
 end
 
-local function setup_formatting()
-  vim.api.nvim_create_autocmd('BufWritePre', {
-    group = augroup('formatting'),
-    pattern = '*',
-    callback = function(args)
-      local ok, conform = pcall(require, 'conform')
-      if ok then
-        conform.format({ bufnr = args.buf, timeout_ms = 3000 })
-      end
-    end,
-    desc = 'Format file on save using conform.nvim',
-  })
-end
-
 local function setup_visual_enhancements()
   vim.api.nvim_create_autocmd('TextYankPost', {
     group = augroup('visual_enhancements'),
@@ -151,11 +137,9 @@ local function setup_toggleterm_whichkey_fix()
     group = augroup('toggleterm_whichkey'),
     callback = function()
       vim.schedule(function()
-        local ok, wk = pcall(require, 'which-key')
-        if ok then
-          vim.o.timeout = true
-          vim.o.timeoutlen = 300
-        end
+        pcall(require, 'which-key')
+        vim.o.timeout = true
+        vim.o.timeoutlen = 300
       end)
     end,
     desc = 'Re-enable which-key timeout after terminal closes',
@@ -187,7 +171,6 @@ function M.setup()
   setup_filetype_associations()
   setup_language_settings()
   setup_spell()
-  setup_formatting()
   setup_visual_enhancements()
   setup_git_integration()
   setup_lsp_progress()

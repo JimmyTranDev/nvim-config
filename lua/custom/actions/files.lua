@@ -2,6 +2,45 @@ local file_utils = require('custom.utils.files')
 
 local M = {}
 
+function M.grep_markdown_headings()
+  local snacks = require('snacks')
+
+  snacks.picker.grep({
+    search = '^#{1,6} ',
+    prompt = 'Markdown Headings',
+    title = 'Find Markdown Headings',
+    rg = {
+      '--type=md',
+      '--line-number',
+      '--column',
+      '--smart-case',
+      '--no-heading',
+      '--color=never',
+    },
+    layout = {
+      preset = 'default',
+      preview = true,
+    },
+    format = function(item)
+      local text = item.text or ''
+      local level = text:match('^(#{1,6})')
+      local heading_text = text:match('^#{1,6}%s*(.*)')
+
+      if level and heading_text then
+        local indent = string.rep('  ', #level - 1)
+        return {
+          { item.filename and vim.fn.fnamemodify(item.filename, ':t') or '', 'Comment' },
+          { ':' .. (item.lnum or ''), 'LineNr' },
+          { ' ' },
+          { indent .. level .. ' ' .. heading_text, 'Normal' },
+        }
+      else
+        return { { item.text or '', 'Normal' } }
+      end
+    end,
+  })
+end
+
 function M.open_current_dir()
   local dir = vim.fn.expand('%:p:h')
   if dir ~= '' then
@@ -154,8 +193,6 @@ function M.delete_all_comments()
   vim.notify(('Deleted %d comment lines'):format(removed), vim.log.levels.INFO)
 end
 
-local SUPPORTED_FT = { 'lua', 'javascript', 'typescript', 'typescriptreact', 'javascriptreact', 'python', 'go', 'vim', 'sh', 'bash', 'css' }
-
 function M.delete_comments_from_uncommitted_files()
   local output = vim.fn.system('git status --porcelain')
   if vim.v.shell_error ~= 0 then
@@ -189,7 +226,7 @@ function M.delete_comments_from_uncommitted_files()
   for _, filepath in ipairs(files) do
     vim.cmd('silent! edit ' .. vim.fn.fnameescape(filepath))
     local ft = vim.bo.filetype
-    if vim.tbl_contains(SUPPORTED_FT, ft) then
+    if COMMENT_PATTERNS[ft] then
       M.delete_all_comments()
       vim.cmd('silent! write')
       processed = processed + 1

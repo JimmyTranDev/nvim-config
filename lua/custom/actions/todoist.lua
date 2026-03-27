@@ -16,8 +16,6 @@ local MAX_RECENT_PROJECTS = 10
 
 local format_by_name = function(item) return item.name end
 
-local function add_back_option(options, text) table.insert(options, { name = '← ' .. text, is_back = true }) end
-
 local function get_recent_projects()
   if not vim.uv.fs_stat(RECENT_PROJECTS_FILE) then return {} end
   local data = json_utils.parse_json_from_file(RECENT_PROJECTS_FILE)
@@ -105,7 +103,7 @@ local function create_task_with_navigation(task_name, projects)
         table.insert(section_options, { name = section.name, id = section.id })
       end
       table.insert(section_options, { name = 'No section', id = nil })
-      add_back_option(section_options, 'Back to projects')
+      ui_utils.add_back_option(section_options, 'Back to projects')
 
       ui_utils.safe_select(section_options, {
         prompt = 'Select a section:',
@@ -123,7 +121,7 @@ local function create_task_with_navigation(task_name, projects)
 
   select_priority = function(selected_project, selected_section)
     local priority_options = vim.list_extend({}, PRIORITY_OPTIONS)
-    add_back_option(priority_options, 'Back to sections')
+    ui_utils.add_back_option(priority_options, 'Back to sections')
 
     ui_utils.safe_select(priority_options, {
       prompt = 'Select a priority for the task:',
@@ -183,14 +181,14 @@ function M.log_todoist_task_programming()
     local programming_dir = vim.fn.expand('~/Programming')
     local org_dirs = {}
 
-    local handle = vim.loop.fs_scandir(programming_dir)
+    local handle = vim.uv.fs_scandir(programming_dir)
     if not handle then
       vim.notify('Could not scan ~/Programming', vim.log.levels.ERROR)
       return
     end
 
     while true do
-      local name, type = vim.loop.fs_scandir_next(handle)
+      local name, type = vim.uv.fs_scandir_next(handle)
       if not name then break end
       if type == 'directory' then table.insert(org_dirs, name) end
     end
@@ -205,11 +203,11 @@ function M.log_todoist_task_programming()
     ui_utils.safe_select(org_dirs, { prompt = 'Select programming project:' }, function(selected_dir)
       local repo_dirs = {}
       local repo_path = programming_dir .. '/' .. selected_dir
-      local repo_handle = vim.loop.fs_scandir(repo_path)
+      local repo_handle = vim.uv.fs_scandir(repo_path)
 
       if repo_handle then
         while true do
-          local repo_name, repo_type = vim.loop.fs_scandir_next(repo_handle)
+          local repo_name, repo_type = vim.uv.fs_scandir_next(repo_handle)
           if not repo_name then break end
           if repo_type == 'directory' then table.insert(repo_dirs, repo_name) end
         end

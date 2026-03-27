@@ -8,11 +8,11 @@ local NOTES_PATH = vim.fn.expand('~/Programming/JimmyTranDev/notes/people')
 
 local function get_notes_files()
   local files = {}
-  local handle = vim.loop.fs_scandir(NOTES_PATH)
+  local handle = vim.uv.fs_scandir(NOTES_PATH)
   if not handle then return files end
 
   while true do
-    local name, type = vim.loop.fs_scandir_next(handle)
+    local name, type = vim.uv.fs_scandir_next(handle)
     if not name then break end
     if type == 'file' and name:match('%.md$') then
       table.insert(files, name)

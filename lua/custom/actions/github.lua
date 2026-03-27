@@ -272,7 +272,7 @@ end
 
 function M.list_org_repos_and_open()
   local programming_dir = vim.fn.expand('~/Programming')
-  local org_handle = vim.loop.fs_scandir(programming_dir)
+  local org_handle = vim.uv.fs_scandir(programming_dir)
   if not org_handle then
     vim.notify('Could not scan ~/Programming', vim.log.levels.ERROR)
     return
@@ -281,15 +281,15 @@ function M.list_org_repos_and_open()
   local items = {}
 
   while true do
-    local org_name, org_type = vim.loop.fs_scandir_next(org_handle)
+    local org_name, org_type = vim.uv.fs_scandir_next(org_handle)
     if not org_name then break end
     if org_type ~= 'directory' or org_name == 'Worktrees' then goto continue_org end
 
-    local repo_handle = vim.loop.fs_scandir(programming_dir .. '/' .. org_name)
+    local repo_handle = vim.uv.fs_scandir(programming_dir .. '/' .. org_name)
     if not repo_handle then goto continue_org end
 
     while true do
-      local repo_name, repo_type = vim.loop.fs_scandir_next(repo_handle)
+      local repo_name, repo_type = vim.uv.fs_scandir_next(repo_handle)
       if not repo_name then break end
       if repo_type == 'directory' then
         table.insert(items, {

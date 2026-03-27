@@ -51,7 +51,7 @@ return {
 
     { mode = 'n', '<Leader>grC', git_actions.reset_all_with_confirm, desc = 'Reset ALL with confirm', silent = true },
     { mode = 'n', '<Leader>grr', ':Git reset .<CR>', desc = 'Reset patch', silent = true },
-    { mode = 'n', '<Leader>grR', function() require('custom.actions.git').reset_to_reflog() end, desc = 'Reset to reflog', silent = true },
+    { mode = 'n', '<Leader>grR', git_actions.reset_to_reflog, desc = 'Reset to reflog', silent = true },
     { mode = 'n', '<Leader>grX', ':Git clean -fd<CR>', desc = 'Remove all unstaged files', silent = true },
 
     { mode = 'n', '<Leader>gbP', ':Git pull --rebase<CR>', desc = 'Branch pull rebase', silent = true },

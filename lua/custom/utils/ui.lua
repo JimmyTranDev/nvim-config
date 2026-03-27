@@ -41,4 +41,8 @@ function M.exec_in_terminal(cmd, success_msg, terminal_id)
   end
 end
 
+function M.add_back_option(options, text, value)
+  table.insert(options, { name = '← ' .. text, is_back = true, value = value or '__back__' })
+end
+
 return M

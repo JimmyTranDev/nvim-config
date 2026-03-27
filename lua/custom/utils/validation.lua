@@ -11,8 +11,4 @@ function M.string(value, min_length, max_length)
   return true
 end
 
-function M.is_non_empty_string(value)
-  return type(value) == 'string' and value ~= ''
-end
-
 return M
