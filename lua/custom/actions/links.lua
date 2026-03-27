@@ -36,11 +36,11 @@ function M.open_current_github_prs()
   open_url(repo_info.url .. '/pulls', 'GitHub pull requests')
 end
 
-function M.open_dev_server() language_utils.openServerUrl('dev') end
+function M.open_dev_server() language_utils.open_server_url('dev') end
 
 function M.open_useful_link()
-  local link_names = link_constants.usefulLinkNames
-  local useful_links = link_constants.usefulLink
+  local link_names = link_constants.useful_link_names
+  local useful_links = link_constants.useful_link
 
   if not link_names or #link_names == 0 then
     vim.notify('No useful links configured', vim.log.levels.WARN)
@@ -58,8 +58,8 @@ function M.open_useful_link()
 end
 
 function M.open_private_useful_link()
-  local link_names = link_constants.privateUsefulLinkNames
-  local private_useful_links = link_constants.privateUsefulLink
+  local link_names = link_constants.private_useful_link_names
+  local private_useful_links = link_constants.private_useful_link
 
   if not link_names or #link_names == 0 then
     vim.notify('No private useful links configured', vim.log.levels.WARN)
@@ -89,7 +89,7 @@ function M.open_jira_ticket()
     return
   end
 
-  local jira_link = link_utils.getJiraLinkWithTicket(jira_ticket)
+  local jira_link = link_utils.get_jira_link_with_ticket(jira_ticket)
   if jira_link then
     open_url(jira_link, 'JIRA ticket: ' .. jira_ticket)
   else
@@ -109,7 +109,7 @@ function M.open_npm_url()
   end
 
   package_name = package_name:gsub('["\':,]', '')
-  local npm_url = link_utils.getNpmUrl(package_name)
+  local npm_url = link_utils.get_npm_url(package_name)
   if npm_url then
     open_url(npm_url, 'NPM package: ' .. package_name)
   else

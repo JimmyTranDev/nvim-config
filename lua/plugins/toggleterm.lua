@@ -1,5 +1,5 @@
-local languageActions = require('custom.actions.language')
-local toggleTermActions = require('custom.actions.toggleterm')
+local language_actions = require('custom.actions.language')
+local toggle_term_actions = require('custom.actions.toggleterm')
 
 local function grep_markdown_headings()
   local snacks = require('snacks')
@@ -46,11 +46,11 @@ return {
     { mode = 'n', '<leader>fm', grep_markdown_headings, desc = 'Find Markdown Headings', silent = true },
 
     { mode = 'n', '<leader>tl', ':4TermExec cmd="live-server --port=9090"<CR>', desc = 'Live Server', silent = true },
-    { mode = 'n', '<leader>tM', languageActions.compile_mjml_file, desc = 'Compile Mjml Html', silent = true },
+    { mode = 'n', '<leader>tM', language_actions.compile_mjml_file, desc = 'Compile Mjml Html', silent = true },
 
     { mode = 'n', '<leader>tdD', ':3TermExec cmd="mkdocs gh-deploy"<CR>', desc = 'Mkdocs Deploy', silent = true },
     { mode = 'n', '<leader>tds', ':4TermExec cmd="mkdocs serve"<CR>', desc = 'Mkdocs Serve', silent = true },
-    { mode = 'n', '<leader>tdd', languageActions.serve_markdown_folder, desc = 'Markserve', silent = true },
+    { mode = 'n', '<leader>tdd', language_actions.serve_markdown_folder, desc = 'Markserve', silent = true },
 
     { mode = 'n', '<leader>t1', ':1ToggleTerm<CR>', desc = 'Toggle Terminal 1', silent = true },
     { mode = 'n', '<leader>t2', ':2ToggleTerm<Cr>', desc = 'Toggle Terminal 2', silent = true },
@@ -61,33 +61,33 @@ return {
     { mode = 't', '<C-l>', [[<Cmd>wincmd l<CR>]], desc = 'Terminal right window', silent = true },
     { mode = 't', '<Esc>', [[<C-\><C-n>]], desc = 'Terminal escape to normal mode', silent = true },
 
-    { mode = 'n', '<leader>tnum', languageActions.create_npm_update_executor(7, 'minor'), silent = true, desc = 'Npm Update Minor' },
-    { mode = 'n', '<leader>tnun', languageActions.create_npm_update_executor(7, 'major'), silent = true, desc = 'Npm Update Major' },
-    { mode = 'n', '<leader>tnup', languageActions.create_npm_update_executor(7, 'patch'), silent = true, desc = 'Npm Update Patch' },
-    { mode = 'n', '<leader>tnui', languageActions.create_npm_update_executor(7, 'interactive'), silent = true, desc = 'Npm Update Interactive' },
-    { mode = 'n', '<leader>tni', languageActions.create_package_command_runner(7, 'install'), silent = true, desc = 'Npm Install' },
-    { mode = 'n', '<leader>tnt', languageActions.create_package_command_runner(7, 'test'), silent = true, desc = 'Npm Test' },
-    { mode = 'n', '<leader>tnc', languageActions.create_package_command_runner(7, 'lint'), silent = true, desc = 'Npm Lint' },
-    { mode = 'n', '<leader>tnb', languageActions.create_package_command_runner(7, 'check'), silent = true, desc = 'Npm Check' },
+    { mode = 'n', '<leader>tnum', language_actions.create_npm_update_executor(7, 'minor'), silent = true, desc = 'Npm Update Minor' },
+    { mode = 'n', '<leader>tnun', language_actions.create_npm_update_executor(7, 'major'), silent = true, desc = 'Npm Update Major' },
+    { mode = 'n', '<leader>tnup', language_actions.create_npm_update_executor(7, 'patch'), silent = true, desc = 'Npm Update Patch' },
+    { mode = 'n', '<leader>tnui', language_actions.create_npm_update_executor(7, 'interactive'), silent = true, desc = 'Npm Update Interactive' },
+    { mode = 'n', '<leader>tni', language_actions.create_package_command_runner(7, 'install'), silent = true, desc = 'Npm Install' },
+    { mode = 'n', '<leader>tnt', language_actions.create_package_command_runner(7, 'test'), silent = true, desc = 'Npm Test' },
+    { mode = 'n', '<leader>tnc', language_actions.create_package_command_runner(7, 'lint'), silent = true, desc = 'Npm Lint' },
+    { mode = 'n', '<leader>tnb', language_actions.create_package_command_runner(7, 'check'), silent = true, desc = 'Npm Check' },
 
-    { mode = 'n', '<leader>tnx', toggleTermActions.killAllToggleTerm, silent = true, desc = 'Kill All Terminals' },
+    { mode = 'n', '<leader>tnx', toggle_term_actions.kill_all_toggle_term, silent = true, desc = 'Kill All Terminals' },
 
-    { mode = 'n', '<leader>tnd', languageActions.create_package_command_runner(6, 'dev'), silent = true, desc = 'Npm Dev' },
-    { mode = 'n', '<leader>tns', languageActions.create_package_command_runner(5, 'start'), silent = true, desc = 'Npm Start' },
+    { mode = 'n', '<leader>tnd', language_actions.create_package_command_runner(6, 'dev'), silent = true, desc = 'Npm Dev' },
+    { mode = 'n', '<leader>tns', language_actions.create_package_command_runner(5, 'start'), silent = true, desc = 'Npm Start' },
 
-    { mode = 'n', '<leader>tnj', function() languageActions.run_package_script(1) end, silent = true, desc = 'Npm Script 1' },
-    { mode = 'n', '<leader>tnJ', toggleTermActions.create_kill_toggle_term(1), silent = true, desc = 'Npm Script 1 Exit' },
-    { mode = 'n', '<leader>tnk', function() languageActions.run_package_script(2) end, silent = true, desc = 'Npm Script 2' },
-    { mode = 'n', '<leader>tnK', toggleTermActions.create_kill_toggle_term(2), silent = true, desc = 'Npm Script 2 Exit' },
-    { mode = 'n', '<leader>tnl', function() languageActions.run_package_script(3) end, silent = true, desc = 'Npm Script 3' },
-    { mode = 'n', '<leader>tnL', toggleTermActions.create_kill_toggle_term(3), silent = true, desc = 'Npm Script 3 Exit' },
-    { mode = 'n', '<leader>tn;', function() languageActions.run_package_script(4) end, silent = true, desc = 'Npm Script 4' },
-    { mode = 'n', '<leader>tn:', toggleTermActions.create_kill_toggle_term(4), silent = true, desc = 'Npm Script 4 Exit' },
+    { mode = 'n', '<leader>tnj', function() language_actions.run_package_script(1) end, silent = true, desc = 'Npm Script 1' },
+    { mode = 'n', '<leader>tnJ', toggle_term_actions.create_kill_toggle_term(1), silent = true, desc = 'Npm Script 1 Exit' },
+    { mode = 'n', '<leader>tnk', function() language_actions.run_package_script(2) end, silent = true, desc = 'Npm Script 2' },
+    { mode = 'n', '<leader>tnK', toggle_term_actions.create_kill_toggle_term(2), silent = true, desc = 'Npm Script 2 Exit' },
+    { mode = 'n', '<leader>tnl', function() language_actions.run_package_script(3) end, silent = true, desc = 'Npm Script 3' },
+    { mode = 'n', '<leader>tnL', toggle_term_actions.create_kill_toggle_term(3), silent = true, desc = 'Npm Script 3 Exit' },
+    { mode = 'n', '<leader>tn;', function() language_actions.run_package_script(4) end, silent = true, desc = 'Npm Script 4' },
+    { mode = 'n', '<leader>tn:', toggle_term_actions.create_kill_toggle_term(4), silent = true, desc = 'Npm Script 4 Exit' },
 
     {
       mode = 'n',
       '<leader>tnf',
-      function() languageActions.create_package_command_runner(9, 'fms:types', true)() end,
+      function() language_actions.create_package_command_runner(9, 'fms:types', true)() end,
       silent = true,
       desc = 'Npm FMS Types and Gen',
     },
@@ -95,9 +95,9 @@ return {
       mode = 'n',
       '<leader>tna',
       function()
-        languageActions.create_package_command_runner(5, 'build')()
-        languageActions.create_package_command_runner(6, 'lint:fix')()
-        languageActions.create_package_command_runner(7, 'test')()
+        language_actions.create_package_command_runner(5, 'build')()
+        language_actions.create_package_command_runner(6, 'lint:fix')()
+        language_actions.create_package_command_runner(7, 'test')()
       end,
       silent = true,
       desc = 'Npm All (build, lint, test)',
@@ -107,7 +107,7 @@ return {
       '<leader>tnA',
       function()
         for i = 6, 8 do
-          toggleTermActions.create_kill_toggle_term(i)()
+          toggle_term_actions.create_kill_toggle_term(i)()
         end
       end,
       silent = true,
@@ -124,12 +124,12 @@ return {
       silent = true,
       desc = 'Make All (start-app, start-server)',
     },
-    { mode = 'n', '<leader>tmj', languageActions.create_make_command_runner(1), desc = 'Run Makefile Target', silent = true },
-    { mode = 'n', '<leader>tmJ', toggleTermActions.create_kill_toggle_term(1), desc = 'Makefile Exit', silent = true },
-    { mode = 'n', '<leader>tmk', languageActions.create_make_command_runner(2), desc = 'Run Makefile Target', silent = true },
-    { mode = 'n', '<leader>tmK', toggleTermActions.create_kill_toggle_term(2), desc = 'Makefile Exit', silent = true },
-    { mode = 'n', '<leader>tmm', languageActions.create_make_command_runner(3), desc = 'Run Makefile Target', silent = true },
-    { mode = 'n', '<leader>tmM', toggleTermActions.create_kill_toggle_term(3), desc = 'Makefile Exit', silent = true },
+    { mode = 'n', '<leader>tmj', language_actions.create_make_command_runner(1), desc = 'Run Makefile Target', silent = true },
+    { mode = 'n', '<leader>tmJ', toggle_term_actions.create_kill_toggle_term(1), desc = 'Makefile Exit', silent = true },
+    { mode = 'n', '<leader>tmk', language_actions.create_make_command_runner(2), desc = 'Run Makefile Target', silent = true },
+    { mode = 'n', '<leader>tmK', toggle_term_actions.create_kill_toggle_term(2), desc = 'Makefile Exit', silent = true },
+    { mode = 'n', '<leader>tmm', language_actions.create_make_command_runner(3), desc = 'Run Makefile Target', silent = true },
+    { mode = 'n', '<leader>tmM', toggle_term_actions.create_kill_toggle_term(3), desc = 'Makefile Exit', silent = true },
     { mode = 'n', '<leader>tms', ':1TermExec cmd="make start"<CR>', desc = 'Make Start', silent = true },
 
     { mode = 'n', '<leader>tcr', ':4TermExec cmd="cargo run"<CR>', desc = 'Cargo Run', silent = true },
@@ -145,7 +145,7 @@ return {
 
     { mode = 'n', '<leader>tfb', ':3TermExec cmd="flutter pub run build_runner build"<CR>', desc = 'Build', silent = true },
 
-    { mode = 'n', '<leader>tvs', languageActions.run_project_jar, desc = 'Start Project (Maven/Node)', silent = true },
+    { mode = 'n', '<leader>tvs', language_actions.run_project_jar, desc = 'Start Project (Maven/Node)', silent = true },
     { mode = 'n', '<leader>tvp', ':3TermExec cmd="mvn package"<CR>', desc = 'Maven Package', silent = true },
     { mode = 'n', '<leader>tvg', ':3TermExec cmd="gcloud auth application-default login"<CR>', desc = 'GCloud Auth', silent = true },
   },

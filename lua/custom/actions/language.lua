@@ -6,7 +6,7 @@ local validation = require('custom.utils.validation')
 local M = {}
 
 local function get_pm()
-  local pm = language_utils.getJavascriptPackageManager()
+  local pm = language_utils.get_javascript_package_manager()
   if not pm or pm == '' then
     vim.notify('No JavaScript package manager found', vim.log.levels.ERROR)
     return nil
@@ -63,7 +63,7 @@ function M.run_project_jar()
 end
 
 function M.run_java_class_maven()
-  local class = language_utils.getCurrentJavaClass()
+  local class = language_utils.get_current_java_class()
   if not class or class == '' then
     vim.notify('No Java class found', vim.log.levels.WARN)
     return
@@ -73,7 +73,7 @@ function M.run_java_class_maven()
 end
 
 function M.run_java_class_javac()
-  local class = language_utils.getCurrentJavaClass()
+  local class = language_utils.get_current_java_class()
   if not class or class == '' then
     vim.notify('No Java class found', vim.log.levels.WARN)
     return
@@ -114,7 +114,7 @@ function M.install_javascript_package()
       end
       local cmd = pm .. ' add ' .. pkg_name
       if pkg_type == 'development' then
-        cmd = cmd .. ' ' .. language_utils.getJavascriptPackageManagerDevArg()
+        cmd = cmd .. ' ' .. language_utils.get_javascript_package_manager_dev_arg()
       end
       ui_utils.exec_in_terminal(cmd, 'Installing: ' .. pkg_name, 3)
     end)
@@ -122,7 +122,7 @@ function M.install_javascript_package()
 end
 
 function M.run_package_script(term_id)
-  local scripts = language_utils.listPackageJsonCommands()
+  local scripts = language_utils.list_package_json_commands()
   if #scripts > 0 then
     ui_utils.safe_select(scripts, { prompt = 'Select script:' }, function(script)
       local pm = get_pm()
@@ -165,7 +165,7 @@ end
 
 function M.run_eslint_picker()
   ui_utils.show_success('Running ESLint...')
-  local npx = language_utils.getNpxEquivalent()
+  local npx = language_utils.get_npx_equivalent()
   local output = vim.fn.system(npx .. ' eslint . --ext ts,tsx,js,jsx --format stylish 2>&1')
 
   local files = {}
@@ -387,7 +387,7 @@ function M.create_make_command_runner(term_id)
 end
 
 function M.create_npm_update_command(type)
-  local npx = language_utils.getNpxEquivalent()
+  local npx = language_utils.get_npx_equivalent()
   local flags = { minor = ' -t minor', major = '', patch = ' -t patch', interactive = 'i' }
   return npx .. ' npm-check-updates -u' .. (flags[type] or '')
 end

@@ -7,7 +7,7 @@ function M.create_kill_toggle_term(index)
   end
 end
 
-function M.killAllToggleTerm()
+function M.kill_all_toggle_term()
   for _, term in pairs(require('toggleterm.terminal').get_all()) do
     term:shutdown()
   end

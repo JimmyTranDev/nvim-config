@@ -1,6 +1,6 @@
 local M = {}
 
-function M.getDiagnosticTextsUnderCursor()
+function M.get_diagnostic_texts_under_cursor()
   local bufnr = vim.api.nvim_get_current_buf()
   local line = vim.api.nvim_win_get_cursor(0)[1] - 1 -- 0-based line number
   local col = vim.api.nvim_win_get_cursor(0)[2] -- 0-based column number

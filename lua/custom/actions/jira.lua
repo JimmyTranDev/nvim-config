@@ -1,4 +1,4 @@
-local inputUtils = require('custom.utils.input')
+local input_utils = require('custom.utils.input')
 local git_utils = require('custom.utils.git')
 local link_utils = require('custom.utils.links')
 
@@ -137,7 +137,7 @@ local function add_back_option(options, text, value)
 end
 
 local function get_user_input(prompt, callback, default)
-  inputUtils.get_input(prompt, function(input)
+  input_utils.get_input(prompt, function(input)
     if not input then
       vim.notify('Task creation cancelled', vim.log.levels.INFO)
       return
@@ -332,13 +332,13 @@ local function create_jira_task_workflow(summary, fallback_project, should_open_
 
                   run_transitions(CONFIG.TRANSITION_STATUSES, 1, function()
                     if should_open_link then
-                      local jira_link = link_utils.getJiraLinkWithTicket(work_item_id)
+                      local jira_link = link_utils.get_jira_link_with_ticket(work_item_id)
                       if jira_link then vim.system({ 'open', jira_link }) end
                     end
                   end)
                 else
                   if should_open_link then
-                    local jira_link = link_utils.getJiraLinkWithTicket(work_item_id)
+                    local jira_link = link_utils.get_jira_link_with_ticket(work_item_id)
                     if jira_link then vim.system({ 'open', jira_link }) end
                   end
                 end
@@ -433,7 +433,7 @@ M.generate_done_md = function()
           local key = fields[1]
           local status = fields[2]
           local summary = fields[3]:gsub('|', '\\|')
-          local jira_link = link_utils.getJiraLinkWithTicket(key)
+          local jira_link = link_utils.get_jira_link_with_ticket(key)
           local ticket_link = jira_link and string.format('[%s](%s)', key, jira_link) or key
           table.insert(md_lines, string.format('| %s | %s | %s |', ticket_link, summary, status))
         end

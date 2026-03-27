@@ -15,7 +15,7 @@ function M.get_repo_info()
   return ok and repo_info or nil
 end
 
-function M.getRepoName()
+function M.get_repo_name()
   local info = M.get_repo_info()
   return info and info.name or nil
 end

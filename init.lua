@@ -4,7 +4,6 @@ local modules = {
   'core.options',
   'core.plugins',
   'core.commands',
-  'core.statusline',
   'core.keymaps',
 }
 

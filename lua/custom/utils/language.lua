@@ -1,18 +1,18 @@
-local linkConstants = require('custom.constants.links')
-local githubUtils = require('custom.utils.github')
-local fileUtils = require('custom.utils.files')
+local link_constants = require('custom.constants.links')
+local github_utils = require('custom.utils.github')
+local file_utils = require('custom.utils.files')
 local M = {}
 
-function M.getCurrentJavaClass()
-  local currentFile = vim.fn.expand('%')
-  local currentClass = vim.fn.substitute(currentFile, '.*/src/main/java/', '', '')
-  currentClass = vim.fn.substitute(currentClass, '/', '.', 'g')
-  currentClass = vim.fn.substitute(currentClass, '\\.java', '', '')
-  return currentClass
+function M.get_current_java_class()
+  local current_file = vim.fn.expand('%')
+  local current_class = vim.fn.substitute(current_file, '.*/src/main/java/', '', '')
+  current_class = vim.fn.substitute(current_class, '/', '.', 'g')
+  current_class = vim.fn.substitute(current_class, '\\.java', '', '')
+  return current_class
 end
 
-local function findWorkspaceRoot(startPath)
-  local path = startPath or vim.fn.getcwd()
+local function find_workspace_root(start_path)
+  local path = start_path or vim.fn.getcwd()
   local lockfiles = {
     { file = 'bun.lockb', manager = 'bun' },
     { file = 'bun.lock', manager = 'bun' },
@@ -23,8 +23,8 @@ local function findWorkspaceRoot(startPath)
 
   while path ~= '/' and path ~= '' do
     for _, lockfile in ipairs(lockfiles) do
-      local fullPath = path .. '/' .. lockfile.file
-      if vim.fn.filereadable(fullPath) == 1 then return path, lockfile.manager end
+      local full_path = path .. '/' .. lockfile.file
+      if vim.fn.filereadable(full_path) == 1 then return path, lockfile.manager end
     end
 
     local parent = vim.fn.fnamemodify(path, ':h')
@@ -35,43 +35,43 @@ local function findWorkspaceRoot(startPath)
   return nil, nil
 end
 
-local function isWorkspace(rootPath)
-  if not rootPath then return false end
+local function is_workspace(root_path)
+  if not root_path then return false end
 
-  local workspaceFiles = {
-    rootPath .. '/pnpm-workspace.yaml',
-    rootPath .. '/lerna.json',
-    rootPath .. '/nx.json',
-    rootPath .. '/rush.json',
-    rootPath .. '/turbo.json',
-    rootPath .. '/.yarnrc.yml',
+  local workspace_files = {
+    root_path .. '/pnpm-workspace.yaml',
+    root_path .. '/lerna.json',
+    root_path .. '/nx.json',
+    root_path .. '/rush.json',
+    root_path .. '/turbo.json',
+    root_path .. '/.yarnrc.yml',
   }
 
-  for _, file in ipairs(workspaceFiles) do
+  for _, file in ipairs(workspace_files) do
     if vim.fn.filereadable(file) == 1 then return true end
   end
 
-  local packageJsonPath = rootPath .. '/package.json'
-  if vim.fn.filereadable(packageJsonPath) == 1 then
-    local ok, packageJson = pcall(vim.fn.json_decode, vim.fn.readfile(packageJsonPath))
-    if ok and packageJson and packageJson.workspaces then return true end
+  local package_json_path = root_path .. '/package.json'
+  if vim.fn.filereadable(package_json_path) == 1 then
+    local ok, package_json = pcall(vim.fn.json_decode, vim.fn.readfile(package_json_path))
+    if ok and package_json and package_json.workspaces then return true end
   end
 
   return false
 end
 
-function M.getWorkspaceRoot()
-  local rootPath, _ = findWorkspaceRoot()
-  return rootPath
+function M.get_workspace_root()
+  local root_path, _ = find_workspace_root()
+  return root_path
 end
 
-function M.getJavascriptPackageManager()
-  local rootPath, packageManager = findWorkspaceRoot()
+function M.get_javascript_package_manager()
+  local root_path, package_manager = find_workspace_root()
 
-  if packageManager then
-    if isWorkspace(rootPath) then return packageManager end
+  if package_manager then
+    if is_workspace(root_path) then return package_manager end
 
-    return packageManager
+    return package_manager
   end
 
   if vim.fn.filereadable('bun.lockb') == 1 then
@@ -89,49 +89,42 @@ function M.getJavascriptPackageManager()
   return ''
 end
 
-function M.getJavascriptPackageManagerDevArg()
-  local packageManager = M.getJavascriptPackageManager()
+local DEV_ARG = {
+  yarn = '--dev',
+  npm = '--save-dev',
+  pnpm = '--save-dev',
+  bun = '--dev',
+}
 
-  if packageManager == 'yarn' then
-    return '--dev'
-  elseif packageManager == 'npm' then
-    return '--save-dev'
-  elseif packageManager == 'pnpm' then
-    return '--save-dev'
-  elseif packageManager == 'bun' then
-    return '--dev'
-  end
+local NPX_EQUIVALENT = {
+  yarn = 'yarn dlx',
+  pnpm = 'pnpm dlx',
+  bun = 'bunx',
+}
+
+function M.get_javascript_package_manager_dev_arg()
+  return DEV_ARG[M.get_javascript_package_manager()]
 end
 
-function M.getNpxEquivalent()
-  local packageManager = M.getJavascriptPackageManager()
-
-  if packageManager == 'yarn' then
-    return 'yarn dlx'
-  elseif packageManager == 'pnpm' then
-    return 'pnpm dlx'
-  elseif packageManager == 'bun' then
-    return 'bunx'
-  else
-    return 'npx'
-  end
+function M.get_npx_equivalent()
+  return NPX_EQUIVALENT[M.get_javascript_package_manager()] or 'npx'
 end
 
-function M.listPackageJsonCommands()
+function M.list_package_json_commands()
   local scripts = {}
 
   local current_package_json = vim.fn.getcwd() .. '/package.json'
   if vim.fn.filereadable(current_package_json) == 1 then
-    local current_scripts = M.getScriptsFromPackageJson(current_package_json)
+    local current_scripts = M.get_scripts_from_package_json(current_package_json)
     if current_scripts and #current_scripts > 0 then scripts = current_scripts end
   end
 
   if #scripts == 0 then
-    local workspaceRoot = M.getWorkspaceRoot()
-    if workspaceRoot then
-      local root_package_json = workspaceRoot .. '/package.json'
+    local workspace_root = M.get_workspace_root()
+    if workspace_root then
+      local root_package_json = workspace_root .. '/package.json'
       if vim.fn.filereadable(root_package_json) == 1 then
-        local root_scripts = M.getScriptsFromPackageJson(root_package_json)
+        local root_scripts = M.get_scripts_from_package_json(root_package_json)
         if root_scripts then scripts = root_scripts end
       end
     end
@@ -140,33 +133,33 @@ function M.listPackageJsonCommands()
   return scripts
 end
 
-function M.getScriptsFromPackageJson(packageJsonPath)
-  local result = vim.fn.system("jq '.scripts | keys' " .. packageJsonPath)
+function M.get_scripts_from_package_json(package_json_path)
+  local result = vim.fn.system("jq '.scripts | keys' " .. package_json_path)
   if vim.v.shell_error ~= 0 then return {} end
   local ok, scripts = pcall(vim.fn.json_decode, result)
   if ok and scripts then return scripts end
   return {}
 end
 
-function M.openServerUrl(type)
-  local projectNames = { githubUtils.getRepoName() }
-  vim.list_extend(projectNames, linkConstants.projectNames)
-  vim.ui.select(projectNames, {
+function M.open_server_url(type)
+  local project_names = { github_utils.get_repo_name() }
+  vim.list_extend(project_names, link_constants.project_names)
+  vim.ui.select(project_names, {
     prompt = 'Select repo to open:',
-  }, function(projectName)
-    if projectName == nil then return end
+  }, function(project_name)
+    if project_name == nil then return end
 
-    local routes = linkConstants.projectNameToRouteObject[projectName]
+    local routes = link_constants.project_name_to_route_object[project_name]
     if not routes then
-      vim.notify('No routes found for project: ' .. projectName, vim.log.levels.WARN)
+      vim.notify('No routes found for project: ' .. project_name, vim.log.levels.WARN)
       return
     end
     local url = routes[type]
     if url == nil then
-      vim.notify('No url found for type ' .. type .. ' of project: ' .. projectName, vim.log.levels.WARN)
+      vim.notify('No url found for type ' .. type .. ' of project: ' .. project_name, vim.log.levels.WARN)
       return
     end
-    fileUtils.open(url)
+    file_utils.open(url)
   end)
 end
 

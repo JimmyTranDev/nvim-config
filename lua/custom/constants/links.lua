@@ -1,27 +1,27 @@
 local M = {}
 
-M.jiraTicketUrl = vim.env.ORG_JIRA_TICKET_LINK or ''
-local jsonUtils = require('custom.utils.json')
+M.jira_ticket_url = vim.env.ORG_JIRA_TICKET_LINK or ''
+local json_utils = require('custom.utils.json')
 local expand = vim.fn.expand
 
-local links = jsonUtils.parse_json_from_file(expand('$HOME/Programming/JimmyTranDev/secrets/links.json'))
+local links = json_utils.parse_json_from_file(expand('$HOME/Programming/JimmyTranDev/secrets/links.json'))
 
-M.projectNameToRouteObject = links.work_technical or {}
-M.projectNames = {}
-for projectName, _ in pairs(M.projectNameToRouteObject) do
-  table.insert(M.projectNames, projectName)
+M.project_name_to_route_object = links.work_technical or {}
+M.project_names = {}
+for project_name, _ in pairs(M.project_name_to_route_object) do
+  table.insert(M.project_names, project_name)
 end
 
-M.usefulLink = links.work_useful or {}
-M.usefulLinkNames = {}
-for key in pairs(M.usefulLink) do
-  table.insert(M.usefulLinkNames, key)
+M.useful_link = links.work_useful or {}
+M.useful_link_names = {}
+for key in pairs(M.useful_link) do
+  table.insert(M.useful_link_names, key)
 end
 
-M.privateUsefulLink = links.private_useful or {}
-M.privateUsefulLinkNames = {}
-for key in pairs(M.privateUsefulLink) do
-  table.insert(M.privateUsefulLinkNames, key)
+M.private_useful_link = links.private_useful or {}
+M.private_useful_link_names = {}
+for key in pairs(M.private_useful_link) do
+  table.insert(M.private_useful_link_names, key)
 end
 
 return M

@@ -26,6 +26,35 @@ function M.open(item)
   end
 end
 
+function M.read_lines(filepath)
+  local lines = {}
+  local f = io.open(filepath, 'r')
+  if f then
+    for line in f:lines() do
+      table.insert(lines, line)
+    end
+    f:close()
+  end
+  return lines
+end
+
+function M.write_lines(filepath, lines)
+  local f = io.open(filepath, 'w')
+  if f then
+    f:write(table.concat(lines, '\n') .. '\n')
+    f:close()
+    return true
+  end
+  return false
+end
+
+function M.ensure_directory_exists(filepath)
+  local dir = vim.fn.fnamemodify(filepath, ':h')
+  if vim.fn.isdirectory(dir) == 0 then
+    vim.fn.mkdir(dir, 'p')
+  end
+end
+
 function M.get_recursive_file_contents()
   local current_dir = vim.fn.fnamemodify(vim.fn.expand('%:p'), ':h')
   local content = {}

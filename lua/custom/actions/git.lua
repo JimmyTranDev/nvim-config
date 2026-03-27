@@ -8,52 +8,52 @@ local function shell_escape_message(msg)
   return msg:gsub('[$`"\\!]', '\\%0')
 end
 
-function M.createBranch(prefix)
+function M.create_branch(prefix)
   return function()
-    input_utils.get_input('Jira Ticket: ', function(jiraTicket)
-      if jiraTicket then
-        local summary = vim.fn.system(string.format("jira issue view %s --raw | jq -r '.fields.summary'", jiraTicket))
+    input_utils.get_input('Jira Ticket: ', function(jira_ticket)
+      if jira_ticket then
+        local summary = vim.fn.system(string.format("jira issue view %s --raw | jq -r '.fields.summary'", jira_ticket))
         summary = string.gsub(summary, '%s+', '-')
         summary = string.gsub(summary, '[^%w%-]', '')
-        local branchName = string.format('%s/%s_%s', prefix, jiraTicket, summary)
+        local branch_name = string.format('%s/%s_%s', prefix, jira_ticket, summary)
 
-        vim.cmd(string.format('Git checkout -b %s', branchName))
+        vim.cmd(string.format('Git checkout -b %s', branch_name))
         vim.cmd("TermExec5 open=0 cmd='git add .'")
-        vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', shell_escape_message(branchName)))
+        vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', shell_escape_message(branch_name)))
       else
-        input_utils.get_input('Branch Description: ', function(branchDescription)
-          if not branchDescription then return end
-          local descriptionPart = string.gsub(branchDescription, '%s+', '-')
-          local branchName = string.format('%s/%s', prefix, descriptionPart)
+        input_utils.get_input('Branch Description: ', function(branch_description)
+          if not branch_description then return end
+          local description_part = string.gsub(branch_description, '%s+', '-')
+          local branch_name = string.format('%s/%s', prefix, description_part)
 
-          vim.cmd(string.format('Git checkout -b %s', branchName))
+          vim.cmd(string.format('Git checkout -b %s', branch_name))
           vim.cmd("TermExec5 open=0 cmd='git add .'")
-          vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', shell_escape_message(branchName)))
+          vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', shell_escape_message(branch_name)))
         end)
       end
     end)
   end
 end
 
-function M.createWorktree(prefix)
+function M.create_worktree(prefix)
   return function()
-    input_utils.get_input('Jira Ticket: ', function(jiraTicket)
-      if jiraTicket then
-        local summary = vim.fn.system(string.format("jira issue view %s --raw | jq -r '.fields.summary'", jiraTicket))
+    input_utils.get_input('Jira Ticket: ', function(jira_ticket)
+      if jira_ticket then
+        local summary = vim.fn.system(string.format("jira issue view %s --raw | jq -r '.fields.summary'", jira_ticket))
         summary = string.gsub(summary, '%s+', '-')
         summary = string.gsub(summary, '[^%w%-]', '')
-        local branchName = string.format('%s/%s_%s', prefix, jiraTicket, summary)
-        local worktreeName = string.format('~/Programming/Worktrees/%s_%s', prefix, summary)
+        local branch_name = string.format('%s/%s_%s', prefix, jira_ticket, summary)
+        local worktree_name = string.format('~/Programming/Worktrees/%s_%s', prefix, summary)
 
-        vim.cmd(string.format('Git worktree add -b %s %s', branchName, worktreeName))
+        vim.cmd(string.format('Git worktree add -b %s %s', branch_name, worktree_name))
       else
-        input_utils.get_input('Branch Description: ', function(branchDescription)
-          if not branchDescription then return end
-          local descriptionPart = string.gsub(branchDescription, '%s+', '-')
-          local branchName = string.format('%s/%s', prefix, descriptionPart)
-          local worktreeName = string.format('~/Programming/Worktrees/%s_%s', prefix, descriptionPart)
+        input_utils.get_input('Branch Description: ', function(branch_description)
+          if not branch_description then return end
+          local description_part = string.gsub(branch_description, '%s+', '-')
+          local branch_name = string.format('%s/%s', prefix, description_part)
+          local worktree_name = string.format('~/Programming/Worktrees/%s_%s', prefix, description_part)
 
-          vim.cmd(string.format('Git worktree add -b %s %s', branchName, worktreeName))
+          vim.cmd(string.format('Git worktree add -b %s %s', branch_name, worktree_name))
         end)
       end
     end)
@@ -62,108 +62,86 @@ end
 
 local QUICK_UPDATE_MESSAGE = 'feat: ✨ update'
 
-function M.createCommit(prefix, emoji, shouldPush, shouldGeneric)
+function M.create_commit(prefix, emoji, should_push, should_generic)
   return function()
-    local branchName = git_utils.get_current_branch()
-    local jiraTicket = git_utils.extract_jira_ticket(branchName)
+    local branch_name = git_utils.get_current_branch()
+    local jira_ticket = git_utils.extract_jira_ticket(branch_name)
 
-    if shouldGeneric then
-      local commitMessage = prefix .. ': update'
-      vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', shell_escape_message(commitMessage)))
-      if shouldPush then vim.cmd("TermExec3 open=0 cmd='git push'") end
+    if should_generic then
+      local commit_message = prefix .. ': update'
+      vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', shell_escape_message(commit_message)))
+      if should_push then vim.cmd("TermExec3 open=0 cmd='git push'") end
       return
     end
 
-    input_utils.get_input('Description: ', function(commitDescription)
-      if not commitDescription then return end
+    input_utils.get_input('Description: ', function(commit_description)
+      if not commit_description then return end
 
-      input_utils.get_input('Scope: ', function(commitScope)
-        local jiraTicketPart = jiraTicket == '' and '' or jiraTicket .. ' '
-        local commitScopePart = (not commitScope or commitScope == '') and '' or '(' .. commitScope .. ')'
-        local emojiPart = emoji == '' and '' or ' ' .. emoji
+      input_utils.get_input('Scope: ', function(commit_scope)
+        local jira_ticket_part = jira_ticket == '' and '' or jira_ticket .. ' '
+        local commit_scope_part = (not commit_scope or commit_scope == '') and '' or '(' .. commit_scope .. ')'
+        local emoji_part = emoji == '' and '' or ' ' .. emoji
 
-        local commitMessage = (prefix or '') .. commitScopePart .. ':' .. emojiPart .. ' ' .. jiraTicketPart .. commitDescription
+        local commit_message = (prefix or '') .. commit_scope_part .. ':' .. emoji_part .. ' ' .. jira_ticket_part .. commit_description
 
-        vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', shell_escape_message(commitMessage)))
+        vim.cmd(string.format('TermExec5 open=0 cmd=\'git commit --no-verify -m "%s"\'', shell_escape_message(commit_message)))
 
-        if shouldPush then vim.cmd("TermExec3 open=0 cmd='git push'") end
+        if should_push then vim.cmd("TermExec3 open=0 cmd='git push'") end
       end)
     end)
   end
 end
 
-function M.quickCommitUpdate()
+function M.quick_commit_update()
   vim.cmd(string.format('Git commit --no-verify -m "%s"', QUICK_UPDATE_MESSAGE))
 end
 
-function M.createCommitFromBranchName()
-  local branchName = git_utils.get_current_branch()
-  if not branchName or branchName == '' or branchName == 'main' or branchName == 'master' then
+function M.create_commit_from_branch_name()
+  local branch_name = git_utils.get_current_branch()
+  if not branch_name or branch_name == '' or branch_name == 'main' or branch_name == 'master' then
     vim.notify('Cannot generate commit from current branch name')
     return
   end
 
-  local commitMessage
-  local emoji
-  local prefix
+  local branch_type = branch_name:match('^([^/]+)/')
+  if branch_type == 'feature' then branch_type = 'feat' end
 
-  if branchName:find('^feat/') or branchName:find('^feature/') then
-    prefix = 'feat'
-    emoji = '✨'
-  elseif branchName:find('^fix/') then
-    prefix = 'fix'
-    emoji = '🐛'
-  elseif branchName:find('^chore/') then
-    prefix = 'chore'
-    emoji = '🔧'
-  elseif branchName:find('^docs/') then
-    prefix = 'docs'
-    emoji = '📚'
-  elseif branchName:find('^style/') then
-    prefix = 'style'
-    emoji = '💎'
-  elseif branchName:find('^refactor/') then
-    prefix = 'refactor'
-    emoji = '🔨'
-  elseif branchName:find('^perf/') then
-    prefix = 'perf'
-    emoji = '🚀'
-  elseif branchName:find('^test/') then
-    prefix = 'test'
-    emoji = '🧪'
-  elseif branchName:find('^build/') then
-    prefix = 'build'
-    emoji = '📦'
-  elseif branchName:find('^ci/') then
-    prefix = 'ci'
-    emoji = '👷'
-  elseif branchName:find('^revert/') then
-    prefix = 'revert'
-    emoji = '⏪'
-  else
-    prefix = 'feat'
-    emoji = '✨'
-  end
+  local branch_emoji = {
+    feat = '✨',
+    fix = '🐛',
+    chore = '🔧',
+    docs = '📚',
+    style = '💎',
+    refactor = '🔨',
+    perf = '🚀',
+    test = '🧪',
+    build = '📦',
+    ci = '👷',
+    revert = '⏪',
+  }
 
-  local jiraTicket = git_utils.extract_jira_ticket(branchName)
-  local jiraTicketPart = jiraTicket == '' and '' or jiraTicket .. ' '
+  local emoji = branch_emoji[branch_type] or '✨'
+  local prefix = branch_emoji[branch_type] and branch_type or 'feat'
 
-  local description = branchName:gsub('^[^/]+/', '')
-  if jiraTicket ~= '' then
-    description = description:gsub('^' .. jiraTicket:gsub('%-', '%%-') .. '[_%-]?', '')
+  local jira_ticket = git_utils.extract_jira_ticket(branch_name)
+  local jira_ticket_part = jira_ticket == '' and '' or jira_ticket .. ' '
+
+  local description = branch_name:gsub('^[^/]+/', '')
+  if jira_ticket ~= '' then
+    description = description:gsub('^' .. jira_ticket:gsub('%-', '%%-') .. '[_%-]?', '')
   end
   description = description:gsub('_', ' '):gsub('-', ' ')
 
-  commitMessage = prefix .. ': ' .. emoji .. ' ' .. jiraTicketPart .. description
+  local commit_message = prefix .. ': ' .. emoji .. ' ' .. jira_ticket_part .. description
 
   vim.cmd('Git add .')
 
-  vim.cmd(string.format('Git commit --no-verify -m "%s"', shell_escape_message(commitMessage)))
+  vim.cmd(string.format('Git commit --no-verify -m "%s"', shell_escape_message(commit_message)))
 
-  vim.notify('Committed: ' .. commitMessage)
+  vim.notify('Committed: ' .. commit_message)
 end
 
-function M.resetToReflog()
+function M.reset_to_reflog()
   local reflog_output = vim.fn.system('git reflog --oneline -n 20')
   if vim.v.shell_error ~= 0 or not reflog_output or reflog_output == '' then
     vim.notify('No reflog entries found.')
@@ -244,15 +222,15 @@ local function stash_with_flags(extra_flags, success_msg)
   end)
 end
 
-function M.stashAllChanges()
-  stash_with_flags('', '📦 Changes stashed successfully')
+function M.stash_all_changes()
+  stash_with_flags('', 'Changes stashed successfully')
 end
 
-function M.stashKeepChanges()
-  stash_with_flags(' --keep-index', '📦 Changes stashed (keeping staged changes)')
+function M.stash_keep_changes()
+  stash_with_flags(' --keep-index', 'Changes stashed (keeping staged changes)')
 end
 
-function M.selectAndPopStash()
+function M.select_and_pop_stash()
   local stash_output = vim.fn.system('git stash list')
   if vim.v.shell_error ~= 0 or not stash_output or stash_output == '' then
     vim.notify('No stashes found.')
@@ -292,11 +270,11 @@ function M.selectAndPopStash()
     local cmd = string.format('git stash pop %s', stash_id)
     vim.cmd(string.format("TermExec5 cmd='%s'", cmd))
 
-    vim.notify(string.format('📦 Popped stash %s', stash_id))
+    vim.notify(string.format('Popped stash %s', stash_id))
   end)
 end
 
-function M.gitAddPatch(extraArgs)
+function M.git_add_patch(extra_args)
   return function()
     local status = vim.fn.system('git status --porcelain')
     if status == '' or status == nil then
@@ -317,7 +295,7 @@ function M.gitAddPatch(extraArgs)
       return
     end
 
-    local args = extraArgs and extraArgs ~= '' and (' ' .. extraArgs) or ''
+    local args = extra_args and extra_args ~= '' and (' ' .. extra_args) or ''
     vim.cmd('tabnew')
     vim.cmd(string.format('terminal git add -N . && git add -p%s; exit', args))
     vim.cmd('startinsert')
@@ -335,7 +313,7 @@ function M.gitAddPatch(extraArgs)
   end
 end
 
-function M.resetAllWithConfirm()
+function M.reset_all_with_confirm()
   local status = vim.fn.system('git status --porcelain')
   if status == '' or status == nil then
     vim.notify('Nothing to reset - working tree clean', vim.log.levels.INFO, { title = 'Git' })
@@ -349,7 +327,7 @@ function M.resetAllWithConfirm()
 
   vim.ui.input({
     prompt = string.format(
-      '⚠️  Reset ALL changes? This will:\n• Reset staged files\n• Clean untracked files\n• Restore modified files\n\nAffected files: %d\nType "y" to confirm: ',
+      'Reset ALL changes? This will:\n- Reset staged files\n- Clean untracked files\n- Restore modified files\n\nAffected files: %d\nType "y" to confirm: ',
       changes_count
     ),
   }, function(confirmation)
@@ -361,33 +339,33 @@ function M.resetAllWithConfirm()
     vim.cmd("TermExec5 open=0 cmd='git reset .'")
     vim.cmd("TermExec5 open=0 cmd='git clean -df'")
     vim.cmd("TermExec5 open=0 cmd='git restore .'")
-    vim.notify(string.format('🔥 Reset ALL changes (%d files affected)', changes_count))
+    vim.notify(string.format('Reset ALL changes (%d files affected)', changes_count))
   end)
 end
 
 local function get_pr_for_branch(branch)
-  local prListJson = vim.fn.system('gh pr list --json number,headRefName,url')
-  if vim.v.shell_error ~= 0 or not prListJson or prListJson == '' then return nil end
+  local pr_list_json = vim.fn.system('gh pr list --json number,headRefName,url')
+  if vim.v.shell_error ~= 0 or not pr_list_json or pr_list_json == '' then return nil end
 
-  local ok, prList = pcall(vim.fn.json_decode, prListJson)
-  if not ok or not prList then return nil end
+  local ok, pr_list = pcall(vim.fn.json_decode, pr_list_json)
+  if not ok or not pr_list then return nil end
 
-  for _, pr in ipairs(prList) do
+  for _, pr in ipairs(pr_list) do
     if pr.headRefName == branch and pr.url then return pr.url end
   end
   return nil
 end
 
-function M.openOrCreatePullRequest()
+function M.open_or_create_pull_request()
   local branch = git_utils.get_current_branch()
   if not branch or branch == '' then
     vim.notify('Could not determine current branch', vim.log.levels.ERROR)
     return
   end
 
-  local prUrl = get_pr_for_branch(branch)
-  if prUrl then
-    file_utils.open(prUrl)
+  local pr_url = get_pr_for_branch(branch)
+  if pr_url then
+    file_utils.open(pr_url)
     vim.notify('Opened existing PR for branch: ' .. branch, vim.log.levels.INFO)
   else
     vim.notify('No existing PR found. Creating new PR into develop...', vim.log.levels.INFO)
@@ -402,10 +380,10 @@ function M.openOrCreatePullRequest()
 end
 
 
-function M.rebaseChooseOurs()
+function M.rebase_choose_ours()
   local current_branch = git_utils.get_current_branch()
   if not current_branch or current_branch == '' then
-    vim.notify('❌ Could not determine current branch', vim.log.levels.ERROR)
+    vim.notify('Could not determine current branch', vim.log.levels.ERROR)
     return
   end
 
@@ -429,7 +407,7 @@ function M.rebaseChooseOurs()
   end
 
   if #branches == 0 then
-    vim.notify('❌ No valid branches to rebase onto', vim.log.levels.ERROR)
+    vim.notify('No valid branches to rebase onto', vim.log.levels.ERROR)
     return
   end
 
@@ -440,7 +418,7 @@ function M.rebaseChooseOurs()
     if not selected_branch then return end
 
     vim.ui.input({
-      prompt = string.format('⚠️  Rebase %s onto %s (choose ours for all conflicts)? Type "yes" to confirm: ', current_branch, selected_branch),
+      prompt = string.format('Rebase %s onto %s (choose ours for all conflicts)? Type "yes" to confirm: ', current_branch, selected_branch),
     }, function(confirmation)
       if confirmation ~= 'yes' then
         vim.notify('Rebase cancelled.')
@@ -450,7 +428,7 @@ function M.rebaseChooseOurs()
       local cmd = string.format('git rebase -X ours %s', selected_branch)
       vim.cmd(string.format("TermExec5 cmd='%s'", cmd))
 
-      vim.notify(string.format('🔄 Rebasing %s onto %s (choosing ours for conflicts)', current_branch, selected_branch))
+      vim.notify(string.format('Rebasing %s onto %s (choosing ours for conflicts)', current_branch, selected_branch))
     end)
   end)
 end
@@ -490,7 +468,7 @@ function M.init_repo_and_push()
       return
     end
 
-    local commit_result = vim.fn.system('git commit -m "🎉 init: initial commit"')
+    local commit_result = vim.fn.system('git commit -m "init: initial commit"')
     if vim.v.shell_error ~= 0 then
       vim.notify('Failed to create initial commit: ' .. commit_result, vim.log.levels.ERROR)
       return
@@ -502,7 +480,7 @@ function M.init_repo_and_push()
       return
     end
 
-    vim.notify(string.format('🎉 Created private repo "%s" and pushed initial commit', folder_name), vim.log.levels.INFO)
+    vim.notify(string.format('Created private repo "%s" and pushed initial commit', folder_name), vim.log.levels.INFO)
   end)
 end
 

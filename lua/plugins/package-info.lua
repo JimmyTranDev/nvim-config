@@ -50,7 +50,7 @@ return {
       autostart = true,
       hide_up_to_date = true,
       hide_unstable_versions = true,
-      package_manager = language_utils.getJavascriptPackageManager() or 'npm',
+      package_manager = language_utils.get_javascript_package_manager() or 'npm',
     })
   end,
 }
