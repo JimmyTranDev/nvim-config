@@ -5,10 +5,10 @@ local ui_utils = require('custom.utils.ui')
 local M = {}
 
 local PRIORITY_OPTIONS = {
+  { name = 'Priority Top', value = 'p1' },
   { name = 'Priority High', value = 'p2' },
   { name = 'Priority Medium', value = 'p3' },
   { name = 'Priority None', value = 'p4' },
-  { name = 'Priority Top', value = 'p1' },
 }
 
 local RECENT_PROJECTS_FILE = vim.fn.stdpath('data') .. '/todoist_recent_projects.json'
@@ -16,9 +16,7 @@ local MAX_RECENT_PROJECTS = 10
 
 local format_by_name = function(item) return item.name end
 
-local function add_back_option(options, text)
-  table.insert(options, { name = '← ' .. text, is_back = true })
-end
+local function add_back_option(options, text) table.insert(options, { name = '← ' .. text, is_back = true }) end
 
 local function get_recent_projects()
   if not vim.uv.fs_stat(RECENT_PROJECTS_FILE) then return {} end
@@ -27,9 +25,7 @@ local function get_recent_projects()
   return {}
 end
 
-local function save_recent_projects(recent_projects)
-  json_utils.write_json_to_file(RECENT_PROJECTS_FILE, { recent_projects = recent_projects })
-end
+local function save_recent_projects(recent_projects) json_utils.write_json_to_file(RECENT_PROJECTS_FILE, { recent_projects = recent_projects }) end
 
 local function add_recent_project_id(id)
   local recent_projects = get_recent_projects()
@@ -138,27 +134,21 @@ local function create_task_with_navigation(task_name, projects)
         return
       end
 
-      todoist_utils.create_task(
-        task_name,
-        selected_project.id,
-        selected_section.id,
-        selected_priority.value,
-        function(task_success, response)
-          if task_success then
-            vim.notify(
-              string.format(
-                "Task '%s' created in project '%s'%s",
-                task_name,
-                selected_project.project.name,
-                selected_section.id and (' > ' .. selected_section.name) or ''
-              ),
-              vim.log.levels.INFO
-            )
-          else
-            vim.notify('Failed to create task: ' .. response, vim.log.levels.ERROR)
-          end
+      todoist_utils.create_task(task_name, selected_project.id, selected_section.id, selected_priority.value, function(task_success, response)
+        if task_success then
+          vim.notify(
+            string.format(
+              "Task '%s' created in project '%s'%s",
+              task_name,
+              selected_project.project.name,
+              selected_section.id and (' > ' .. selected_section.name) or ''
+            ),
+            vim.log.levels.INFO
+          )
+        else
+          vim.notify('Failed to create task: ' .. response, vim.log.levels.ERROR)
         end
-      )
+      end)
     end)
   end
 
@@ -184,13 +174,9 @@ local function log_task_with_fetcher(fetch_projects, empty_message)
   end
 end
 
-function M.log_todoist_task()
-  return log_task_with_fetcher(todoist_utils.get_non_charcoal_projects, 'No non-charcoal projects found')
-end
+function M.log_todoist_task() return log_task_with_fetcher(todoist_utils.get_non_charcoal_projects, 'No non-charcoal projects found') end
 
-function M.log_todoist_task_all_projects()
-  return log_task_with_fetcher(todoist_utils.get_projects, 'No projects found')
-end
+function M.log_todoist_task_all_projects() return log_task_with_fetcher(todoist_utils.get_projects, 'No projects found') end
 
 function M.log_todoist_task_programming()
   return function()
@@ -206,9 +192,7 @@ function M.log_todoist_task_programming()
     while true do
       local name, type = vim.loop.fs_scandir_next(handle)
       if not name then break end
-      if type == 'directory' then
-        table.insert(org_dirs, name)
-      end
+      if type == 'directory' then table.insert(org_dirs, name) end
     end
 
     table.sort(org_dirs)
@@ -227,9 +211,7 @@ function M.log_todoist_task_programming()
         while true do
           local repo_name, repo_type = vim.loop.fs_scandir_next(repo_handle)
           if not repo_name then break end
-          if repo_type == 'directory' then
-            table.insert(repo_dirs, repo_name)
-          end
+          if repo_type == 'directory' then table.insert(repo_dirs, repo_name) end
         end
       end
 

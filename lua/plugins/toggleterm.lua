@@ -147,6 +147,7 @@ return {
 
     { mode = 'n', '<leader>tvs', languageActions.run_project_jar, desc = 'Start Project (Maven/Node)', silent = true },
     { mode = 'n', '<leader>tvp', ':3TermExec cmd="mvn package"<CR>', desc = 'Maven Package', silent = true },
+    { mode = 'n', '<leader>tvg', ':3TermExec cmd="gcloud auth application-default login"<CR>', desc = 'GCloud Auth', silent = true },
   },
   config = function()
     require('toggleterm').setup({

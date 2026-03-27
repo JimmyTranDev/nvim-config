@@ -108,7 +108,7 @@ return {
       { '<leader>ts', '󰓦 Scripts' },
       { '<leader>tt', '󰙨 Test' },
       { '<leader>tu', '󰚰 Utils' },
-      { '<leader>tv', '󰫙 Maven' },
+      { '<leader>tv', '󰫙 Java' },
       { '<leader>tw', '󰖲 Watch' },
       { '<leader>tx', '󰅗 Close' },
       { '<leader>ty', '󰛢 Yarn' },
