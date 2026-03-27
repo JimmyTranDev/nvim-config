@@ -272,44 +272,28 @@ end
 
 function M.list_org_repos_and_open()
   local programming_dir = vim.fn.expand('~/Programming')
-  local org_dirs = {}
-
-  local handle = vim.loop.fs_scandir(programming_dir)
-  if not handle then
+  local org_handle = vim.loop.fs_scandir(programming_dir)
+  if not org_handle then
     vim.notify('Could not scan ~/Programming', vim.log.levels.ERROR)
     return
   end
 
+  local items = {}
+
   while true do
-    local name, type = vim.loop.fs_scandir_next(handle)
-    if not name then break end
-    if type == 'directory' and name ~= 'Worktrees' then
-      table.insert(org_dirs, name)
-    end
-  end
+    local org_name, org_type = vim.loop.fs_scandir_next(org_handle)
+    if not org_name then break end
+    if org_type ~= 'directory' or org_name == 'Worktrees' then goto continue_org end
 
-  table.sort(org_dirs)
+    local repo_handle = vim.loop.fs_scandir(programming_dir .. '/' .. org_name)
+    if not repo_handle then goto continue_org end
 
-  if #org_dirs == 0 then
-    vim.notify('No organization folders found in ~/Programming', vim.log.levels.ERROR)
-    return
-  end
-
-  local function show_repos(org_name)
-    local org_path = programming_dir .. '/' .. org_name
-    local repo_handle = vim.loop.fs_scandir(org_path)
-    if not repo_handle then
-      vim.notify('Could not scan ' .. org_path, vim.log.levels.ERROR)
-      return
-    end
-
-    local items = {}
     while true do
       local repo_name, repo_type = vim.loop.fs_scandir_next(repo_handle)
       if not repo_name then break end
       if repo_type == 'directory' then
         table.insert(items, {
-          text = repo_name,
+          text = '[' .. org_name .. '] ' .. repo_name,
           name = repo_name,
           url = 'https://github.com/' .. org_name .. '/' .. repo_name,
           org = org_name,
@@ -317,38 +301,29 @@ function M.list_org_repos_and_open()
       end
     end
 
-    table.sort(items, function(a, b) return a.name < b.name end)
-
-    if #items == 0 then
-      vim.notify('No repositories found in ' .. org_name, vim.log.levels.INFO)
-      return
-    end
-
-    local snacks_ok, snacks = pcall(require, 'snacks')
-    if not snacks_ok then return end
-
-    snacks.picker({
-      title = 'Repos: ' .. org_name,
-      items = items,
-      format = function(item) return { { item.text, 'Normal' } } end,
-      confirm = function(picker, item)
-        picker:close()
-        file_utils.open(item.url)
-        vim.notify('Opened ' .. item.name .. ' in browser', vim.log.levels.INFO)
-      end,
-    })
+    ::continue_org::
   end
 
-  if #org_dirs == 1 then
-    show_repos(org_dirs[1])
-  else
-    vim.ui.select(org_dirs, {
-      prompt = 'Select organization:',
-    }, function(selected_org)
-      if not selected_org then return end
-      show_repos(selected_org)
-    end)
+  table.sort(items, function(a, b) return a.text < b.text end)
+
+  if #items == 0 then
+    vim.notify('No repositories found in ~/Programming', vim.log.levels.ERROR)
+    return
   end
+
+  local snacks_ok, snacks = pcall(require, 'snacks')
+  if not snacks_ok then return end
+
+  snacks.picker({
+    title = 'Repos',
+    items = items,
+    format = function(item) return { { item.text, 'Normal' } } end,
+    confirm = function(picker, item)
+      picker:close()
+      file_utils.open(item.url)
+      vim.notify('Opened ' .. item.name .. ' in browser', vim.log.levels.INFO)
+    end,
+  })
 end
 
 return M
