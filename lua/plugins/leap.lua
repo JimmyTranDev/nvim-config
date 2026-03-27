@@ -1,8 +1,10 @@
 return {
-  'andyg/leap.nvim',
   url = 'https://codeberg.org/andyg/leap.nvim',
-  config = function()
-    vim.keymap.set({ 'n', 'x', 'o' }, 's', '<Plug>(leap)')
-    vim.keymap.set('n', 'S', '<Plug>(leap-from-window)')
-  end,
+  dependencies = {
+    'tpope/vim-repeat',
+  },
+  keys = {
+    { 's', '<Plug>(leap)', mode = { 'n', 'x', 'o' } },
+    { 'S', '<Plug>(leap-from-window)', mode = 'n' },
+  },
 }
