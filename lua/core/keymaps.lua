@@ -167,6 +167,7 @@ map('n', '<Leader>ur', link_actions.open_current_github_repo, { desc = 'Open cur
 map('n', '<Leader>uj', link_actions.open_jira_ticket, { desc = 'Open Jira ticket' })
 map('n', '<Leader>un', link_actions.open_npm_url, { desc = 'Open NPM link' })
 map('n', '<Leader>uP', link_actions.open_current_github_prs, { desc = 'Open GitHub PRs tab' })
+map('n', '<Leader>uo', github_actions.select_own_open_prs, { desc = 'Select own open PR' })
 map('n', '<Leader>uW', github_actions.open_worktree_pr, { desc = 'Open worktree PR in browser' })
 map('n', '<Leader>uu', link_actions.open_useful_link, { desc = 'Open useful link' })
 map('n', '<Leader>uU', link_actions.open_private_useful_link, { desc = 'Open private useful link' })

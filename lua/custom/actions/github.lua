@@ -137,7 +137,7 @@ function M.copy_open_prs()
   vim.notify('Fetching open PRs for ' .. org_name .. '...', vim.log.levels.INFO)
 
   vim.system(
-    { 'gh', 'search', 'prs', '--owner', org_name, '--state', 'open', '--author', '@me', '--json', 'number,title,repository,url,isDraft', '--limit', '100' },
+    { 'gh', 'search', 'prs', 'draft:false', '--owner', org_name, '--state', 'open', '--author', '@me', '--json', 'number,title,repository,url', '--limit', '100' },
     { text = true },
     vim.schedule_wrap(function(result)
       if result.code ~= 0 then
@@ -176,8 +176,7 @@ function M.copy_open_prs()
               end
             end
 
-            local draft_prefix = pr.isDraft and '[DRAFT] ' or ''
-            pr_data[i] = string.format('%s %s%s +%d -%d', pr.url, draft_prefix, pr.title, additions, deletions)
+            pr_data[i] = string.format('%s %s +%d -%d', pr.url, pr.title, additions, deletions)
             pending = pending - 1
 
             if pending == 0 then
@@ -269,6 +268,81 @@ function M.open_worktree_pr()
       end
     end,
   })
+end
+
+function M.select_own_open_prs()
+  local orgs = {
+    vim.env.ORG_GITHUB_NAME,
+    vim.env.PRI_GITHUB_USERNAME,
+  }
+
+  local valid_owners = {}
+  for _, org in ipairs(orgs) do
+    if org and org ~= '' then table.insert(valid_owners, org) end
+  end
+
+  if #valid_owners == 0 then
+    vim.notify('No GitHub organizations configured in environment', vim.log.levels.ERROR)
+    return
+  end
+
+  local all_prs = {}
+  local pending = #valid_owners
+
+  for _, owner in ipairs(valid_owners) do
+    vim.system(
+      {
+        'gh', 'search', 'prs',
+        '--owner', owner,
+        '--state', 'open',
+        '--author', '@me',
+        '--json', 'number,title,repository,url',
+        '--limit', '100',
+      },
+      { text = true },
+      vim.schedule_wrap(function(result)
+        if result.code == 0 and result.stdout and result.stdout ~= '' then
+          local ok, prs = pcall(vim.fn.json_decode, result.stdout)
+          if ok and prs then
+            for _, pr in ipairs(prs) do
+              local repo_name = pr.repository and pr.repository.nameWithOwner or ''
+              table.insert(all_prs, {
+                text = string.format('#%d %s [%s]', pr.number, pr.title, repo_name),
+                number = pr.number,
+                title = pr.title,
+                url = pr.url,
+                repo = repo_name,
+              })
+            end
+          end
+        end
+
+        pending = pending - 1
+        if pending > 0 then return end
+
+        if #all_prs == 0 then
+          vim.notify('No open PRs found', vim.log.levels.INFO)
+          return
+        end
+
+        table.sort(all_prs, function(a, b) return a.repo < b.repo end)
+
+        local snacks_ok, snacks = pcall(require, 'snacks')
+        if not snacks_ok then return end
+
+        snacks.picker({
+          title = 'My Open PRs',
+          items = all_prs,
+          format = function(item) return { { item.text, 'Normal' } } end,
+          confirm = function(picker, item)
+            picker:close()
+            file_utils.open(item.url)
+            vim.notify('Opened PR #' .. item.number .. ' in browser', vim.log.levels.INFO)
+          end,
+        })
+      end)
+    )
+  end
 end
 
 function M.list_org_repos_and_open()
