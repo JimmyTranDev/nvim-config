@@ -143,9 +143,9 @@ map('n', '<Leader>rp', notes_actions.add_notes_entry, { desc = 'Add notes entry'
 map('n', '<leader>;ct', todoist_actions.refresh_todoist_cache(), { desc = 'Refresh Todoist cache' })
 map('n', '<leader>;cw', jira_actions.refresh_jira_cache, { desc = 'Refresh Jira cache' })
 
-map('n', '<leader>;as', jira_actions.generate_done_md, { desc = 'Generate this week jira tasks' })
-map('n', '<leader>;at', jira_actions.copy_assigned_issues_for_testing, { desc = 'Copy assigned issues for testing' })
-map('n', '<leader>;ap', github_actions.copy_open_prs, { desc = 'Copy open PRs' })
+map('n', '<leader>;s', jira_actions.generate_done_md, { desc = 'Generate this week jira tasks' })
+map('n', '<leader>;t', jira_actions.copy_assigned_issues_for_testing, { desc = 'Copy assigned issues for testing' })
+map('n', '<leader>;p', github_actions.copy_open_prs, { desc = 'Copy open PRs' })
 map('n', '<Leader>ryj', jira_actions.copy_ticket_with_title, { desc = 'Copy Jira ticket with title' })
 
 maps('n', {

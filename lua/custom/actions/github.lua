@@ -137,7 +137,7 @@ function M.copy_open_prs()
   vim.notify('Fetching open PRs for ' .. org_name .. '...', vim.log.levels.INFO)
 
   vim.system(
-    { 'gh', 'search', 'prs', 'draft:false', '--owner', org_name, '--state', 'open', '--author', '@me', '--json', 'number,title,repository,url', '--limit', '100' },
+    { 'gh', 'search', 'prs', '--owner', org_name, '--state', 'open', '--author', '@me', '--json', 'number,title,repository,url,isDraft', '--limit', '100' },
     { text = true },
     vim.schedule_wrap(function(result)
       if result.code ~= 0 then
@@ -176,7 +176,8 @@ function M.copy_open_prs()
               end
             end
 
-            pr_data[i] = string.format('%s %s +%d -%d', pr.url, pr.title, additions, deletions)
+            local draft_prefix = pr.isDraft and '[DRAFT] ' or ''
+            pr_data[i] = string.format('%s %s%s +%d -%d', pr.url, draft_prefix, pr.title, additions, deletions)
             pending = pending - 1
 
             if pending == 0 then
