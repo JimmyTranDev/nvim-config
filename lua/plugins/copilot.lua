@@ -60,8 +60,8 @@ return {
       },
     })
 
-    vim.keymap.set('n', '<leader>ct', '<cmd>Copilot toggle<CR>', { desc = 'Toggle Copilot' })
+    vim.keymap.set('n', '<leader>at', '<cmd>Copilot toggle<CR>', { desc = 'Toggle Copilot' })
 
-    vim.keymap.set('n', '<leader>cs', '<cmd>Copilot status<CR>', { desc = 'Copilot status' })
+    vim.keymap.set('n', '<leader>as', '<cmd>Copilot status<CR>', { desc = 'Copilot status' })
   end,
 }

@@ -53,10 +53,9 @@ return {
       { '<leader><leader>t', '󰦅 Text' },
       { '<leader><leader>r', '󰛔 Replace' },
       { '<leader><leader>m', '󰈙 Manual' },
-      { '<leader>l', '󰌷 Links & Quick Access' },
+      { '<leader>c', '󰌷 Copy & Quick Access' },
       { '<leader>v', '󰉋 Analysis' },
       { '<leader>f', '󰭎 Find' },
-      { '<leader>fb', '󰓩 Buffers' },
       { '<leader>fc', '󰘖 Commands' },
       { '<leader>fd', '󰈙 Diagnostics' },
       { '<leader>fg', '󰊢 Git Files' },
@@ -84,7 +83,6 @@ return {
       { '<leader>gt', '󰓩 Tags' },
       { '<leader>gw', '󰘴 Worktree' },
       { '<leader>gy', '󰋫 Quick' },
-      { '<leader>h', '󰓩 Tab Operations' },
       { '<leader>t', ' Terminal' },
       { '<leader>tb', '󰃤 Build' },
       { '<leader>tc', '󱘗 Cargo' },
@@ -113,11 +111,8 @@ return {
       { '<leader>tx', '󰅗 Close' },
       { '<leader>ty', '󰛢 Yarn' },
       { '<leader>tz', '󰘳 Zone' },
-      { '<leader>b', '󰓩 Buffer Management' },
-      { '<leader>bc', '󰅗 Close Buffers' },
-      { '<leader>bs', '󰒺 Sort Buffers' },
       { '<leader>', '󱁐 Leader' },
-      { '<leader>a', '󰚩 AI' },
+      { '<leader>a', '󰚩 AI & Copilot' },
       { '<leader>d', '󱉏 Dropbar' },
       { '<leader>e', '󰇥 Explorer' },
       { '<leader>E', '󰇥 Explorer (Root)' },
@@ -131,7 +126,6 @@ return {
       { '<leader>u', '󰦥 Locator' },
       { '<leader>V', '󰯲 Diff' },
       { '<leader>x', '󰅗 Close' },
-      { '<leader>y', '󰋫 WTF' },
       { '<leader>z', '󰒲 Lazy' },
       { 'g', '󰬴 Goto' },
       { ']', '󰮯 Next' },
@@ -159,7 +153,7 @@ return {
     for _, d in ipairs(descs) do
       table.insert(mappings, { d[1], desc = d[2], mode = { 'n', 'v' } })
     end
-    for _, c in ipairs({ 'a', 'b', 'c', 'd', 'e', 'f', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y' }) do
+    for _, c in ipairs({ 'a', 'c', 'd', 'e', 'f', 'i', 'j', 'k', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x' }) do
       table.insert(mappings, { c, desc = '_', mode = { 'n', 'v' } })
     end
 

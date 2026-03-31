@@ -11,7 +11,6 @@ local documentation_actions = require('custom.actions.documentation')
 local git_actions = require('custom.actions.git')
 local github_actions = require('custom.actions.github')
 local editor_actions = require('custom.actions.editor')
-local buffer_actions = require('custom.actions.buffers')
 local journal_actions = require('custom.actions.journal')
 local notes_actions = require('custom.actions.notes')
 
@@ -54,28 +53,7 @@ maps('n', {
   { '<A-Left>', '<C-W><', 'Decrease window width' },
 })
 
-maps('n', {
-  { '<leader>bd', ':bdelete<CR>', 'Delete buffer' },
-  { '<leader>bD', ':bdelete!<CR>', 'Force delete buffer' },
-  { '<leader>bn', ':bnext<CR>', 'Next buffer' },
-  { '<leader>bp', ':bprevious<CR>', 'Previous buffer' },
-  { '<leader>bl', ':buffers<CR>', 'List buffers' },
-  { '<leader>bo', ':%bdelete|edit#<CR>', 'Close all other buffers' },
-  { '<leader>bw', ':w<CR>', 'Write buffer' },
-  { '<leader>br', ':e!<CR>', 'Reload buffer' },
-})
 
-maps('n', {
-  { '<leader>hx', ':tabclose<CR>', 'Delete tab' },
-  { '<leader>ho', ':tabonly<CR>', 'Close all other tabs' },
-  { '<leader>hk', ':tabnext<CR>', 'Next tab' },
-  { '<leader>hj', ':tabprevious<CR>', 'Previous tab' },
-  { '<leader>hl', ':tabs<CR>', 'List tabs' },
-  { '<leader>hn', ':tabnew<CR>', 'Open new tab' },
-  { '<leader>hm', ':tabmove<CR>', 'Move tab' },
-  { '<leader>hf', ':tabfirst<CR>', 'First tab' },
-  { '<leader>hL', ':tablast<CR>', 'Last tab' },
-})
 
 map('n', '<leader><leader>da', language_actions.launch_android_emulator, { desc = 'Launch Android emulator' })
 map('n', '<leader><leader>df', language_actions.fix_and_organize_typescript_imports, { desc = 'Fix and organize imports (TS)' })
@@ -98,12 +76,11 @@ map('n', '<leader>;;', checkbox_actions.toggle, { desc = 'Toggle checkbox' })
 map('n', '<leader>vc', file_actions.delete_all_comments, { desc = 'Delete all comments' })
 map('n', '<leader>vC', file_actions.delete_comments_from_uncommitted_files, { desc = 'Delete comments from uncommitted files' })
 
-map('n', '<leader>la', file_actions.copy_all_files_content, { desc = 'Copy all files content' })
-map('n', '<leader>lu', file_actions.copy_current_file_url, { desc = 'Copy current file link' })
-map('n', '<leader>lo', file_actions.copy_opencode_link, { desc = 'Copy OpenCode link' })
-map('n', '<leader>le', errors_actions.copy_diagnostic_under_cursor, { desc = 'Copy diagnostic' })
-map('n', '<leader>lw', editor_actions.toggle_wrap, { desc = 'Toggle text wrap' })
-map('n', '<leader>ll', buffer_actions.close_other_buffers_and_create_empty, { desc = 'Close other buffers and create empty buffer' })
+map('n', '<leader>ca', file_actions.copy_all_files_content, { desc = 'Copy all files content' })
+map('n', '<leader>cu', file_actions.copy_current_file_url, { desc = 'Copy current file link' })
+map('n', '<leader>co', file_actions.copy_opencode_link, { desc = 'Copy OpenCode link' })
+map('n', '<leader>ce', errors_actions.copy_diagnostic_under_cursor, { desc = 'Copy diagnostic' })
+map('n', '<leader>cw', editor_actions.toggle_wrap, { desc = 'Toggle text wrap' })
 map('n', '<leader>vx', language_actions.run_knip_fix_current_folder, { desc = 'Knip fix current folder' })
 map('n', '<leader>vX', language_actions.run_knip_fix, { desc = 'Knip fix & remove files (global)' })
 
