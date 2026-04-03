@@ -4,7 +4,7 @@ local config = {
   lazy_by_default = true,
 
   auto_check_enabled = false,
-  check_frequency = 3600, -- 1 hour (if enabled)
+  check_frequency = 604800,
 
   default_colorscheme = 'catppuccin',
 }
