@@ -26,8 +26,8 @@ local ISSUE_TYPES = {
 
 local LABELS = {
   { name = 'None', value = nil },
-  { name = 'Frontend', value = 'Frontend' },
-  { name = 'Backend', value = 'Backend' },
+  { name = 'frontend', value = 'frontend' },
+  { name = 'backend', value = 'backend' },
 }
 
 local cache_files = {
