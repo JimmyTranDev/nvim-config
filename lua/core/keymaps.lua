@@ -123,6 +123,7 @@ map('n', '<leader>;cw', jira_actions.refresh_jira_cache, { desc = 'Refresh Jira 
 map('n', '<leader>;s', jira_actions.generate_done_md, { desc = 'Generate this week jira tasks' })
 map('n', '<leader>;t', jira_actions.copy_assigned_issues_for_testing, { desc = 'Copy assigned issues for testing' })
 map('n', '<leader>;p', github_actions.copy_open_prs, { desc = 'Copy open PRs' })
+map('n', '<leader>;C', github_actions.select_and_copy_pr, { desc = 'Select PR to copy' })
 map('n', '<Leader>ryj', jira_actions.copy_ticket_with_title, { desc = 'Copy Jira ticket with title' })
 
 maps('n', {

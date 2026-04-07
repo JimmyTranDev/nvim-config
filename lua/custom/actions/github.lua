@@ -271,6 +271,105 @@ function M.select_own_open_prs()
   end
 end
 
+function M.select_and_copy_pr()
+  local orgs = {
+    vim.env.ORG_GITHUB_NAME,
+    vim.env.PRI_GITHUB_USERNAME,
+  }
+
+  local valid_owners = {}
+  for _, org in ipairs(orgs) do
+    if org and org ~= '' then table.insert(valid_owners, org) end
+  end
+
+  if #valid_owners == 0 then
+    vim.notify('No GitHub organizations configured in environment', vim.log.levels.ERROR)
+    return
+  end
+
+  local all_prs = {}
+  local pending = #valid_owners
+
+  for _, owner in ipairs(valid_owners) do
+    vim.system(
+      {
+        'gh', 'search', 'prs',
+        'draft:false',
+        '--owner', owner,
+        '--state', 'open',
+        '--author', '@me',
+        '--json', 'number,title,repository,url',
+        '--limit', '100',
+      },
+      { text = true },
+      vim.schedule_wrap(function(result)
+        if result.code == 0 and result.stdout and result.stdout ~= '' then
+          local ok, prs = pcall(vim.fn.json_decode, result.stdout)
+          if ok and prs then
+            for _, pr in ipairs(prs) do
+              local repo_name = pr.repository and pr.repository.nameWithOwner or ''
+              table.insert(all_prs, {
+                text = string.format('#%d %s [%s]', pr.number, pr.title, repo_name),
+                number = pr.number,
+                title = pr.title,
+                url = pr.url,
+                repo = repo_name,
+              })
+            end
+          end
+        end
+
+        pending = pending - 1
+        if pending > 0 then return end
+
+        if #all_prs == 0 then
+          vim.notify('No open PRs found', vim.log.levels.INFO)
+          return
+        end
+
+        table.sort(all_prs, function(a, b) return a.repo < b.repo end)
+
+        local snacks_ok, snacks = pcall(require, 'snacks')
+        if not snacks_ok then return end
+
+        snacks.picker({
+          title = 'Select PR to Copy',
+          items = all_prs,
+          format = function(item) return { { item.text, 'Normal' } } end,
+          confirm = function(picker, item)
+            picker:close()
+            local api_path = string.format('/repos/%s/pulls/%d', item.repo, item.number)
+
+            vim.system(
+              { 'gh', 'api', api_path .. '/files', '--paginate', '--jq', '[.[] | {filename, additions, deletions}]' },
+              { text = true },
+              vim.schedule_wrap(function(api_result)
+                local additions = 0
+                local deletions = 0
+                if api_result.code == 0 then
+                  local s_ok, files = pcall(vim.fn.json_decode, api_result.stdout)
+                  if s_ok and files then
+                    for _, file in ipairs(files) do
+                      if file.filename ~= 'pnpm-lock.yaml' then
+                        additions = additions + (file.additions or 0)
+                        deletions = deletions + (file.deletions or 0)
+                      end
+                    end
+                  end
+                end
+
+                local formatted = string.format('%s %s +%d -%d', item.url, item.title, additions, deletions)
+                vim.fn.setreg('+', formatted)
+                vim.notify(string.format('Copied PR #%d to clipboard', item.number), vim.log.levels.INFO)
+              end)
+            )
+          end,
+        })
+      end)
+    )
+  end
+end
+
 function M.list_org_repos_and_open()
   local programming_dir = vim.fn.expand('~/Programming')
   local org_handle = vim.uv.fs_scandir(programming_dir)
