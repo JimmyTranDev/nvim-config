@@ -13,7 +13,7 @@ return {
         python = { 'black', 'isort' },
         go = { 'goimports', 'gofmt' },
         dart = { 'dartfmt' },
-        java = { 'google-java-format' },
+        java = {},
         lua = { 'stylua' },
 
         javascript = { 'prettier', 'eslint' },
