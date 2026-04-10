@@ -16,6 +16,7 @@ local function get_catppuccin_colors()
       red = '#f38ba8',
       yellow = '#f9e2af',
       sky = '#89dceb',
+      teal = '#94e2d5',
     }
   end
 

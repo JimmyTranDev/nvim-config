@@ -179,7 +179,7 @@ map('n', '<Leader>uB', branch_actions.stale_branch_cleanup(), { desc = 'Stale br
 
 map('n', '<leader>ks', keybinding_tracker_actions.show_keybinding_stats, { desc = 'Show keybinding stats' })
 map('n', '<leader>kr', keybinding_tracker_actions.reset_keybinding_stats, { desc = 'Reset keybinding stats' })
-map('n', '<leader>fP', project_actions.switch_project, { desc = 'Switch project' })
+map('n', '<leader>fp', project_actions.switch_project, { desc = 'Switch project' })
 
 map('n', '<leader><leader>ss', session.save, { desc = 'Save session' })
 map('n', '<leader><leader>sr', session.restore, { desc = 'Restore session' })

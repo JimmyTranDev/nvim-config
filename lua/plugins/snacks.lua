@@ -134,6 +134,8 @@ local function format_package_item(item)
     { ' (' .. item.type .. ')', 'Comment' },
   }
 end
+
+local function show_package_json_picker()
   local packages = get_package_json_packages()
   if not packages then
     vim.notify('No package.json found in current directory', vim.log.levels.WARN)
@@ -526,7 +528,7 @@ return {
         Snacks.picker({
           title = 'Git Hunks (Current Buffer)',
           items = items,
-    format = function(item) return format_package_item(item) end,
+    format = function(item) return { { item.text, 'Normal' } } end,
           confirm = function(picker, item)
             picker:close()
             vim.api.nvim_win_set_cursor(0, { item.line, 0 })

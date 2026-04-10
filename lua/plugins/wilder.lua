@@ -5,7 +5,9 @@ return {
     local wilder = require('wilder')
     wilder.setup({ modes = { ':', '/', '?' } })
 
-    local palette = require('catppuccin.palettes').get_palette('mocha')
+    local ok, palettes = pcall(require, 'catppuccin.palettes')
+    if not ok then return end
+    local palette = palettes.get_palette('mocha')
     if not palette then return end
 
     vim.api.nvim_set_hl(0, 'WilderBorder', { fg = palette.overlay0, bg = palette.mantle })
