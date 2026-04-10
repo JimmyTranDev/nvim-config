@@ -13,10 +13,14 @@ local github_actions = require('custom.actions.github')
 local editor_actions = require('custom.actions.editor')
 local journal_actions = require('custom.actions.journal')
 local notes_actions = require('custom.actions.notes')
+local keybinding_tracker_actions = require('custom.actions.keybinding_tracker')
+
+local tracker = require('custom.utils.keybinding_tracker')
+tracker.init()
 
 local function map(mode, lhs, rhs, opts)
   opts = vim.tbl_extend('force', { silent = true, noremap = true }, opts or {})
-  vim.keymap.set(mode, lhs, rhs, opts)
+  tracker.tracked_set(mode, lhs, rhs, opts)
 end
 
 local function maps(mode, mappings)
@@ -160,3 +164,6 @@ map('n', '<Leader>uM', function()
 end, { desc = 'Diff vs develop' })
 map('n', '<Leader>us', link_actions.search_google, { desc = 'Search Google' })
 map('v', '<Leader>us', link_actions.search_google, { desc = 'Search Google (selection)' })
+
+map('n', '<leader>ks', keybinding_tracker_actions.show_keybinding_stats, { desc = 'Show keybinding stats' })
+map('n', '<leader>kr', keybinding_tracker_actions.reset_keybinding_stats, { desc = 'Reset keybinding stats' })
