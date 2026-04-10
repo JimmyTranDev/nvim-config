@@ -1,11 +1,102 @@
 local git_utils = require('custom.utils.git')
 local input_utils = require('custom.utils.input')
 local file_utils = require('custom.utils.files')
+local async_utils = require('custom.utils.async')
 
 local M = {}
 
 local function shell_escape_message(msg)
   return msg:gsub('[$`"\\!]', '\\%0')
+end
+
+local function get_scope_suggestions(callback)
+  async_utils.run('git log --oneline -100 --format=%s', function(stdout)
+    local scopes = {}
+    local scope_counts = {}
+
+    for line in stdout:gmatch('[^\n]+') do
+      local scope = line:match('%w+%(([^)]+)%)')
+      if scope and scope ~= '' then
+        scope_counts[scope] = (scope_counts[scope] or 0) + 1
+      end
+    end
+
+    local dir_handle = vim.uv.fs_scandir(vim.fn.getcwd())
+    if dir_handle then
+      while true do
+        local name, entry_type = vim.uv.fs_scandir_next(dir_handle)
+        if not name then break end
+        if entry_type == 'directory' and not name:match('^%.') and name ~= 'node_modules' then
+          if not scope_counts[name] then
+            scope_counts[name] = 0
+          end
+        end
+      end
+    end
+
+    for scope, count in pairs(scope_counts) do
+      table.insert(scopes, { scope = scope, count = count })
+    end
+
+    table.sort(scopes, function(a, b)
+      if a.count ~= b.count then return a.count > b.count end
+      return a.scope < b.scope
+    end)
+
+    callback(scopes)
+  end, function()
+    callback({})
+  end)
+end
+
+local function pick_scope(callback)
+  get_scope_suggestions(function(suggestions)
+    vim.schedule(function()
+      if #suggestions == 0 then
+        input_utils.get_input('Scope: ', callback)
+        return
+      end
+
+      local ok, snacks = pcall(require, 'snacks')
+      if not ok then
+        input_utils.get_input('Scope: ', callback)
+        return
+      end
+
+      local items = {}
+      for _, s in ipairs(suggestions) do
+        local label = s.count > 0 and string.format('%s (%d commits)', s.scope, s.count) or s.scope .. ' (directory)'
+        table.insert(items, {
+          text = s.scope,
+          label = label,
+          scope = s.scope,
+          count = s.count,
+          idx = #items + 1,
+        })
+      end
+
+      snacks.picker({
+        title = 'Select Scope (or type custom)',
+        items = items,
+        format = function(item)
+          local source = item.count > 0 and string.format('%d commits', item.count) or 'directory'
+          return {
+            { item.scope, 'Function' },
+            { '  ', 'Comment' },
+            { source, 'Comment' },
+          }
+        end,
+        confirm = function(picker, item)
+          picker:close()
+          if item then
+            callback(item.scope)
+          else
+            callback(nil)
+          end
+        end,
+      })
+    end)
+  end)
 end
 
 local function build_branch_name(prefix, callback)
@@ -61,7 +152,7 @@ function M.create_commit(prefix, emoji, should_push, should_generic)
     input_utils.get_input('Description: ', function(commit_description)
       if not commit_description then return end
 
-      input_utils.get_input('Scope: ', function(commit_scope)
+      pick_scope(function(commit_scope)
         local jira_ticket_part = jira_ticket == '' and '' or jira_ticket .. ' '
         local commit_scope_part = (not commit_scope or commit_scope == '') and '' or '(' .. commit_scope .. ')'
         local emoji_part = emoji == '' and '' or ' ' .. emoji
