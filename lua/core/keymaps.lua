@@ -157,6 +157,7 @@ map('n', '<Leader>uu', link_actions.open_useful_link, { desc = 'Open useful link
 map('n', '<Leader>uv', link_actions.open_private_useful_link, { desc = 'Open private useful link' })
 map('n', '<Leader>ug', github_actions.list_org_repos_and_open, { desc = 'List Org Repos' })
 map('n', '<Leader>ui', github_actions.select_org_repo_and_create_issue, { desc = 'Create GitHub issue' })
+map('n', '<Leader>uP', github_actions.pr_review_mode, { desc = 'PR review mode' })
 map('n', '<Leader>um', function()
   local ok, snacks = pcall(require, 'snacks')
   if ok then snacks.picker.git_diff({ args = { 'main' } }) end
