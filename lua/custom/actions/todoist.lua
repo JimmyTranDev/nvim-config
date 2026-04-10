@@ -45,12 +45,12 @@ local function add_recent_project_id(id)
   save_recent_projects(recent_projects)
 end
 
-local function save_last_cursor(picker_name, idx)
+local function save_last_cursor(picker_name, id)
   local data = {}
   if vim.uv.fs_stat(LAST_CURSOR_FILE) then
     data = json_utils.parse_json_from_file(LAST_CURSOR_FILE) or {}
   end
-  data[picker_name] = idx
+  data[picker_name] = id
   json_utils.write_json_to_file(LAST_CURSOR_FILE, data)
 end
 
@@ -58,6 +58,14 @@ local function load_last_cursor(picker_name)
   if not vim.uv.fs_stat(LAST_CURSOR_FILE) then return nil end
   local data = json_utils.parse_json_from_file(LAST_CURSOR_FILE)
   if type(data) == 'table' then return data[picker_name] end
+  return nil
+end
+
+local function find_cursor_index_by_id(items, saved_id)
+  if not saved_id then return nil end
+  for _, item in ipairs(items) do
+    if item.id == saved_id then return item.idx end
+  end
   return nil
 end
 
@@ -99,7 +107,8 @@ local function create_task_with_navigation(task_name, projects)
     local snacks_ok, snacks = pcall(require, 'snacks')
     if not snacks_ok then return end
 
-    local last_cursor = load_last_cursor('todoist_project')
+    local saved_id = load_last_cursor('todoist_project')
+    local last_cursor = find_cursor_index_by_id(project_options, saved_id)
 
     snacks.picker({
       title = 'Select a project',
@@ -107,7 +116,7 @@ local function create_task_with_navigation(task_name, projects)
       format = function(item) return { { item.text, 'Normal' } } end,
       confirm = function(picker, item)
         picker:close()
-        save_last_cursor('todoist_project', item.idx)
+        save_last_cursor('todoist_project', item.id)
         add_recent_project_id(item.id)
         select_section(item)
       end,
