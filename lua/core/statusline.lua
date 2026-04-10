@@ -9,13 +9,13 @@ local function get_catppuccin_colors()
   local ok, catppuccin = pcall(require, 'catppuccin.palettes')
   if not ok then
     return {
-      green = '#40a02b',
-      peach = '#fe640b',
-      sapphire = '#209fb5',
-      mauve = '#8839ef',
-      red = '#d20f39',
-      yellow = '#df8e1d',
-      sky = '#04a5e5',
+      green = '#a6e3a1',
+      peach = '#fab387',
+      sapphire = '#74c7ec',
+      mauve = '#cba6f7',
+      red = '#f38ba8',
+      yellow = '#f9e2af',
+      sky = '#89dceb',
     }
   end
 

@@ -109,12 +109,16 @@ local function setup_diagnostics()
 end
 
 local function setup_highlights()
+  local ok, catppuccin = pcall(require, 'catppuccin.palettes')
+  local colors = ok and catppuccin.get_palette('mocha') or {}
+  local line_nr_color = colors.overlay0 or '#6c7086'
+
   vim.api.nvim_set_hl(0, 'LineNrAbove', {
-    fg = '#5e67a1',
+    fg = line_nr_color,
     bold = true,
   })
   vim.api.nvim_set_hl(0, 'LineNrBelow', {
-    fg = '#5e67a1',
+    fg = line_nr_color,
     bold = true,
   })
 end
