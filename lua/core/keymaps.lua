@@ -19,6 +19,7 @@ local session = require('custom.utils.session')
 local branch_actions = require('custom.actions.branch')
 local buffer_actions = require('custom.actions.buffer')
 local health_actions = require('custom.actions.health')
+local keymap_help_actions = require('custom.actions.keymap_help')
 
 local tracker = require('custom.utils.keybinding_tracker')
 tracker.init()
@@ -185,3 +186,4 @@ map('n', '<leader><leader>sl', session.list_sessions, { desc = 'List sessions' }
 map('n', '<leader>xb', buffer_actions.smart_close, { desc = 'Smart buffer close' })
 map('n', '<leader>xo', buffer_actions.close_orphan_splits, { desc = 'Close orphan splits' })
 map('n', '<leader>xh', health_actions.workspace_health, { desc = 'Workspace health check' })
+map('n', '<leader>k?', keymap_help_actions.contextual_help, { desc = 'Contextual keymap help' })
