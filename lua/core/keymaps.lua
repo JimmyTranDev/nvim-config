@@ -125,6 +125,7 @@ map('n', '<leader>;t', jira_actions.copy_assigned_issues_for_testing, { desc = '
 map('n', '<leader>;p', github_actions.copy_open_prs, { desc = 'Copy open PRs' })
 map('n', '<leader>;C', github_actions.select_and_copy_pr, { desc = 'Select PR to copy' })
 map('n', '<Leader>ryj', jira_actions.copy_ticket_with_title, { desc = 'Copy Jira ticket with title' })
+map('n', '<Leader>ryc', jira_actions.add_comment_from_branch, { desc = 'Add Jira comment from branch' })
 
 maps('n', {
   { '<leader>zc', ':Lazy clean<CR>', 'Lazy clean' },
