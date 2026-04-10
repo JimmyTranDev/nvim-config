@@ -21,10 +21,12 @@ local buffer_actions = require('custom.actions.buffer')
 local health_actions = require('custom.actions.health')
 local keymap_help_actions = require('custom.actions.keymap_help')
 local git_dashboard_actions = require('custom.actions.git_dashboard')
+local env_check = require('custom.utils.env_check')
 
 local tracker = require('custom.utils.keybinding_tracker')
 tracker.init()
 session.setup_autosave()
+vim.defer_fn(env_check.check_env_vars, 2000)
 
 local function map(mode, lhs, rhs, opts)
   opts = vim.tbl_extend('force', { silent = true, noremap = true }, opts or {})
@@ -189,3 +191,4 @@ map('n', '<leader>xo', buffer_actions.close_orphan_splits, { desc = 'Close orpha
 map('n', '<leader>xh', health_actions.workspace_health, { desc = 'Workspace health check' })
 map('n', '<leader>k?', keymap_help_actions.contextual_help, { desc = 'Contextual keymap help' })
 map('n', '<leader>uG', git_dashboard_actions.git_dashboard, { desc = 'Git status dashboard' })
+map('n', '<leader>xE', env_check.show_env_status, { desc = 'Env var health check' })
