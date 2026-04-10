@@ -146,6 +146,7 @@ map('n', '<Leader>uj', link_actions.open_jira_ticket, { desc = 'Open Jira ticket
 map('n', '<Leader>un', link_actions.open_npm_url, { desc = 'Open NPM link' })
 map('n', '<Leader>ul', link_actions.open_current_github_prs, { desc = 'Open GitHub PRs tab' })
 map('n', '<Leader>uo', github_actions.select_own_open_prs, { desc = 'Select own open PR' })
+map('n', '<Leader>uO', github_actions.select_open_prs_by_people, { desc = 'Open PRs by people' })
 map('n', '<Leader>uu', link_actions.open_useful_link, { desc = 'Open useful link' })
 map('n', '<Leader>uv', link_actions.open_private_useful_link, { desc = 'Open private useful link' })
 map('n', '<Leader>ug', github_actions.list_org_repos_and_open, { desc = 'List Org Repos' })
