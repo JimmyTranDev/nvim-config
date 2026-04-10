@@ -431,6 +431,38 @@ local function get_pr_for_branch(branch)
   return nil
 end
 
+local function generate_pr_title(branch)
+  local ticket = git_utils.extract_jira_ticket(branch)
+
+  local slug = branch:gsub('^%w+/', '')
+  if ticket ~= '' then slug = slug:gsub('^' .. ticket:gsub('%-', '%%-') .. '[_%-]?', '') end
+  slug = slug:gsub('[_%-]', ' '):gsub('%s+', ' '):match('^%s*(.-)%s*$') or ''
+
+  if slug == '' then slug = branch end
+
+  if ticket ~= '' then return ticket .. ' ' .. slug end
+  return slug
+end
+
+local function get_base_branch_candidates()
+  local output = vim.fn.system({ 'git', 'branch', '-a', '--format=%(refname:short)' })
+  if vim.v.shell_error ~= 0 or not output or output == '' then return { 'main' } end
+
+  local branch_set = {}
+  for line in output:gmatch('[^\n]+') do
+    branch_set[line:gsub('^origin/', '')] = true
+  end
+
+  local candidates = {}
+  local preferred = { 'develop', 'main', 'master' }
+  for _, name in ipairs(preferred) do
+    if branch_set[name] then table.insert(candidates, name) end
+  end
+
+  if #candidates == 0 then table.insert(candidates, 'main') end
+  return candidates
+end
+
 function M.open_or_create_pull_request()
   local branch = git_utils.get_current_branch()
   if not branch or branch == '' then
@@ -442,16 +474,34 @@ function M.open_or_create_pull_request()
   if pr_url then
     file_utils.open(pr_url)
     vim.notify('Opened existing PR for branch: ' .. branch, vim.log.levels.INFO)
-  else
-    vim.notify('No existing PR found. Creating new PR into develop...', vim.log.levels.INFO)
-    local result = vim.fn.system('gh pr create --base develop --web 2>&1')
-
-    if vim.v.shell_error == 0 then
-      vim.notify('PR created into develop and opened in browser', vim.log.levels.INFO)
-    else
-      vim.notify('Failed to create PR into develop: ' .. result, vim.log.levels.ERROR)
-    end
+    return
   end
+
+  local base_candidates = get_base_branch_candidates()
+
+  local function create_pr_with_base(base)
+    local default_title = generate_pr_title(branch)
+    input_utils.get_input('PR title', function(title)
+      if not title then return end
+      local result = vim.fn.system({ 'gh', 'pr', 'create', '--base', base, '--title', title, '--web' })
+
+      if vim.v.shell_error == 0 then
+        vim.notify('PR created into ' .. base .. ' and opened in browser', vim.log.levels.INFO)
+      else
+        vim.notify('Failed to create PR: ' .. result, vim.log.levels.ERROR)
+      end
+    end, default_title)
+  end
+
+  if #base_candidates == 1 then
+    create_pr_with_base(base_candidates[1])
+    return
+  end
+
+  vim.ui.select(base_candidates, { prompt = 'Select base branch:' }, function(selected)
+    if not selected then return end
+    create_pr_with_base(selected)
+  end)
 end
 
 
