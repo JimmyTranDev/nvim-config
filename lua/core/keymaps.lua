@@ -7,7 +7,6 @@ local language_actions = require('custom.actions.language')
 local errors_actions = require('custom.actions.errors')
 local checkbox_actions = require('custom.actions.checkbox')
 local replacement_actions = require('custom.actions.replacement')
-local documentation_actions = require('custom.actions.documentation')
 local git_actions = require('custom.actions.git')
 local github_actions = require('custom.actions.github')
 local editor_actions = require('custom.actions.editor')
@@ -72,8 +71,6 @@ map('n', '<leader><leader>df', language_actions.fix_and_organize_typescript_impo
 map('n', '<leader><leader>dr', language_actions.repeat_last_command, { desc = 'Repeat last command' })
 map('n', '<leader><leader>ds', link_actions.open_dev_server, { desc = 'Development server' })
 map('n', '<leader><leader>dw', ':SudaWrite<CR>', { desc = 'Sudo write' })
-
-map('n', '<leader><leader>mc', documentation_actions.add_convention_to_readme, { desc = 'Add convention to README' })
 
 map('n', '<leader><leader>fc', file_actions.save_clipboard_to_file, { desc = 'Save clipboard to file' })
 map('n', '<leader>;fM', file_actions.convert_md_to_pdf, { desc = 'Convert markdown to PDF' })

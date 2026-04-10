@@ -31,11 +31,7 @@ local REQUIRED_VARS = {
     features = 'Todoist: API authentication',
     get = function() return vim.env.PRI_TODOIST_API_TOKEN or vim.env.TODOIST_API_TOKEN end,
   },
-  {
-    name = 'OPENAI_API_KEY',
-    features = 'AI: ChatGPT requests',
-    get = function() return vim.env.OPENAI_API_KEY end,
-  },
+
 }
 
 function M.check_env_vars()
