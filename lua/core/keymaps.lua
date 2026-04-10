@@ -14,6 +14,7 @@ local editor_actions = require('custom.actions.editor')
 local journal_actions = require('custom.actions.journal')
 local notes_actions = require('custom.actions.notes')
 local keybinding_tracker_actions = require('custom.actions.keybinding_tracker')
+local project_actions = require('custom.actions.project')
 
 local tracker = require('custom.utils.keybinding_tracker')
 tracker.init()
@@ -167,3 +168,4 @@ map('v', '<Leader>us', link_actions.search_google, { desc = 'Search Google (sele
 
 map('n', '<leader>ks', keybinding_tracker_actions.show_keybinding_stats, { desc = 'Show keybinding stats' })
 map('n', '<leader>kr', keybinding_tracker_actions.reset_keybinding_stats, { desc = 'Reset keybinding stats' })
+map('n', '<leader>fP', project_actions.switch_project, { desc = 'Switch project' })
