@@ -103,6 +103,10 @@ local function left_bubble(color_fn, icon, component)
   create_bubble(config.sections.lualine_c, color_fn, icon, component)
 end
 
+local function right_bubble(color_fn, icon, component)
+  create_bubble(config.sections.lualine_x, color_fn, icon, component)
+end
+
 local function get_lsp_client()
   local buf_ft = vim.bo.filetype
   local clients = vim.lsp.get_clients()
@@ -157,6 +161,27 @@ table.insert(config.sections.lualine_x, {
     color_warn = { fg = colors.yellow },
     color_info = { fg = colors.cyan or colors.sky },
   },
+})
+
+right_bubble(
+  function() return { fg = colors.sky, gui = 'bold' } end,
+  '',
+  { function() return vim.bo.filetype ~= '' and vim.bo.filetype or 'no ft' end, cond = conditions.hide_in_width }
+)
+
+right_bubble(
+  function() return { fg = colors.yellow, gui = 'bold' } end,
+  '',
+  { function() return (vim.bo.fileencoding ~= '' and vim.bo.fileencoding or vim.o.encoding):upper() end, cond = conditions.hide_in_width }
+)
+
+right_bubble(function() return { fg = colors.teal, gui = 'bold' } end, '', {
+  function()
+    local line = vim.fn.line('.')
+    local col = vim.fn.virtcol('.')
+    local total = vim.fn.line('$')
+    return string.format('%d:%d/%d', line, col, total)
+  end,
 })
 
 function M.refresh_statusline()
