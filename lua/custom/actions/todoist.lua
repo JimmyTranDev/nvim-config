@@ -12,6 +12,7 @@ local PRIORITY_OPTIONS = {
 }
 
 local RECENT_PROJECTS_FILE = vim.fn.stdpath('data') .. '/todoist_recent_projects.json'
+local LAST_CURSOR_FILE = vim.fn.stdpath('data') .. '/todoist_last_cursor.json'
 local MAX_RECENT_PROJECTS = 10
 
 local format_by_name = function(item) return item.name end
@@ -44,6 +45,22 @@ local function add_recent_project_id(id)
   save_recent_projects(recent_projects)
 end
 
+local function save_last_cursor(picker_name, idx)
+  local data = {}
+  if vim.uv.fs_stat(LAST_CURSOR_FILE) then
+    data = json_utils.parse_json_from_file(LAST_CURSOR_FILE) or {}
+  end
+  data[picker_name] = idx
+  json_utils.write_json_to_file(LAST_CURSOR_FILE, data)
+end
+
+local function load_last_cursor(picker_name)
+  if not vim.uv.fs_stat(LAST_CURSOR_FILE) then return nil end
+  local data = json_utils.parse_json_from_file(LAST_CURSOR_FILE)
+  if type(data) == 'table' then return data[picker_name] end
+  return nil
+end
+
 local function build_project_priority_map()
   local recent_projects = get_recent_projects()
   local map = {}
@@ -69,21 +86,35 @@ local function create_task_with_navigation(task_name, projects)
     end)
 
     local project_options = {}
-    for _, project in ipairs(projects) do
+    for i, project in ipairs(projects) do
       table.insert(project_options, {
+        idx = i,
+        text = project.name .. ' (' .. (project.color or 'grey') .. ')',
         name = project.name .. ' (' .. (project.color or 'grey') .. ')',
         id = project.id,
         project = project,
       })
     end
 
-    ui_utils.safe_select(project_options, {
-      prompt = 'Select a project:',
-      format_item = format_by_name,
-    }, function(selected_project)
-      add_recent_project_id(selected_project.id)
-      select_section(selected_project)
-    end)
+    local snacks_ok, snacks = pcall(require, 'snacks')
+    if not snacks_ok then return end
+
+    local last_cursor = load_last_cursor('todoist_project')
+
+    snacks.picker({
+      title = 'Select a project',
+      items = project_options,
+      format = function(item) return { { item.text, 'Normal' } } end,
+      confirm = function(picker, item)
+        picker:close()
+        save_last_cursor('todoist_project', item.idx)
+        add_recent_project_id(item.id)
+        select_section(item)
+      end,
+      on_show = last_cursor and function(picker)
+        pcall(function() picker:set_cursor(last_cursor) end)
+      end or nil,
+    })
   end
 
   select_section = function(selected_project)
