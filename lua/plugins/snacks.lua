@@ -247,6 +247,7 @@ return {
           { icon = ' ', key = 'c', desc = 'Config', action = ':lua Snacks.picker.files({ cwd = vim.fn.stdpath("config") })' },
           { icon = '󰦛 ', key = 's', desc = 'Restore Session', action = ':lua require("custom.utils.session").restore()' },
           { icon = ' ', key = 'p', desc = 'Projects', action = ':lua Snacks.picker.projects()' },
+          { icon = '󰣖 ', key = 'd', desc = 'Change Repo', action = ':lua require("custom.actions.project").switch_project()' },
           { icon = '󰒲 ', key = 'l', desc = 'Lazy', action = ':Lazy' },
           { icon = ' ', key = 'q', desc = 'Quit', action = ':qa' },
         },
