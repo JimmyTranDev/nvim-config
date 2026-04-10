@@ -53,8 +53,6 @@ maps('n', {
   { '<A-Left>', '<C-W><', 'Decrease window width' },
 })
 
-
-
 map('n', '<leader><leader>da', language_actions.launch_android_emulator, { desc = 'Launch Android emulator' })
 map('n', '<leader><leader>df', language_actions.fix_and_organize_typescript_imports, { desc = 'Fix and organize imports (TS)' })
 map('n', '<leader><leader>dr', language_actions.repeat_last_command, { desc = 'Repeat last command' })
@@ -143,9 +141,9 @@ map('n', '<Leader>ud', file_actions.open_current_dir, { desc = 'Open directory' 
 map('n', '<Leader>uc', github_actions.open_current_commit_in_github, { desc = 'Open Current Commit in GitHub' })
 map('n', '<Leader>up', git_actions.open_or_create_pull_request, { desc = 'Open existing PR or create new one' })
 map('n', '<Leader>ur', link_actions.open_current_github_repo, { desc = 'Open current GitHub repo' })
+map('n', '<Leader>uR', link_actions.open_current_github_prs, { desc = 'Open GitHub PRs tab' })
 map('n', '<Leader>uj', link_actions.open_jira_ticket, { desc = 'Open Jira ticket' })
 map('n', '<Leader>un', link_actions.open_npm_url, { desc = 'Open NPM link' })
-map('n', '<Leader>ul', link_actions.open_current_github_prs, { desc = 'Open GitHub PRs tab' })
 map('n', '<Leader>uo', github_actions.select_own_open_prs, { desc = 'Select own open PR' })
 map('n', '<Leader>uO', github_actions.select_open_prs_by_people, { desc = 'Open PRs by people' })
 map('n', '<Leader>uu', link_actions.open_useful_link, { desc = 'Open useful link' })
