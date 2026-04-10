@@ -8,22 +8,48 @@ local function get_diagnostics_by_file()
     local buf = diag.bufnr
     local filename = vim.api.nvim_buf_get_name(buf)
     if filename and filename ~= '' then
-      if not by_file[filename] then by_file[filename] = { count = 0, diagnostics = {}, buf = buf } end
-      by_file[filename].count = by_file[filename].count + 1
+      if not by_file[filename] then
+        by_file[filename] = { errors = 0, warnings = 0, info = 0, hints = 0, total = 0, diagnostics = {}, buf = buf }
+      end
+      by_file[filename].total = by_file[filename].total + 1
+      if diag.severity == vim.diagnostic.severity.ERROR then
+        by_file[filename].errors = by_file[filename].errors + 1
+      elseif diag.severity == vim.diagnostic.severity.WARN then
+        by_file[filename].warnings = by_file[filename].warnings + 1
+      elseif diag.severity == vim.diagnostic.severity.INFO then
+        by_file[filename].info = by_file[filename].info + 1
+      else
+        by_file[filename].hints = by_file[filename].hints + 1
+      end
       table.insert(by_file[filename].diagnostics, diag)
     end
   end
 
   local items = {}
   for filename, data in pairs(by_file) do
+    local max_severity = data.errors > 0 and 'error' or data.warnings > 0 and 'warn' or data.info > 0 and 'info' or 'hint'
     table.insert(items, {
       idx = #items + 1,
-      text = string.format('%s (%d diagnostics)', filename, data.count),
+      text = vim.fn.fnamemodify(filename, ':~:.'),
       filename = filename,
       diagnostics = data.diagnostics,
       buf = data.buf,
+      errors = data.errors,
+      warnings = data.warnings,
+      info = data.info,
+      hints = data.hints,
+      total = data.total,
+      max_severity = max_severity,
     })
   end
+
+  table.sort(items, function(a, b)
+    local severity_order = { error = 1, warn = 2, info = 3, hint = 4 }
+    local a_sev = severity_order[a.max_severity] or 5
+    local b_sev = severity_order[b.max_severity] or 5
+    if a_sev ~= b_sev then return a_sev < b_sev end
+    return a.total > b.total
+  end)
 
   return items
 end
@@ -62,7 +88,52 @@ local function get_package_json_packages()
   return packages
 end
 
-local function show_package_json_picker()
+local SEVERITY_HL = {
+  error = 'DiagnosticError',
+  warn = 'DiagnosticWarn',
+  info = 'DiagnosticInfo',
+  hint = 'DiagnosticHint',
+}
+
+local SEVERITY_ICON = {
+  error = ' ',
+  warn = '󰀨 ',
+  info = ' ',
+  hint = '󰠠 ',
+}
+
+local DEP_TYPE_HL = {
+  dependencies = 'DiagnosticOk',
+  devDependencies = 'DiagnosticInfo',
+  peerDependencies = 'DiagnosticWarn',
+  optionalDependencies = 'DiagnosticHint',
+}
+
+local function format_diagnostics_item(item)
+  local parts = {}
+  local hl = SEVERITY_HL[item.max_severity] or 'Normal'
+  local icon = SEVERITY_ICON[item.max_severity] or ''
+
+  table.insert(parts, { icon, hl })
+  table.insert(parts, { item.text .. ' ', 'Normal' })
+
+  if item.errors > 0 then table.insert(parts, { ' ' .. item.errors .. ' ', 'DiagnosticError' }) end
+  if item.warnings > 0 then table.insert(parts, { '󰀨 ' .. item.warnings .. ' ', 'DiagnosticWarn' }) end
+  if item.info > 0 then table.insert(parts, { ' ' .. item.info .. ' ', 'DiagnosticInfo' }) end
+  if item.hints > 0 then table.insert(parts, { '󰠠 ' .. item.hints .. ' ', 'DiagnosticHint' }) end
+
+  return parts
+end
+
+local function format_package_item(item)
+  local type_hl = DEP_TYPE_HL[item.type] or 'Normal'
+  return {
+    { item.name, type_hl },
+    { ' @ ', 'Comment' },
+    { item.version, 'String' },
+    { ' (' .. item.type .. ')', 'Comment' },
+  }
+end
   local packages = get_package_json_packages()
   if not packages then
     vim.notify('No package.json found in current directory', vim.log.levels.WARN)
@@ -132,7 +203,7 @@ local function show_diagnostics_picker()
   Snacks.picker({
     title = 'Diagnostics by File',
     items = items,
-    format = function(item, _) return { { item.text, 'Normal' } } end,
+    format = function(item) return format_diagnostics_item(item) end,
     confirm = function(picker, item)
       picker:close()
       vim.api.nvim_set_current_buf(item.buf)
@@ -455,7 +526,7 @@ return {
         Snacks.picker({
           title = 'Git Hunks (Current Buffer)',
           items = items,
-          format = function(item) return { { item.text, 'Normal' } } end,
+    format = function(item) return format_package_item(item) end,
           confirm = function(picker, item)
             picker:close()
             vim.api.nvim_win_set_cursor(0, { item.line, 0 })
