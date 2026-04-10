@@ -370,6 +370,75 @@ function M.select_and_copy_pr()
   end
 end
 
+function M.select_org_repo_and_create_issue()
+  local orgs = {
+    vim.env.ORG_GITHUB_NAME,
+    vim.env.PRI_GITHUB_USERNAME,
+  }
+
+  local valid_orgs = {}
+  for _, org in ipairs(orgs) do
+    if org and org ~= '' then table.insert(valid_orgs, org) end
+  end
+
+  if #valid_orgs == 0 then
+    vim.notify('No GitHub organizations configured in environment', vim.log.levels.ERROR)
+    return
+  end
+
+  vim.ui.select(valid_orgs, {
+    prompt = 'Select organization:',
+  }, function(selected_org)
+    if not selected_org then return end
+
+    vim.system(
+      { 'gh', 'repo', 'list', selected_org, '--limit', '30', '--json', 'name,url' },
+      { text = true },
+      vim.schedule_wrap(function(result)
+        if result.code ~= 0 then
+          vim.notify('Failed to fetch repositories for ' .. selected_org, vim.log.levels.ERROR)
+          return
+        end
+
+        local ok, repos = pcall(vim.fn.json_decode, result.stdout)
+        if not ok or type(repos) ~= 'table' or #repos == 0 then
+          vim.notify('No repositories found for ' .. selected_org, vim.log.levels.ERROR)
+          return
+        end
+
+        local repo_names = {}
+        for _, repo in ipairs(repos) do
+          table.insert(repo_names, repo.name)
+        end
+
+        vim.ui.select(repo_names, {
+          prompt = 'Select repository:',
+        }, function(selected_repo)
+          if not selected_repo then return end
+
+          vim.ui.input({
+            prompt = 'Issue title: ',
+          }, function(title)
+            if not title or title == '' then return end
+
+            vim.system(
+              { 'gh', 'issue', 'create', '--repo', selected_org .. '/' .. selected_repo, '--title', title, '--web' },
+              { text = true },
+              vim.schedule_wrap(function(issue_result)
+                if issue_result.code == 0 then
+                  vim.notify('Issue creation opened in browser', vim.log.levels.INFO)
+                else
+                  vim.notify('Failed to create issue: ' .. (issue_result.stderr or issue_result.stdout), vim.log.levels.ERROR)
+                end
+              end)
+            )
+          end)
+        end)
+      end)
+    )
+  end)
+end
+
 function M.list_org_repos_and_open()
   local programming_dir = vim.fn.expand('~/Programming')
   local org_handle = vim.uv.fs_scandir(programming_dir)

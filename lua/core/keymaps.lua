@@ -149,5 +149,6 @@ map('n', '<Leader>uo', github_actions.select_own_open_prs, { desc = 'Select own 
 map('n', '<Leader>uu', link_actions.open_useful_link, { desc = 'Open useful link' })
 map('n', '<Leader>uv', link_actions.open_private_useful_link, { desc = 'Open private useful link' })
 map('n', '<Leader>ug', github_actions.list_org_repos_and_open, { desc = 'List Org Repos' })
+map('n', '<Leader>ui', github_actions.select_org_repo_and_create_issue, { desc = 'Create GitHub issue' })
 map('n', '<Leader>us', link_actions.search_google, { desc = 'Search Google' })
 map('v', '<Leader>us', link_actions.search_google, { desc = 'Search Google (selection)' })
