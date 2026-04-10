@@ -152,5 +152,13 @@ map('n', '<Leader>uu', link_actions.open_useful_link, { desc = 'Open useful link
 map('n', '<Leader>uv', link_actions.open_private_useful_link, { desc = 'Open private useful link' })
 map('n', '<Leader>ug', github_actions.list_org_repos_and_open, { desc = 'List Org Repos' })
 map('n', '<Leader>ui', github_actions.select_org_repo_and_create_issue, { desc = 'Create GitHub issue' })
+map('n', '<Leader>um', function()
+  local ok, snacks = pcall(require, 'snacks')
+  if ok then snacks.picker.git_diff({ args = { 'main' } }) end
+end, { desc = 'Diff vs main' })
+map('n', '<Leader>uM', function()
+  local ok, snacks = pcall(require, 'snacks')
+  if ok then snacks.picker.git_diff({ args = { 'develop' } }) end
+end, { desc = 'Diff vs develop' })
 map('n', '<Leader>us', link_actions.search_google, { desc = 'Search Google' })
 map('v', '<Leader>us', link_actions.search_google, { desc = 'Search Google (selection)' })
