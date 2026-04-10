@@ -134,7 +134,7 @@ function M.list_package_json_commands()
 end
 
 function M.get_scripts_from_package_json(package_json_path)
-  local result = vim.fn.system("jq '.scripts | keys' " .. package_json_path)
+  local result = vim.fn.system("jq '.scripts | keys_unsorted' " .. package_json_path)
   if vim.v.shell_error ~= 0 then return {} end
   local ok, scripts = pcall(vim.fn.json_decode, result)
   if ok and scripts then return scripts end

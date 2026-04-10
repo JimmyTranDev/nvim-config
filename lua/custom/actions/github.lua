@@ -370,6 +370,164 @@ function M.select_and_copy_pr()
   end
 end
 
+function M.select_org_repo_and_create_issue()
+  local orgs = {
+    vim.env.ORG_GITHUB_NAME,
+    vim.env.PRI_GITHUB_USERNAME,
+  }
+
+  local valid_orgs = {}
+  for _, org in ipairs(orgs) do
+    if org and org ~= '' then table.insert(valid_orgs, org) end
+  end
+
+  if #valid_orgs == 0 then
+    vim.notify('No GitHub organizations configured in environment', vim.log.levels.ERROR)
+    return
+  end
+
+  vim.ui.select(valid_orgs, {
+    prompt = 'Select organization:',
+  }, function(selected_org)
+    if not selected_org then return end
+
+    vim.system(
+      { 'gh', 'repo', 'list', selected_org, '--limit', '30', '--json', 'name,url' },
+      { text = true },
+      vim.schedule_wrap(function(result)
+        if result.code ~= 0 then
+          vim.notify('Failed to fetch repositories for ' .. selected_org, vim.log.levels.ERROR)
+          return
+        end
+
+        local ok, repos = pcall(vim.fn.json_decode, result.stdout)
+        if not ok or type(repos) ~= 'table' or #repos == 0 then
+          vim.notify('No repositories found for ' .. selected_org, vim.log.levels.ERROR)
+          return
+        end
+
+        local repo_names = {}
+        for _, repo in ipairs(repos) do
+          table.insert(repo_names, repo.name)
+        end
+
+        vim.ui.select(repo_names, {
+          prompt = 'Select repository:',
+        }, function(selected_repo)
+          if not selected_repo then return end
+
+          vim.ui.input({
+            prompt = 'Issue title: ',
+          }, function(title)
+            if not title or title == '' then return end
+
+            vim.system(
+              { 'gh', 'issue', 'create', '--repo', selected_org .. '/' .. selected_repo, '--title', title, '--web' },
+              { text = true },
+              vim.schedule_wrap(function(issue_result)
+                if issue_result.code == 0 then
+                  vim.notify('Issue creation opened in browser', vim.log.levels.INFO)
+                else
+                  vim.notify('Failed to create issue: ' .. (issue_result.stderr or issue_result.stdout), vim.log.levels.ERROR)
+                end
+              end)
+            )
+          end)
+        end)
+      end)
+    )
+  end)
+end
+
+function M.select_open_prs_by_people()
+  local usernames_str = vim.env.GITHUB_PR_FILTER_USERNAMES
+  if not usernames_str or usernames_str == '' then
+    vim.notify('GITHUB_PR_FILTER_USERNAMES not set (comma-separated)', vim.log.levels.ERROR)
+    return
+  end
+
+  local org_name = vim.env.ORG_GITHUB_NAME
+  if not org_name or org_name == '' then
+    vim.notify('ORG_GITHUB_NAME not set', vim.log.levels.ERROR)
+    return
+  end
+
+  local usernames = {}
+  for username in usernames_str:gmatch('[^,]+') do
+    local trimmed = username:match('^%s*(.-)%s*$')
+    if trimmed ~= '' then table.insert(usernames, trimmed) end
+  end
+
+  if #usernames == 0 then
+    vim.notify('No usernames found in GITHUB_PR_FILTER_USERNAMES', vim.log.levels.ERROR)
+    return
+  end
+
+  vim.notify('Fetching open PRs for ' .. #usernames .. ' people...', vim.log.levels.INFO)
+
+  local all_prs = {}
+  local pending = #usernames
+
+  for _, username in ipairs(usernames) do
+    vim.system(
+      {
+        'gh', 'search', 'prs',
+        '--owner', org_name,
+        '--state', 'open',
+        '--author', username,
+        '--json', 'number,title,repository,url',
+        '--limit', '100',
+      },
+      { text = true },
+      vim.schedule_wrap(function(result)
+        if result.code == 0 and result.stdout and result.stdout ~= '' then
+          local ok, prs = pcall(vim.fn.json_decode, result.stdout)
+          if ok and type(prs) == 'table' then
+            for _, pr in ipairs(prs) do
+              local repo_name = pr.repository and pr.repository.nameWithOwner or ''
+              table.insert(all_prs, {
+                text = string.format('[%s] #%d %s [%s]', username, pr.number, pr.title, repo_name),
+                number = pr.number,
+                title = pr.title,
+                url = pr.url,
+                repo = repo_name,
+                author = username,
+              })
+            end
+          end
+        end
+
+        pending = pending - 1
+        if pending > 0 then return end
+
+        if #all_prs == 0 then
+          vim.notify('No open PRs found for specified people', vim.log.levels.INFO)
+          return
+        end
+
+        table.sort(all_prs, function(a, b)
+          if a.author ~= b.author then return a.author < b.author end
+          return a.repo < b.repo
+        end)
+
+        local snacks_ok, snacks = pcall(require, 'snacks')
+        if not snacks_ok then return end
+
+        snacks.picker({
+          title = 'Open PRs by People',
+          items = all_prs,
+          format = function(item) return { { item.text, 'Normal' } } end,
+          confirm = function(picker, item)
+            picker:close()
+            file_utils.open(item.url)
+            vim.notify('Opened PR #' .. item.number .. ' in browser', vim.log.levels.INFO)
+          end,
+        })
+      end)
+    )
+  end
+end
+
 function M.list_org_repos_and_open()
   local programming_dir = vim.fn.expand('~/Programming')
   local org_handle = vim.uv.fs_scandir(programming_dir)

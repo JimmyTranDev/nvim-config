@@ -125,6 +125,7 @@ map('n', '<leader>;t', jira_actions.copy_assigned_issues_for_testing, { desc = '
 map('n', '<leader>;p', github_actions.copy_open_prs, { desc = 'Copy open PRs' })
 map('n', '<leader>;C', github_actions.select_and_copy_pr, { desc = 'Select PR to copy' })
 map('n', '<Leader>ryj', jira_actions.copy_ticket_with_title, { desc = 'Copy Jira ticket with title' })
+map('n', '<Leader>ryc', jira_actions.add_comment_from_branch, { desc = 'Add Jira comment from branch' })
 
 maps('n', {
   { '<leader>zc', ':Lazy clean<CR>', 'Lazy clean' },
@@ -146,8 +147,18 @@ map('n', '<Leader>uj', link_actions.open_jira_ticket, { desc = 'Open Jira ticket
 map('n', '<Leader>un', link_actions.open_npm_url, { desc = 'Open NPM link' })
 map('n', '<Leader>ul', link_actions.open_current_github_prs, { desc = 'Open GitHub PRs tab' })
 map('n', '<Leader>uo', github_actions.select_own_open_prs, { desc = 'Select own open PR' })
+map('n', '<Leader>uO', github_actions.select_open_prs_by_people, { desc = 'Open PRs by people' })
 map('n', '<Leader>uu', link_actions.open_useful_link, { desc = 'Open useful link' })
 map('n', '<Leader>uv', link_actions.open_private_useful_link, { desc = 'Open private useful link' })
 map('n', '<Leader>ug', github_actions.list_org_repos_and_open, { desc = 'List Org Repos' })
+map('n', '<Leader>ui', github_actions.select_org_repo_and_create_issue, { desc = 'Create GitHub issue' })
+map('n', '<Leader>um', function()
+  local ok, snacks = pcall(require, 'snacks')
+  if ok then snacks.picker.git_diff({ args = { 'main' } }) end
+end, { desc = 'Diff vs main' })
+map('n', '<Leader>uM', function()
+  local ok, snacks = pcall(require, 'snacks')
+  if ok then snacks.picker.git_diff({ args = { 'develop' } }) end
+end, { desc = 'Diff vs develop' })
 map('n', '<Leader>us', link_actions.search_google, { desc = 'Search Google' })
 map('v', '<Leader>us', link_actions.search_google, { desc = 'Search Google (selection)' })

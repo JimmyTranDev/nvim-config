@@ -602,4 +602,34 @@ M.copy_assigned_issues_for_testing = function()
   end)
 end
 
+function M.add_comment_from_branch()
+  local branch = git_utils.get_current_branch()
+  local ticket = git_utils.extract_jira_ticket(branch)
+
+  if ticket == '' then
+    vim.notify('No Jira ticket found in branch: ' .. branch, vim.log.levels.ERROR)
+    return
+  end
+
+  vim.ui.input({
+    prompt = 'Comment for ' .. ticket .. ': ',
+  }, function(body)
+    if not body or body == '' then return end
+
+    vim.notify('Adding comment to ' .. ticket .. '...', vim.log.levels.INFO)
+
+    vim.system(
+      { 'acli', 'jira', 'workitem', 'comment', 'create', '--key', ticket, '--body', body },
+      { text = true },
+      vim.schedule_wrap(function(result)
+        if result.code == 0 then
+          vim.notify('Comment added to ' .. ticket, vim.log.levels.INFO)
+        else
+          vim.notify('Failed to add comment: ' .. (result.stderr or result.stdout), vim.log.levels.ERROR)
+        end
+      end)
+    )
+  end)
+end
+
 return M
