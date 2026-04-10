@@ -9,13 +9,14 @@ local function get_catppuccin_colors()
   local ok, catppuccin = pcall(require, 'catppuccin.palettes')
   if not ok then
     return {
-      green = '#40a02b',
-      peach = '#fe640b',
-      sapphire = '#209fb5',
-      mauve = '#8839ef',
-      red = '#d20f39',
-      yellow = '#df8e1d',
-      sky = '#04a5e5',
+      green = '#a6e3a1',
+      peach = '#fab387',
+      sapphire = '#74c7ec',
+      mauve = '#cba6f7',
+      red = '#f38ba8',
+      yellow = '#f9e2af',
+      sky = '#89dceb',
+      teal = '#94e2d5',
     }
   end
 
@@ -103,6 +104,10 @@ local function left_bubble(color_fn, icon, component)
   create_bubble(config.sections.lualine_c, color_fn, icon, component)
 end
 
+local function right_bubble(color_fn, icon, component)
+  create_bubble(config.sections.lualine_x, color_fn, icon, component)
+end
+
 local function get_lsp_client()
   local buf_ft = vim.bo.filetype
   local clients = vim.lsp.get_clients()
@@ -157,6 +162,27 @@ table.insert(config.sections.lualine_x, {
     color_warn = { fg = colors.yellow },
     color_info = { fg = colors.cyan or colors.sky },
   },
+})
+
+right_bubble(
+  function() return { fg = colors.sky, gui = 'bold' } end,
+  '',
+  { function() return vim.bo.filetype ~= '' and vim.bo.filetype or 'no ft' end, cond = conditions.hide_in_width }
+)
+
+right_bubble(
+  function() return { fg = colors.yellow, gui = 'bold' } end,
+  '',
+  { function() return (vim.bo.fileencoding ~= '' and vim.bo.fileencoding or vim.o.encoding):upper() end, cond = conditions.hide_in_width }
+)
+
+right_bubble(function() return { fg = colors.teal, gui = 'bold' } end, '', {
+  function()
+    local line = vim.fn.line('.')
+    local col = vim.fn.virtcol('.')
+    local total = vim.fn.line('$')
+    return string.format('%d:%d/%d', line, col, total)
+  end,
 })
 
 function M.refresh_statusline()

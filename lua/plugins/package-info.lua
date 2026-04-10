@@ -34,11 +34,13 @@ return {
   },
   config = function()
     local language_utils = require('custom.utils.language')
+    local ok, catppuccin = pcall(require, 'catppuccin.palettes')
+    local palette = ok and catppuccin.get_palette('mocha') or {}
 
     require('package-info').setup({
       colors = {
-        up_to_date = '#3C4048',
-        outdated = '#d19a66',
+        up_to_date = palette.surface1 or '#45475a',
+        outdated = palette.peach or '#fab387',
       },
       icons = {
         enable = true,

@@ -1,11 +1,102 @@
 local git_utils = require('custom.utils.git')
 local input_utils = require('custom.utils.input')
 local file_utils = require('custom.utils.files')
+local async_utils = require('custom.utils.async')
 
 local M = {}
 
 local function shell_escape_message(msg)
   return msg:gsub('[$`"\\!]', '\\%0')
+end
+
+local function get_scope_suggestions(callback)
+  async_utils.run('git log --oneline -100 --format=%s', function(stdout)
+    local scopes = {}
+    local scope_counts = {}
+
+    for line in stdout:gmatch('[^\n]+') do
+      local scope = line:match('%w+%(([^)]+)%)')
+      if scope and scope ~= '' then
+        scope_counts[scope] = (scope_counts[scope] or 0) + 1
+      end
+    end
+
+    local dir_handle = vim.uv.fs_scandir(vim.fn.getcwd())
+    if dir_handle then
+      while true do
+        local name, entry_type = vim.uv.fs_scandir_next(dir_handle)
+        if not name then break end
+        if entry_type == 'directory' and not name:match('^%.') and name ~= 'node_modules' then
+          if not scope_counts[name] then
+            scope_counts[name] = 0
+          end
+        end
+      end
+    end
+
+    for scope, count in pairs(scope_counts) do
+      table.insert(scopes, { scope = scope, count = count })
+    end
+
+    table.sort(scopes, function(a, b)
+      if a.count ~= b.count then return a.count > b.count end
+      return a.scope < b.scope
+    end)
+
+    callback(scopes)
+  end, function()
+    callback({})
+  end)
+end
+
+local function pick_scope(callback)
+  get_scope_suggestions(function(suggestions)
+    vim.schedule(function()
+      if #suggestions == 0 then
+        input_utils.get_input('Scope: ', callback)
+        return
+      end
+
+      local ok, snacks = pcall(require, 'snacks')
+      if not ok then
+        input_utils.get_input('Scope: ', callback)
+        return
+      end
+
+      local items = {}
+      for _, s in ipairs(suggestions) do
+        local label = s.count > 0 and string.format('%s (%d commits)', s.scope, s.count) or s.scope .. ' (directory)'
+        table.insert(items, {
+          text = s.scope,
+          label = label,
+          scope = s.scope,
+          count = s.count,
+          idx = #items + 1,
+        })
+      end
+
+      snacks.picker({
+        title = 'Select Scope (or type custom)',
+        items = items,
+        format = function(item)
+          local source = item.count > 0 and string.format('%d commits', item.count) or 'directory'
+          return {
+            { item.scope, 'Function' },
+            { '  ', 'Comment' },
+            { source, 'Comment' },
+          }
+        end,
+        confirm = function(picker, item)
+          picker:close()
+          if item then
+            callback(item.scope)
+          else
+            callback(nil)
+          end
+        end,
+      })
+    end)
+  end)
 end
 
 local function build_branch_name(prefix, callback)
@@ -61,7 +152,7 @@ function M.create_commit(prefix, emoji, should_push, should_generic)
     input_utils.get_input('Description: ', function(commit_description)
       if not commit_description then return end
 
-      input_utils.get_input('Scope: ', function(commit_scope)
+      pick_scope(function(commit_scope)
         local jira_ticket_part = jira_ticket == '' and '' or jira_ticket .. ' '
         local commit_scope_part = (not commit_scope or commit_scope == '') and '' or '(' .. commit_scope .. ')'
         local emoji_part = emoji == '' and '' or ' ' .. emoji
@@ -340,6 +431,38 @@ local function get_pr_for_branch(branch)
   return nil
 end
 
+local function generate_pr_title(branch)
+  local ticket = git_utils.extract_jira_ticket(branch)
+
+  local slug = branch:gsub('^%w+/', '')
+  if ticket ~= '' then slug = slug:gsub('^' .. ticket:gsub('%-', '%%-') .. '[_%-]?', '') end
+  slug = slug:gsub('[_%-]', ' '):gsub('%s+', ' '):match('^%s*(.-)%s*$') or ''
+
+  if slug == '' then slug = branch end
+
+  if ticket ~= '' then return ticket .. ' ' .. slug end
+  return slug
+end
+
+local function get_base_branch_candidates()
+  local output = vim.fn.system({ 'git', 'branch', '-a', '--format=%(refname:short)' })
+  if vim.v.shell_error ~= 0 or not output or output == '' then return { 'main' } end
+
+  local branch_set = {}
+  for line in output:gmatch('[^\n]+') do
+    branch_set[line:gsub('^origin/', '')] = true
+  end
+
+  local candidates = {}
+  local preferred = { 'develop', 'main', 'master' }
+  for _, name in ipairs(preferred) do
+    if branch_set[name] then table.insert(candidates, name) end
+  end
+
+  if #candidates == 0 then table.insert(candidates, 'main') end
+  return candidates
+end
+
 function M.open_or_create_pull_request()
   local branch = git_utils.get_current_branch()
   if not branch or branch == '' then
@@ -351,16 +474,34 @@ function M.open_or_create_pull_request()
   if pr_url then
     file_utils.open(pr_url)
     vim.notify('Opened existing PR for branch: ' .. branch, vim.log.levels.INFO)
-  else
-    vim.notify('No existing PR found. Creating new PR into develop...', vim.log.levels.INFO)
-    local result = vim.fn.system('gh pr create --base develop --web 2>&1')
-
-    if vim.v.shell_error == 0 then
-      vim.notify('PR created into develop and opened in browser', vim.log.levels.INFO)
-    else
-      vim.notify('Failed to create PR into develop: ' .. result, vim.log.levels.ERROR)
-    end
+    return
   end
+
+  local base_candidates = get_base_branch_candidates()
+
+  local function create_pr_with_base(base)
+    local default_title = generate_pr_title(branch)
+    input_utils.get_input('PR title', function(title)
+      if not title then return end
+      local result = vim.fn.system({ 'gh', 'pr', 'create', '--base', base, '--title', title, '--web' })
+
+      if vim.v.shell_error == 0 then
+        vim.notify('PR created into ' .. base .. ' and opened in browser', vim.log.levels.INFO)
+      else
+        vim.notify('Failed to create PR: ' .. result, vim.log.levels.ERROR)
+      end
+    end, default_title)
+  end
+
+  if #base_candidates == 1 then
+    create_pr_with_base(base_candidates[1])
+    return
+  end
+
+  vim.ui.select(base_candidates, { prompt = 'Select base branch:' }, function(selected)
+    if not selected then return end
+    create_pr_with_base(selected)
+  end)
 end
 
 
