@@ -15,9 +15,11 @@ local journal_actions = require('custom.actions.journal')
 local notes_actions = require('custom.actions.notes')
 local keybinding_tracker_actions = require('custom.actions.keybinding_tracker')
 local project_actions = require('custom.actions.project')
+local session = require('custom.utils.session')
 
 local tracker = require('custom.utils.keybinding_tracker')
 tracker.init()
+session.setup_autosave()
 
 local function map(mode, lhs, rhs, opts)
   opts = vim.tbl_extend('force', { silent = true, noremap = true }, opts or {})
@@ -169,3 +171,8 @@ map('v', '<Leader>us', link_actions.search_google, { desc = 'Search Google (sele
 map('n', '<leader>ks', keybinding_tracker_actions.show_keybinding_stats, { desc = 'Show keybinding stats' })
 map('n', '<leader>kr', keybinding_tracker_actions.reset_keybinding_stats, { desc = 'Reset keybinding stats' })
 map('n', '<leader>fP', project_actions.switch_project, { desc = 'Switch project' })
+
+map('n', '<leader><leader>ss', session.save, { desc = 'Save session' })
+map('n', '<leader><leader>sr', session.restore, { desc = 'Restore session' })
+map('n', '<leader><leader>sd', session.delete, { desc = 'Delete session' })
+map('n', '<leader><leader>sl', session.list_sessions, { desc = 'List sessions' })
