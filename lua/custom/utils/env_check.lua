@@ -36,13 +36,9 @@ local REQUIRED_VARS = {
 
 function M.check_env_vars()
   local missing = {}
-  local present = {}
-
   for _, var in ipairs(REQUIRED_VARS) do
     local val = var.get()
-    if val and val ~= '' then
-      table.insert(present, var)
-    else
+    if not val or val == '' then
       table.insert(missing, var)
     end
   end

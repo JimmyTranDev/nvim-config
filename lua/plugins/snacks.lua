@@ -150,7 +150,7 @@ local function show_package_json_picker()
   Snacks.picker({
     title = 'Package.json Packages',
     items = packages,
-    format = function(item) return { { item.text, 'Normal' } } end,
+    format = function(item) return format_package_item(item) end,
     confirm = function(picker, item)
       picker:close()
       local actions = {
