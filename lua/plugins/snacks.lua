@@ -225,7 +225,22 @@ return {
   event = 'UIEnter',
   opts = {
     bigfile = { enabled = true },
-    dashboard = { enabled = false },
+    dashboard = {
+      enabled = true,
+      sections = {
+        { section = 'header' },
+        {
+          icon = ' ',
+          title = 'Recent Files',
+          section = 'recent_files',
+          indent = 2,
+          padding = 1,
+          cwd = true,
+        },
+        { icon = ' ', title = 'Keymaps', section = 'keys', indent = 2, padding = 1 },
+        { section = 'startup' },
+      },
+    },
     explorer = { enabled = false },
     indent = { enabled = true },
     input = { enabled = true },
