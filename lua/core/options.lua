@@ -31,6 +31,7 @@ local function setup_display()
 
   vim.o.laststatus = 3
   vim.o.termguicolors = true
+  vim.o.winborder = 'rounded'
 end
 
 local function setup_indentation()
@@ -97,6 +98,7 @@ end
 
 local function setup_diagnostics()
   vim.diagnostic.config({
+    float = { border = 'rounded' },
     signs = {
       text = {
         [vim.diagnostic.severity.ERROR] = ' ',
