@@ -134,12 +134,13 @@ function M.clear_cache()
   os.remove(PROJECTS_CACHE_FILE)
 end
 
-function M.create_task(content, project_id, section_id, priority, callback)
+function M.create_task(content, project_id, section_id, priority, callback, opts)
   if not content or content == '' then
     callback(false, 'Task content cannot be empty')
     return
   end
 
+  opts = opts or {}
   local cmd = { 'task', 'add', content }
 
   if project_id and project_id ~= '' then
@@ -155,6 +156,11 @@ function M.create_task(content, project_id, section_id, priority, callback)
   if priority and priority ~= 'p4' then
     table.insert(cmd, '--priority')
     table.insert(cmd, priority)
+  end
+
+  if opts.description and opts.description ~= '' then
+    table.insert(cmd, '--description')
+    table.insert(cmd, opts.description)
   end
 
   local full_cmd = vim.list_extend({ 'td' }, cmd)
