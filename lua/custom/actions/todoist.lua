@@ -156,7 +156,7 @@ end
 local function log_task_with_fetcher(fetch_projects, empty_message)
   return function()
     ui_utils.safe_input({ prompt = 'Enter task summary: ' }, function(task_name)
-      vim.ui.input({ prompt = 'Description (optional): ' }, function(description)
+      ui_utils.multiline_input({ title = 'Description (optional)' }, function(description)
         local opts = {}
         if description and description ~= '' then opts.description = description end
 
@@ -223,7 +223,7 @@ function M.log_todoist_task_programming()
       local function proceed_with_task(prefix)
         ui_utils.safe_input({ prompt = 'Enter task summary: ' }, function(task_name)
           local full_task = prefix and (prefix .. ': ' .. task_name) or task_name
-          vim.ui.input({ prompt = 'Description (optional): ' }, function(description)
+          ui_utils.multiline_input({ title = 'Description (optional)' }, function(description)
             local opts = {}
             if description and description ~= '' then opts.description = description end
 
