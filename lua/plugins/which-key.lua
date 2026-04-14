@@ -47,13 +47,12 @@ return {
     _G.refresh_which_key_highlights = apply_highlights
 
     local groups = {
-      { '<leader><leader>', '󰌌 Secondary' },
-      { '<leader><leader>d', '󰠷 Development' },
-      { '<leader><leader>f', '󰉋 Files' },
-      { '<leader><leader>t', '󰦅 Text' },
-      { '<leader><leader>r', '󰛔 Replace' },
-      { '<leader><leader>m', '󰈙 Manual' },
-      { '<leader><leader>s', '󰆓 Session' },
+      { '<leader>;', '󰌌 Secondary' },
+      { '<leader>;d', '󰠷 Development' },
+      { '<leader>;f', '󰉋 Files' },
+      { '<leader>;T', '󰦅 Text' },
+      { '<leader>;r', '󰛔 Replace' },
+      { '<leader>;S', '󰆓 Session' },
       { '<leader>c', '󰌷 Copy & Quick Access' },
       { '<leader>v', '󰉋 Analysis' },
       { '<leader>f', '󰭎 Find' },
@@ -144,7 +143,6 @@ return {
       { '<leader>Q', '󰩈 Force Quit' },
       { '<leader>w', '󰆓 Save' },
       { '<leader>W', '󰆓 Save All' },
-      { '<leader><space>', '󱁐 Extra' },
     }
 
     local mappings = {}
