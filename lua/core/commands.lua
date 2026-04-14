@@ -161,7 +161,7 @@ end
 local function setup_spell()
   vim.api.nvim_create_autocmd('FileType', {
     group = augroup('spell_check'),
-    pattern = { 'gitcommit', 'markdown', 'text', 'plaintex', 'tex' },
+    pattern = { 'gitcommit', 'text', 'plaintex', 'tex' },
     callback = function() vim.opt_local.spell = true end,
     desc = 'Enable spell check for text-heavy filetypes',
   })
