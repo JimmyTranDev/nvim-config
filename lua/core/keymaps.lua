@@ -89,7 +89,7 @@ map('n', '<leader>ca', file_actions.copy_all_files_content, { desc = 'Copy all f
 map('n', '<leader>cu', file_actions.copy_current_file_url, { desc = 'Copy current file link' })
 map('n', '<leader>co', file_actions.copy_opencode_link, { desc = 'Copy OpenCode link' })
 map('n', '<leader>ce', errors_actions.copy_diagnostic_under_cursor, { desc = 'Copy diagnostic' })
-map('n', '<leader>cw', editor_actions.toggle_wrap, { desc = 'Toggle text wrap' })
+map('n', '<leader>;w', editor_actions.toggle_wrap, { desc = 'Toggle text wrap' })
 map('n', '<leader>vx', language_actions.run_knip_fix_current_folder, { desc = 'Knip fix current folder' })
 map('n', '<leader>vX', language_actions.run_knip_fix, { desc = 'Knip fix & remove files (global)' })
 
