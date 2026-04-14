@@ -53,6 +53,7 @@ return {
       { '<leader>;T', '󰦅 Text' },
       { '<leader>;r', '󰛔 Replace' },
       { '<leader>;S', '󰆓 Session' },
+      { '<leader>;c', '󰑓 Cache' },
       { '<leader>c', '󰌷 Copy & Quick Access' },
       { '<leader>v', '󰉋 Analysis' },
       { '<leader>f', '󰭎 Find' },

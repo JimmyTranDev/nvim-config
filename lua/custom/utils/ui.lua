@@ -60,7 +60,7 @@ function M.multiline_input(opts, callback)
     border = 'rounded',
     title = ' ' .. title .. ' ',
     title_pos = 'center',
-    footer = ' <leader>w confirm | q/Esc cancel ',
+    footer = ' <leader>w confirm | <Esc> cancel ',
     footer_pos = 'center',
   })
 
@@ -92,7 +92,6 @@ function M.multiline_input(opts, callback)
     close_and_return(lines)
   end, { buffer = buf, nowait = true })
 
-  vim.keymap.set('n', 'q', function() close_and_return(nil) end, { buffer = buf, nowait = true })
   vim.keymap.set('n', '<Esc>', function() close_and_return(nil) end, { buffer = buf, nowait = true })
 
   vim.cmd('startinsert')
