@@ -1,8 +1,6 @@
 local M = {}
 
-local function augroup(name)
-  return vim.api.nvim_create_augroup('nvim_config_' .. name, { clear = true })
-end
+local function augroup(name) return vim.api.nvim_create_augroup('nvim_config_' .. name, { clear = true }) end
 
 local function setup_filetype_associations()
   vim.api.nvim_create_autocmd('BufRead', {
@@ -30,9 +28,7 @@ local function setup_visual_enhancements()
   vim.api.nvim_create_autocmd('TextYankPost', {
     group = augroup('visual_enhancements'),
     pattern = '*',
-    callback = function()
-      vim.highlight.on_yank({ higroup = 'Visual', timeout = 200 })
-    end,
+    callback = function() vim.highlight.on_yank({ higroup = 'Visual', timeout = 200 }) end,
     desc = 'Highlight yanked text briefly',
   })
 
@@ -50,9 +46,12 @@ local function setup_git_integration()
     pattern = 'GitConflictDetected',
     callback = function()
       vim.notify('Git conflict detected in: ' .. vim.fn.expand('<afile>'), vim.log.levels.WARN)
-      vim.keymap.set('n', 'cww', function()
-        vim.notify('Git conflict resolution functionality not yet implemented', vim.log.levels.INFO)
-      end, { buffer = true, desc = 'Resolve git conflicts' })
+      vim.keymap.set(
+        'n',
+        'cww',
+        function() vim.notify('Git conflict resolution functionality not yet implemented', vim.log.levels.INFO) end,
+        { buffer = true, desc = 'Resolve git conflicts' }
+      )
     end,
     desc = 'Handle git conflict detection and setup resolution keymaps',
   })
@@ -95,9 +94,7 @@ local function setup_lsp_progress()
       vim.notify(table.concat(msg, '\n'), vim.log.levels.INFO, {
         id = 'lsp_progress',
         title = client.name,
-        opts = function(notif)
-          notif.icon = #progress[client.id] == 0 and ' ' or spinner[idx]
-        end,
+        opts = function(notif) notif.icon = #progress[client.id] == 0 and ' ' or spinner[idx] end,
       })
     end,
     desc = 'Show LSP progress notifications with spinner',
@@ -115,9 +112,7 @@ local function setup_auto_refresh()
     group = augroup('auto_refresh'),
     pattern = '*',
     callback = function()
-      if vim.fn.getcmdwintype() == '' then
-        vim.cmd('checktime')
-      end
+      if vim.fn.getcmdwintype() == '' then vim.cmd('checktime') end
     end,
     desc = 'Check for external file changes and reload buffers',
   })
@@ -125,9 +120,7 @@ local function setup_auto_refresh()
   vim.api.nvim_create_autocmd('FileChangedShellPost', {
     group = augroup('auto_refresh_notify'),
     pattern = '*',
-    callback = function()
-      vim.notify('File changed on disk. Buffer reloaded.', vim.log.levels.INFO)
-    end,
+    callback = function() vim.notify('File changed on disk. Buffer reloaded.', vim.log.levels.INFO) end,
     desc = 'Notify when a file is reloaded due to external changes',
   })
 end
@@ -161,7 +154,7 @@ end
 local function setup_spell()
   vim.api.nvim_create_autocmd('FileType', {
     group = augroup('spell_check'),
-    pattern = { 'gitcommit', 'markdown', 'text', 'plaintex', 'tex' },
+    pattern = { 'gitcommit', 'text', 'plaintex', 'tex' },
     callback = function() vim.opt_local.spell = true end,
     desc = 'Enable spell check for text-heavy filetypes',
   })
