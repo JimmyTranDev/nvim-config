@@ -153,13 +153,32 @@ local function create_task_with_navigation(task_name, projects, opts)
   select_project()
 end
 
-local function log_task_with_fetcher(fetch_projects, empty_message)
-  return function()
-    ui_utils.safe_input({ prompt = 'Enter task summary: ' }, function(task_name)
+local DESCRIPTION_OPTIONS = {
+  { name = 'Continue without description' },
+  { name = 'Add description' },
+}
+
+local function prompt_description_then_continue(on_continue)
+  ui_utils.safe_select(DESCRIPTION_OPTIONS, {
+    prompt = 'Task description:',
+    format_item = format_by_name,
+  }, function(selected)
+    if selected.name == 'Add description' then
       ui_utils.multiline_input({ title = 'Description (optional)' }, function(description)
         local opts = {}
         if description and description ~= '' then opts.description = description end
+        on_continue(opts)
+      end)
+    else
+      on_continue({})
+    end
+  end)
+end
 
+local function log_task_with_fetcher(fetch_projects, empty_message)
+  return function()
+    ui_utils.safe_input({ prompt = 'Enter task summary: ' }, function(task_name)
+      prompt_description_then_continue(function(opts)
         fetch_projects(function(success, projects)
           if not success then
             vim.notify('Failed to fetch projects: ' .. projects, vim.log.levels.ERROR)
@@ -223,10 +242,7 @@ function M.log_todoist_task_programming()
       local function proceed_with_task(prefix)
         ui_utils.safe_input({ prompt = 'Enter task summary: ' }, function(task_name)
           local full_task = prefix and (prefix .. ': ' .. task_name) or task_name
-          ui_utils.multiline_input({ title = 'Description (optional)' }, function(description)
-            local opts = {}
-            if description and description ~= '' then opts.description = description end
-
+          prompt_description_then_continue(function(opts)
             todoist_utils.get_projects(function(success, projects)
               if not success then
                 vim.notify('Failed to fetch projects: ' .. projects, vim.log.levels.ERROR)
