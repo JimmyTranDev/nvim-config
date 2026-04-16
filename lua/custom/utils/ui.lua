@@ -6,7 +6,43 @@ function M.safe_select(items, opts, callback)
     return
   end
   if not callback then error('Callback function is required') end
-  vim.ui.select(items, opts or {}, function(selected)
+
+  local on_back = opts and opts.on_back
+  local select_opts = vim.tbl_extend('force', opts or {}, {})
+  select_opts.on_back = nil
+
+  if on_back then
+    select_opts.snacks = {
+      actions = {
+        back = function(picker)
+          picker:close()
+          vim.schedule(on_back)
+        end,
+        confirm_right = function(picker, item)
+          if item then
+            picker:close()
+            vim.schedule(function() callback(item.item) end)
+          end
+        end,
+      },
+      win = {
+        input = {
+          keys = {
+            ['<Left>'] = { 'back', mode = { 'n', 'i' } },
+            ['<Right>'] = { 'confirm_right', mode = { 'n', 'i' } },
+          },
+        },
+        list = {
+          keys = {
+            ['<Left>'] = { 'back', mode = { 'n' } },
+            ['<Right>'] = { 'confirm_right', mode = { 'n' } },
+          },
+        },
+      },
+    }
+  end
+
+  vim.ui.select(items, select_opts, function(selected)
     if selected then callback(selected) end
   end)
 end

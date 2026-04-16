@@ -87,7 +87,7 @@ function M.serve_markdown_folder()
     vim.notify('Could not determine current folder', vim.log.levels.ERROR)
     return
   end
-  ui_utils.exec_in_terminal(('markserv -b -p 5454 "%s"'):format(folder), 'Markdown server started', 4)
+  ui_utils.exec_in_terminal(('cd "%s" && markserv -b -p 5454'):format(folder), 'Markdown server started', 4)
 end
 
 function M.compile_mjml_file()
