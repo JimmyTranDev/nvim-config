@@ -33,7 +33,7 @@ return {
     {
       mode = 'n',
       '<Leader>gym',
-      ':Git add . <Bar> :Git commit --amend --no-verify --no-edit <Bar> :Git push --force-with-lease<CR>',
+      ':Git commit --amend --no-verify --no-edit <Bar> :Git push --force-with-lease<CR>',
       desc = 'Amend and push',
       silent = true,
     },

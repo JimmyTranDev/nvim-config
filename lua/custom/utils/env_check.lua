@@ -22,6 +22,16 @@ local REQUIRED_VARS = {
     get = function() return vim.env.ORG_JIRA_TICKET_LINK end,
   },
   {
+    name = 'ORG_JIRA_PARENT_EPICS',
+    features = 'Jira: parent epics for child issue discovery',
+    get = function() return vim.env.ORG_JIRA_PARENT_EPICS end,
+  },
+  {
+    name = 'ORG_JIRA_EPICS',
+    features = 'Jira: direct epics for parent issue selection',
+    get = function() return vim.env.ORG_JIRA_EPICS end,
+  },
+  {
     name = 'ORG_EMAIL',
     features = 'Jira: user identification',
     get = function() return os.getenv('ORG_EMAIL') end,

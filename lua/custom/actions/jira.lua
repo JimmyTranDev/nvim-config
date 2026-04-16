@@ -6,13 +6,24 @@ local ui_utils = require('custom.utils.ui')
 
 local M = {}
 
+local function get_jira_parent_epics()
+  local epics_str = vim.env.ORG_JIRA_PARENT_EPICS
+  if not epics_str or epics_str == '' then return {} end
+  return vim.split(epics_str, '%s+', { trimempty = true })
+end
+
+local function get_jira_epics()
+  local epics_str = vim.env.ORG_JIRA_EPICS
+  if not epics_str or epics_str == '' then return {} end
+  return vim.split(epics_str, '%s+', { trimempty = true })
+end
+
 local CONFIG = {
   CACHE_DIR = vim.fn.stdpath('data'),
-  PARENT_ISSUE = 'BW-6111',
   DEFAULT_PROJECT = 'BW',
   LIMIT = 50,
   AUTO_TRANSITION = true,
-  TRANSITION_STATUSES = { 'In Progress Concept', 'Done Concept', 'Prioritized Issues Development' },
+  TRANSITION_STATUSES = { 'In Progress Concept', 'Done Concept', 'Prioritised Issues Development' },
   EXCLUDED_EPIC_STATUSES = { 'Received', 'Closed' },
 }
 
@@ -145,10 +156,33 @@ local function fetch_parent_issues(callback, force_refresh)
     end
   end
 
+  local parent_epics = get_jira_parent_epics()
+  local direct_epics = get_jira_epics()
+  if #parent_epics == 0 and #direct_epics == 0 then
+    vim.notify('ORG_JIRA_PARENT_EPICS and ORG_JIRA_EPICS environment variables not set', vim.log.levels.ERROR)
+    callback(nil)
+    return
+  end
+
+  local jql_parts = {}
+  if #parent_epics > 0 then
+    local epic_clauses = {}
+    for _, epic in ipairs(parent_epics) do
+      table.insert(epic_clauses, 'issuekey in portfolioChildIssuesOf(' .. epic .. ')')
+    end
+    table.insert(jql_parts, '(' .. table.concat(epic_clauses, ' OR ') .. ')')
+  end
+  if #direct_epics > 0 then
+    local keys = table.concat(direct_epics, ', ')
+    table.insert(jql_parts, 'issuekey in (' .. keys .. ')')
+  end
+
   local status_exclusion = build_status_exclusion_jql()
   local jql_query = 'project = "'
     .. CONFIG.DEFAULT_PROJECT
-    .. '" AND (issuekey in portfolioChildIssuesOf(BW-6111) OR issuekey in portfolioChildIssuesOf(BW-6716) OR issuekey in portfolioChildIssuesOf(BW-7069) OR issuekey in portfolioChildIssuesOf(BW-7217) OR issuekey in portfolioChildIssuesOf(BW-7890) OR issuekey in portfolioChildIssuesOf(BW-9748)) AND issuetype in (Initiative, Epic) AND '
+    .. '" AND ('
+    .. table.concat(jql_parts, ' OR ')
+    .. ') AND issuetype in (Initiative, Epic) AND '
     .. status_exclusion
     .. ' ORDER BY parent'
   local cmd = string.format('acli jira workitem search --jql "%s" --fields "key,summary,status" --limit %d --csv', jql_query, CONFIG.LIMIT)
@@ -181,7 +215,7 @@ local function fetch_parent_issues(callback, force_refresh)
         save_parents_cache(parents)
         callback(parents)
       else
-        vim.notify(string.format('No parent issues found under %s', CONFIG.PARENT_ISSUE), vim.log.levels.WARN)
+        vim.notify('No parent issues found', vim.log.levels.WARN)
         callback(nil)
       end
     end)

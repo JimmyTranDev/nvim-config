@@ -209,8 +209,6 @@ function M.create_commit_from_branch_name()
 
   local commit_message = prefix .. ': ' .. emoji .. ' ' .. jira_ticket_part .. description
 
-  vim.cmd('Git add .')
-
   vim.cmd(string.format('Git commit --no-verify -m "%s"', shell_escape_message(commit_message)))
 
   vim.notify('Committed: ' .. commit_message)
