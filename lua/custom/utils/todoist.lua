@@ -6,6 +6,7 @@ local json_utils = require('custom.utils.json')
 vim.env.TODOIST_API_TOKEN = vim.env.PRI_TODOIST_API_TOKEN or vim.env.TODOIST_API_TOKEN
 
 local PROJECTS_CACHE_FILE = vim.fn.stdpath('data') .. '/todoist_projects_cache.json'
+local SECTIONS_CACHE_FILE = vim.fn.stdpath('data') .. '/todoist_sections_cache.json'
 
 local projects_cache = nil
 local sections_cache = {}
@@ -20,6 +21,15 @@ end
 local function save_projects_to_disk(projects)
   json_utils.write_json_to_file(PROJECTS_CACHE_FILE, { projects = projects })
 end
+
+local function load_sections_from_disk()
+  if not vim.uv.fs_stat(SECTIONS_CACHE_FILE) then return nil end
+  local data = json_utils.parse_json_from_file(SECTIONS_CACHE_FILE)
+  if type(data) == 'table' and data.sections then return data.sections end
+  return nil
+end
+
+local function save_sections_to_disk(all_sections) json_utils.write_json_to_file(SECTIONS_CACHE_FILE, { sections = all_sections }) end
 
 local function td_command(args, callback)
   local cmd = vim.list_extend({ 'td' }, args)
@@ -100,6 +110,13 @@ function M.get_sections(project_id, callback)
     return
   end
 
+  local disk_sections = load_sections_from_disk()
+  if disk_sections and disk_sections[project_id] then
+    sections_cache[project_id] = disk_sections[project_id]
+    callback(true, sections_cache[project_id])
+    return
+  end
+
   td_command({ 'section', 'list', 'id:' .. project_id, '--json', '--full' }, function(success, data)
     if not success then
       callback(false, data)
@@ -124,6 +141,9 @@ function M.get_sections(project_id, callback)
     end)
 
     sections_cache[project_id] = sections
+    local all_disk = load_sections_from_disk() or {}
+    all_disk[project_id] = sections
+    save_sections_to_disk(all_disk)
     callback(true, sections)
   end)
 end
@@ -132,6 +152,7 @@ function M.clear_cache()
   projects_cache = nil
   sections_cache = {}
   os.remove(PROJECTS_CACHE_FILE)
+  os.remove(SECTIONS_CACHE_FILE)
 end
 
 function M.create_task(content, project_id, section_id, priority, callback, opts)

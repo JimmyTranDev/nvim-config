@@ -1,13 +1,13 @@
 return {
   'saghen/blink.cmp',
-  event = 'InsertEnter',
+  event = { 'InsertEnter', 'CmdlineEnter' },
   dependencies = {
     'echasnovski/mini.nvim',
   },
   version = '*',
   opts = {
     cmdline = {
-      enabled = false,
+      enabled = true,
     },
     trigger = {
       completion = {

@@ -92,7 +92,7 @@ local function build_section_priority_map()
   return map
 end
 
-local function create_task_with_navigation(task_name, projects, opts)
+local function create_task_with_navigation(task_name, projects, opts, on_back_to_description)
   local select_project, select_section, select_priority
 
   select_project = function()
@@ -119,6 +119,7 @@ local function create_task_with_navigation(task_name, projects, opts)
     ui_utils.safe_select(project_options, {
       prompt = 'Select a project:',
       format_item = format_by_name,
+      on_back = on_back_to_description,
     }, function(selected)
       add_recent_project_id(selected.id)
       select_section(selected)
@@ -229,20 +230,24 @@ end
 local function log_task_with_fetcher(fetch_projects, empty_message)
   return function()
     ui_utils.safe_input({ prompt = 'Enter task summary: ' }, function(task_name)
-      prompt_description_then_continue(function(opts)
-        fetch_projects(function(success, projects)
-          if not success then
-            vim.notify('Failed to fetch projects: ' .. projects, vim.log.levels.ERROR)
-            return
-          end
-          if #projects == 0 then
-            vim.notify(empty_message, vim.log.levels.WARN)
-            return
-          end
-
-          create_task_with_navigation(task_name, projects, opts)
+      local function start_from_description()
+        prompt_description_then_continue(function(opts)
+          fetch_projects(function(success, projects)
+            if not success then
+              vim.notify('Failed to fetch projects: ' .. projects, vim.log.levels.ERROR)
+              return
+            end
+            if #projects == 0 then
+              vim.notify(empty_message, vim.log.levels.WARN)
+              return
+            end
+            create_task_with_navigation(task_name, projects, opts, function()
+              start_from_description()
+            end)
+          end)
         end)
-      end)
+      end
+      start_from_description()
     end)
   end
 end
@@ -293,19 +298,24 @@ function M.log_todoist_task_programming()
       local function proceed_with_task(prefix)
         ui_utils.safe_input({ prompt = 'Enter task summary: ' }, function(task_name)
           local full_task = prefix and (prefix .. ': ' .. task_name) or task_name
-          prompt_description_then_continue(function(opts)
-            todoist_utils.get_projects(function(success, projects)
-              if not success then
-                vim.notify('Failed to fetch projects: ' .. projects, vim.log.levels.ERROR)
-                return
-              end
-              if #projects == 0 then
-                vim.notify('No projects found', vim.log.levels.WARN)
-                return
-              end
-              create_task_with_navigation(full_task, projects, opts)
+          local function start_from_description()
+            prompt_description_then_continue(function(opts)
+              todoist_utils.get_projects(function(success, projects)
+                if not success then
+                  vim.notify('Failed to fetch projects: ' .. projects, vim.log.levels.ERROR)
+                  return
+                end
+                if #projects == 0 then
+                  vim.notify('No projects found', vim.log.levels.WARN)
+                  return
+                end
+                create_task_with_navigation(full_task, projects, opts, function()
+                  start_from_description()
+                end)
+              end)
             end)
-          end)
+          end
+          start_from_description()
         end)
       end
 
