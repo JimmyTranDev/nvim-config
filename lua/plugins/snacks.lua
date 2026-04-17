@@ -627,5 +627,15 @@ return {
       show_package_json_picker,
       desc = 'Package.json Packages',
     },
+    {
+      '<leader>D',
+      function() Snacks.terminal('lazydocker', { win = { style = 'float' } }) end,
+      desc = 'Lazydocker',
+    },
+    {
+      '<leader>S',
+      function() Snacks.terminal('lazysql', { win = { style = 'float' } }) end,
+      desc = 'Lazysql',
+    },
   },
 }

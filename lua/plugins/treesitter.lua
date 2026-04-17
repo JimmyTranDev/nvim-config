@@ -31,6 +31,7 @@ return {
         'gitcommit',
         'gitignore',
         'go',
+        'sql',
       },
       auto_install = false,
       sync_install = false,

@@ -172,7 +172,6 @@ The `lua/plugins/disabled/` directory contains plugins that can be re-enabled as
 | avante.lua | Replaced by OpenCode |
 | barbar.lua | Prefer minimal UI |
 | codecompanion.lua | Replaced by OpenCode |
-| dadbod-ui.lua | Database UI (optional) |
 | dap.lua | Debugger (optional) |
 | git-conflict.nvim | Using LazyGit + Fugitive |
 | hardtime.nvim | Training plugin (optional) |
