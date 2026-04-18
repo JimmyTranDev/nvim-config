@@ -23,13 +23,12 @@ local function setup_language_settings()
     desc = 'Set Java-specific indentation (4 spaces)',
   })
 
-  vim.api.nvim_create_autocmd('FileType', {
+  vim.api.nvim_create_autocmd('BufEnter', {
     group = augroup('markdown_wrap'),
-    pattern = 'markdown',
     callback = function()
-      vim.wo.wrap = true
+      vim.wo.wrap = vim.bo.filetype == 'markdown'
     end,
-    desc = 'Enable soft wrap for markdown files',
+    desc = 'Enable soft wrap only for markdown files',
   })
 end
 
