@@ -8,6 +8,9 @@ return {
   opts = {
     cmdline = {
       enabled = true,
+      completion = {
+        menu = { auto_show = true },
+      },
     },
     trigger = {
       completion = {
