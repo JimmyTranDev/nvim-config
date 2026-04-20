@@ -15,6 +15,7 @@ local notes_actions = require('custom.actions.notes')
 local keybinding_tracker_actions = require('custom.actions.keybinding_tracker')
 local project_actions = require('custom.actions.project')
 local session = require('custom.utils.session')
+local pnpm_actions = require('custom.actions.pnpm')
 local branch_actions = require('custom.actions.branch')
 local buffer_actions = require('custom.actions.buffer')
 local health_actions = require('custom.actions.health')
@@ -131,6 +132,14 @@ map('n', '<leader>;s', jira_actions.generate_done_md, { desc = 'Generate this we
 map('n', '<leader>;t', jira_actions.copy_assigned_issues_for_testing, { desc = 'Copy assigned issues for testing' })
 map('n', '<leader>;p', github_actions.copy_open_prs, { desc = 'Copy open PRs' })
 map('n', '<leader>;m', ':Markview<CR>', { desc = 'Toggle Markview' })
+map('n', '<leader>;g', function()
+  local dir = vim.fn.expand('%:p:h')
+  if dir == '' then
+    vim.notify('No file open', vim.log.levels.WARN)
+    return
+  end
+  Snacks.picker.grep({ cwd = dir, hidden = true })
+end, { desc = 'Grep in current file dir' })
 map('n', '<leader>;C', github_actions.select_and_copy_pr, { desc = 'Select PR to copy' })
 map('n', '<Leader>ryj', jira_actions.copy_ticket_with_title, { desc = 'Copy Jira ticket with title' })
 map('n', '<Leader>ryc', jira_actions.add_comment_from_branch, { desc = 'Add Jira comment from branch' })
@@ -172,6 +181,9 @@ end, { desc = 'Diff vs develop' })
 map('n', '<Leader>us', link_actions.search_google, { desc = 'Search Google' })
 map('v', '<Leader>us', link_actions.search_google, { desc = 'Search Google (selection)' })
 map('n', '<Leader>uB', branch_actions.stale_branch_cleanup(), { desc = 'Stale branch cleanup' })
+
+map('n', '<Leader>tny', pnpm_actions.pnpm_link, { desc = 'pnpm link package' })
+map('n', '<Leader>tnY', pnpm_actions.pnpm_unlink, { desc = 'pnpm unlink package' })
 
 map('n', '<leader>ks', keybinding_tracker_actions.show_keybinding_stats, { desc = 'Show keybinding stats' })
 map('n', '<leader>kr', keybinding_tracker_actions.reset_keybinding_stats, { desc = 'Reset keybinding stats' })

@@ -205,32 +205,10 @@ local function create_task_with_navigation(task_name, projects, opts, on_back_to
   select_project()
 end
 
-local DESCRIPTION_OPTIONS = {
-  { name = 'Continue without description' },
-  { name = 'Add description' },
-}
-
 local TASK_INPUT_OPTIONS = {
   { name = 'Enter title' },
   { name = 'Enter description' },
 }
-
-local function prompt_description_then_continue(on_continue)
-  ui_utils.safe_select(DESCRIPTION_OPTIONS, {
-    prompt = 'Task description:',
-    format_item = format_by_name,
-  }, function(selected)
-    if selected.name == 'Add description' then
-      ui_utils.multiline_input({ title = 'Description (optional)' }, function(description)
-        local opts = {}
-        if description and description ~= '' then opts.description = description end
-        on_continue(opts)
-      end)
-    else
-      on_continue({})
-    end
-  end)
-end
 
 local function prompt_task_input(on_result)
   ui_utils.safe_select(TASK_INPUT_OPTIONS, {
@@ -245,9 +223,7 @@ local function prompt_task_input(on_result)
       end)
     else
       ui_utils.safe_input({ prompt = 'Enter task summary: ' }, function(task_name)
-        prompt_description_then_continue(function(opts)
-          on_result(task_name, opts)
-        end)
+        on_result(task_name, {})
       end)
     end
   end)
