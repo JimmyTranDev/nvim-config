@@ -210,6 +210,11 @@ local DESCRIPTION_OPTIONS = {
   { name = 'Add description' },
 }
 
+local TASK_INPUT_OPTIONS = {
+  { name = 'Enter title' },
+  { name = 'Enter description' },
+}
+
 local function prompt_description_then_continue(on_continue)
   ui_utils.safe_select(DESCRIPTION_OPTIONS, {
     prompt = 'Task description:',
@@ -227,113 +232,51 @@ local function prompt_description_then_continue(on_continue)
   end)
 end
 
+local function prompt_task_input(on_result)
+  ui_utils.safe_select(TASK_INPUT_OPTIONS, {
+    prompt = 'What do you want to enter?',
+    format_item = format_by_name,
+  }, function(selected)
+    if selected.name == 'Enter description' then
+      ui_utils.multiline_input({ title = 'Task description' }, function(description)
+        local opts = {}
+        if description and description ~= '' then opts.description = description end
+        on_result('Task', opts)
+      end)
+    else
+      ui_utils.safe_input({ prompt = 'Enter task summary: ' }, function(task_name)
+        prompt_description_then_continue(function(opts)
+          on_result(task_name, opts)
+        end)
+      end)
+    end
+  end)
+end
+
 local function log_task_with_fetcher(fetch_projects, empty_message)
   return function()
-    ui_utils.safe_input({ prompt = 'Enter task summary: ' }, function(task_name)
-      local function start_from_description()
-        prompt_description_then_continue(function(opts)
-          fetch_projects(function(success, projects)
-            if not success then
-              vim.notify('Failed to fetch projects: ' .. projects, vim.log.levels.ERROR)
-              return
-            end
-            if #projects == 0 then
-              vim.notify(empty_message, vim.log.levels.WARN)
-              return
-            end
-            create_task_with_navigation(task_name, projects, opts, function()
-              start_from_description()
-            end)
+    local function start_from_input()
+      prompt_task_input(function(task_name, opts)
+        fetch_projects(function(success, projects)
+          if not success then
+            vim.notify('Failed to fetch projects: ' .. projects, vim.log.levels.ERROR)
+            return
+          end
+          if #projects == 0 then
+            vim.notify(empty_message, vim.log.levels.WARN)
+            return
+          end
+          create_task_with_navigation(task_name, projects, opts, function()
+            start_from_input()
           end)
         end)
-      end
-      start_from_description()
-    end)
+      end)
+    end
+    start_from_input()
   end
 end
-
-function M.log_todoist_task() return log_task_with_fetcher(todoist_utils.get_non_charcoal_projects, 'No non-charcoal projects found') end
 
 function M.log_todoist_task_all_projects() return log_task_with_fetcher(todoist_utils.get_projects, 'No projects found') end
-
-function M.log_todoist_task_programming()
-  return function()
-    local programming_dir = vim.fn.expand('~/Programming')
-    local org_dirs = {}
-
-    local handle = vim.uv.fs_scandir(programming_dir)
-    if not handle then
-      vim.notify('Could not scan ~/Programming', vim.log.levels.ERROR)
-      return
-    end
-
-    while true do
-      local name, type = vim.uv.fs_scandir_next(handle)
-      if not name then break end
-      if type == 'directory' then table.insert(org_dirs, name) end
-    end
-
-    table.sort(org_dirs)
-
-    if #org_dirs == 0 then
-      vim.notify('No directories found in ~/Programming', vim.log.levels.WARN)
-      return
-    end
-
-    ui_utils.safe_select(org_dirs, { prompt = 'Select programming project:' }, function(selected_dir)
-      local repo_dirs = {}
-      local repo_path = programming_dir .. '/' .. selected_dir
-      local repo_handle = vim.uv.fs_scandir(repo_path)
-
-      if repo_handle then
-        while true do
-          local repo_name, repo_type = vim.uv.fs_scandir_next(repo_handle)
-          if not repo_name then break end
-          if repo_type == 'directory' then table.insert(repo_dirs, repo_name) end
-        end
-      end
-
-      table.sort(repo_dirs)
-
-      local function proceed_with_task(prefix)
-        ui_utils.safe_input({ prompt = 'Enter task summary: ' }, function(task_name)
-          local full_task = prefix and (prefix .. ': ' .. task_name) or task_name
-          local function start_from_description()
-            prompt_description_then_continue(function(opts)
-              todoist_utils.get_projects(function(success, projects)
-                if not success then
-                  vim.notify('Failed to fetch projects: ' .. projects, vim.log.levels.ERROR)
-                  return
-                end
-                if #projects == 0 then
-                  vim.notify('No projects found', vim.log.levels.WARN)
-                  return
-                end
-                create_task_with_navigation(full_task, projects, opts, function()
-                  start_from_description()
-                end)
-              end)
-            end)
-          end
-          start_from_description()
-        end)
-      end
-
-      if #repo_dirs > 0 then
-        table.insert(repo_dirs, 1, '(none - use org only)')
-        ui_utils.safe_select(repo_dirs, { prompt = 'Select repository:' }, function(repo)
-          if repo == '(none - use org only)' then
-            proceed_with_task(selected_dir)
-          else
-            proceed_with_task(selected_dir .. '/' .. repo)
-          end
-        end)
-      else
-        proceed_with_task(selected_dir)
-      end
-    end)
-  end
-end
 
 function M.refresh_todoist_cache()
   return function()

@@ -94,7 +94,7 @@ function M.multiline_input(opts, callback)
     border = 'rounded',
     title = ' ' .. title .. ' ',
     title_pos = 'center',
-    footer = ' <leader>w confirm | <Esc> cancel ',
+    footer = ' <Esc> confirm | <leader>w cancel ',
     footer_pos = 'center',
   })
 
@@ -121,12 +121,12 @@ function M.multiline_input(opts, callback)
   local leader = vim.g.mapleader or '\\'
   local confirm_lhs = leader .. 'w'
 
-  vim.keymap.set('n', confirm_lhs, function()
+  vim.keymap.set('n', confirm_lhs, function() close_and_return(nil) end, { buffer = buf, nowait = true })
+
+  vim.keymap.set('n', '<Esc>', function()
     local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
     close_and_return(lines)
   end, { buffer = buf, nowait = true })
-
-  vim.keymap.set('n', '<Esc>', function() close_and_return(nil) end, { buffer = buf, nowait = true })
 
   vim.cmd('startinsert')
 end

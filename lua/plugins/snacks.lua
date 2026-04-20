@@ -637,5 +637,11 @@ return {
       function() Snacks.terminal('lazysql', { win = { style = 'float' } }) end,
       desc = 'Lazysql',
     },
+    {
+      '<leader>gL',
+      function() Snacks.gitbrowse() end,
+      desc = 'Git Browse',
+      mode = { 'n', 'v' },
+    },
   },
 }
