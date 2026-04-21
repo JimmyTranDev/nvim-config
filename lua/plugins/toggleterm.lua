@@ -65,16 +65,6 @@ return {
       desc = 'Npm Kill All (build, lint, test)',
     },
 
-    {
-      mode = 'n',
-      '<leader>tma',
-      function()
-        vim.cmd('2TermExec cmd="make start-app"')
-        vim.cmd('3TermExec cmd="make start-server"')
-      end,
-      silent = true,
-      desc = 'Make All (start-app, start-server)',
-    },
     { mode = 'n', '<leader>tmj', language_actions.create_make_command_runner(1), desc = 'Run Makefile Target', silent = true },
     { mode = 'n', '<leader>tmJ', toggle_term_actions.create_kill_toggle_term(1), desc = 'Makefile Exit', silent = true },
     { mode = 'n', '<leader>tmk', language_actions.create_make_command_runner(2), desc = 'Run Makefile Target', silent = true },
@@ -88,13 +78,10 @@ return {
     { mode = 'n', '<leader>tct', ':3TermExec cmd="cargo test"<CR>', desc = 'Cargo Test', silent = true },
     { mode = 'n', '<leader>tcR', ':3TermExec cmd="cargo run --release"<CR>', desc = 'Cargo Release', silent = true },
     { mode = 'n', '<leader>tcu', ':3TermExec cmd="cargo update"<CR>', desc = 'Cargo Update', silent = true },
-    { mode = 'n', '<leader>tcd', ':3TermExec cmd="cargo doc"<CR>', desc = 'Cargo Doc', silent = true },
     { mode = 'n', '<leader>tcl', ':3TermExec cmd="cargo clippy"<CR>', desc = 'Cargo Clippy', silent = true },
     { mode = 'n', '<leader>tcf', ':3TermExec cmd="cargo fmt"<CR>', desc = 'Cargo Fmt', silent = true },
     { mode = 'n', '<leader>tcc', ':3TermExec cmd="cargo check"<CR>', desc = 'Cargo Check', silent = true },
-    { mode = 'n', '<leader>tca', ':3TermExec cmd="cargo audit"<CR>', desc = 'Cargo Audit', silent = true },
 
-    { mode = 'n', '<leader>tfb', ':3TermExec cmd="flutter pub run build_runner build"<CR>', desc = 'Build', silent = true },
 
     { mode = 'n', '<leader>tvs', language_actions.run_project_jar, desc = 'Start Project (Maven/Node)', silent = true },
     { mode = 'n', '<leader>tvp', ':3TermExec cmd="mvn package"<CR>', desc = 'Maven Package', silent = true },
