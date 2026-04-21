@@ -10,13 +10,13 @@ return {
     'nvim-neotest/neotest-python',
   },
   keys = {
-    { '<leader>ttr', function() require('neotest').run.run() end, desc = 'Run Nearest' },
-    { '<leader>ttf', function() require('neotest').run.run(vim.fn.expand('%')) end, desc = 'Run File' },
-    { '<leader>tts', function() require('neotest').summary.toggle() end, desc = 'Toggle Summary' },
-    { '<leader>tto', function() require('neotest').output_panel.toggle() end, desc = 'Toggle Output Panel' },
-    { '<leader>ttd', function() require('neotest').run.run({ strategy = 'dap' }) end, desc = 'Debug Nearest' },
-    { '<leader>ttx', function() require('neotest').run.stop() end, desc = 'Stop' },
-    { '<leader>tta', function() require('neotest').run.run(vim.uv.cwd()) end, desc = 'Run All' },
+    { '<leader>cr', function() require('neotest').run.run() end, desc = 'Run Nearest' },
+    { '<leader>cf', function() require('neotest').run.run(vim.fn.expand('%')) end, desc = 'Run File' },
+    { '<leader>cs', function() require('neotest').summary.toggle() end, desc = 'Toggle Summary' },
+    { '<leader>co', function() require('neotest').output_panel.toggle() end, desc = 'Toggle Output Panel' },
+    { '<leader>cd', function() require('neotest').run.run({ strategy = 'dap' }) end, desc = 'Debug Nearest' },
+    { '<leader>cx', function() require('neotest').run.stop() end, desc = 'Stop' },
+    { '<leader>ca', function() require('neotest').run.run(vim.uv.cwd()) end, desc = 'Run All' },
   },
   config = function()
     require('neotest').setup({

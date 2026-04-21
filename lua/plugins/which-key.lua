@@ -115,6 +115,7 @@ return {
       { '<leader>tz', '󰘳 Zone' },
       { '<leader>', '󱁐 Leader' },
       { '<leader>a', '󰚩 AI & Copilot' },
+      { '<leader>c', '󰙨 Test' },
       { '<leader>d', '󱉏 Dropbar' },
       { '<leader>e', '󰇥 Explorer' },
       { '<leader>E', '󰇥 Explorer (Root)' },
