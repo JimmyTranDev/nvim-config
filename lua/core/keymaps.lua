@@ -67,6 +67,7 @@ maps('n', {
 })
 
 map('n', '<leader>;df', language_actions.fix_and_organize_typescript_imports, { desc = 'Fix and organize imports (TS)' })
+map('n', '<leader>;dm', language_actions.serve_markdown_folder, { desc = 'Markserve' })
 map('n', '<leader>;dr', language_actions.repeat_last_command, { desc = 'Repeat last command' })
 map('n', '<leader>;ds', link_actions.open_dev_server, { desc = 'Development server' })
 

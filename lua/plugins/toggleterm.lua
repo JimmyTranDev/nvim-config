@@ -10,10 +10,6 @@ return {
     { mode = 'n', '<leader>tl', ':4TermExec cmd="live-server --port=9090"<CR>', desc = 'Live Server', silent = true },
     { mode = 'n', '<leader>tM', language_actions.compile_mjml_file, desc = 'Compile Mjml Html', silent = true },
 
-    { mode = 'n', '<leader>tdD', ':3TermExec cmd="mkdocs gh-deploy"<CR>', desc = 'Mkdocs Deploy', silent = true },
-    { mode = 'n', '<leader>tds', ':4TermExec cmd="mkdocs serve"<CR>', desc = 'Mkdocs Serve', silent = true },
-    { mode = 'n', '<leader>tdd', language_actions.serve_markdown_folder, desc = 'Markserve', silent = true },
-
     { mode = 'n', '<leader>t1', ':1ToggleTerm<CR>', desc = 'Toggle Terminal 1', silent = true },
     { mode = 'n', '<leader>t2', ':2ToggleTerm<Cr>', desc = 'Toggle Terminal 2', silent = true },
 
@@ -27,15 +23,8 @@ return {
     { mode = 'n', '<leader>tnun', language_actions.create_npm_update_executor(7, 'major'), silent = true, desc = 'Npm Update Major' },
     { mode = 'n', '<leader>tnup', language_actions.create_npm_update_executor(7, 'patch'), silent = true, desc = 'Npm Update Patch' },
     { mode = 'n', '<leader>tnui', language_actions.create_npm_update_executor(7, 'interactive'), silent = true, desc = 'Npm Update Interactive' },
-    { mode = 'n', '<leader>tni', language_actions.create_package_command_runner(7, 'install'), silent = true, desc = 'Npm Install' },
-    { mode = 'n', '<leader>tnt', language_actions.create_package_command_runner(7, 'test'), silent = true, desc = 'Npm Test' },
-    { mode = 'n', '<leader>tnc', language_actions.create_package_command_runner(7, 'lint'), silent = true, desc = 'Npm Lint' },
-    { mode = 'n', '<leader>tnb', language_actions.create_package_command_runner(7, 'check'), silent = true, desc = 'Npm Check' },
 
-    { mode = 'n', '<leader>tnx', toggle_term_actions.kill_all_toggle_term, silent = true, desc = 'Kill All Terminals' },
-
-    { mode = 'n', '<leader>tnd', language_actions.create_package_command_runner(6, 'dev'), silent = true, desc = 'Npm Dev' },
-    { mode = 'n', '<leader>tns', language_actions.create_package_command_runner(5, 'start'), silent = true, desc = 'Npm Start' },
+    { mode = 'n', '<leader>tx', toggle_term_actions.kill_all_toggle_term, silent = true, desc = 'Kill All Terminals' },
 
     { mode = 'n', '<leader>tnj', function() language_actions.run_package_script(1) end, silent = true, desc = 'Npm Script 1' },
     { mode = 'n', '<leader>tnJ', toggle_term_actions.create_kill_toggle_term(1), silent = true, desc = 'Npm Script 1 Exit' },
