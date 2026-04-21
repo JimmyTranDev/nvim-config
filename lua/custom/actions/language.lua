@@ -334,17 +334,6 @@ function M.fix_and_organize_typescript_imports()
   process_next()
 end
 
-function M.repeat_last_command()
-  local last = vim.fn.histget(':', -1)
-  if last == '' then
-    vim.notify('No previous command', vim.log.levels.WARN)
-    return
-  end
-  ui_utils.safe_input({ prompt = 'Command: ', default = last, completion = 'command' }, function(cmd)
-    vim.cmd(cmd)
-  end)
-end
-
 function M.create_make_command_runner(term_id)
   return function()
     if vim.fn.filereadable('Makefile') == 0 then
