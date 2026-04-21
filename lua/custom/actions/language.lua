@@ -303,25 +303,6 @@ function M.run_knip_fix_current_folder()
   end })
 end
 
-function M.launch_android_emulator()
-  local emulator = os.getenv('HOME') .. '/Library/Android/sdk/emulator/emulator'
-  local avd_output = vim.fn.system(emulator .. ' -list-avds 2>/dev/null')
-  local avds = {}
-  for line in avd_output:gmatch('[^\n]+') do
-    if line ~= '' then table.insert(avds, line) end
-  end
-
-  if #avds == 0 then
-    vim.notify('No AVDs found', vim.log.levels.WARN)
-    return
-  end
-
-  ui_utils.safe_select(avds, { prompt = 'Select emulator:' }, function(avd)
-    vim.fn.jobstart({ emulator, '-avd', avd }, { detach = true })
-    ui_utils.show_success('Launching: ' .. avd)
-  end)
-end
-
 function M.fix_and_organize_typescript_imports()
   ui_utils.show_success('Finding TypeScript files...')
   local files = vim.fn.systemlist("find . -type f \\( -name '*.ts' -o -name '*.tsx' \\) -not -path '*/node_modules/*'")

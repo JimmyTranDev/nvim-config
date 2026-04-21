@@ -5,7 +5,6 @@ local jira_actions = require('custom.actions.jira')
 local link_actions = require('custom.actions.links')
 local language_actions = require('custom.actions.language')
 local errors_actions = require('custom.actions.errors')
-local checkbox_actions = require('custom.actions.checkbox')
 local replacement_actions = require('custom.actions.replacement')
 local git_actions = require('custom.actions.git')
 local github_actions = require('custom.actions.github')
@@ -67,36 +66,39 @@ maps('n', {
   { '<A-Left>', '<C-W><', 'Decrease window width' },
 })
 
-map('n', '<leader>;da', language_actions.launch_android_emulator, { desc = 'Launch Android emulator' })
 map('n', '<leader>;df', language_actions.fix_and_organize_typescript_imports, { desc = 'Fix and organize imports (TS)' })
 map('n', '<leader>;dr', language_actions.repeat_last_command, { desc = 'Repeat last command' })
 map('n', '<leader>;ds', link_actions.open_dev_server, { desc = 'Development server' })
-map('n', '<leader>;dw', ':SudaWrite<CR>', { desc = 'Sudo write' })
+
 
 map('n', '<leader>;fc', file_actions.save_clipboard_to_file, { desc = 'Save clipboard to file' })
 map('n', '<leader>;fM', file_actions.convert_md_to_pdf, { desc = 'Convert markdown to PDF' })
-map('n', '<leader>;fr', file_actions.run_clipboard_command, { desc = 'Run command from clipboard' })
 map('n', '<leader>;fs', editor_actions.toggle_spellcheck, { desc = 'Toggle spellcheck' })
 map('n', '<leader>;fC', ':!rm -r ' .. constants.NEOVIM_STATE_DIR .. '<CR>', { desc = 'Clear swap files' })
-map('n', '<leader>;fG', file_actions.link_github_copilot_instructions, { desc = 'Link .github from dotfiles' })
+map('n', '<leader>;fw', ':SudaWrite<CR>', { desc = 'Sudo write' })
+map('n', '<leader>;fm', ':Markview<CR>', { desc = 'Toggle Markview' })
+map('n', '<leader>;fW', editor_actions.toggle_wrap, { desc = 'Toggle text wrap' })
+map('n', '<leader>;fg', function()
+  local dir = vim.fn.expand('%:p:h')
+  if dir == '' then
+    vim.notify('No file open', vim.log.levels.WARN)
+    return
+  end
+  Snacks.picker.grep({ cwd = dir, hidden = true, ignored = true })
+end, { desc = 'Grep in current file dir' })
 
 map('x', '<leader>;Tr', [["zy:%s/\V<C-r>=escape(@z, '/')<CR>//gc<left><left><left>]], { desc = 'Visual search replace' })
-map('n', '<leader>;;', checkbox_actions.toggle, { desc = 'Toggle checkbox' })
 
-map('n', '<leader>;vc', file_actions.delete_all_comments, { desc = 'Delete all comments' })
-map('n', '<leader>;vC', file_actions.delete_comments_from_uncommitted_files, { desc = 'Delete comments from uncommitted files' })
+map('n', '<leader>;vx', language_actions.run_knip_fix_current_folder, { desc = 'Knip fix current folder' })
+map('n', '<leader>;vX', language_actions.run_knip_fix, { desc = 'Knip fix & remove files (global)' })
+map('n', '<leader>;ve', language_actions.run_eslint_picker, { desc = 'ESLint analysis picker' })
+map('n', '<leader>;vK', language_actions.run_knip_unused_files, { desc = 'Knip unused files' })
+map('n', '<leader>;vk', language_actions.run_knip_unused_code, { desc = 'Knip unused code' })
 
 map('n', '<leader>;ya', file_actions.copy_all_files_content, { desc = 'Copy all files content' })
 map('n', '<leader>;yu', file_actions.copy_current_file_url, { desc = 'Copy current file link' })
 map('n', '<leader>;yo', file_actions.copy_opencode_link, { desc = 'Copy OpenCode link' })
 map('n', '<leader>;ye', errors_actions.copy_diagnostic_under_cursor, { desc = 'Copy diagnostic' })
-map('n', '<leader>;w', editor_actions.toggle_wrap, { desc = 'Toggle text wrap' })
-map('n', '<leader>;vx', language_actions.run_knip_fix_current_folder, { desc = 'Knip fix current folder' })
-map('n', '<leader>;vX', language_actions.run_knip_fix, { desc = 'Knip fix & remove files (global)' })
-
-map('n', '<leader>;ve', language_actions.run_eslint_picker, { desc = 'ESLint analysis picker' })
-map('n', '<leader>;vK', language_actions.run_knip_unused_files, { desc = 'Knip unused files' })
-map('n', '<leader>;vk', language_actions.run_knip_unused_code, { desc = 'Knip unused code' })
 
 map('n', '<leader>;ri', replacement_actions.replace_interactive, { desc = 'Interactive replace' })
 map('n', '<leader>;rb', replacement_actions.replace_buffer, { desc = 'Replace in buffer' })
@@ -128,19 +130,10 @@ map('n', '<Leader>rp', notes_actions.add_notes_entry, { desc = 'Add notes entry'
 map('n', '<leader>;ct', todoist_actions.refresh_todoist_cache(), { desc = 'Refresh Todoist cache' })
 map('n', '<leader>;cw', jira_actions.refresh_jira_cache, { desc = 'Refresh Jira cache' })
 
-map('n', '<leader>;s', jira_actions.generate_done_md, { desc = 'Generate this week jira tasks' })
-map('n', '<leader>;t', jira_actions.copy_assigned_issues_for_testing, { desc = 'Copy assigned issues for testing' })
+map('n', '<leader>;j', jira_actions.generate_done_md, { desc = 'Generate this week jira tasks' })
+
 map('n', '<leader>;p', github_actions.copy_open_prs, { desc = 'Copy open PRs' })
-map('n', '<leader>;m', ':Markview<CR>', { desc = 'Toggle Markview' })
-map('n', '<leader>;g', function()
-  local dir = vim.fn.expand('%:p:h')
-  if dir == '' then
-    vim.notify('No file open', vim.log.levels.WARN)
-    return
-  end
-  Snacks.picker.grep({ cwd = dir, hidden = true, ignored = true })
-end, { desc = 'Grep in current file dir' })
-map('n', '<leader>;C', github_actions.select_and_copy_pr, { desc = 'Select PR to copy' })
+map('n', '<leader>;P', github_actions.select_and_copy_pr, { desc = 'Select PR to copy' })
 map('n', '<Leader>ryj', jira_actions.copy_ticket_with_title, { desc = 'Copy Jira ticket with title' })
 map('n', '<Leader>ryc', jira_actions.add_comment_from_branch, { desc = 'Add Jira comment from branch' })
 

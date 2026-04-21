@@ -50,6 +50,7 @@ return {
       { '<leader>;', '󰌌 Secondary' },
       { '<leader>;d', '󰠷 Development' },
       { '<leader>;f', '󰉋 Files' },
+      { '<leader>;j', '󰌧 Generate this week jira tasks' },
       { '<leader>;T', '󰦅 Text' },
       { '<leader>;r', '󰛔 Replace' },
       { '<leader>;S', '󰆓 Session' },
