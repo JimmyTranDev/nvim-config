@@ -68,7 +68,8 @@ maps('n', {
 
 map('n', '<leader>;df', language_actions.fix_and_organize_typescript_imports, { desc = 'Fix and organize imports (TS)' })
 map('n', '<leader>;dm', language_actions.serve_markdown_folder, { desc = 'Markserve' })
-map('n', '<leader>;ds', link_actions.open_dev_server, { desc = 'Development server' })
+map('n', '<leader>;ds', ':4TermExec cmd="live-server --port=9090"<CR>', { desc = 'Live Server' })
+map('n', '<leader>;dM', language_actions.compile_mjml_file, { desc = 'Compile Mjml Html' })
 
 
 map('n', '<leader>;fc', file_actions.save_clipboard_to_file, { desc = 'Save clipboard to file' })
@@ -78,6 +79,7 @@ map('n', '<leader>;fC', ':!rm -r ' .. constants.NEOVIM_STATE_DIR .. '<CR>', { de
 map('n', '<leader>;fw', ':SudaWrite<CR>', { desc = 'Sudo write' })
 map('n', '<leader>;fm', ':Markview<CR>', { desc = 'Toggle Markview' })
 map('n', '<leader>;fW', editor_actions.toggle_wrap, { desc = 'Toggle text wrap' })
+map('n', '<leader>;fr', ':e!<CR>', { desc = 'Reload file from disk' })
 map('n', '<leader>;fg', function()
   local dir = vim.fn.expand('%:p:h')
   if dir == '' then
@@ -146,8 +148,8 @@ maps('n', {
   { '<leader>zz', ':Lazy<CR>', 'Open Lazy' },
 })
 
-map('n', '<Leader>ttt', ':Typr<CR>', { desc = 'Start typing test' })
-map('n', '<Leader>tts', ':TyprStats<CR>', { desc = 'Show typing stats' })
+map('n', '<Leader>;tt', ':Typr<CR>', { desc = 'Start typing test' })
+map('n', '<Leader>;ts', ':TyprStats<CR>', { desc = 'Show typing stats' })
 
 map('n', '<Leader>ud', file_actions.open_current_dir, { desc = 'Open directory' })
 map('n', '<Leader>uc', github_actions.open_current_commit_in_github, { desc = 'Open Current Commit in GitHub' })

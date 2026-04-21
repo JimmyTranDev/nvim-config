@@ -7,8 +7,6 @@ return {
   keys = {
     { mode = 'n', '<leader>fm', file_actions.grep_markdown_headings, desc = 'Find Markdown Headings', silent = true },
 
-    { mode = 'n', '<leader>tl', ':4TermExec cmd="live-server --port=9090"<CR>', desc = 'Live Server', silent = true },
-    { mode = 'n', '<leader>tM', language_actions.compile_mjml_file, desc = 'Compile Mjml Html', silent = true },
 
     { mode = 'n', '<leader>t1', ':1ToggleTerm<CR>', desc = 'Toggle Terminal 1', silent = true },
     { mode = 'n', '<leader>t2', ':2ToggleTerm<Cr>', desc = 'Toggle Terminal 2', silent = true },
