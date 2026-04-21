@@ -22,6 +22,8 @@ return {
     { mode = 'n', '<leader>tnup', language_actions.create_npm_update_executor(7, 'patch'), silent = true, desc = 'Npm Update Patch' },
     { mode = 'n', '<leader>tnui', language_actions.create_npm_update_executor(7, 'interactive'), silent = true, desc = 'Npm Update Interactive' },
 
+    { mode = 'n', '<leader>tni', language_actions.create_package_command_runner(8, 'install', true), silent = true, desc = 'Npm Install' },
+
     { mode = 'n', '<leader>tx', toggle_term_actions.kill_all_toggle_term, silent = true, desc = 'Kill All Terminals' },
 
     { mode = 'n', '<leader>tnj', function() language_actions.run_package_script(1) end, silent = true, desc = 'Npm Script 1' },
