@@ -62,20 +62,20 @@ return {
       { '<leader>fc', '󰘖 Commands' },
       { '<leader>fd', '󰈙 Diagnostics' },
       { '<leader>fg', '󰊢 Git Files' },
-      { '<leader>fh', '󰋚 History' },
+
       { '<leader>fj', '󰊢 Git' },
       { '<leader>fl', '󰷈 Lists' },
       { '<leader>fm', '󰈙 Marks' },
       { '<leader>fo', '󰈙 Options' },
       { '<leader>fr', '󰋚 Recent' },
-      { '<leader>fs', '󰛔 Symbols' },
+
       { '<leader>fv', '󰕷 Vim' },
       { '<leader>fw', '󰬴 Words' },
       { '<leader>g', '󰊢 Git' },
       { '<leader>gb', '󰘬 Branch' },
       { '<leader>gc', '󰜘 Commit' },
       { '<leader>gC', '󰜘 Commit & Push' },
-      { '<leader>gd', '󰆼 Diff' },
+
       { '<leader>gf', '󰈞 Files' },
       { '<leader>gh', '󰊤 GitHub' },
       { '<leader>gl', '󰋫 Log' },
@@ -83,7 +83,7 @@ return {
       { '<leader>gp', '󰏫 Push/Pull' },
       { '<leader>gr', '󰑓 Reset' },
       { '<leader>gs', '󰘻 Stash' },
-      { '<leader>gt', '󰓩 Tags' },
+
       { '<leader>gw', '󰘴 Worktree' },
       { '<leader>gy', '󰋫 Quick' },
       { '<leader>t', ' Terminal' },
@@ -94,11 +94,11 @@ return {
       { '<leader>tx', '󰅗 Close' },
       { '<leader>', '󱁐 Leader' },
       { '<leader><leader>a', '󰚩 AI & Copilot' },
-      { '<leader>c', '󰙨 Test' },
+      { '<leader><leader>c', '󰙨 Test' },
       { '<leader>e', '󰇥 Explorer' },
       { '<leader>E', '󰇥 Explorer (Root)' },
       { '<leader>j', '󰊢 Git Hunks' },
-      { '<leader>k', '󰌌 Keymaps' },
+
       { '<leader><leader>n', '󰖲 Window Splits' },
       { '<leader><leader>p', '󰏖 Packages' },
       { '<leader>r', '󰌱 Capture' },
@@ -115,8 +115,8 @@ return {
 
     local descs = {
       { '<leader>;j', '󰌧 Generate this week jira tasks' },
-      { '<leader>d', '󱉏 Dropbar' },
-      { '<leader>F', '󰙂 Floating Terminal' },
+
+
       { '<leader>i', '󰘻 Jump In' },
       { '<leader>m', '󰊢 Lazygit' },
       { '<leader>o', '󰘶 Jump Out' },
