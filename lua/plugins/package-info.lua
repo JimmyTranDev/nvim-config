@@ -5,28 +5,28 @@ return {
   keys = {
     {
       mode = 'n',
-      '<leader>ps',
+      '<leader><leader>ps',
       function() require('package-info').show() end,
       silent = true,
       desc = 'NPM Show',
     },
     {
       mode = 'n',
-      '<leader>pd',
+      '<leader><leader>pd',
       function() require('package-info').delete() end,
       silent = true,
       desc = 'Npm Delete',
     },
     {
       mode = 'n',
-      '<leader>pc',
+      '<leader><leader>pc',
       function() require('package-info').change_version() end,
       silent = true,
       desc = 'Npm Change',
     },
     {
       mode = 'n',
-      '<leader>pi',
+      '<leader><leader>pi',
       function() require('package-info').install() end,
       silent = true,
       desc = 'Npm Install',

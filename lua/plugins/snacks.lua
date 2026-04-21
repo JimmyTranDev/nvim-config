@@ -628,12 +628,12 @@ return {
       desc = 'Package.json Packages',
     },
     {
-      '<leader>D',
+      '<leader><leader>D',
       function() Snacks.terminal('lazydocker', { win = { style = 'float' } }) end,
       desc = 'Lazydocker',
     },
     {
-      '<leader>S',
+      '<leader><leader>S',
       function() Snacks.terminal('lazysql', { win = { style = 'float' } }) end,
       desc = 'Lazysql',
     },

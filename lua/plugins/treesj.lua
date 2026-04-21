@@ -4,7 +4,7 @@ return {
   keys = {
     {
       mode = 'n',
-      '<leader>T',
+      '<leader><leader>T',
       function() require('treesj').toggle() end,
       silent = true,
       desc = ' Treesj',

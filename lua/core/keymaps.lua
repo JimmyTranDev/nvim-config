@@ -51,14 +51,14 @@ map('', '<S-J>', '<C-D>', { desc = 'Scroll down half page' })
 map('', '<S-K>', '<C-U>', { desc = 'Scroll up half page' })
 
 maps('n', {
-  { '<leader>nh', ':vsplit<CR>', 'Split window vertically (left)' },
-  { '<leader>nj', ':split<CR><C-W>j', 'Split window horizontally (below)' },
-  { '<leader>nk', ':split<CR>', 'Split window horizontally (above)' },
-  { '<leader>nl', ':vsplit<CR><C-W>l', 'Split window vertically (right)' },
-  { '<leader>nn', ':split<CR>', 'Split window horizontally' },
-  { '<leader>nv', ':vsplit<CR>', 'Split window vertically' },
-  { '<leader>nc', '<C-W>c', 'Close current window' },
-  { '<leader>no', '<C-W>o', 'Close all other windows' },
+  { '<leader><leader>nh', ':vsplit<CR>', 'Split window vertically (left)' },
+  { '<leader><leader>nj', ':split<CR><C-W>j', 'Split window horizontally (below)' },
+  { '<leader><leader>nk', ':split<CR>', 'Split window horizontally (above)' },
+  { '<leader><leader>nl', ':vsplit<CR><C-W>l', 'Split window vertically (right)' },
+  { '<leader><leader>nn', ':split<CR>', 'Split window horizontally' },
+  { '<leader><leader>nv', ':vsplit<CR>', 'Split window vertically' },
+  { '<leader><leader>nc', '<C-W>c', 'Close current window' },
+  { '<leader><leader>no', '<C-W>o', 'Close all other windows' },
   { '<A-=>', '<C-W>=', 'Equalize window sizes' },
   { '<A-Up>', '<C-W>+', 'Increase window height' },
   { '<A-Down>', '<C-W>-', 'Decrease window height' },
@@ -102,17 +102,17 @@ map('n', '<leader>;yu', file_actions.copy_current_file_url, { desc = 'Copy curre
 map('n', '<leader>;yo', file_actions.copy_opencode_link, { desc = 'Copy OpenCode link' })
 map('n', '<leader>;ye', errors_actions.copy_diagnostic_under_cursor, { desc = 'Copy diagnostic' })
 
-map('n', '<leader>;ri', replacement_actions.replace_interactive, { desc = 'Interactive replace' })
-map('n', '<leader>;rb', replacement_actions.replace_buffer, { desc = 'Replace in buffer' })
-map('n', '<leader>;rB', replacement_actions.replace_buffer_all, { desc = 'Replace all in buffer' })
-map('n', '<leader>;rp', replacement_actions.replace_buffer_prefilled, { desc = 'Replace in buffer (prefilled)' })
-map('n', '<leader>;rP', replacement_actions.replace_buffer_all_prefilled, { desc = 'Replace all in buffer (prefilled)' })
-map('v', '<leader>;rs', replacement_actions.replace_buffer_selected, { desc = 'Replace selected in buffer' })
-map('v', '<leader>;rS', replacement_actions.replace_buffer_all_selected, { desc = 'Replace all selected in buffer' })
-map('n', '<leader>;rq', replacement_actions.replace_quickfix, { desc = 'Replace in quickfix' })
-map('n', '<leader>;rQ', replacement_actions.replace_quickfix_all, { desc = 'Replace all in quickfix' })
-map('n', '<leader>;rf', replacement_actions.replace_project, { desc = 'Replace in project' })
-map('n', '<leader>;rF', replacement_actions.replace_project_all, { desc = 'Replace all in project' })
+map('n', '<leader><leader>ri', replacement_actions.replace_interactive, { desc = 'Interactive replace' })
+map('n', '<leader><leader>rb', replacement_actions.replace_buffer, { desc = 'Replace in buffer' })
+map('n', '<leader><leader>rB', replacement_actions.replace_buffer_all, { desc = 'Replace all in buffer' })
+map('n', '<leader><leader>rp', replacement_actions.replace_buffer_prefilled, { desc = 'Replace in buffer (prefilled)' })
+map('n', '<leader><leader>rP', replacement_actions.replace_buffer_all_prefilled, { desc = 'Replace all in buffer (prefilled)' })
+map('v', '<leader><leader>rs', replacement_actions.replace_buffer_selected, { desc = 'Replace selected in buffer' })
+map('v', '<leader><leader>rS', replacement_actions.replace_buffer_all_selected, { desc = 'Replace all selected in buffer' })
+map('n', '<leader><leader>rq', replacement_actions.replace_quickfix, { desc = 'Replace in quickfix' })
+map('n', '<leader><leader>rQ', replacement_actions.replace_quickfix_all, { desc = 'Replace all in quickfix' })
+map('n', '<leader><leader>rf', replacement_actions.replace_project, { desc = 'Replace in project' })
+map('n', '<leader><leader>rF', replacement_actions.replace_project_all, { desc = 'Replace all in project' })
 
 map('n', '<Leader>i', '<C-i>', { desc = 'Jump forward' })
 map('n', '<Leader>o', '<C-o>', { desc = 'Jump backward' })
@@ -148,8 +148,8 @@ maps('n', {
   { '<leader>zz', ':Lazy<CR>', 'Open Lazy' },
 })
 
-map('n', '<Leader>;tt', ':Typr<CR>', { desc = 'Start typing test' })
-map('n', '<Leader>;ts', ':TyprStats<CR>', { desc = 'Show typing stats' })
+map('n', '<Leader><Leader>tt', ':Typr<CR>', { desc = 'Start typing test' })
+map('n', '<Leader><Leader>ts', ':TyprStats<CR>', { desc = 'Show typing stats' })
 
 map('n', '<Leader>ud', file_actions.open_current_dir, { desc = 'Open directory' })
 map('n', '<Leader>uc', github_actions.open_current_commit_in_github, { desc = 'Open Current Commit in GitHub' })
@@ -184,14 +184,14 @@ map('n', '<leader>ks', keybinding_tracker_actions.show_keybinding_stats, { desc 
 map('n', '<leader>kr', keybinding_tracker_actions.reset_keybinding_stats, { desc = 'Reset keybinding stats' })
 map('n', '<leader>fp', project_actions.switch_project, { desc = 'Switch project' })
 
-map('n', '<leader>;Ss', session.save, { desc = 'Save session' })
-map('n', '<leader>;Sr', session.restore, { desc = 'Restore session' })
-map('n', '<leader>;Sd', session.delete, { desc = 'Delete session' })
-map('n', '<leader>;Sl', session.list_sessions, { desc = 'List sessions' })
+map('n', '<leader><leader>Ss', session.save, { desc = 'Save session' })
+map('n', '<leader><leader>Sr', session.restore, { desc = 'Restore session' })
+map('n', '<leader><leader>Sd', session.delete, { desc = 'Delete session' })
+map('n', '<leader><leader>Sl', session.list_sessions, { desc = 'List sessions' })
 
-map('n', '<leader>xb', buffer_actions.smart_close, { desc = 'Smart buffer close' })
-map('n', '<leader>xo', buffer_actions.close_orphan_splits, { desc = 'Close orphan splits' })
-map('n', '<leader>xh', health_actions.workspace_health, { desc = 'Workspace health check' })
+map('n', '<leader><leader>xb', buffer_actions.smart_close, { desc = 'Smart buffer close' })
+map('n', '<leader><leader>xo', buffer_actions.close_orphan_splits, { desc = 'Close orphan splits' })
+map('n', '<leader><leader>xh', health_actions.workspace_health, { desc = 'Workspace health check' })
 map('n', '<leader>k?', keymap_help_actions.contextual_help, { desc = 'Contextual keymap help' })
 map('n', '<leader>uG', git_dashboard_actions.git_dashboard, { desc = 'Git status dashboard' })
-map('n', '<leader>xE', env_check.show_env_status, { desc = 'Env var health check' })
+map('n', '<leader><leader>xE', env_check.show_env_status, { desc = 'Env var health check' })

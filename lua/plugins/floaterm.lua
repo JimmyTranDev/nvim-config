@@ -2,7 +2,7 @@ return {
   'nvzone/floaterm',
   dependencies = 'nvzone/volt',
   keys = {
-    { '<leader>F', '<cmd>Floaterm<CR>', desc = '󰙂 Toggle floating terminal' },
+    { '<leader><leader>F', '<cmd>Floaterm<CR>', desc = '󰙂 Toggle floating terminal' },
     { '<F7>', '<cmd>Floaterm<CR>', desc = '󰙂 Toggle floating terminal', mode = { 'n', 't' } },
     { '<C-\\><C-\\>', '<cmd>Floaterm<CR>', desc = '󰙂 Toggle floating terminal', mode = { 'n', 't' } },
   },
