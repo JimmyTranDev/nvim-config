@@ -138,7 +138,7 @@ map('n', '<leader>;g', function()
     vim.notify('No file open', vim.log.levels.WARN)
     return
   end
-  Snacks.picker.grep({ cwd = dir, hidden = true })
+  Snacks.picker.grep({ cwd = dir, hidden = true, ignored = true })
 end, { desc = 'Grep in current file dir' })
 map('n', '<leader>;C', github_actions.select_and_copy_pr, { desc = 'Select PR to copy' })
 map('n', '<Leader>ryj', jira_actions.copy_ticket_with_title, { desc = 'Copy Jira ticket with title' })
