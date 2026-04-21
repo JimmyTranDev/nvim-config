@@ -73,15 +73,6 @@ return {
     { mode = 'n', '<leader>tmM', toggle_term_actions.create_kill_toggle_term(3), desc = 'Makefile Exit', silent = true },
     { mode = 'n', '<leader>tms', ':1TermExec cmd="make start"<CR>', desc = 'Make Start', silent = true },
 
-    { mode = 'n', '<leader>tcr', ':4TermExec cmd="cargo run"<CR>', desc = 'Cargo Run', silent = true },
-    { mode = 'n', '<leader>tcb', ':3TermExec cmd="cargo build"<CR>', desc = 'Cargo Build', silent = true },
-    { mode = 'n', '<leader>tct', ':3TermExec cmd="cargo test"<CR>', desc = 'Cargo Test', silent = true },
-    { mode = 'n', '<leader>tcR', ':3TermExec cmd="cargo run --release"<CR>', desc = 'Cargo Release', silent = true },
-    { mode = 'n', '<leader>tcu', ':3TermExec cmd="cargo update"<CR>', desc = 'Cargo Update', silent = true },
-    { mode = 'n', '<leader>tcl', ':3TermExec cmd="cargo clippy"<CR>', desc = 'Cargo Clippy', silent = true },
-    { mode = 'n', '<leader>tcf', ':3TermExec cmd="cargo fmt"<CR>', desc = 'Cargo Fmt', silent = true },
-    { mode = 'n', '<leader>tcc', ':3TermExec cmd="cargo check"<CR>', desc = 'Cargo Check', silent = true },
-
 
     { mode = 'n', '<leader>tvs', language_actions.run_project_jar, desc = 'Start Project (Maven/Node)', silent = true },
     { mode = 'n', '<leader>tvp', ':3TermExec cmd="mvn package"<CR>', desc = 'Maven Package', silent = true },

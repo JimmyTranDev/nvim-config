@@ -87,7 +87,6 @@ return {
       { '<leader>gy', '󰋫 Quick' },
       { '<leader>t', ' Terminal' },
       { '<leader>tb', '󰃤 Build' },
-      { '<leader>tc', '󱘗 Cargo' },
       { '<leader>td', '󰈇 Docker' },
       { '<leader>te', '󰙅 Exec' },
       { '<leader>tf', '󰛨 Flutter' },
