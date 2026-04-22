@@ -638,6 +638,11 @@ return {
       desc = 'Lazysql',
     },
     {
+      '<leader>;D',
+      function() Snacks.terminal('vd ' .. vim.fn.expand('%'), { win = { style = 'float' } }) end,
+      desc = 'Visidata',
+    },
+    {
       '<leader>gL',
       function() Snacks.gitbrowse() end,
       desc = 'Git Browse',
