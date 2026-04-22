@@ -476,30 +476,19 @@ function M.open_or_create_pull_request()
   end
 
   local base_candidates = get_base_branch_candidates()
+  local base = base_candidates[1]
 
-  local function create_pr_with_base(base)
-    local default_title = generate_pr_title(branch)
-    input_utils.get_input('PR title', function(title)
-      if not title then return end
-      local result = vim.fn.system({ 'gh', 'pr', 'create', '--base', base, '--title', title, '--web' })
+  local default_title = generate_pr_title(branch)
+  input_utils.get_input('PR title', function(title)
+    if not title then return end
+    local result = vim.fn.system({ 'gh', 'pr', 'create', '--base', base, '--title', title, '--web' })
 
-      if vim.v.shell_error == 0 then
-        vim.notify('PR created into ' .. base .. ' and opened in browser', vim.log.levels.INFO)
-      else
-        vim.notify('Failed to create PR: ' .. result, vim.log.levels.ERROR)
-      end
-    end, default_title)
-  end
-
-  if #base_candidates == 1 then
-    create_pr_with_base(base_candidates[1])
-    return
-  end
-
-  vim.ui.select(base_candidates, { prompt = 'Select base branch:' }, function(selected)
-    if not selected then return end
-    create_pr_with_base(selected)
-  end)
+    if vim.v.shell_error == 0 then
+      vim.notify('PR created into ' .. base .. ' and opened in browser', vim.log.levels.INFO)
+    else
+      vim.notify('Failed to create PR: ' .. result, vim.log.levels.ERROR)
+    end
+  end, default_title)
 end
 
 
