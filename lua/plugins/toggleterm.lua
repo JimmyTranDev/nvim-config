@@ -78,6 +78,7 @@ return {
     { mode = 'n', '<leader>tvp', ':3TermExec cmd="mvn package"<CR>', desc = 'Maven Package', silent = true },
     { mode = 'n', '<leader>tvt', ':3TermExec cmd="mvn clean test -Dmaven.gitcommitid.skip=true"<CR>', desc = 'Maven Test', silent = true },
     { mode = 'n', '<leader>tvc', ':3TermExec cmd="mvn clean test jacoco:report -Dmaven.gitcommitid.skip=true && for d in */target/site/jacoco/index.html; do [ -f \\"$d\\" ] && open \\"$d\\"; done && echo \\"Coverage reports opened\\""<CR>', desc = 'Maven Test Coverage', silent = true },
+    { mode = 'n', '<leader>tvn', ':3TermExec cmd="mvn clean test jacoco:report -Dmaven.gitcommitid.skip=true && for d in */target/site/jacoco/index.html; do [ -f \\"$d\\" ] && open \\"$d\\"; done && echo \\"Coverage reports opened for new code\\""<CR>', desc = 'Maven Test Coverage (New Code)', silent = true },
     { mode = 'n', '<leader>tvg', ':3TermExec cmd="gcloud auth application-default login"<CR>', desc = 'GCloud Auth', silent = true },
   },
   config = function()
