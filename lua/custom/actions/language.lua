@@ -39,9 +39,10 @@ function M.run_project_jar()
       and (module .. '/target/' .. module .. '.jar')
       or ('target/' .. vim.fn.fnamemodify(cwd, ':t') .. '.jar')
     local label = module or vim.fn.fnamemodify(cwd, ':t')
-    local cmd = 'mvn clean package -DskipTests'
+    local cmd = 'mvn clean package -Dmaven.gitcommitid.skip=true -Dmaven.test.skip=true'
       .. ' && java -jar'
       .. ' -Dspring.profiles.active=local'
+      .. ' -Dspring.cloud.gcp.sql.enabled=false'
       .. ' ' .. jar_path
     ui_utils.exec_in_terminal(cmd, 'Spring Boot: ' .. label, 3)
   end
