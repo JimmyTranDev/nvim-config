@@ -77,8 +77,43 @@ return {
     { mode = 'n', '<leader>tvs', language_actions.run_project_jar, desc = 'Start Project (Maven/Node)', silent = true },
     { mode = 'n', '<leader>tvp', ':3TermExec cmd="mvn package"<CR>', desc = 'Maven Package', silent = true },
     { mode = 'n', '<leader>tvt', ':3TermExec cmd="mvn clean test -Dmaven.gitcommitid.skip=true"<CR>', desc = 'Maven Test', silent = true },
-    { mode = 'n', '<leader>tvc', ':3TermExec cmd="mvn clean test jacoco:report -Dmaven.gitcommitid.skip=true && for d in */target/site/jacoco/index.html; do [ -f \\"$d\\" ] && open \\"$d\\"; done && echo \\"Coverage reports opened\\""<CR>', desc = 'Maven Test Coverage', silent = true },
-    { mode = 'n', '<leader>tvn', ':3TermExec cmd="mvn clean test jacoco:report -Dmaven.gitcommitid.skip=true && for d in */target/site/jacoco/index.html; do [ -f \\"$d\\" ] && open \\"$d\\"; done && echo \\"Coverage reports opened for new code\\""<CR>', desc = 'Maven Test Coverage (New Code)', silent = true },
+    {
+      mode = 'n',
+      '<leader>tvc',
+      function()
+        require('toggleterm').exec(
+          'mvn clean test jacoco:report -Dmaven.gitcommitid.skip=true && for d in */target/site/jacoco/index.html; do [ -f "$d" ] && open "$d"; done && echo "Coverage reports opened"',
+          3
+        )
+      end,
+      desc = 'Maven Test Coverage',
+      silent = true,
+    },
+    {
+      mode = 'n',
+      '<leader>tvn',
+      function()
+        local cmd = table.concat({
+          'CHANGED_CLASSES=$(git diff --name-only HEAD~1 -- "*.java"',
+          '  | grep "src/test/.*Test\\.java$"',
+          '  | sed "s|.*/src/test/java/||; s|\\.java$||; s|/|.|g"',
+          '  | paste -sd "," -)',
+          'if [ -z "$CHANGED_CLASSES" ]; then echo "No changed test classes found"; exit 0; fi',
+          'MODULES=$(git diff --name-only HEAD~1 -- "*.java"',
+          '  | grep "src/test/"',
+          '  | sed "s|/src/.*||"',
+          '  | sort -u',
+          '  | paste -sd "," -)',
+          'echo "Running tests: $CHANGED_CLASSES in modules: $MODULES"',
+          'mvn test jacoco:report -Dmaven.gitcommitid.skip=true -pl "$MODULES" -Dtest="$CHANGED_CLASSES"',
+          '&& for d in */target/site/jacoco/index.html; do [ -f "$d" ] && open "$d"; done',
+          '&& echo "Coverage reports opened for changed tests"',
+        }, ' && ')
+        require('toggleterm').exec(cmd, 3)
+      end,
+      desc = 'Maven Test Coverage (Changed Tests)',
+      silent = true,
+    },
     { mode = 'n', '<leader>tvg', ':3TermExec cmd="gcloud auth application-default login"<CR>', desc = 'GCloud Auth', silent = true },
   },
   config = function()
