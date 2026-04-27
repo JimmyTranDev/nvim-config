@@ -429,18 +429,6 @@ local function get_pr_for_branch(branch)
   return nil
 end
 
-local function generate_pr_title(branch)
-  local ticket = git_utils.extract_jira_ticket(branch)
-
-  local slug = branch:gsub('^%w+/', '')
-  if ticket ~= '' then slug = slug:gsub('^' .. ticket:gsub('%-', '%%-') .. '[_%-]?', '') end
-  slug = slug:gsub('[_%-]', ' '):gsub('%s+', ' '):match('^%s*(.-)%s*$') or ''
-
-  if slug == '' then slug = branch end
-
-  if ticket ~= '' then return ticket .. ' ' .. slug end
-  return slug
-end
 
 local function get_base_branch_candidates()
   local output = vim.fn.system({ 'git', 'branch', '-a', '--format=%(refname:short)' })
@@ -478,17 +466,13 @@ function M.open_or_create_pull_request()
   local base_candidates = get_base_branch_candidates()
   local base = base_candidates[1]
 
-  local default_title = generate_pr_title(branch)
-  input_utils.get_input('PR title', function(title)
-    if not title then return end
-    local result = vim.fn.system({ 'gh', 'pr', 'create', '--base', base, '--title', title, '--web' })
+  local result = vim.fn.system({ 'gh', 'pr', 'create', '--base', base, '--fill', '--web' })
 
-    if vim.v.shell_error == 0 then
-      vim.notify('PR created into ' .. base .. ' and opened in browser', vim.log.levels.INFO)
-    else
-      vim.notify('Failed to create PR: ' .. result, vim.log.levels.ERROR)
-    end
-  end, default_title)
+  if vim.v.shell_error == 0 then
+    vim.notify('PR creation opened in browser for branch: ' .. branch, vim.log.levels.INFO)
+  else
+    vim.notify('Failed to create PR: ' .. result, vim.log.levels.ERROR)
+  end
 end
 
 
