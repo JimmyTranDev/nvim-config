@@ -114,6 +114,23 @@ return {
       desc = 'Maven Test Coverage (Changed Tests)',
       silent = true,
     },
+    {
+      mode = 'n',
+      '<leader>tvN',
+      function()
+        local cmd = table.concat({
+          'mvn clean test jacoco:report -Dmaven.gitcommitid.skip=true',
+          '&& JACOCO_XML=$(find . -path "*/target/site/jacoco/jacoco.xml" -print -quit)',
+          '&& if [ -z "$JACOCO_XML" ]; then echo "No JaCoCo XML report found"; exit 1; fi',
+          '&& diff-cover "$JACOCO_XML" --compare-branch=develop --html-report target/diff-cover.html',
+          '&& open target/diff-cover.html',
+          '&& echo "Diff coverage report opened"',
+        }, ' ')
+        require('toggleterm').exec(cmd, 3)
+      end,
+      desc = 'Maven Test Coverage (New Code via diff-cover)',
+      silent = true,
+    },
     { mode = 'n', '<leader>tvg', ':3TermExec cmd="gcloud auth application-default login"<CR>', desc = 'GCloud Auth', silent = true },
   },
   config = function()
