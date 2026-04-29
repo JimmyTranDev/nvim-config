@@ -41,6 +41,11 @@ local REQUIRED_VARS = {
     features = 'Todoist: API authentication',
     get = function() return vim.env.PRI_TODOIST_API_TOKEN or vim.env.TODOIST_API_TOKEN end,
   },
+  {
+    name = 'ORG_SONARQUBE_URL',
+    features = 'SonarQube: branch coverage dashboard',
+    get = function() return vim.env.ORG_SONARQUBE_URL end,
+  },
 
 }
 

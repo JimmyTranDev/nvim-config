@@ -176,6 +176,21 @@ end, { desc = 'Diff vs develop' })
 map('n', '<Leader>us', link_actions.search_google, { desc = 'Search Google' })
 map('v', '<Leader>us', link_actions.search_google, { desc = 'Search Google (selection)' })
 map('n', '<Leader>uB', branch_actions.stale_branch_cleanup(), { desc = 'Stale branch cleanup' })
+map('n', '<Leader>uS', function()
+  local url = vim.env.ORG_SONARQUBE_URL
+  if not url or url == '' then
+    vim.notify('ORG_SONARQUBE_URL is not set', vim.log.levels.WARN)
+    return
+  end
+  local branch = vim.fn.systemlist('git branch --show-current')[1]
+  if not branch or branch == '' then
+    vim.notify('Could not determine current branch', vim.log.levels.WARN)
+    return
+  end
+  local separator = url:find('?') and '&' or '?'
+  local full_url = url .. separator .. 'branch=' .. branch
+  vim.ui.open(full_url)
+end, { desc = 'Open SonarQube (branch)' })
 
 map('n', '<Leader>tny', pnpm_actions.pnpm_link, { desc = 'pnpm link package' })
 map('n', '<Leader>tnY', pnpm_actions.pnpm_unlink, { desc = 'pnpm unlink package' })
