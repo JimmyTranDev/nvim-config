@@ -155,6 +155,74 @@ function M.run_package_script(term_id)
   vim.notify('No package.json or Makefile found', vim.log.levels.WARN)
 end
 
+function M.run_multiple_package_scripts(start_term_id)
+  return function()
+    local scripts = language_utils.list_package_json_commands()
+    if #scripts == 0 then
+      vim.notify('No scripts found in package.json', vim.log.levels.WARN)
+      return
+    end
+
+    local pm = get_pm()
+    if not pm then return end
+
+    local max_splits = 6
+    local items = {}
+    for _, script in ipairs(scripts) do
+      table.insert(items, { text = script, script = script })
+    end
+
+    local ok, snacks = pcall(require, 'snacks')
+    if not ok then
+      vim.notify('Snacks not available', vim.log.levels.ERROR)
+      return
+    end
+
+    snacks.picker({
+      title = 'Select npm scripts (multi-select with Tab)',
+      items = items,
+      format = function(item) return { { item.text } } end,
+      multi = true,
+      confirm = function(picker, selected)
+        picker:close()
+        if not selected or #selected == 0 then return end
+
+        if #selected > max_splits then
+          vim.notify('Capped to ' .. max_splits .. ' scripts (selected ' .. #selected .. ')', vim.log.levels.WARN)
+        end
+
+        local count = math.min(#selected, max_splits)
+        for i = 1, count do
+          local script = selected[i].script
+          local term_id = (start_term_id or 10) + i - 1
+          local Terminal = require('toggleterm.terminal').Terminal
+          local term = Terminal:new({
+            cmd = pm .. ' run ' .. script,
+            count = term_id,
+            direction = 'horizontal',
+            display_name = script,
+            close_on_exit = false,
+          })
+          term:toggle()
+        end
+      end,
+    })
+  end
+end
+
+function M.kill_multiple_package_script_terms(start_term_id, count)
+  return function()
+    local max = count or 6
+    for i = 0, max - 1 do
+      local term_id = (start_term_id or 10) + i
+      local terms = require('toggleterm.terminal').Terminal
+      local term = terms:get(term_id)
+      if term then term:shutdown() end
+    end
+    vim.notify('Killed multi-select script terminals', vim.log.levels.INFO)
+  end
+end
+
 function M.create_package_command_runner(term_id, command, should_exit, args)
   return function()
     local pm = get_pm()

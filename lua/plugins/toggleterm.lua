@@ -26,6 +26,9 @@ return {
 
     { mode = 'n', '<leader>tx', toggle_term_actions.kill_all_toggle_term, silent = true, desc = 'Kill All Terminals' },
 
+    { mode = 'n', '<leader>tnm', language_actions.run_multiple_package_scripts(10), silent = true, desc = 'Multi-select Npm Scripts' },
+    { mode = 'n', '<leader>tnM', language_actions.kill_multiple_package_script_terms(10, 6), silent = true, desc = 'Kill Multi-select Scripts' },
+
     { mode = 'n', '<leader>tnj', function() language_actions.run_package_script(1) end, silent = true, desc = 'Npm Script 1' },
     { mode = 'n', '<leader>tnJ', toggle_term_actions.create_kill_toggle_term(1), silent = true, desc = 'Npm Script 1 Exit' },
     { mode = 'n', '<leader>tnk', function() language_actions.run_package_script(2) end, silent = true, desc = 'Npm Script 2' },
