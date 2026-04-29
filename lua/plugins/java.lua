@@ -19,6 +19,28 @@ return {
               profile = 'IntelliJStyle',
             },
           },
+          compile = {
+            nullAnalysis = {
+              mode = 'automatic',
+            },
+          },
+          cleanup = {
+            actionsOnSave = {
+              'addOverride',
+              'addDeprecated',
+              'qualifyMembers',
+              'qualifyStaticMembers',
+              'organizeImports',
+            },
+          },
+          diagnostics = {
+            unusedImports = 'warning',
+            unusedVariables = 'warning',
+            unusedParameters = 'warning',
+          },
+          saveActions = {
+            organizeImports = true,
+          },
         },
       },
     })
