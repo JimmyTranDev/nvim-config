@@ -79,6 +79,21 @@ return {
     { mode = 'n', '<leader>tvt', ':3TermExec cmd="mvn clean test -Dmaven.gitcommitid.skip=true"<CR>', desc = 'Maven Test', silent = true },
     {
       mode = 'n',
+      '<leader>tvf',
+      function()
+        if vim.bo.filetype ~= 'java' then
+          vim.notify('Not a Java file', vim.log.levels.WARN)
+          return
+        end
+        local filename = vim.fn.expand('%:t:r')
+        local cmd = 'mvn -Dtest="' .. filename .. '" test -Dmaven.gitcommitid.skip=true'
+        require('toggleterm').exec(cmd, 3)
+      end,
+      desc = 'Maven Test Current File',
+      silent = true,
+    },
+    {
+      mode = 'n',
       '<leader>tvc',
       function()
         require('toggleterm').exec(
