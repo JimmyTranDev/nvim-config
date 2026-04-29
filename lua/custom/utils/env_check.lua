@@ -49,20 +49,52 @@ local REQUIRED_VARS = {
 
 }
 
+local REQUIRED_TOOLS = {
+  { name = 'gh', features = 'GitHub: PRs, issues, repos' },
+  { name = 'acli', features = 'Jira: task creation and management' },
+  { name = 'jq', features = 'JSON: package.json parsing, data extraction' },
+  { name = 'td', features = 'Todoist: task management' },
+  { name = 'docker', features = 'Docker: worktree database containers' },
+  { name = 'diff-cover', features = 'Java: new code test coverage reports' },
+}
+
+local function check_tool(name)
+  return vim.fn.executable(name) == 1
+end
+
 function M.check_env_vars()
-  local missing = {}
+  local missing_vars = {}
   for _, var in ipairs(REQUIRED_VARS) do
     local val = var.get()
     if not val or val == '' then
-      table.insert(missing, var)
+      table.insert(missing_vars, var)
     end
   end
 
-  if #missing == 0 then return end
+  local missing_tools = {}
+  for _, tool in ipairs(REQUIRED_TOOLS) do
+    if not check_tool(tool.name) then
+      table.insert(missing_tools, tool)
+    end
+  end
 
-  local msg_parts = { 'Missing env vars (' .. #missing .. '/' .. #REQUIRED_VARS .. '):' }
-  for _, var in ipairs(missing) do
-    table.insert(msg_parts, '  ' .. var.name .. ' → ' .. var.features)
+  if #missing_vars == 0 and #missing_tools == 0 then return end
+
+  local msg_parts = {}
+
+  if #missing_vars > 0 then
+    table.insert(msg_parts, 'Missing env vars (' .. #missing_vars .. '/' .. #REQUIRED_VARS .. '):')
+    for _, var in ipairs(missing_vars) do
+      table.insert(msg_parts, '  ' .. var.name .. ' → ' .. var.features)
+    end
+  end
+
+  if #missing_tools > 0 then
+    if #msg_parts > 0 then table.insert(msg_parts, '') end
+    table.insert(msg_parts, 'Missing CLI tools (' .. #missing_tools .. '/' .. #REQUIRED_TOOLS .. '):')
+    for _, tool in ipairs(missing_tools) do
+      table.insert(msg_parts, '  ' .. tool.name .. ' → ' .. tool.features)
+    end
   end
 
   vim.notify(table.concat(msg_parts, '\n'), vim.log.levels.WARN)
@@ -77,6 +109,18 @@ function M.show_env_status()
     local status = is_set and '✓' or '✗'
     local hl = is_set and 'DiagnosticOk' or 'DiagnosticError'
     local text = string.format('  %s  %-30s %s', status, var.name, var.features)
+    table.insert(lines, { text, hl })
+  end
+
+  table.insert(lines, { '', nil })
+  table.insert(lines, { '── CLI Tools ──', 'Title' })
+  table.insert(lines, { '', nil })
+
+  for _, tool in ipairs(REQUIRED_TOOLS) do
+    local is_available = check_tool(tool.name)
+    local status = is_available and '✓' or '✗'
+    local hl = is_available and 'DiagnosticOk' or 'DiagnosticError'
+    local text = string.format('  %s  %-30s %s', status, tool.name, tool.features)
     table.insert(lines, { text, hl })
   end
 
@@ -112,7 +156,7 @@ function M.show_env_status()
     row = math.floor((vim.o.lines - height) / 2),
     style = 'minimal',
     border = 'rounded',
-    title = ' Env Vars ',
+    title = ' Environment Health ',
     title_pos = 'center',
   })
 
