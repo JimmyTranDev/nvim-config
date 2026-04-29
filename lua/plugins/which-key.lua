@@ -116,7 +116,6 @@ return {
     local descs = {
       { '<leader>;j', '󰌧 Generate this week jira tasks' },
 
-
       { '<leader>i', '󰘻 Jump In' },
       { '<leader>m', '󰊢 Lazygit' },
       { '<leader>o', '󰘶 Jump Out' },

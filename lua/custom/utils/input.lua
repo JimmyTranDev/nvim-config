@@ -15,9 +15,7 @@ function M.get_selected_text(clean)
   vim.cmd('normal! ""y')
   local selected = vim.fn.getreg('"')
   vim.fn.setreg('"', old_reg)
-  if clean then
-    return selected:gsub('"', ''):gsub(':', '')
-  end
+  if clean then return selected:gsub('"', ''):gsub(':', '') end
   return selected
 end
 

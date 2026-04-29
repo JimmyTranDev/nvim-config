@@ -92,9 +92,7 @@ local function setup_performance()
   vim.cmd('filetype indent on')
 end
 
-local function setup_plugin_globals()
-  vim.g.copilot_no_tab_map = true
-end
+local function setup_plugin_globals() vim.g.copilot_no_tab_map = true end
 
 local function setup_diagnostics()
   vim.diagnostic.config({

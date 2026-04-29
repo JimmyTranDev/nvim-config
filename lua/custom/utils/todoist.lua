@@ -3,9 +3,7 @@ local M = {}
 local async_utils = require('custom.utils.async')
 local json_utils = require('custom.utils.json')
 
-if vim.env.PRI_TODOIST_API_TOKEN then
-  vim.env.TODOIST_API_TOKEN = vim.env.PRI_TODOIST_API_TOKEN
-end
+if vim.env.PRI_TODOIST_API_TOKEN then vim.env.TODOIST_API_TOKEN = vim.env.PRI_TODOIST_API_TOKEN end
 
 local PROJECTS_CACHE_FILE = vim.fn.stdpath('data') .. '/todoist_projects_cache.json'
 local SECTIONS_CACHE_FILE = vim.fn.stdpath('data') .. '/todoist_sections_cache.json'
@@ -20,9 +18,7 @@ local function load_projects_from_disk()
   return nil
 end
 
-local function save_projects_to_disk(projects)
-  json_utils.write_json_to_file(PROJECTS_CACHE_FILE, { projects = projects })
-end
+local function save_projects_to_disk(projects) json_utils.write_json_to_file(PROJECTS_CACHE_FILE, { projects = projects }) end
 
 local function load_sections_from_disk()
   if not vim.uv.fs_stat(SECTIONS_CACHE_FILE) then return nil end

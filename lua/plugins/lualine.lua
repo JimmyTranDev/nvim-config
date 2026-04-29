@@ -1,7 +1,5 @@
 return {
   'nvim-lualine/lualine.nvim',
   event = 'VeryLazy',
-  config = function()
-    require('core.statusline')
-  end,
+  config = function() require('core.statusline') end,
 }

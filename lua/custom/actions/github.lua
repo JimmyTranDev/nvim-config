@@ -129,7 +129,22 @@ function M.copy_open_prs()
   vim.notify('Fetching open PRs for ' .. org_name .. '...', vim.log.levels.INFO)
 
   vim.system(
-    { 'gh', 'search', 'prs', 'draft:false', '--owner', org_name, '--state', 'open', '--author', '@me', '--json', 'number,title,repository,url', '--limit', '100' },
+    {
+      'gh',
+      'search',
+      'prs',
+      'draft:false',
+      '--owner',
+      org_name,
+      '--state',
+      'open',
+      '--author',
+      '@me',
+      '--json',
+      'number,title,repository,url',
+      '--limit',
+      '100',
+    },
     { text = true },
     vim.schedule_wrap(function(result)
       if result.code ~= 0 then
@@ -328,12 +343,19 @@ function M.select_open_prs_by_people()
   for _, username in ipairs(usernames) do
     vim.system(
       {
-        'gh', 'search', 'prs',
-        '--owner', org_name,
-        '--state', 'open',
-        '--author', username,
-        '--json', 'number,title,repository,url',
-        '--limit', '100',
+        'gh',
+        'search',
+        'prs',
+        '--owner',
+        org_name,
+        '--state',
+        'open',
+        '--author',
+        username,
+        '--json',
+        'number,title,repository,url',
+        '--limit',
+        '100',
       },
       { text = true },
       vim.schedule_wrap(function(result)
@@ -445,42 +467,38 @@ function M.pr_review_mode()
   local repo_info = github_utils.get_repo_info()
   local repo_slug = repo_info and repo_info.nameWithOwner or ''
 
-  async_utils.run(
-    'gh pr list --json number,title,headRefName,author --limit 20',
-    function(stdout)
-      local ok, prs = pcall(vim.fn.json_decode, stdout)
-      if not ok or not prs or #prs == 0 then
-        vim.notify('No open PRs found in this repo', vim.log.levels.INFO)
-        return
-      end
+  async_utils.run('gh pr list --json number,title,headRefName,author --limit 20', function(stdout)
+    local ok, prs = pcall(vim.fn.json_decode, stdout)
+    if not ok or not prs or #prs == 0 then
+      vim.notify('No open PRs found in this repo', vim.log.levels.INFO)
+      return
+    end
 
-      local pr_items = {}
-      for _, pr in ipairs(prs) do
-        local author = type(pr.author) == 'table' and pr.author.login or tostring(pr.author or '')
-        table.insert(pr_items, {
-          text = string.format('#%d %s (%s)', pr.number, pr.title, author),
-          number = pr.number,
-          title = pr.title,
-          branch = pr.headRefName,
-          author = author,
-        })
-      end
-
-      local snacks_ok, snacks = pcall(require, 'snacks')
-      if not snacks_ok then return end
-
-      snacks.picker({
-        title = 'Select PR to Review',
-        items = pr_items,
-        format = function(item) return { { item.text, 'Normal' } } end,
-        confirm = function(picker, item)
-          picker:close()
-          M._open_pr_review(item.number, item.title, repo_slug)
-        end,
+    local pr_items = {}
+    for _, pr in ipairs(prs) do
+      local author = type(pr.author) == 'table' and pr.author.login or tostring(pr.author or '')
+      table.insert(pr_items, {
+        text = string.format('#%d %s (%s)', pr.number, pr.title, author),
+        number = pr.number,
+        title = pr.title,
+        branch = pr.headRefName,
+        author = author,
       })
-    end,
-    function(_, err) vim.notify('Failed to list PRs: ' .. err, vim.log.levels.ERROR) end
-  )
+    end
+
+    local snacks_ok, snacks = pcall(require, 'snacks')
+    if not snacks_ok then return end
+
+    snacks.picker({
+      title = 'Select PR to Review',
+      items = pr_items,
+      format = function(item) return { { item.text, 'Normal' } } end,
+      confirm = function(picker, item)
+        picker:close()
+        M._open_pr_review(item.number, item.title, repo_slug)
+      end,
+    })
+  end, function(_, err) vim.notify('Failed to list PRs: ' .. err, vim.log.levels.ERROR) end)
 end
 
 local function parse_diff_by_file(full_diff)
@@ -504,77 +522,71 @@ local function parse_diff_by_file(full_diff)
 end
 
 function M._open_pr_review(pr_number, pr_title, repo_slug)
-  async_utils.run(
-    string.format('gh pr diff %d', pr_number),
-    function(stdout)
-      local file_diffs = parse_diff_by_file(stdout)
+  async_utils.run(string.format('gh pr diff %d', pr_number), function(stdout)
+    local file_diffs = parse_diff_by_file(stdout)
 
-      local files = {}
-      for filename in pairs(file_diffs) do
-        table.insert(files, filename)
-      end
-      table.sort(files)
+    local files = {}
+    for filename in pairs(file_diffs) do
+      table.insert(files, filename)
+    end
+    table.sort(files)
 
-      if #files == 0 then
-        vim.notify('No changed files in PR #' .. pr_number, vim.log.levels.INFO)
-        return
-      end
+    if #files == 0 then
+      vim.notify('No changed files in PR #' .. pr_number, vim.log.levels.INFO)
+      return
+    end
 
-      local file_items = {}
-      for i, filename in ipairs(files) do
-        table.insert(file_items, {
-          idx = i,
-          text = filename,
-          filename = filename,
-          pr_number = pr_number,
-        })
-      end
+    local file_items = {}
+    for i, filename in ipairs(files) do
+      table.insert(file_items, {
+        idx = i,
+        text = filename,
+        filename = filename,
+        pr_number = pr_number,
+      })
+    end
 
-      local snacks_ok, snacks = pcall(require, 'snacks')
-      if not snacks_ok then return end
+    local snacks_ok, snacks = pcall(require, 'snacks')
+    if not snacks_ok then return end
 
-      snacks.picker({
-        title = string.format('PR #%d: %s (%d files)', pr_number, pr_title, #files),
-        items = file_items,
-        format = function(item) return { { item.text, 'Normal' } } end,
-        confirm = function(picker, item)
-          picker:close()
-          M._show_pr_file_diff(pr_number, item.filename, file_diffs[item.filename])
+    snacks.picker({
+      title = string.format('PR #%d: %s (%d files)', pr_number, pr_title, #files),
+      items = file_items,
+      format = function(item) return { { item.text, 'Normal' } } end,
+      confirm = function(picker, item)
+        picker:close()
+        M._show_pr_file_diff(pr_number, item.filename, file_diffs[item.filename])
+      end,
+      actions = {
+        approve = function(p)
+          p:close()
+          M._submit_pr_review(pr_number, 'approve')
         end,
-        actions = {
-          approve = function(p)
-            p:close()
-            M._submit_pr_review(pr_number, 'approve')
-          end,
-          request_changes = function(p)
-            p:close()
-            M._submit_pr_review(pr_number, 'request-changes')
-          end,
-          comment_review = function(p)
-            p:close()
-            M._submit_pr_review(pr_number, 'comment')
-          end,
-          open_in_browser = function(p)
-            p:close()
-            if repo_slug ~= '' then
-              file_utils.open(string.format('https://github.com/%s/pull/%d', repo_slug, pr_number))
-            end
-          end,
-        },
-        win = {
-          input = {
-            keys = {
-              ['<C-a>'] = { 'approve', desc = 'Approve PR', mode = { 'n', 'i' } },
-              ['<C-x>'] = { 'request_changes', desc = 'Request changes', mode = { 'n', 'i' } },
-              ['<C-r>'] = { 'comment_review', desc = 'Comment review', mode = { 'n', 'i' } },
-              ['<C-o>'] = { 'open_in_browser', desc = 'Open in browser', mode = { 'n', 'i' } },
-            },
+        request_changes = function(p)
+          p:close()
+          M._submit_pr_review(pr_number, 'request-changes')
+        end,
+        comment_review = function(p)
+          p:close()
+          M._submit_pr_review(pr_number, 'comment')
+        end,
+        open_in_browser = function(p)
+          p:close()
+          if repo_slug ~= '' then file_utils.open(string.format('https://github.com/%s/pull/%d', repo_slug, pr_number)) end
+        end,
+      },
+      win = {
+        input = {
+          keys = {
+            ['<C-a>'] = { 'approve', desc = 'Approve PR', mode = { 'n', 'i' } },
+            ['<C-x>'] = { 'request_changes', desc = 'Request changes', mode = { 'n', 'i' } },
+            ['<C-r>'] = { 'comment_review', desc = 'Comment review', mode = { 'n', 'i' } },
+            ['<C-o>'] = { 'open_in_browser', desc = 'Open in browser', mode = { 'n', 'i' } },
           },
         },
-      })
-    end,
-    function(_, err) vim.notify('Failed to get PR diff: ' .. err, vim.log.levels.ERROR) end
-  )
+      },
+    })
+  end, function(_, err) vim.notify('Failed to get PR diff: ' .. err, vim.log.levels.ERROR) end)
 end
 
 function M._show_pr_file_diff(pr_number, filename, diff_content)
@@ -599,14 +611,18 @@ function M._submit_pr_review(pr_number, review_type)
       table.insert(cmd, body)
     end
 
-    vim.system(cmd, { text = true }, vim.schedule_wrap(function(result)
-      if result.code == 0 then
-        local action_labels = { approve = 'Approved', ['request-changes'] = 'Requested changes on', comment = 'Commented on' }
-        vim.notify(string.format('%s PR #%d', action_labels[review_type] or 'Reviewed', pr_number), vim.log.levels.INFO)
-      else
-        vim.notify('Failed to submit review: ' .. (result.stderr or result.stdout or ''), vim.log.levels.ERROR)
-      end
-    end))
+    vim.system(
+      cmd,
+      { text = true },
+      vim.schedule_wrap(function(result)
+        if result.code == 0 then
+          local action_labels = { approve = 'Approved', ['request-changes'] = 'Requested changes on', comment = 'Commented on' }
+          vim.notify(string.format('%s PR #%d', action_labels[review_type] or 'Reviewed', pr_number), vim.log.levels.INFO)
+        else
+          vim.notify('Failed to submit review: ' .. (result.stderr or result.stdout or ''), vim.log.levels.ERROR)
+        end
+      end)
+    )
   end)
 end
 

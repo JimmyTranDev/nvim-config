@@ -4,9 +4,7 @@ local health_win = nil
 
 local function get_lsp_status()
   local clients = vim.lsp.get_clients({ bufnr = 0 })
-  if #clients == 0 then
-    return { '  LSP: No active clients', 'DiagnosticWarn' }
-  end
+  if #clients == 0 then return { '  LSP: No active clients', 'DiagnosticWarn' } end
   local names = {}
   for _, client in ipairs(clients) do
     table.insert(names, client.name)
@@ -17,26 +15,18 @@ end
 local function get_treesitter_status()
   local buf = vim.api.nvim_get_current_buf()
   local lang = vim.treesitter.language.get_lang(vim.bo[buf].filetype)
-  if not lang then
-    return { '  Treesitter: No parser for ' .. vim.bo[buf].filetype, 'DiagnosticWarn' }
-  end
+  if not lang then return { '  Treesitter: No parser for ' .. vim.bo[buf].filetype, 'DiagnosticWarn' } end
   local ok = pcall(vim.treesitter.get_parser, buf, lang)
-  if ok then
-    return { '  Treesitter: ' .. lang .. ' (active)', 'DiagnosticOk' }
-  end
+  if ok then return { '  Treesitter: ' .. lang .. ' (active)', 'DiagnosticOk' } end
   return { '  Treesitter: ' .. lang .. ' (parser not loaded)', 'DiagnosticWarn' }
 end
 
 local function get_formatter_status()
   local ok, conform = pcall(require, 'conform')
-  if not ok then
-    return { '  Formatters: conform.nvim not available', 'DiagnosticWarn' }
-  end
+  if not ok then return { '  Formatters: conform.nvim not available', 'DiagnosticWarn' } end
 
   local formatters = conform.list_formatters(0)
-  if #formatters == 0 then
-    return { '  Formatters: None configured for ' .. vim.bo.filetype, 'DiagnosticWarn' }
-  end
+  if #formatters == 0 then return { '  Formatters: None configured for ' .. vim.bo.filetype, 'DiagnosticWarn' } end
 
   local names = {}
   local has_missing = false
@@ -51,9 +41,7 @@ end
 
 local function get_mason_status()
   local ok, registry = pcall(require, 'mason-registry')
-  if not ok then
-    return { '  Mason: not available', 'DiagnosticWarn' }
-  end
+  if not ok then return { '  Mason: not available', 'DiagnosticWarn' } end
 
   local installed = registry.get_installed_packages()
   local count = #installed
@@ -89,22 +77,16 @@ local function get_diagnostic_summary()
   local diagnostics = vim.diagnostic.get(nil)
   for _, d in ipairs(diagnostics) do
     local sev = d.severity
-    if sev >= 1 and sev <= 4 then
-      counts[sev] = counts[sev] + 1
-    end
+    if sev >= 1 and sev <= 4 then counts[sev] = counts[sev] + 1 end
   end
 
   local parts = {}
   local labels = { 'Error', 'Warn', 'Info', 'Hint' }
   for i, label in ipairs(labels) do
-    if counts[i] > 0 then
-      table.insert(parts, label .. ': ' .. counts[i])
-    end
+    if counts[i] > 0 then table.insert(parts, label .. ': ' .. counts[i]) end
   end
 
-  if #parts == 0 then
-    return { '  Diagnostics: Clean', 'DiagnosticOk' }
-  end
+  if #parts == 0 then return { '  Diagnostics: Clean', 'DiagnosticOk' } end
 
   local hl = counts[1] > 0 and 'DiagnosticError' or 'DiagnosticWarn'
   return { '  Diagnostics: ' .. table.concat(parts, ', '), hl }
@@ -177,9 +159,7 @@ function M.workspace_health()
 
     for i, line in ipairs(lines) do
       table.insert(content, line[1])
-      if line[2] then
-        table.insert(highlights, { i - 1, line[2] })
-      end
+      if line[2] then table.insert(highlights, { i - 1, line[2] }) end
     end
 
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, content)

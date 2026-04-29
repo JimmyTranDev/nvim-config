@@ -3,13 +3,7 @@ local M = {}
 local dashboard_win = nil
 
 local function run_git(args, callback)
-  vim.system(
-    args,
-    { text = true },
-    vim.schedule_wrap(function(result)
-      callback(result.code == 0 and result.stdout or nil)
-    end)
-  )
+  vim.system(args, { text = true }, vim.schedule_wrap(function(result) callback(result.code == 0 and result.stdout or nil) end))
 end
 
 local function get_branch_info(callback)
@@ -105,9 +99,7 @@ local function get_unpushed_commits(callback)
     local first_msg = nil
     for line in stdout:gmatch('[^\n]+') do
       count = count + 1
-      if count == 1 then
-        first_msg = line:match('^%S+%s+(.+)$')
-      end
+      if count == 1 then first_msg = line:match('^%S+%s+(.+)$') end
     end
 
     if count == 0 then
@@ -178,9 +170,7 @@ local function show_dashboard(results)
 
   for i, line in ipairs(lines) do
     table.insert(content, line[1])
-    if line[2] then
-      table.insert(highlights, { i - 1, line[2] })
-    end
+    if line[2] then table.insert(highlights, { i - 1, line[2] }) end
   end
 
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, content)

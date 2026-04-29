@@ -50,9 +50,7 @@ end
 
 function M.ensure_directory_exists(filepath)
   local dir = vim.fn.fnamemodify(filepath, ':h')
-  if vim.fn.isdirectory(dir) == 0 then
-    vim.fn.mkdir(dir, 'p')
-  end
+  if vim.fn.isdirectory(dir) == 0 then vim.fn.mkdir(dir, 'p') end
 end
 
 function M.get_recursive_file_contents()

@@ -27,9 +27,7 @@ end
 local function record(lhs)
   local current_mode = vim.api.nvim_get_mode().mode:sub(1, 1)
   local key = current_mode .. ':' .. lhs
-  if not stats[key] then
-    stats[key] = { count = 0, last_used = 0, mode = current_mode, lhs = lhs }
-  end
+  if not stats[key] then stats[key] = { count = 0, last_used = 0, mode = current_mode, lhs = lhs } end
   stats[key].count = stats[key].count + 1
   stats[key].last_used = os.time()
   dirty = true
@@ -52,9 +50,7 @@ function M.tracked_set(mode, lhs, rhs, opts)
     local wrapper = function()
       record(lhs)
       local current_mode = vim.fn.mode(true)
-      if current_mode:match('[vVsS\22\19]') then
-        vim.api.nvim_feedkeys('gv', 'n', false)
-      end
+      if current_mode:match('[vVsS\22\19]') then vim.api.nvim_feedkeys('gv', 'n', false) end
       local escaped = vim.api.nvim_replace_termcodes(rhs, true, true, true)
       vim.api.nvim_feedkeys(escaped, feed_flag, false)
     end
@@ -64,9 +60,7 @@ function M.tracked_set(mode, lhs, rhs, opts)
   end
 end
 
-function M.get_stats()
-  return stats
-end
+function M.get_stats() return stats end
 
 function M.reset_stats()
   stats = {}

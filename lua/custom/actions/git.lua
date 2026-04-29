@@ -5,9 +5,7 @@ local async_utils = require('custom.utils.async')
 
 local M = {}
 
-local function shell_escape_message(msg)
-  return msg:gsub('[$`"\\!]', '\\%0')
-end
+local function shell_escape_message(msg) return msg:gsub('[$`"\\!]', '\\%0') end
 
 local function get_scope_suggestions(callback)
   async_utils.run('git log --oneline -100 --format=%s', function(stdout)
@@ -16,9 +14,7 @@ local function get_scope_suggestions(callback)
 
     for line in stdout:gmatch('[^\n]+') do
       local scope = line:match('%w+%(([^)]+)%)')
-      if scope and scope ~= '' then
-        scope_counts[scope] = (scope_counts[scope] or 0) + 1
-      end
+      if scope and scope ~= '' then scope_counts[scope] = (scope_counts[scope] or 0) + 1 end
     end
 
     local dir_handle = vim.uv.fs_scandir(vim.fn.getcwd())
@@ -27,9 +23,7 @@ local function get_scope_suggestions(callback)
         local name, entry_type = vim.uv.fs_scandir_next(dir_handle)
         if not name then break end
         if entry_type == 'directory' and not name:match('^%.') and name ~= 'node_modules' then
-          if not scope_counts[name] then
-            scope_counts[name] = 0
-          end
+          if not scope_counts[name] then scope_counts[name] = 0 end
         end
       end
     end
@@ -44,9 +38,7 @@ local function get_scope_suggestions(callback)
     end)
 
     callback(scopes)
-  end, function()
-    callback({})
-  end)
+  end, function() callback({}) end)
 end
 
 local function pick_scope(callback)
@@ -167,9 +159,7 @@ function M.create_commit(prefix, emoji, should_push, should_generic)
   end
 end
 
-function M.quick_commit_update()
-  vim.cmd(string.format('Git commit --no-verify -m "%s"', QUICK_UPDATE_MESSAGE))
-end
+function M.quick_commit_update() vim.cmd(string.format('Git commit --no-verify -m "%s"', QUICK_UPDATE_MESSAGE)) end
 
 function M.create_commit_from_branch_name()
   local branch_name = git_utils.get_current_branch()
@@ -202,9 +192,7 @@ function M.create_commit_from_branch_name()
   local jira_ticket_part = jira_ticket == '' and '' or jira_ticket .. ' '
 
   local description = branch_name:gsub('^[^/]+/', '')
-  if jira_ticket ~= '' then
-    description = description:gsub('^' .. jira_ticket:gsub('%-', '%%-') .. '[_%-]?', '')
-  end
+  if jira_ticket ~= '' then description = description:gsub('^' .. jira_ticket:gsub('%-', '%%-') .. '[_%-]?', '') end
   description = description:gsub('_', ' '):gsub('-', ' ')
 
   local commit_message = prefix .. ': ' .. emoji .. ' ' .. jira_ticket_part .. description
@@ -295,13 +283,9 @@ local function stash_with_flags(extra_flags, success_msg)
   end)
 end
 
-function M.stash_all_changes()
-  stash_with_flags('', 'Changes stashed successfully')
-end
+function M.stash_all_changes() stash_with_flags('', 'Changes stashed successfully') end
 
-function M.stash_keep_changes()
-  stash_with_flags(' --keep-index', 'Changes stashed (keeping staged changes)')
-end
+function M.stash_keep_changes() stash_with_flags(' --keep-index', 'Changes stashed (keeping staged changes)') end
 
 function M.select_and_pop_stash()
   local stash_output = vim.fn.system('git stash list')
@@ -429,7 +413,6 @@ local function get_pr_for_branch(branch)
   return nil
 end
 
-
 local function get_base_branch_candidates()
   local output = vim.fn.system({ 'git', 'branch', '-a', '--format=%(refname:short)' })
   if vim.v.shell_error ~= 0 or not output or output == '' then return { 'main' } end
@@ -474,7 +457,6 @@ function M.open_or_create_pull_request()
     vim.notify('Failed to create PR: ' .. result, vim.log.levels.ERROR)
   end
 end
-
 
 function M.rebase_choose_ours()
   local current_branch = git_utils.get_current_branch()

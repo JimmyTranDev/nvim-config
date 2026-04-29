@@ -2,9 +2,7 @@ local M = {}
 
 local SESSION_DIR = vim.fn.stdpath('data') .. '/sessions'
 
-local function ensure_session_dir()
-  vim.fn.mkdir(SESSION_DIR, 'p')
-end
+local function ensure_session_dir() vim.fn.mkdir(SESSION_DIR, 'p') end
 
 local function get_session_file()
   local cwd = vim.fn.getcwd()
@@ -44,9 +42,7 @@ function M.setup_autosave()
     callback = function()
       if vim.fn.argc() == 0 then return end
       local bufs = vim.fn.getbufinfo({ buflisted = 1 })
-      if #bufs > 1 then
-        M.save()
-      end
+      if #bufs > 1 then M.save() end
     end,
   })
 end
@@ -57,9 +53,7 @@ function M.list_sessions()
 
   ensure_session_dir()
   local files = vim.fn.globpath(SESSION_DIR, '*.vim', false, true)
-  if #files == 0 then
-    return vim.notify('No saved sessions', vim.log.levels.INFO)
-  end
+  if #files == 0 then return vim.notify('No saved sessions', vim.log.levels.INFO) end
 
   local items = {}
   for _, file in ipairs(files) do

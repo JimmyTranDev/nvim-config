@@ -25,9 +25,7 @@ local function setup_language_settings()
 
   vim.api.nvim_create_autocmd('BufEnter', {
     group = augroup('markdown_wrap'),
-    callback = function()
-      vim.wo.wrap = vim.bo.filetype == 'markdown'
-    end,
+    callback = function() vim.wo.wrap = vim.bo.filetype == 'markdown' end,
     desc = 'Enable soft wrap only for markdown files',
   })
 end

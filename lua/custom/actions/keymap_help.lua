@@ -71,16 +71,12 @@ local function categorize_keymaps(keymaps, context)
       if placed then break end
     end
 
-    if not placed then
-      table.insert(categories[#categories].items, km)
-    end
+    if not placed then table.insert(categories[#categories].items, km) end
   end
 
   local filtered = {}
   for _, cat in ipairs(categories) do
-    if cat.name == 'LSP & Diagnostics' and not context.has_lsp then
-      goto continue
-    end
+    if cat.name == 'LSP & Diagnostics' and not context.has_lsp then goto continue end
     if #cat.items > 0 then
       table.sort(cat.items, function(a, b)
         if a.source ~= b.source then return a.source == 'buffer' end
@@ -145,13 +141,9 @@ function M.contextual_help()
     title = 'Keymaps: ' .. table.concat(title_parts, ' | '),
     items = items,
     format = function(item)
-      if item.is_header then
-        return { { item.text, 'Title' } }
-      end
+      if item.is_header then return { { item.text, 'Title' } } end
       local hl = 'Normal'
-      if item.keymap and item.keymap.source == 'buffer' then
-        hl = 'DiagnosticOk'
-      end
+      if item.keymap and item.keymap.source == 'buffer' then hl = 'DiagnosticOk' end
       return { { item.text, hl } }
     end,
     confirm = function(picker, item)

@@ -10,9 +10,7 @@ end
 local function get_listed_buffers()
   local bufs = {}
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    if is_real_buffer(buf) then
-      table.insert(bufs, buf)
-    end
+    if is_real_buffer(buf) then table.insert(bufs, buf) end
   end
   return bufs
 end
@@ -21,9 +19,7 @@ local function get_most_relevant_buffer(current_buf)
   local bufs = get_listed_buffers()
   local candidates = {}
   for _, buf in ipairs(bufs) do
-    if buf ~= current_buf then
-      table.insert(candidates, buf)
-    end
+    if buf ~= current_buf then table.insert(candidates, buf) end
   end
 
   if #candidates == 0 then return nil end
@@ -34,9 +30,7 @@ local function get_most_relevant_buffer(current_buf)
     lastused[buf] = info and info.lastused or 0
   end
 
-  table.sort(candidates, function(a, b)
-    return lastused[a] > lastused[b]
-  end)
+  table.sort(candidates, function(a, b) return lastused[a] > lastused[b] end)
 
   return candidates[1]
 end
@@ -54,18 +48,14 @@ local function close_orphan_splits()
     local is_empty = name == '' and not listed and bt == ''
     local is_scratch = bt == 'nofile' and not listed
 
-    if is_empty or is_scratch then
-      table.insert(to_close, win)
-    end
+    if is_empty or is_scratch then table.insert(to_close, win) end
   end
 
   local remaining = #wins - #to_close
   if remaining < 1 then return end
 
   for _, win in ipairs(to_close) do
-    if vim.api.nvim_win_is_valid(win) then
-      pcall(vim.api.nvim_win_close, win, false)
-    end
+    if vim.api.nvim_win_is_valid(win) then pcall(vim.api.nvim_win_close, win, false) end
   end
 end
 

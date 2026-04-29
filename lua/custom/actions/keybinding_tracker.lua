@@ -27,9 +27,7 @@ function M.show_keybinding_stats()
     item.idx = i
   end
 
-  if #items == 0 then
-    return vim.notify('No keybinding stats recorded yet', vim.log.levels.INFO)
-  end
+  if #items == 0 then return vim.notify('No keybinding stats recorded yet', vim.log.levels.INFO) end
 
   snacks.picker({
     title = 'Keybinding Usage Stats (' .. #items .. ' keymaps)',
@@ -53,7 +51,13 @@ function M.show_keybinding_stats()
     confirm = function(picker, item)
       picker:close()
       vim.notify(
-        string.format('Keymap %s [%s]: used %d times, last used %s', item.lhs, item.mode, item.count, item.last_used > 0 and os.date('%Y-%m-%d %H:%M:%S', item.last_used) or 'never'),
+        string.format(
+          'Keymap %s [%s]: used %d times, last used %s',
+          item.lhs,
+          item.mode,
+          item.count,
+          item.last_used > 0 and os.date('%Y-%m-%d %H:%M:%S', item.last_used) or 'never'
+        ),
         vim.log.levels.INFO
       )
     end,

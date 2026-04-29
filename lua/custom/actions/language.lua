@@ -24,10 +24,10 @@ function M.run_project_jar()
 
   local function find_app_modules()
     local modules = {}
-    local entries = vim.fn.readdir(cwd, function(name)
-      return vim.fn.isdirectory(cwd .. '/' .. name) == 1
-        and vim.fn.filereadable(cwd .. '/' .. name .. '/pom.xml') == 1
-    end)
+    local entries = vim.fn.readdir(
+      cwd,
+      function(name) return vim.fn.isdirectory(cwd .. '/' .. name) == 1 and vim.fn.filereadable(cwd .. '/' .. name .. '/pom.xml') == 1 end
+    )
     for _, name in ipairs(entries) do
       table.insert(modules, name)
     end
@@ -35,15 +35,14 @@ function M.run_project_jar()
   end
 
   local function run_with_module(module)
-    local jar_path = module
-      and (module .. '/target/' .. module .. '.jar')
-      or ('target/' .. vim.fn.fnamemodify(cwd, ':t') .. '.jar')
+    local jar_path = module and (module .. '/target/' .. module .. '.jar') or ('target/' .. vim.fn.fnamemodify(cwd, ':t') .. '.jar')
     local label = module or vim.fn.fnamemodify(cwd, ':t')
     local cmd = 'mvn clean package -Dmaven.gitcommitid.skip=true -Dmaven.test.skip=true'
       .. ' && java -jar'
       .. ' -Dspring.profiles.active=local'
       .. ' -Dspring.cloud.gcp.sql.enabled=false'
-      .. ' ' .. jar_path
+      .. ' '
+      .. jar_path
     ui_utils.exec_in_terminal(cmd, 'Spring Boot: ' .. label, 3)
   end
 
@@ -58,9 +57,7 @@ function M.run_project_jar()
     return
   end
 
-  ui_utils.safe_select(modules, { prompt = 'Select module:' }, function(selected)
-    run_with_module(selected)
-  end)
+  ui_utils.safe_select(modules, { prompt = 'Select module:' }, function(selected) run_with_module(selected) end)
 end
 
 function M.run_java_class_maven()
@@ -114,9 +111,7 @@ function M.install_javascript_package()
         return
       end
       local cmd = pm .. ' add ' .. pkg_name
-      if pkg_type == 'development' then
-        cmd = cmd .. ' ' .. language_utils.get_javascript_package_manager_dev_arg()
-      end
+      if pkg_type == 'development' then cmd = cmd .. ' ' .. language_utils.get_javascript_package_manager_dev_arg() end
       ui_utils.exec_in_terminal(cmd, 'Installing: ' .. pkg_name, 3)
     end)
   end)
@@ -127,9 +122,7 @@ function M.run_package_script(term_id)
   if #scripts > 0 then
     ui_utils.safe_select(scripts, { prompt = 'Select script:' }, function(script)
       local pm = get_pm()
-      if pm then
-        ui_utils.exec_in_terminal(pm .. ' ' .. script, 'Running: ' .. script, term_id or 3)
-      end
+      if pm then ui_utils.exec_in_terminal(pm .. ' ' .. script, 'Running: ' .. script, term_id or 3) end
     end)
     return
   end
@@ -145,9 +138,7 @@ function M.run_package_script(term_id)
     end
 
     if #targets > 0 then
-      ui_utils.safe_select(targets, { prompt = 'Make target:' }, function(target)
-        vim.cmd((':%dTermExec cmd="make %s"'):format(term_id or 1, target))
-      end)
+      ui_utils.safe_select(targets, { prompt = 'Make target:' }, function(target) vim.cmd((':%dTermExec cmd="make %s"'):format(term_id or 1, target)) end)
       return
     end
   end
@@ -187,9 +178,7 @@ function M.run_multiple_package_scripts(start_term_id)
         picker:close()
         if not selected or #selected == 0 then return end
 
-        if #selected > max_splits then
-          vim.notify('Capped to ' .. max_splits .. ' scripts (selected ' .. #selected .. ')', vim.log.levels.WARN)
-        end
+        if #selected > max_splits then vim.notify('Capped to ' .. max_splits .. ' scripts (selected ' .. #selected .. ')', vim.log.levels.WARN) end
 
         local count = math.min(#selected, max_splits)
         for i = 1, count do
@@ -294,9 +283,7 @@ local function run_knip(args, _title, process_result)
     end
 
     process_result(result)
-  end, function(_, err, code)
-    vim.notify(('Knip failed (code %d): %s'):format(code, err), vim.log.levels.ERROR)
-  end)
+  end, function(_, err, code) vim.notify(('Knip failed (code %d): %s'):format(code, err), vim.log.levels.ERROR) end)
 end
 
 local function show_knip_picker(items, title)
@@ -354,11 +341,11 @@ function M.run_knip_fix()
   local pm = get_pm()
   if not pm then return end
   ui_utils.show_success('Running knip fix...')
-  async_utils.run(pm .. ' dlx knip --fix --allow-remove-files', function(out)
-    ui_utils.show_success('Knip fix completed' .. (out ~= '' and ':\n' .. out or ''))
-  end, function(_, err, code)
-    vim.notify(('Knip fix failed (code %d): %s'):format(code, err), vim.log.levels.ERROR)
-  end)
+  async_utils.run(
+    pm .. ' dlx knip --fix --allow-remove-files',
+    function(out) ui_utils.show_success('Knip fix completed' .. (out ~= '' and ':\n' .. out or '')) end,
+    function(_, err, code) vim.notify(('Knip fix failed (code %d): %s'):format(code, err), vim.log.levels.ERROR) end
+  )
 end
 
 function M.run_knip_fix_current_folder()
@@ -367,9 +354,7 @@ function M.run_knip_fix_current_folder()
   local dir = vim.fn.fnamemodify(vim.fn.expand('%:p'), ':h:.')
   if dir == '' then dir = '.' end
   ui_utils.show_success('Knip fix for: ' .. dir)
-  vim.fn.jobstart(pm .. ' dlx knip --fix', { on_exit = function()
-    vim.notify('Knip fix completed for ' .. dir, vim.log.levels.INFO)
-  end })
+  vim.fn.jobstart(pm .. ' dlx knip --fix', { on_exit = function() vim.notify('Knip fix completed for ' .. dir, vim.log.levels.INFO) end })
 end
 
 function M.fix_and_organize_typescript_imports()
@@ -419,9 +404,7 @@ function M.create_make_command_runner(term_id)
       end
     end
 
-    ui_utils.safe_select(targets, { prompt = 'Make target:' }, function(target)
-      vim.cmd((':%dTermExec cmd="make %s"'):format(term_id or 1, target))
-    end)
+    ui_utils.safe_select(targets, { prompt = 'Make target:' }, function(target) vim.cmd((':%dTermExec cmd="make %s"'):format(term_id or 1, target)) end)
   end
 end
 
@@ -432,9 +415,7 @@ function M.create_npm_update_command(type)
 end
 
 function M.create_npm_update_executor(term_id, type)
-  return function()
-    vim.cmd((':%dTermExec cmd="%s"'):format(term_id, M.create_npm_update_command(type)))
-  end
+  return function() vim.cmd((':%dTermExec cmd="%s"'):format(term_id, M.create_npm_update_command(type))) end
 end
 
 return M

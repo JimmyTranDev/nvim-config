@@ -14,9 +14,7 @@ local function get_notes_files()
   while true do
     local name, type = vim.uv.fs_scandir_next(handle)
     if not name then break end
-    if type == 'file' and name:match('%.md$') then
-      table.insert(files, name)
-    end
+    if type == 'file' and name:match('%.md$') then table.insert(files, name) end
   end
 
   table.sort(files)

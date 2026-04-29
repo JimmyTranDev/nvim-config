@@ -46,7 +46,6 @@ local REQUIRED_VARS = {
     features = 'SonarQube: branch coverage dashboard',
     get = function() return vim.env.ORG_SONARQUBE_URL end,
   },
-
 }
 
 local REQUIRED_TOOLS = {
@@ -58,24 +57,18 @@ local REQUIRED_TOOLS = {
   { name = 'diff-cover', features = 'Java: new code test coverage reports' },
 }
 
-local function check_tool(name)
-  return vim.fn.executable(name) == 1
-end
+local function check_tool(name) return vim.fn.executable(name) == 1 end
 
 function M.check_env_vars()
   local missing_vars = {}
   for _, var in ipairs(REQUIRED_VARS) do
     local val = var.get()
-    if not val or val == '' then
-      table.insert(missing_vars, var)
-    end
+    if not val or val == '' then table.insert(missing_vars, var) end
   end
 
   local missing_tools = {}
   for _, tool in ipairs(REQUIRED_TOOLS) do
-    if not check_tool(tool.name) then
-      table.insert(missing_tools, tool)
-    end
+    if not check_tool(tool.name) then table.insert(missing_tools, tool) end
   end
 
   if #missing_vars == 0 and #missing_tools == 0 then return end
@@ -130,9 +123,7 @@ function M.show_env_status()
 
   for i, line in ipairs(lines) do
     table.insert(content, line[1])
-    if line[2] then
-      table.insert(highlights, { i - 1, line[2] })
-    end
+    if line[2] then table.insert(highlights, { i - 1, line[2] }) end
   end
 
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, content)
@@ -165,9 +156,7 @@ function M.show_env_status()
   end
 
   local function close_win()
-    if vim.api.nvim_win_is_valid(win) then
-      vim.api.nvim_win_close(win, true)
-    end
+    if vim.api.nvim_win_is_valid(win) then vim.api.nvim_win_close(win, true) end
   end
 
   vim.keymap.set('n', 'q', close_win, { buffer = buf, nowait = true })

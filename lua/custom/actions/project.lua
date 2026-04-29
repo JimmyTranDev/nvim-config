@@ -43,9 +43,7 @@ function M.switch_project()
   if not ok then return vim.notify('Snacks not available', vim.log.levels.WARN) end
 
   local projects = scan_projects()
-  if #projects == 0 then
-    return vim.notify('No projects found in ' .. PROGRAMMING_DIR, vim.log.levels.WARN)
-  end
+  if #projects == 0 then return vim.notify('No projects found in ' .. PROGRAMMING_DIR, vim.log.levels.WARN) end
 
   local current_cwd = vim.fn.getcwd()
 

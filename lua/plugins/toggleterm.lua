@@ -7,7 +7,6 @@ return {
   keys = {
     { mode = 'n', '<leader>fm', file_actions.grep_markdown_headings, desc = 'Find Markdown Headings', silent = true },
 
-
     { mode = 'n', '<leader>t1', ':1ToggleTerm<CR>', desc = 'Toggle Terminal 1', silent = true },
     { mode = 'n', '<leader>t2', ':2ToggleTerm<Cr>', desc = 'Toggle Terminal 2', silent = true },
 
@@ -75,7 +74,6 @@ return {
     { mode = 'n', '<leader>tmm', language_actions.create_make_command_runner(3), desc = 'Run Makefile Target', silent = true },
     { mode = 'n', '<leader>tmM', toggle_term_actions.create_kill_toggle_term(3), desc = 'Makefile Exit', silent = true },
     { mode = 'n', '<leader>tms', ':1TermExec cmd="make start"<CR>', desc = 'Make Start', silent = true },
-
 
     { mode = 'n', '<leader>tvs', language_actions.run_project_jar, desc = 'Start Project (Maven/Node)', silent = true },
     { mode = 'n', '<leader>tvp', ':3TermExec cmd="mvn package"<CR>', desc = 'Maven Package', silent = true },

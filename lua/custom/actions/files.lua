@@ -108,10 +108,7 @@ function M.copy_opencode_link()
     vim.notify('No file is currently open', vim.log.levels.WARN)
     return
   end
-  local link = ('opencode://file?path=%s&line=%d'):format(
-    vim.fn.shellescape(vim.fn.fnamemodify(file, ':.')),
-    vim.fn.line('.')
-  )
+  local link = ('opencode://file?path=%s&line=%d'):format(vim.fn.shellescape(vim.fn.fnamemodify(file, ':.')), vim.fn.line('.'))
   vim.fn.setreg('+', link)
   vim.notify('Copied: ' .. link, vim.log.levels.INFO)
 end
@@ -128,14 +125,18 @@ function M.convert_md_to_pdf()
 
   vim.notify('Converting to PDF...', vim.log.levels.INFO)
 
-  vim.system(cmd, { text = true }, vim.schedule_wrap(function(result)
-    if result.code == 0 then
-      vim.notify('PDF saved: ' .. pdf_path, vim.log.levels.INFO)
-    else
-      local err = result.stderr ~= '' and result.stderr or result.stdout
-      vim.notify('PDF conversion failed: ' .. err, vim.log.levels.ERROR)
-    end
-  end))
+  vim.system(
+    cmd,
+    { text = true },
+    vim.schedule_wrap(function(result)
+      if result.code == 0 then
+        vim.notify('PDF saved: ' .. pdf_path, vim.log.levels.INFO)
+      else
+        local err = result.stderr ~= '' and result.stderr or result.stdout
+        vim.notify('PDF conversion failed: ' .. err, vim.log.levels.ERROR)
+      end
+    end)
+  )
 end
 
 return M

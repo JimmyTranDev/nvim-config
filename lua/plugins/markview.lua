@@ -155,15 +155,24 @@ return {
               end,
               text = '─',
               hl = {
-                'MarkviewGradient1', 'MarkviewGradient1',
-                'MarkviewGradient2', 'MarkviewGradient2',
-                'MarkviewGradient3', 'MarkviewGradient3',
-                'MarkviewGradient4', 'MarkviewGradient4',
-                'MarkviewGradient5', 'MarkviewGradient5',
-                'MarkviewGradient6', 'MarkviewGradient6',
-                'MarkviewGradient7', 'MarkviewGradient7',
-                'MarkviewGradient8', 'MarkviewGradient8',
-                'MarkviewGradient9', 'MarkviewGradient9',
+                'MarkviewGradient1',
+                'MarkviewGradient1',
+                'MarkviewGradient2',
+                'MarkviewGradient2',
+                'MarkviewGradient3',
+                'MarkviewGradient3',
+                'MarkviewGradient4',
+                'MarkviewGradient4',
+                'MarkviewGradient5',
+                'MarkviewGradient5',
+                'MarkviewGradient6',
+                'MarkviewGradient6',
+                'MarkviewGradient7',
+                'MarkviewGradient7',
+                'MarkviewGradient8',
+                'MarkviewGradient8',
+                'MarkviewGradient9',
+                'MarkviewGradient9',
               },
             },
             {
@@ -183,15 +192,24 @@ return {
               end,
               text = '─',
               hl = {
-                'MarkviewGradient1', 'MarkviewGradient1',
-                'MarkviewGradient2', 'MarkviewGradient2',
-                'MarkviewGradient3', 'MarkviewGradient3',
-                'MarkviewGradient4', 'MarkviewGradient4',
-                'MarkviewGradient5', 'MarkviewGradient5',
-                'MarkviewGradient6', 'MarkviewGradient6',
-                'MarkviewGradient7', 'MarkviewGradient7',
-                'MarkviewGradient8', 'MarkviewGradient8',
-                'MarkviewGradient9', 'MarkviewGradient9',
+                'MarkviewGradient1',
+                'MarkviewGradient1',
+                'MarkviewGradient2',
+                'MarkviewGradient2',
+                'MarkviewGradient3',
+                'MarkviewGradient3',
+                'MarkviewGradient4',
+                'MarkviewGradient4',
+                'MarkviewGradient5',
+                'MarkviewGradient5',
+                'MarkviewGradient6',
+                'MarkviewGradient6',
+                'MarkviewGradient7',
+                'MarkviewGradient7',
+                'MarkviewGradient8',
+                'MarkviewGradient8',
+                'MarkviewGradient9',
+                'MarkviewGradient9',
               },
             },
           },
@@ -201,9 +219,7 @@ return {
           enable = true,
           wrap = true,
           indent_size = function(buffer)
-            if type(buffer) ~= 'number' then
-              return vim.bo.shiftwidth or 4
-            end
+            if type(buffer) ~= 'number' then return vim.bo.shiftwidth or 4 end
             return vim.bo[buffer].shiftwidth or 4
           end,
           shift_width = 4,
@@ -229,17 +245,13 @@ return {
           marker_dot = {
             add_padding = true,
             conceal_on_checkboxes = true,
-            text = function(_, item)
-              return string.format('%d.', item.n)
-            end,
+            text = function(_, item) return string.format('%d.', item.n) end,
             hl = 'MarkviewListItemMinus',
           },
           marker_parenthesis = {
             add_padding = true,
             conceal_on_checkboxes = true,
-            text = function(_, item)
-              return string.format('%d)', item.n)
-            end,
+            text = function(_, item) return string.format('%d)', item.n) end,
             hl = 'MarkviewListItemMinus',
           },
         },

@@ -96,14 +96,10 @@ local function get_linked_packages(callback)
 
         local linked = {}
         for name, info in pairs(deps) do
-          if info.link then
-            table.insert(linked, { name = name, path = info.path or info.version })
-          end
+          if info.link then table.insert(linked, { name = name, path = info.path or info.version }) end
         end
         for name, info in pairs(dev_deps) do
-          if info.link then
-            table.insert(linked, { name = name, path = info.path or info.version })
-          end
+          if info.link then table.insert(linked, { name = name, path = info.path or info.version }) end
         end
 
         table.sort(linked, function(a, b) return a.name < b.name end)
@@ -150,12 +146,8 @@ local function unlink_package()
   end)
 end
 
-function M.pnpm_link()
-  link_package()
-end
+function M.pnpm_link() link_package() end
 
-function M.pnpm_unlink()
-  unlink_package()
-end
+function M.pnpm_unlink() unlink_package() end
 
 return M

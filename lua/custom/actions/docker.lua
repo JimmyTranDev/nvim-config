@@ -1,8 +1,6 @@
 local M = {}
 
-local function notify(msg, level)
-  vim.notify(msg, level or vim.log.levels.INFO)
-end
+local function notify(msg, level) vim.notify(msg, level or vim.log.levels.INFO) end
 
 local function docker_available()
   if vim.fn.executable('docker') ~= 1 then
@@ -14,25 +12,17 @@ end
 
 local function get_worktree_name()
   local branch = vim.fn.systemlist('git branch --show-current')[1]
-  if vim.v.shell_error == 0 and branch and branch ~= '' then
-    return branch
-  end
+  if vim.v.shell_error == 0 and branch and branch ~= '' then return branch end
 
   local cwd = vim.fn.fnamemodify(vim.fn.getcwd(), ':t')
   return cwd
 end
 
-local function sanitize_name(name)
-  return name:gsub('[^%w%-]', '-'):gsub('%-+', '-'):gsub('^%-', ''):gsub('%-$', '')
-end
+local function sanitize_name(name) return name:gsub('[^%w%-]', '-'):gsub('%-+', '-'):gsub('^%-', ''):gsub('%-$', '') end
 
-local function get_container_name(worktree)
-  return 'pg-' .. sanitize_name(worktree)
-end
+local function get_container_name(worktree) return 'pg-' .. sanitize_name(worktree) end
 
-local function get_volume_name(worktree)
-  return 'pgdata-' .. sanitize_name(worktree)
-end
+local function get_volume_name(worktree) return 'pgdata-' .. sanitize_name(worktree) end
 
 local function get_port(worktree)
   local base = tonumber(vim.env.DOCKER_POSTGRES_BASE_PORT) or 5432
@@ -43,13 +33,9 @@ local function get_port(worktree)
   return base + hash
 end
 
-local function get_image()
-  return vim.env.DOCKER_POSTGRES_IMAGE or 'postgres:16'
-end
+local function get_image() return vim.env.DOCKER_POSTGRES_IMAGE or 'postgres:16' end
 
-local function get_password()
-  return vim.env.DOCKER_POSTGRES_PASSWORD or 'postgres'
-end
+local function get_password() return vim.env.DOCKER_POSTGRES_PASSWORD or 'postgres' end
 
 local function is_container_running(container_name)
   local result = vim.fn.systemlist('docker ps --filter name=^/' .. container_name .. '$ --format "{{.Names}}"')

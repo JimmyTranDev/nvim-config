@@ -24,9 +24,7 @@ local function parse_existing_days(lines)
   local days = {}
   for i, line in ipairs(lines) do
     local day = line:match('^## %a+, (%d+) %a+ %d%d%d%d$')
-    if day then
-      days[tonumber(day)] = i
-    end
+    if day then days[tonumber(day)] = i end
   end
   return days
 end
@@ -46,18 +44,14 @@ local function find_insertion_point(lines, today, existing_days)
   end
 
   for day = today + 1, 31 do
-    if existing_days[day] then
-      return existing_days[day], nil
-    end
+    if existing_days[day] then return existing_days[day], nil end
   end
 
   return #lines + 1, nil
 end
 
 local function find_entry_insert_line(lines, today, existing_days)
-  if not existing_days[today] then
-    return nil
-  end
+  if not existing_days[today] then return nil end
 
   local header_line = existing_days[today]
   for i = header_line + 1, #lines do
@@ -89,9 +83,7 @@ local function ensure_today_header(filepath)
       table.insert(lines, insert_line, '## ' .. header)
       table.insert(lines, insert_line + 1, '')
     else
-      if #lines > 0 then
-        table.insert(lines, '')
-      end
+      if #lines > 0 then table.insert(lines, '') end
       table.insert(lines, '## ' .. header)
     end
 
@@ -104,9 +96,7 @@ end
 
 function M.add_journal_entry()
   vim.ui.input({ prompt = 'Journal entry: ' }, function(input)
-    if not input or input == '' then
-      return
-    end
+    if not input or input == '' then return end
 
     input = string_utils.capitalize_first_char(input)
 
@@ -114,9 +104,7 @@ function M.add_journal_entry()
     local lines, existing_days, today = ensure_today_header(filepath)
 
     local entry_line = find_entry_insert_line(lines, today, existing_days)
-    if entry_line then
-      table.insert(lines, entry_line, '- ' .. input)
-    end
+    if entry_line then table.insert(lines, entry_line, '- ' .. input) end
 
     if file_utils.write_lines(filepath, lines) then
       vim.notify('Journal entry added', vim.log.levels.INFO)

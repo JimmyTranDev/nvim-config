@@ -46,9 +46,7 @@ local cache_files = {
   parents = CONFIG.CACHE_DIR .. '/jira_parents_cache.txt',
 }
 
-local function save_last_parent(parent_key)
-  file_utils.write_lines(cache_files.last_parent, { parent_key })
-end
+local function save_last_parent(parent_key) file_utils.write_lines(cache_files.last_parent, { parent_key }) end
 
 local function load_last_parent()
   local lines = file_utils.read_lines(cache_files.last_parent)
@@ -56,9 +54,7 @@ local function load_last_parent()
   return nil
 end
 
-local function save_parents_cache(parents)
-  file_utils.write_lines(cache_files.parents, { vim.fn.json_encode(parents) })
-end
+local function save_parents_cache(parents) file_utils.write_lines(cache_files.parents, { vim.fn.json_encode(parents) }) end
 
 local function load_parents_cache()
   local lines = file_utils.read_lines(cache_files.parents)
@@ -226,9 +222,7 @@ local function create_jira_task_workflow(summary, fallback_project, should_open_
   local select_project, select_type, select_label, select_parent
 
   select_project = function()
-    get_user_input('Enter project key: ', function(project)
-      select_type(project)
-    end, fallback_project)
+    get_user_input('Enter project key: ', function(project) select_type(project) end, fallback_project)
   end
 
   select_type = function(project)
@@ -392,9 +386,10 @@ end
 local function create_task_handler(should_open_link)
   return function(fallback_project)
     return function()
-      get_user_input('Enter task summary: ', function(summary)
-        create_jira_task_workflow(summary, fallback_project or CONFIG.DEFAULT_PROJECT, should_open_link)
-      end)
+      get_user_input(
+        'Enter task summary: ',
+        function(summary) create_jira_task_workflow(summary, fallback_project or CONFIG.DEFAULT_PROJECT, should_open_link) end
+      )
     end
   end
 end
@@ -415,15 +410,9 @@ M.generate_done_md = function()
   end
 
   local escaped_email = assignee_email:gsub('@', '\\u0040')
-  local jql_query = string.format(
-    "assignee was '%s' AND updated >= -7d ORDER BY updated DESC",
-    escaped_email
-  )
+  local jql_query = string.format("assignee was '%s' AND updated >= -7d ORDER BY updated DESC", escaped_email)
 
-  local cmd = string.format(
-    "acli jira workitem search --jql \"%s\" --fields 'key,summary,status' --limit 100 --csv",
-    jql_query
-  )
+  local cmd = string.format('acli jira workitem search --jql "%s" --fields \'key,summary,status\' --limit 100 --csv', jql_query)
 
   vim.notify('Fetching completed tasks...', vim.log.levels.INFO)
 

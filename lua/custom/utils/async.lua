@@ -21,9 +21,7 @@ function M.execute(cmd, callback)
         end
       end
     end,
-    on_exit = function(_, code)
-      callback(code == 0, table.concat(stdout, '\n'), table.concat(stderr, '\n'), code)
-    end,
+    on_exit = function(_, code) callback(code == 0, table.concat(stdout, '\n'), table.concat(stderr, '\n'), code) end,
   })
 end
 

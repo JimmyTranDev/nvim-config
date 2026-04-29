@@ -6,9 +6,7 @@ local function run_cmd(cmd)
   return result:match('^([^\n]*)')
 end
 
-function M.get_current_branch()
-  return run_cmd('git rev-parse --abbrev-ref HEAD') or ''
-end
+function M.get_current_branch() return run_cmd('git rev-parse --abbrev-ref HEAD') or '' end
 
 function M.extract_jira_ticket(branch_name)
   if type(branch_name) ~= 'string' then return '' end

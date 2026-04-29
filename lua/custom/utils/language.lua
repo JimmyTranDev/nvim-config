@@ -102,13 +102,9 @@ local NPX_EQUIVALENT = {
   bun = 'bunx',
 }
 
-function M.get_javascript_package_manager_dev_arg()
-  return DEV_ARG[M.get_javascript_package_manager()]
-end
+function M.get_javascript_package_manager_dev_arg() return DEV_ARG[M.get_javascript_package_manager()] end
 
-function M.get_npx_equivalent()
-  return NPX_EQUIVALENT[M.get_javascript_package_manager()] or 'npx'
-end
+function M.get_npx_equivalent() return NPX_EQUIVALENT[M.get_javascript_package_manager()] or 'npx' end
 
 function M.list_package_json_commands()
   local scripts = {}

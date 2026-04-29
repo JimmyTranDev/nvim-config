@@ -52,11 +52,16 @@ function M.fetch_my_prs_across_owners(owners, opts, callback)
       table.insert(cmd, arg)
     end
     vim.list_extend(cmd, {
-      '--owner', owner,
-      '--state', 'open',
-      '--author', '@me',
-      '--json', 'number,title,repository,url',
-      '--limit', '100',
+      '--owner',
+      owner,
+      '--state',
+      'open',
+      '--author',
+      '@me',
+      '--json',
+      'number,title,repository,url',
+      '--limit',
+      '100',
     })
 
     vim.system(

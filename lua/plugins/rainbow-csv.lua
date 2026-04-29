@@ -14,9 +14,7 @@ return {
         local first_line = vim.api.nvim_buf_get_lines(0, 0, 1, false)[1] or ''
         if first_line:find('|') and not vim.bo.filetype:find('csv') then
           local pipe_count = select(2, first_line:gsub('|', ''))
-          if pipe_count >= 2 then
-            vim.bo.filetype = 'csv_pipe'
-          end
+          if pipe_count >= 2 then vim.bo.filetype = 'csv_pipe' end
         end
       end,
     })

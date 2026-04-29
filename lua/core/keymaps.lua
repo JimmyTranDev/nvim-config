@@ -72,7 +72,6 @@ map('n', '<leader>;dm', language_actions.serve_markdown_folder, { desc = 'Markse
 map('n', '<leader>;ds', ':4TermExec cmd="live-server --port=9090"<CR>', { desc = 'Live Server' })
 map('n', '<leader>;dM', language_actions.compile_mjml_file, { desc = 'Compile Mjml Html' })
 
-
 map('n', '<leader>;fc', file_actions.save_clipboard_to_file, { desc = 'Save clipboard to file' })
 map('n', '<leader>;fM', file_actions.convert_md_to_pdf, { desc = 'Convert markdown to PDF' })
 map('n', '<leader>;fs', editor_actions.toggle_spellcheck, { desc = 'Toggle spellcheck' })

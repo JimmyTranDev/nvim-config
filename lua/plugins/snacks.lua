@@ -8,9 +8,7 @@ local function get_diagnostics_by_file()
     local buf = diag.bufnr
     local filename = vim.api.nvim_buf_get_name(buf)
     if filename and filename ~= '' then
-      if not by_file[filename] then
-        by_file[filename] = { errors = 0, warnings = 0, info = 0, hints = 0, total = 0, diagnostics = {}, buf = buf }
-      end
+      if not by_file[filename] then by_file[filename] = { errors = 0, warnings = 0, info = 0, hints = 0, total = 0, diagnostics = {}, buf = buf } end
       by_file[filename].total = by_file[filename].total + 1
       if diag.severity == vim.diagnostic.severity.ERROR then
         by_file[filename].errors = by_file[filename].errors + 1
@@ -501,7 +499,7 @@ return {
         Snacks.picker({
           title = 'Git Hunks (Current Buffer)',
           items = items,
-    format = function(item) return { { item.text, 'Normal' } } end,
+          format = function(item) return { { item.text, 'Normal' } } end,
           confirm = function(picker, item)
             picker:close()
             vim.api.nvim_win_set_cursor(0, { item.line, 0 })
@@ -516,9 +514,7 @@ return {
         local ref = vim.fn.system('git rev-parse --verify origin/HEAD 2>/dev/null'):gsub('%s+', '')
         if vim.v.shell_error ~= 0 or ref == '' then
           ref = vim.fn.system('git rev-parse --verify origin/main 2>/dev/null'):gsub('%s+', '')
-          if vim.v.shell_error ~= 0 or ref == '' then
-            ref = vim.fn.system('git rev-parse --verify origin/master 2>/dev/null'):gsub('%s+', '')
-          end
+          if vim.v.shell_error ~= 0 or ref == '' then ref = vim.fn.system('git rev-parse --verify origin/master 2>/dev/null'):gsub('%s+', '') end
         end
         if vim.v.shell_error ~= 0 or ref == '' then
           vim.notify('Could not determine origin branch', vim.log.levels.ERROR)

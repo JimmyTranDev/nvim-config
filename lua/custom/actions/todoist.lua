@@ -222,9 +222,7 @@ local function prompt_task_input(on_result)
         on_result('Task', opts)
       end)
     else
-      ui_utils.safe_input({ prompt = 'Enter task summary: ' }, function(task_name)
-        on_result(task_name, {})
-      end)
+      ui_utils.safe_input({ prompt = 'Enter task summary: ' }, function(task_name) on_result(task_name, {}) end)
     end
   end)
 end
@@ -242,9 +240,7 @@ local function log_task_with_fetcher(fetch_projects, empty_message)
             vim.notify(empty_message, vim.log.levels.WARN)
             return
           end
-          create_task_with_navigation(task_name, projects, opts, function()
-            start_from_input()
-          end)
+          create_task_with_navigation(task_name, projects, opts, function() start_from_input() end)
         end)
       end)
     end
