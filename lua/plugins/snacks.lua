@@ -397,8 +397,18 @@ return {
     },
     {
       '<leader>fo',
-      function() Snacks.picker.recent() end,
-      desc = 'Recent',
+      function()
+        local git_root = vim.fn.systemlist('git rev-parse --show-toplevel')[1]
+        if vim.v.shell_error ~= 0 or not git_root or git_root == '' then
+          Snacks.picker.recent()
+          return
+        end
+        git_root = vim.fn.fnamemodify(git_root, ':p')
+        Snacks.picker.recent({
+          filter = { cwd = git_root },
+        })
+      end,
+      desc = 'Recent (repo)',
     },
     {
       '<leader>fw',
