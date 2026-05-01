@@ -55,7 +55,15 @@ local function pick_scope(callback)
         return
       end
 
-      local items = {}
+      local items = {
+        {
+          text = 'none',
+          label = 'none (no scope)',
+          scope = '',
+          count = -1,
+          idx = 1,
+        },
+      }
       for _, s in ipairs(suggestions) do
         local label = s.count > 0 and string.format('%s (%d commits)', s.scope, s.count) or s.scope .. ' (directory)'
         table.insert(items, {
@@ -71,6 +79,13 @@ local function pick_scope(callback)
         title = 'Select Scope (or type custom)',
         items = items,
         format = function(item)
+          if item.count == -1 then
+            return {
+              { 'none', 'Comment' },
+              { '  ', 'Comment' },
+              { 'no scope', 'Comment' },
+            }
+          end
           local source = item.count > 0 and string.format('%d commits', item.count) or 'directory'
           return {
             { item.scope, 'Function' },
