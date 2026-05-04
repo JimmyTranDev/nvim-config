@@ -5,6 +5,12 @@ local json_utils = require('custom.utils.json')
 
 if vim.env.PRI_TODOIST_API_TOKEN then vim.env.TODOIST_API_TOKEN = vim.env.PRI_TODOIST_API_TOKEN end
 
+local function ensure_td_executable()
+  if vim.fn.executable('td') == 1 then return true end
+  vim.notify("'td' is not installed. Run: npm install -g @doist/todoist-cli", vim.log.levels.ERROR)
+  return false
+end
+
 local PROJECTS_CACHE_FILE = vim.fn.stdpath('data') .. '/todoist_projects_cache.json'
 local SECTIONS_CACHE_FILE = vim.fn.stdpath('data') .. '/todoist_sections_cache.json'
 
@@ -30,6 +36,10 @@ end
 local function save_sections_to_disk(all_sections) json_utils.write_json_to_file(SECTIONS_CACHE_FILE, { sections = all_sections }) end
 
 local function td_command(args, callback)
+  if not ensure_td_executable() then
+    callback(false, "'td' is not installed")
+    return
+  end
   local cmd = vim.list_extend({ 'td' }, args)
 
   async_utils.execute(cmd, function(success, stdout, stderr)
@@ -180,6 +190,11 @@ function M.create_task(content, project_id, section_id, priority, callback, opts
   if opts.description and opts.description ~= '' then
     table.insert(cmd, '--description')
     table.insert(cmd, opts.description)
+  end
+
+  if not ensure_td_executable() then
+    callback(false, "'td' is not installed")
+    return
   end
 
   local full_cmd = vim.list_extend({ 'td' }, cmd)
