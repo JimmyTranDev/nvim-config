@@ -331,12 +331,12 @@ return {
       desc = 'Goto Type Definition',
     },
     {
-      'gs',
+      '<leader>fs',
       function() Snacks.picker.lsp_symbols() end,
       desc = 'LSP Symbols',
     },
     {
-      'gS',
+      '<leader>fS',
       function() Snacks.picker.lsp_workspace_symbols() end,
       desc = 'LSP Workspace Symbols',
     },
