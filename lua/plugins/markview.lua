@@ -52,7 +52,15 @@ return {
     set_hl(0, 'MarkviewCheckboxStriked', { fg = '#45475a' })
 
     require('markview').setup({
+      preview = {
+        enable = true,
+        filetypes = { 'markdown', 'md' },
+      },
       markdown = {
+        tables = {
+          enable = true,
+          use_virt_lines = true,
+        },
         headings = {
           enable = true,
           shift_width = 1,

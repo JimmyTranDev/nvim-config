@@ -603,6 +603,102 @@ function M._show_pr_file_diff(pr_number, filename, diff_content)
   vim.api.nvim_set_current_buf(buf)
 end
 
+function M.team_pr_dashboard()
+  local repos_str = vim.env.GITHUB_TEAM_REPOS
+  if not repos_str or repos_str == '' then
+    vim.notify('GITHUB_TEAM_REPOS not set (comma-separated org/repo list)', vim.log.levels.ERROR)
+    return
+  end
+
+  local repos = {}
+  for repo in repos_str:gmatch('[^,]+') do
+    local trimmed = repo:match('^%s*(.-)%s*$')
+    if trimmed ~= '' then
+      table.insert(repos, trimmed)
+    end
+  end
+
+  if #repos == 0 then
+    vim.notify('No repos found in GITHUB_TEAM_REPOS', vim.log.levels.ERROR)
+    return
+  end
+
+  vim.notify('Fetching PRs from ' .. #repos .. ' repos...', vim.log.levels.INFO)
+
+  local all_prs = {}
+  local pending = #repos
+
+  for _, repo in ipairs(repos) do
+    vim.system(
+      {
+        'gh',
+        'pr',
+        'list',
+        '--repo',
+        repo,
+        '--json',
+        'number,title,author,updatedAt,url',
+        '--limit',
+        '50',
+      },
+      { text = true },
+      vim.schedule_wrap(function(result)
+        if result.code == 0 and result.stdout and result.stdout ~= '' then
+          local ok, prs = pcall(vim.fn.json_decode, result.stdout)
+          if ok and type(prs) == 'table' then
+            for _, pr in ipairs(prs) do
+              local author = type(pr.author) == 'table' and pr.author.login or tostring(pr.author or '')
+              local updated = (pr.updatedAt or ''):sub(1, 10)
+              table.insert(all_prs, {
+                text = string.format('[%s] %s | #%d %s (%s)', repo, author, pr.number, pr.title, updated),
+                number = pr.number,
+                title = pr.title,
+                url = pr.url,
+                repo = repo,
+                author = author,
+                updated = updated,
+              })
+            end
+          end
+        end
+
+        pending = pending - 1
+        if pending > 0 then
+          return
+        end
+
+        if #all_prs == 0 then
+          vim.notify('No open PRs found across team repos', vim.log.levels.INFO)
+          return
+        end
+
+        table.sort(all_prs, function(a, b)
+          if a.repo ~= b.repo then
+            return a.repo < b.repo
+          end
+          return a.updated > b.updated
+        end)
+
+        local snacks_ok, snacks = pcall(require, 'snacks')
+        if not snacks_ok then
+          return
+        end
+
+        snacks.picker({
+          title = 'Team PR Dashboard (' .. #all_prs .. ' PRs)',
+          items = all_prs,
+          format = function(item) return { { item.text, 'Normal' } } end,
+          confirm = function(picker, item)
+            picker:close()
+            file_utils.open(item.url)
+            vim.notify('Opened PR #' .. item.number .. ' in browser', vim.log.levels.INFO)
+          end,
+        })
+      end)
+    )
+  end
+end
+
 function M._submit_pr_review(pr_number, review_type)
   vim.ui.input({ prompt = 'Review comment (optional): ' }, function(body)
     local cmd = { 'gh', 'pr', 'review', tostring(pr_number), '--' .. review_type }

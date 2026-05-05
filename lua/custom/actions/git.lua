@@ -142,7 +142,7 @@ function M.create_worktree(prefix)
   end
 end
 
-local QUICK_UPDATE_MESSAGE = 'feat: ✨ update'
+local QUICK_UPDATE_MESSAGE = 'feat: update'
 
 function M.create_commit(prefix, emoji, should_push, should_generic)
   return function()
@@ -186,22 +186,8 @@ function M.create_commit_from_branch_name()
   local branch_type = branch_name:match('^([^/]+)/')
   if branch_type == 'feature' then branch_type = 'feat' end
 
-  local branch_emoji = {
-    feat = '✨',
-    fix = '🐛',
-    chore = '🔧',
-    docs = '📚',
-    style = '💎',
-    refactor = '🔨',
-    perf = '🚀',
-    test = '🧪',
-    build = '📦',
-    ci = '👷',
-    revert = '⏪',
-  }
-
-  local emoji = branch_emoji[branch_type] or '✨'
-  local prefix = branch_emoji[branch_type] and branch_type or 'feat'
+  local known_types = { feat = true, fix = true, chore = true, docs = true, style = true, refactor = true, perf = true, test = true, build = true, ci = true, revert = true }
+  local prefix = known_types[branch_type] and branch_type or 'feat'
 
   local jira_ticket = git_utils.extract_jira_ticket(branch_name)
   local jira_ticket_part = jira_ticket == '' and '' or jira_ticket .. ' '
@@ -210,7 +196,7 @@ function M.create_commit_from_branch_name()
   if jira_ticket ~= '' then description = description:gsub('^' .. jira_ticket:gsub('%-', '%%-') .. '[_%-]?', '') end
   description = description:gsub('_', ' '):gsub('-', ' ')
 
-  local commit_message = prefix .. ': ' .. emoji .. ' ' .. jira_ticket_part .. description
+  local commit_message = prefix .. ': ' .. jira_ticket_part .. description
 
   vim.cmd(string.format('Git commit --no-verify -m "%s"', shell_escape_message(commit_message)))
 

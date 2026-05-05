@@ -51,6 +51,10 @@ local config = {
   options = {
     component_separators = '',
     section_separators = '',
+    disabled_filetypes = {
+      statusline = {},
+      winbar = {},
+    },
     theme = {
       normal = { c = { fg = colors.green, bg = nil } },
       inactive = { c = { fg = colors.green, bg = nil } },

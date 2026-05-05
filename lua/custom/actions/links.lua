@@ -6,8 +6,38 @@ local file_utils = require('custom.utils.files')
 local github_utils = require('custom.utils.github')
 local ui_utils = require('custom.utils.ui')
 local url_utils = require('custom.utils.url')
+local json_utils = require('custom.utils.json')
 
 local M = {}
+
+local LINK_USAGE_FILE = vim.fn.stdpath('data') .. '/link_usage.json'
+
+local function load_link_usage()
+  return json_utils.parse_json_from_file(LINK_USAGE_FILE)
+end
+
+local function save_link_usage(usage)
+  json_utils.write_json_to_file(LINK_USAGE_FILE, usage)
+end
+
+local function record_link_usage(link_name)
+  local usage = load_link_usage()
+  usage[link_name] = os.time()
+  save_link_usage(usage)
+end
+
+local function sort_by_recent_use(link_names)
+  local usage = load_link_usage()
+  table.sort(link_names, function(a, b)
+    local ta = usage[a] or 0
+    local tb = usage[b] or 0
+    if ta ~= tb then
+      return ta > tb
+    end
+    return a < b
+  end)
+  return link_names
+end
 
 local function open_url(url, description)
   if not url or url == '' then
@@ -39,7 +69,7 @@ end
 function M.open_dev_server() language_utils.open_server_url('dev') end
 
 function M.open_useful_link()
-  local link_names = link_constants.useful_link_names
+  local link_names = vim.deepcopy(link_constants.useful_link_names)
   local useful_links = link_constants.useful_link
 
   if not link_names or #link_names == 0 then
@@ -47,9 +77,12 @@ function M.open_useful_link()
     return
   end
 
+  sort_by_recent_use(link_names)
+
   ui_utils.safe_select(link_names, { prompt = 'Select link to open:' }, function(link_name)
     local url = useful_links[link_name]
     if url then
+      record_link_usage(link_name)
       open_url(url, link_name)
     else
       vim.notify('Link not found: ' .. link_name, vim.log.levels.ERROR)
@@ -58,7 +91,7 @@ function M.open_useful_link()
 end
 
 function M.open_private_useful_link()
-  local link_names = link_constants.private_useful_link_names
+  local link_names = vim.deepcopy(link_constants.private_useful_link_names)
   local private_useful_links = link_constants.private_useful_link
 
   if not link_names or #link_names == 0 then
@@ -66,9 +99,12 @@ function M.open_private_useful_link()
     return
   end
 
+  sort_by_recent_use(link_names)
+
   ui_utils.safe_select(link_names, { prompt = 'Select private link to open:' }, function(link_name)
     local url = private_useful_links[link_name]
     if url then
+      record_link_usage(link_name)
       open_url(url, link_name)
     else
       vim.notify('Link not found: ' .. link_name, vim.log.levels.ERROR)

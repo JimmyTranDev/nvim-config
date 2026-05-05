@@ -98,6 +98,8 @@ map('n', '<leader>;vK', language_actions.run_knip_unused_files, { desc = 'Knip u
 map('n', '<leader>;vk', language_actions.run_knip_unused_code, { desc = 'Knip unused code' })
 
 map('n', '<leader>;ya', file_actions.copy_all_files_content, { desc = 'Copy all files content' })
+map('n', '<leader>;yf', file_actions.copy_frontend_project_paths, { desc = 'Copy frontend project paths' })
+map('n', '<leader>;yr', file_actions.copy_repo_path, { desc = 'Copy repo path' })
 map('n', '<leader>;yu', file_actions.copy_current_file_url, { desc = 'Copy current file link' })
 map('n', '<leader>;yo', file_actions.copy_opencode_link, { desc = 'Copy OpenCode link' })
 map('n', '<leader>;ye', errors_actions.copy_diagnostic_under_cursor, { desc = 'Copy diagnostic' })
@@ -165,6 +167,7 @@ map('n', '<Leader>uv', link_actions.open_private_useful_link, { desc = 'Open pri
 map('n', '<Leader>ug', github_actions.list_org_repos_and_open, { desc = 'List Org Repos' })
 map('n', '<Leader>ui', github_actions.select_org_repo_and_create_issue, { desc = 'Create GitHub issue' })
 map('n', '<Leader>uP', github_actions.pr_review_mode, { desc = 'PR review mode' })
+map('n', '<Leader>uT', github_actions.team_pr_dashboard, { desc = 'Team PR dashboard' })
 map('n', '<Leader>um', function()
   local ok, snacks = pcall(require, 'snacks')
   if ok then snacks.picker.git_diff({ args = { 'main' } }) end
@@ -198,6 +201,9 @@ map('n', '<Leader>tnY', pnpm_actions.pnpm_unlink, { desc = 'pnpm unlink package'
 map('n', '<leader>ks', keybinding_tracker_actions.show_keybinding_stats, { desc = 'Show keybinding stats' })
 map('n', '<leader>kr', keybinding_tracker_actions.reset_keybinding_stats, { desc = 'Reset keybinding stats' })
 map('n', '<leader>fp', project_actions.switch_project, { desc = 'Switch project' })
+map('n', '<leader>fP', function()
+  Snacks.picker.files({ cwd = vim.fn.getcwd() .. '/plans' })
+end, { desc = 'Find plan files' })
 
 map('n', '<leader><leader>Ss', session.save, { desc = 'Save session' })
 map('n', '<leader><leader>Sr', session.restore, { desc = 'Restore session' })

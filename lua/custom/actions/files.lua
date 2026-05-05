@@ -113,6 +113,50 @@ function M.copy_opencode_link()
   vim.notify('Copied: ' .. link, vim.log.levels.INFO)
 end
 
+function M.copy_frontend_project_paths()
+  local base_dir = vim.fn.expand('~/Programming')
+  local stat = vim.uv.fs_stat(base_dir)
+  if not stat or stat.type ~= 'directory' then
+    vim.notify('Directory not found: ' .. base_dir, vim.log.levels.WARN)
+    return
+  end
+
+  local paths = {}
+  local handle = vim.uv.fs_scandir(base_dir)
+  if not handle then
+    vim.notify('Could not scan: ' .. base_dir, vim.log.levels.WARN)
+    return
+  end
+
+  while true do
+    local name, type = vim.uv.fs_scandir_next(handle)
+    if not name then break end
+    if type == 'directory' then
+      local pkg_path = base_dir .. '/' .. name .. '/package.json'
+      local pkg_stat = vim.uv.fs_stat(pkg_path)
+      if pkg_stat then
+        table.insert(paths, base_dir .. '/' .. name)
+      end
+    end
+  end
+
+  if #paths == 0 then
+    vim.notify('No frontend projects found', vim.log.levels.INFO)
+    return
+  end
+
+  table.sort(paths)
+  local result = table.concat(paths, '\n')
+  vim.fn.setreg('+', result)
+  vim.notify('Copied ' .. #paths .. ' frontend project paths', vim.log.levels.INFO)
+end
+
+function M.copy_repo_path()
+  local cwd = vim.fn.getcwd()
+  vim.fn.setreg('+', cwd)
+  vim.notify('Copied: ' .. cwd, vim.log.levels.INFO)
+end
+
 function M.convert_md_to_pdf()
   local filepath = vim.fn.expand('%:p')
   if not filepath:match('%.md$') then

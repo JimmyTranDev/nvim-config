@@ -118,7 +118,7 @@ local function setup_auto_refresh()
     group = augroup('auto_refresh'),
     pattern = '*',
     callback = function()
-      if vim.fn.getcmdwintype() == '' then vim.cmd('checktime') end
+      if vim.fn.getcmdwintype() == '' then vim.cmd('silent! checktime') end
     end,
     desc = 'Check for external file changes and reload buffers',
   })
@@ -126,8 +126,8 @@ local function setup_auto_refresh()
   vim.api.nvim_create_autocmd('FileChangedShellPost', {
     group = augroup('auto_refresh_notify'),
     pattern = '*',
-    callback = function() vim.notify('File changed on disk. Buffer reloaded.', vim.log.levels.INFO) end,
-    desc = 'Notify when a file is reloaded due to external changes',
+    callback = function() vim.cmd('silent! checktime') end,
+    desc = 'Silently reload buffer when file changes on disk',
   })
 end
 

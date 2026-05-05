@@ -17,6 +17,11 @@ local REQUIRED_VARS = {
     get = function() return vim.env.GITHUB_PR_FILTER_USERNAMES end,
   },
   {
+    name = 'GITHUB_TEAM_REPOS',
+    features = 'GitHub: team PR dashboard cross-repo view',
+    get = function() return vim.env.GITHUB_TEAM_REPOS end,
+  },
+  {
     name = 'ORG_JIRA_TICKET_LINK',
     features = 'Jira: ticket URL construction',
     get = function() return vim.env.ORG_JIRA_TICKET_LINK end,
