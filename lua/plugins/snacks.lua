@@ -350,84 +350,84 @@ return {
     {
       '<leader>ff',
       function() Snacks.picker.smart({ hidden = true, filter = { cwd = true } }) end,
-      desc = 'Smart Find Files',
+      desc = '󰈙 Smart Find Files',
     },
     {
       '<leader>fg',
       function() Snacks.picker.grep({ hidden = true }) end,
-      desc = 'Grep',
+      desc = '󰊄 Grep',
     },
     {
       '<leader>fr',
       function() Snacks.picker.resume() end,
-      desc = 'Resume',
+      desc = '󰻂 Resume',
     },
     {
       '<leader>fu',
       function() Snacks.picker.undo() end,
-      desc = 'Undo History',
+      desc = '󰕘 Undo History',
     },
     {
       '<leader>fe',
       function() Snacks.picker.diagnostics() end,
-      desc = 'Diagnostics',
+      desc = '󰒡 Diagnostics',
     },
     {
       '<leader>fE',
       show_diagnostics_picker,
-      desc = 'Diagnostics',
+      desc = '󰒡 Diagnostics',
     },
     {
       '<leader>fw',
       function() Snacks.picker.grep_word() end,
-      desc = 'Visual selection or word',
+      desc = '󰬴 Visual selection or word',
       mode = { 'n', 'x' },
     },
     {
       '<leader>fn',
       function() Snacks.picker.notifications({ preview = false }) end,
-      desc = 'Notification History',
+      desc = '󰓕 Notification History',
     },
     {
       '<leader>fc',
       function() Snacks.picker.commands() end,
-      desc = 'Commands',
+      desc = '󰘳 Commands',
     },
 
     {
       '<leader>fjt',
       function() Snacks.picker.git_files() end,
-      desc = 'Find Git Files',
+      desc = '󰊢 Find Git Files',
     },
     {
       '<leader>fjb',
       function() Snacks.picker.git_branches() end,
-      desc = 'Git Branches',
+      desc = '󰘬 Git Branches',
     },
     {
       '<leader>fjl',
       function() Snacks.picker.git_log() end,
-      desc = 'Git Log',
+      desc = '󰜎 Git Log',
     },
     {
       '<leader>fjL',
       function() Snacks.picker.git_log_line() end,
-      desc = 'Git Log Line',
+      desc = '󰜎 Git Log Line',
     },
     {
       '<leader>fjd',
       function() Snacks.picker.git_status() end,
-      desc = 'Git Status',
+      desc = '󰊢 Git Status',
     },
     {
       '<leader>fjS',
       function() Snacks.picker.git_stash() end,
-      desc = 'Git Stash',
+      desc = '󰛆 Git Stash',
     },
     {
       '<leader>fd',
       function() Snacks.picker.git_diff() end,
-      desc = 'Git Diff (Hunks)',
+      desc = '󰶟 Git Diff (Hunks)',
     },
     {
       '<leader>fjH',
@@ -470,7 +470,7 @@ return {
           end,
         })
       end,
-      desc = 'Find Hunks (Buffer)',
+      desc = '󰶟 Find Hunks (Buffer)',
     },
     {
       '<leader>fjD',
@@ -486,42 +486,42 @@ return {
         end
         Snacks.picker.git_diff({ args = { ref } })
       end,
-      desc = 'Git Diff vs Origin',
+      desc = '󰶟 Git Diff vs Origin',
     },
     {
       '<leader>fjf',
       function() Snacks.picker.git_log_file() end,
-      desc = 'Git Log File',
+      desc = '󰜎 Git Log File',
     },
     {
       '<leader>fjc',
       function() Snacks.picker.grep({ search = '<<<<<<<' }) end,
-      desc = 'Find Git Conflicts',
+      desc = '󰘬 Find Git Conflicts',
     },
     {
       '<leader>f/',
       function() Snacks.picker.search_history() end,
-      desc = 'Search History',
+      desc = '󰋚 Search History',
     },
     {
       '<leader>fC',
       function() Snacks.picker.command_history() end,
-      desc = 'Command History',
+      desc = '󰘳 Command History',
     },
     {
       '<leader>fi',
       function() Snacks.picker.icons() end,
-      desc = 'Icons',
+      desc = '󰛓 Icons',
     },
     {
       '<leader>fk',
       function() Snacks.picker.keymaps() end,
-      desc = 'Keymaps',
+      desc = '⌨ Keymaps',
     },
     {
       '<leader>fp',
       show_package_json_picker,
-      desc = 'Package.json Packages',
+      desc = '󰎡 Package.json Packages',
     },
     -- {
     --   '<leader>fF',
