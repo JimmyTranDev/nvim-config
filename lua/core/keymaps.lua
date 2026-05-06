@@ -72,7 +72,6 @@ map('n', '<leader>;fw', editor_actions.toggle_wrap, { desc = '󰌪 Toggle text w
 map('n', '<leader>;fr', ':e!<CR>', { desc = '󰔁 Reload file from disk' })
 map('n', '<leader>fa', file_actions.grep_current_file_dir, { desc = '󰊄 Grep in current file dir' })
 
-
 map('x', '<leader>;Tr', [["zy:%s/\V<C-r>=escape(@z, '/')<CR>//gc<left><left><left>]], { desc = '󰕈 Visual search replace' })
 
 map('n', '<leader>;vx', language_actions.run_knip_fix_current_folder, { desc = '󰒡 Knip fix current folder' })
@@ -117,6 +116,8 @@ map('n', '<Leader>rj', journal_actions.add_journal_entry, { desc = '󰌱 Add jou
 map('n', '<Leader>rJ', journal_actions.open_journal, { desc = '󰌱 Open journal' })
 map('n', '<Leader>rp', notes_actions.add_notes_entry, { desc = '󰌱 Add notes entry' })
 map('n', '<Leader>rc', jira_actions.add_comment_from_branch, { desc = '󰌱 Add Jira comment from branch' })
+
+vim.keymap.set('n', '<leader>ac', function() require('opencode').prompt('commit', { submit = true }) end, { desc = 'OpenCode: Auto-commit staged changes' })
 
 map('n', '<leader>cl', github_actions.copy_github_line_url, { desc = '󰆓 Copy GitHub line URL' })
 map('v', '<leader>cl', github_actions.copy_github_line_url, { desc = '󰆓 Copy GitHub line URL' })
