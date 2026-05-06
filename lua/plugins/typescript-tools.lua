@@ -24,7 +24,7 @@ return {
           end, 100)
         end, 200)
       end,
-      desc = 'Complete TS Cleanup (fix all, clean imports, organize)',
+      desc = '󰘧 Complete TS Cleanup (fix all, clean imports, organize)',
       silent = true,
     },
   },
