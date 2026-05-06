@@ -64,12 +64,7 @@ return {
       { '<leader>fg', '󰊢 Git Files' },
 
       { '<leader>fj', '󰊢 Git' },
-      { '<leader>fl', '󰷈 Lists' },
-      { '<leader>fm', '󰈙 Marks' },
-      { '<leader>fo', '󰈙 Options' },
-      { '<leader>fr', '󰋚 Recent' },
 
-      { '<leader>fw', '󰬴 Words' },
       { '<leader>g', '󰊢 Git' },
       { '<leader>gb', '󰘬 Branch' },
       { '<leader>gc', '󰜘 Commit' },
