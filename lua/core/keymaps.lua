@@ -71,6 +71,9 @@ map('n', '<leader>;fs', editor_actions.toggle_spellcheck, { desc = 'Toggle spell
 map('n', '<leader>;fw', editor_actions.toggle_wrap, { desc = 'Toggle text wrap' })
 map('n', '<leader>;fr', ':e!<CR>', { desc = 'Reload file from disk' })
 map('n', '<leader>fa', file_actions.grep_current_file_dir, { desc = 'Grep in current file dir' })
+map('n', '<leader>fP', function()
+  require('snacks').picker.files({ cwd = vim.fn.getcwd() .. '/plans' })
+end, { desc = 'Find plan files' })
 
 map('x', '<leader>;Tr', [["zy:%s/\V<C-r>=escape(@z, '/')<CR>//gc<left><left><left>]], { desc = 'Visual search replace' })
 
