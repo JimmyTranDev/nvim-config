@@ -47,11 +47,11 @@ return {
             kind_icon = {
               ellipsis = false,
               text = function(ctx)
-                local kind_icon, _, _ = require('mini.icons').get('lsp', ctx.kind)
-                return kind_icon
+                local icon = require('mini.icons').get('lsp', ctx.kind)
+                return icon
               end,
               highlight = function(ctx)
-                local _, hl, _ = require('mini.icons').get('lsp', ctx.kind)
+                local _, hl = require('mini.icons').get('lsp', ctx.kind)
                 return hl
               end,
             },
