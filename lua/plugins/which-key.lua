@@ -69,7 +69,6 @@ return {
       { '<leader>fo', '󰈙 Options' },
       { '<leader>fr', '󰋚 Recent' },
 
-      { '<leader>fv', '󰕷 Vim' },
       { '<leader>fw', '󰬴 Words' },
       { '<leader>g', '󰊢 Git' },
       { '<leader>gb', '󰘬 Branch' },

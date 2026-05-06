@@ -353,11 +353,6 @@ return {
       desc = 'Smart Find Files',
     },
     {
-      '<leader>fF',
-      function() Snacks.picker.files({ hidden = true, filter = { cwd = true } }) end,
-      desc = 'Find Files',
-    },
-    {
       '<leader>fg',
       function() Snacks.picker.grep({ hidden = true }) end,
       desc = 'Grep',
@@ -382,42 +377,11 @@ return {
       show_diagnostics_picker,
       desc = 'Diagnostics',
     },
-
-    {
-      '<leader>fC',
-      function() Snacks.picker.files({ cwd = vim.fn.stdpath('config') }) end,
-      desc = 'Find Config File',
-    },
-    {
-      '<leader>fp',
-      function() Snacks.picker.projects() end,
-      desc = 'Projects',
-    },
-    {
-      '<leader>fo',
-      function()
-        local git_root = vim.fn.systemlist('git rev-parse --show-toplevel')[1]
-        if vim.v.shell_error ~= 0 or not git_root or git_root == '' then
-          Snacks.picker.recent()
-          return
-        end
-        git_root = vim.fn.fnamemodify(git_root, ':p')
-        Snacks.picker.recent({
-          filter = { cwd = git_root },
-        })
-      end,
-      desc = 'Recent (repo)',
-    },
     {
       '<leader>fw',
       function() Snacks.picker.grep_word() end,
       desc = 'Visual selection or word',
       mode = { 'n', 'x' },
-    },
-    {
-      '<leader>fl',
-      function() Snacks.picker.lines() end,
-      desc = 'Buffer Lines',
     },
     {
       '<leader>fn',
@@ -535,124 +499,158 @@ return {
       desc = 'Find Git Conflicts',
     },
     {
-      '<leader>fv/',
+      '<leader>f/',
       function() Snacks.picker.search_history() end,
       desc = 'Search History',
     },
     {
-      '<leader>fvC',
+      '<leader>fC',
       function() Snacks.picker.command_history() end,
       desc = 'Command History',
     },
     {
-      '<leader>fvH',
-      function() Snacks.picker.highlights() end,
-      desc = 'Highlights',
-    },
-    {
-      '<leader>fvM',
-      function() Snacks.picker.man() end,
-      desc = 'Man Pages',
-    },
-    {
-      '<leader>fv"',
-      function() Snacks.picker.registers() end,
-      desc = 'Registers',
-    },
-    {
-      '<leader>fva',
-      function() Snacks.picker.autocmds() end,
-      desc = 'Autocmds',
-    },
-    {
-      '<leader>fvf',
-      function() Snacks.picker.colorschemes() end,
-      desc = 'Colorschemes',
-    },
-    {
-      '<leader>fvh',
-      function() Snacks.picker.help() end,
-      desc = 'Help Pages',
-    },
-    {
-      '<leader>fvi',
+      '<leader>fi',
       function() Snacks.picker.icons() end,
       desc = 'Icons',
     },
     {
-      '<leader>fvj',
-      function() Snacks.picker.jumps() end,
-      desc = 'Jumps',
-    },
-    {
-      '<leader>fvk',
+      '<leader>fk',
       function() Snacks.picker.keymaps() end,
       desc = 'Keymaps',
     },
     {
-      '<leader>fvl',
-      function() Snacks.picker.loclist() end,
-      desc = 'Location List',
-    },
-    {
-      '<leader>fvm',
-      function() Snacks.picker.marks() end,
-      desc = 'Marks',
-    },
-    {
-      '<leader>fvp',
-      function() Snacks.picker.lazy() end,
-      desc = 'Search for Plugin Spec',
-    },
-    {
-      '<leader>fvq',
-      function() Snacks.picker.qflist() end,
-      desc = 'Quickfix List',
-    },
-
-    {
-      '<leader>fN',
-      desc = 'Neovim News',
-      function()
-        Snacks.win({
-          file = vim.api.nvim_get_runtime_file('doc/news.txt', false)[1],
-          width = 0.6,
-          height = 0.6,
-          wo = {
-            spell = false,
-            wrap = false,
-            signcolumn = 'yes',
-            statuscolumn = ' ',
-            conceallevel = 3,
-          },
-        })
-      end,
-    },
-    {
-      '<leader>fP',
+      '<leader>fp',
       show_package_json_picker,
       desc = 'Package.json Packages',
     },
-    {
-      '<leader><leader>D',
-      function() Snacks.terminal('lazydocker', { win = { style = 'float' } }) end,
-      desc = 'Lazydocker',
-    },
-    {
-      '<leader><leader>S',
-      function() Snacks.terminal('lazysql', { win = { style = 'float' } }) end,
-      desc = 'Lazysql',
-    },
-    {
-      '<leader>;D',
-      function() Snacks.terminal('vd ' .. vim.fn.expand('%'), { win = { style = 'float' } }) end,
-      desc = 'Visidata',
-    },
-    {
-      '<leader>gL',
-      function() Snacks.gitbrowse() end,
-      desc = 'Git Browse',
-      mode = { 'n', 'v' },
-    },
+    -- {
+    --   '<leader>fF',
+    --   function() Snacks.picker.files({ hidden = true, filter = { cwd = true } }) end,
+    --   desc = 'Find Files',
+    -- },
+    -- {
+    --   '<leader>fC',
+    --   function() Snacks.picker.files({ cwd = vim.fn.stdpath('config') }) end,
+    --   desc = 'Find Config File',
+    -- },
+    -- {
+    --   '<leader>fp',
+    --   function() Snacks.picker.projects() end,
+    --   desc = 'Projects',
+    -- },
+    -- {
+    --   '<leader>fo',
+    --   function()
+    --     local git_root = vim.fn.systemlist('git rev-parse --show-toplevel')[1]
+    --     if vim.v.shell_error ~= 0 or not git_root or git_root == '' then
+    --       Snacks.picker.recent()
+    --       return
+    --     end
+    --     git_root = vim.fn.fnamemodify(git_root, ':p')
+    --     Snacks.picker.recent({
+    --       filter = { cwd = git_root },
+    --     })
+    --   end,
+    --   desc = 'Recent (repo)',
+    -- },
+    -- {
+    --   '<leader>fl',
+    --   function() Snacks.picker.lines() end,
+    --   desc = 'Buffer Lines',
+    -- },
+    -- {
+    --   '<leader>fvj',
+    --   function() Snacks.picker.jumps() end,
+    --   desc = 'Jumps',
+    -- },
+    -- {
+    --   '<leader><leader>D',
+    --   function() Snacks.terminal('lazydocker', { win = { style = 'float' } }) end,
+    --   desc = 'Lazydocker',
+    -- },
+    -- {
+    --   '<leader><leader>S',
+    --   function() Snacks.terminal('lazysql', { win = { style = 'float' } }) end,
+    --   desc = 'Lazysql',
+    -- },
+    -- {
+    --   '<leader>;D',
+    --   function() Snacks.terminal('vd ' .. vim.fn.expand('%'), { win = { style = 'float' } }) end,
+    --   desc = 'Visidata',
+    -- },
+    -- {
+    --   '<leader>gL',
+    --   function() Snacks.gitbrowse() end,
+    --   desc = 'Git Browse',
+    --   mode = { 'n', 'v' },
+    -- },
+    -- {
+    --   '<leader>fH',
+    --   function() Snacks.picker.highlights() end,
+    --   desc = 'Highlights',
+    -- },
+    -- {
+    --   '<leader>fM',
+    --   function() Snacks.picker.man() end,
+    --   desc = 'Man Pages',
+    -- },
+    -- {
+    --   '<leader>f"',
+    --   function() Snacks.picker.registers() end,
+    --   desc = 'Registers',
+    -- },
+    -- {
+    --   '<leader>fva',
+    --   function() Snacks.picker.autocmds() end,
+    --   desc = 'Autocmds',
+    -- },
+    -- {
+    --   '<leader>fvf',
+    --   function() Snacks.picker.colorschemes() end,
+    --   desc = 'Colorschemes',
+    -- },
+    -- {
+    --   '<leader>fvh',
+    --   function() Snacks.picker.help() end,
+    --   desc = 'Help Pages',
+    -- },
+    -- {
+    --   '<leader>fvl',
+    --   function() Snacks.picker.loclist() end,
+    --   desc = 'Location List',
+    -- },
+    -- {
+    --   '<leader>fvm',
+    --   function() Snacks.picker.marks() end,
+    --   desc = 'Marks',
+    -- },
+    -- {
+    --   '<leader>fvp',
+    --   function() Snacks.picker.lazy() end,
+    --   desc = 'Search for Plugin Spec',
+    -- },
+    -- {
+    --   '<leader>fvq',
+    --   function() Snacks.picker.qflist() end,
+    --   desc = 'Quickfix List',
+    -- },
+    -- {
+    --   '<leader>fN',
+    --   desc = 'Neovim News',
+    --   function()
+    --     Snacks.win({
+    --       file = vim.api.nvim_get_runtime_file('doc/news.txt', false)[1],
+    --       width = 0.6,
+    --       height = 0.6,
+    --       wo = {
+    --         spell = false,
+    --         wrap = false,
+    --         signcolumn = 'yes',
+    --         statuscolumn = ' ',
+    --         conceallevel = 3,
+    --       },
+    --     })
+    --   end,
+    -- },
   },
 }
