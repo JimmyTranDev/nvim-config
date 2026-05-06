@@ -1,11 +1,9 @@
-local file_actions = require('custom.actions.files')
 local language_actions = require('custom.actions.language')
 local toggle_term_actions = require('custom.actions.toggleterm')
 
 return {
   'akinsho/nvim-toggleterm.lua',
   keys = {
-    { mode = 'n', '<leader>fm', file_actions.grep_markdown_headings, desc = 'Find Markdown Headings', silent = true },
 
     { mode = 'n', '<leader>t1', ':1ToggleTerm<CR>', desc = 'Toggle Terminal 1', silent = true },
     { mode = 'n', '<leader>t2', ':2ToggleTerm<Cr>', desc = 'Toggle Terminal 2', silent = true },

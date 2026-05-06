@@ -1,56 +1,4 @@
-local function get_diagnostics_by_file()
-  if vim.g.vscode then return {} end
-
-  local diagnostics = vim.diagnostic.get()
-  local by_file = {}
-
-  for _, diag in ipairs(diagnostics) do
-    local buf = diag.bufnr
-    local filename = vim.api.nvim_buf_get_name(buf)
-    if filename and filename ~= '' then
-      if not by_file[filename] then by_file[filename] = { errors = 0, warnings = 0, info = 0, hints = 0, total = 0, diagnostics = {}, buf = buf } end
-      by_file[filename].total = by_file[filename].total + 1
-      if diag.severity == vim.diagnostic.severity.ERROR then
-        by_file[filename].errors = by_file[filename].errors + 1
-      elseif diag.severity == vim.diagnostic.severity.WARN then
-        by_file[filename].warnings = by_file[filename].warnings + 1
-      elseif diag.severity == vim.diagnostic.severity.INFO then
-        by_file[filename].info = by_file[filename].info + 1
-      else
-        by_file[filename].hints = by_file[filename].hints + 1
-      end
-      table.insert(by_file[filename].diagnostics, diag)
-    end
-  end
-
-  local items = {}
-  for filename, data in pairs(by_file) do
-    local max_severity = data.errors > 0 and 'error' or data.warnings > 0 and 'warn' or data.info > 0 and 'info' or 'hint'
-    table.insert(items, {
-      idx = #items + 1,
-      text = vim.fn.fnamemodify(filename, ':~:.'),
-      filename = filename,
-      diagnostics = data.diagnostics,
-      buf = data.buf,
-      errors = data.errors,
-      warnings = data.warnings,
-      info = data.info,
-      hints = data.hints,
-      total = data.total,
-      max_severity = max_severity,
-    })
-  end
-
-  table.sort(items, function(a, b)
-    local severity_order = { error = 1, warn = 2, info = 3, hint = 4 }
-    local a_sev = severity_order[a.max_severity] or 5
-    local b_sev = severity_order[b.max_severity] or 5
-    if a_sev ~= b_sev then return a_sev < b_sev end
-    return a.total > b.total
-  end)
-
-  return items
-end
+local file_actions = require('custom.actions.files')
 
 local function get_package_json_packages()
   local package_json_path = vim.fn.getcwd() .. '/package.json'
@@ -86,42 +34,12 @@ local function get_package_json_packages()
   return packages
 end
 
-local SEVERITY_HL = {
-  error = 'DiagnosticError',
-  warn = 'DiagnosticWarn',
-  info = 'DiagnosticInfo',
-  hint = 'DiagnosticHint',
-}
-
-local SEVERITY_ICON = {
-  error = ' ',
-  warn = '󰀨 ',
-  info = ' ',
-  hint = '󰠠 ',
-}
-
 local DEP_TYPE_HL = {
   dependencies = 'DiagnosticOk',
   devDependencies = 'DiagnosticInfo',
   peerDependencies = 'DiagnosticWarn',
   optionalDependencies = 'DiagnosticHint',
 }
-
-local function format_diagnostics_item(item)
-  local parts = {}
-  local hl = SEVERITY_HL[item.max_severity] or 'Normal'
-  local icon = SEVERITY_ICON[item.max_severity] or ''
-
-  table.insert(parts, { icon, hl })
-  table.insert(parts, { item.text .. ' ', 'Normal' })
-
-  if item.errors > 0 then table.insert(parts, { ' ' .. item.errors .. ' ', 'DiagnosticError' }) end
-  if item.warnings > 0 then table.insert(parts, { '󰀨 ' .. item.warnings .. ' ', 'DiagnosticWarn' }) end
-  if item.info > 0 then table.insert(parts, { ' ' .. item.info .. ' ', 'DiagnosticInfo' }) end
-  if item.hints > 0 then table.insert(parts, { '󰠠 ' .. item.hints .. ' ', 'DiagnosticHint' }) end
-
-  return parts
-end
 
 local function format_package_item(item)
   local type_hl = DEP_TYPE_HL[item.type] or 'Normal'
@@ -197,24 +115,7 @@ local function show_package_json_picker()
   })
 end
 
-local function show_diagnostics_picker()
-  local items = get_diagnostics_by_file()
 
-  Snacks.picker({
-    title = 'Diagnostics by File',
-    items = items,
-    format = function(item) return format_diagnostics_item(item) end,
-    confirm = function(picker, item)
-      picker:close()
-      vim.api.nvim_set_current_buf(item.buf)
-      require('trouble').open({
-        mode = 'diagnostics',
-        filter = { buf = item.buf },
-      })
-    end,
-    layout = { preset = 'default', preview = false },
-  })
-end
 
 return {
   'folke/snacks.nvim',
@@ -283,67 +184,67 @@ return {
     {
       'ga',
       vim.lsp.buf.code_action,
-      desc = 'LSP Code Action',
+      desc = '󰌵 LSP Code Action',
       mode = { 'n', 'v' },
     },
     {
       'gm',
       vim.diagnostic.open_float,
-      desc = 'LSP Diagnostic',
+      desc = '󰒡 LSP Diagnostic',
       mode = { 'n', 'v' },
     },
     {
       'gh',
       vim.lsp.buf.hover,
-      desc = 'LSP Hover',
+      desc = '󰋽 LSP Hover',
       mode = { 'n', 'v' },
     },
     {
       'gl',
       vim.lsp.buf.format,
-      desc = 'LSP Format',
+      desc = '󰉼 LSP Format',
       mode = { 'n', 'v' },
     },
     {
       'gd',
       function() Snacks.picker.lsp_definitions() end,
-      desc = 'Goto Definition',
+      desc = '󰈮 Goto Definition',
     },
     {
       'gD',
       function() Snacks.picker.lsp_declarations() end,
-      desc = 'Goto Declaration',
+      desc = '󰈮 Goto Declaration',
     },
     {
       'gz',
       function() Snacks.picker.lsp_references() end,
       nowait = true,
-      desc = 'References',
+      desc = '󰌹 References',
     },
     {
       'gi',
       function() Snacks.picker.lsp_implementations() end,
-      desc = 'Goto Implementation',
+      desc = '󰡱 Goto Implementation',
     },
     {
       'gH',
       function() Snacks.picker.lsp_type_definitions() end,
-      desc = 'Goto Type Definition',
+      desc = '󰜁 Goto Type Definition',
     },
     {
       '<leader>fs',
       function() Snacks.picker.lsp_symbols() end,
-      desc = 'LSP Symbols',
+      desc = '󰘧 LSP Symbols',
     },
     {
       '<leader>fS',
       function() Snacks.picker.lsp_workspace_symbols() end,
-      desc = 'LSP Workspace Symbols',
+      desc = '󰘧 LSP Workspace Symbols',
     },
     {
       'gx',
       require('custom.actions.files').yank_word_and_open,
-      desc = 'Open File Under Cursor',
+      desc = '󰏌 Open File Under Cursor',
       mode = { 'n', 'v' },
     },
 
@@ -373,11 +274,6 @@ return {
       desc = '󰒡 Diagnostics',
     },
     {
-      '<leader>fE',
-      show_diagnostics_picker,
-      desc = '󰒡 Diagnostics',
-    },
-    {
       '<leader>fw',
       function() Snacks.picker.grep_word() end,
       desc = '󰬴 Visual selection or word',
@@ -393,7 +289,11 @@ return {
       function() Snacks.picker.commands() end,
       desc = '󰘳 Commands',
     },
-
+    {
+      '<leader>fp',
+      function() Snacks.picker.files({ cwd = vim.fn.getcwd() .. '/plans' }) end,
+      desc = '󰈙 Find Plan Files',
+    },
     {
       '<leader>fjt',
       function() Snacks.picker.git_files() end,
@@ -519,10 +419,22 @@ return {
       desc = '⌨ Keymaps',
     },
     {
-      '<leader>fp',
+      '<leader>fP',
       show_package_json_picker,
       desc = '󰎡 Package.json Packages',
     },
+    {
+      mode = 'n',
+      '<leader>fm',
+      file_actions.grep_markdown_headings,
+      desc = '󰪶 Find Markdown Headings',
+      silent = true,
+    },
+    -- {
+    --   '<leader>fE',
+    --   show_diagnostics_picker,
+    --   desc = '󰒡 Diagnostics',
+    -- },
     -- {
     --   '<leader>fF',
     --   function() Snacks.picker.files({ hidden = true, filter = { cwd = true } }) end,

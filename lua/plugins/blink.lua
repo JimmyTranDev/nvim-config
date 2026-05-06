@@ -6,6 +6,9 @@ return {
   },
   version = '*',
   opts = {
+    enabled = function()
+      return vim.bo.filetype ~= 'opencode_ask'
+    end,
     cmdline = {
       enabled = true,
       completion = {
