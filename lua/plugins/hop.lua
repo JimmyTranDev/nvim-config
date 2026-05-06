@@ -3,10 +3,10 @@ return {
   version = '*',
   opts = {},
   keys = {
-    { 'f', desc = 'Hop forward' },
-    { 'F', desc = 'Hop backward' },
-    { 't', desc = 'Hop to before forward' },
-    { 'T', desc = 'Hop to before backward' },
+    { 'f', desc = '󰯲 Hop forward' },
+    { 'F', desc = '󰯲 Hop backward' },
+    { 't', desc = '󰯲 Hop to before forward' },
+    { 'T', desc = '󰯲 Hop to before backward' },
   },
   config = function()
     local hop = require('hop')
