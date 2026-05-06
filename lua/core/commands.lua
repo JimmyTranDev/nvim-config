@@ -7,7 +7,7 @@ local function setup_filetype_associations()
     group = augroup('filetype_associations'),
     pattern = { '*.tag', '*.riot' },
     callback = function() vim.bo.filetype = 'html' end,
-    desc = 'Set HTML filetype for Riot.js component files',
+    desc = '󰌐 Set HTML filetype for Riot.js component files',
   })
 end
 
@@ -20,13 +20,13 @@ local function setup_language_settings()
       vim.bo.tabstop = 4
       vim.bo.softtabstop = 4
     end,
-    desc = 'Set Java-specific indentation (4 spaces)',
+    desc = '󰬦 Set Java-specific indentation (4 spaces)',
   })
 
   vim.api.nvim_create_autocmd('BufEnter', {
     group = augroup('markdown_wrap'),
     callback = function() vim.wo.wrap = vim.bo.filetype == 'markdown' end,
-    desc = 'Enable soft wrap only for markdown files',
+    desc = '󰱤 Enable soft wrap only for markdown files',
   })
 end
 
@@ -35,14 +35,14 @@ local function setup_visual_enhancements()
     group = augroup('visual_enhancements'),
     pattern = '*',
     callback = function() vim.highlight.on_yank({ higroup = 'Visual', timeout = 200 }) end,
-    desc = 'Highlight yanked text briefly',
+    desc = '󰅗 Highlight yanked text briefly',
   })
 
   vim.api.nvim_create_autocmd('BufEnter', {
     group = augroup('copilot_settings'),
     pattern = 'copilot-*',
     callback = function() vim.opt_local.relativenumber = true end,
-    desc = 'Enable relative line numbers in Copilot buffers',
+    desc = '󰌑 Enable relative line numbers in Copilot buffers',
   })
 end
 
@@ -56,10 +56,10 @@ local function setup_git_integration()
         'n',
         'cww',
         function() vim.notify('Git conflict resolution functionality not yet implemented', vim.log.levels.INFO) end,
-        { buffer = true, desc = 'Resolve git conflicts' }
+        { buffer = true, desc = '󰘬 Resolve git conflicts' }
       )
     end,
-    desc = 'Handle git conflict detection and setup resolution keymaps',
+    desc = '󰘻 Handle git conflict detection and setup resolution keymaps',
   })
 end
 
@@ -103,7 +103,7 @@ local function setup_lsp_progress()
         opts = function(notif) notif.icon = #progress[client.id] == 0 and ' ' or spinner[idx] end,
       })
     end,
-    desc = 'Show LSP progress notifications with spinner',
+    desc = '󰗖 Show LSP progress notifications with spinner',
   })
 end
 
@@ -120,14 +120,14 @@ local function setup_auto_refresh()
     callback = function()
       if vim.fn.getcmdwintype() == '' then vim.cmd('silent! checktime') end
     end,
-    desc = 'Check for external file changes and reload buffers',
+    desc = '󰆓 Check for external file changes and reload buffers',
   })
 
   vim.api.nvim_create_autocmd('FileChangedShellPost', {
     group = augroup('auto_refresh_notify'),
     pattern = '*',
     callback = function() vim.cmd('silent! checktime') end,
-    desc = 'Silently reload buffer when file changes on disk',
+    desc = '󰇥 Silently reload buffer when file changes on disk',
   })
 end
 
@@ -141,7 +141,7 @@ local function setup_toggleterm_whichkey_fix()
         vim.o.timeoutlen = 300
       end)
     end,
-    desc = 'Re-enable which-key timeout after terminal closes',
+    desc = '󰅗 Re-enable which-key timeout after terminal closes',
   })
 
   vim.api.nvim_create_autocmd('ModeChanged', {
@@ -153,7 +153,7 @@ local function setup_toggleterm_whichkey_fix()
         vim.o.timeoutlen = 300
       end)
     end,
-    desc = 'Restore which-key timeout when leaving terminal mode',
+    desc = '󰗖 Restore which-key timeout when leaving terminal mode',
   })
 end
 
@@ -162,7 +162,7 @@ local function setup_spell()
     group = augroup('spell_check'),
     pattern = { 'gitcommit', 'text', 'plaintex', 'tex' },
     callback = function() vim.opt_local.spell = true end,
-    desc = 'Enable spell check for text-heavy filetypes',
+    desc = '󰓎 Enable spell check for text-heavy filetypes',
   })
 end
 
