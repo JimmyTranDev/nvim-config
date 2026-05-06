@@ -699,6 +699,62 @@ function M.team_pr_dashboard()
   end
 end
 
+function M.copy_github_line_url()
+  local repo_info = github_utils.get_repo_info()
+  if not repo_info or not repo_info.nameWithOwner then
+    vim.notify('Could not determine repository', vim.log.levels.ERROR)
+    return
+  end
+
+  local file = vim.fn.expand('%:p')
+  if file == '' then
+    vim.notify('No file is currently open', vim.log.levels.WARN)
+    return
+  end
+
+  local git_root = vim.fn.systemlist('git rev-parse --show-toplevel')[1]
+  if vim.v.shell_error ~= 0 or not git_root then
+    vim.notify('Not in a git repository', vim.log.levels.ERROR)
+    return
+  end
+
+  local relative_path = file:sub(#git_root + 2)
+
+  local commit_hash = vim.fn.systemlist('git rev-parse HEAD')[1]
+  if vim.v.shell_error ~= 0 or not commit_hash then
+    vim.notify('Could not determine commit hash', vim.log.levels.ERROR)
+    return
+  end
+
+  local mode = vim.fn.mode()
+  local line_fragment
+  if mode == 'v' or mode == 'V' or mode == '\22' then
+    local start_line = vim.fn.line('v')
+    local end_line = vim.fn.line('.')
+    if start_line > end_line then
+      start_line, end_line = end_line, start_line
+    end
+    if start_line == end_line then
+      line_fragment = string.format('#L%d', start_line)
+    else
+      line_fragment = string.format('#L%d-L%d', start_line, end_line)
+    end
+  else
+    line_fragment = string.format('#L%d', vim.fn.line('.'))
+  end
+
+  local url = string.format(
+    'https://github.com/%s/blob/%s/%s%s',
+    repo_info.nameWithOwner,
+    commit_hash,
+    relative_path,
+    line_fragment
+  )
+
+  vim.fn.setreg('+', url)
+  vim.notify('Copied: ' .. url, vim.log.levels.INFO)
+end
+
 function M._submit_pr_review(pr_number, review_type)
   vim.ui.input({ prompt = 'Review comment (optional): ' }, function(body)
     local cmd = { 'gh', 'pr', 'review', tostring(pr_number), '--' .. review_type }

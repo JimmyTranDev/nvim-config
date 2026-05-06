@@ -136,6 +136,9 @@ map('n', '<leader>;cw', jira_actions.refresh_jira_cache, { desc = 'Refresh Jira 
 
 map('n', '<leader>;j', jira_actions.generate_done_md, { desc = 'Generate this week jira tasks' })
 
+map('n', '<leader>;yl', github_actions.copy_github_line_url, { desc = 'Copy GitHub line URL' })
+map('v', '<leader>;yl', github_actions.copy_github_line_url, { desc = 'Copy GitHub line URL' })
+
 map('n', '<leader>;p', github_actions.copy_open_prs, { desc = 'Copy open PRs' })
 map('n', '<leader>;P', github_actions.select_and_copy_pr, { desc = 'Select PR to copy' })
 map('n', '<Leader>ryj', jira_actions.copy_ticket_with_title, { desc = 'Copy Jira ticket with title' })
