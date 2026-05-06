@@ -8,14 +8,14 @@ return {
       '<c-.>',
       '<cmd>Nerdy<cr>',
       silent = true,
-      desc = 'Browse Nerd Font Icons',
+      desc = '󰛓 Browse Nerd Font Icons',
     },
     {
       mode = 'n',
       ';n',
       '<cmd>Nerdy<cr>',
       silent = true,
-      desc = 'Browse Nerd Font Icons',
+      desc = '󰛓 Browse Nerd Font Icons',
     },
   },
   opts = {
