@@ -7,7 +7,7 @@ return {
       '<leader><leader>T',
       function() require('treesj').toggle() end,
       silent = true,
-      desc = ' Treesj',
+      desc = '󰆑 Treesj',
     },
   },
   config = function()
