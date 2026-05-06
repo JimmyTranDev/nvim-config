@@ -5,8 +5,8 @@ return {
   },
   lazy = false,
   keys = {
-    { '<C-a>', function() require('opencode').ask('@this: ', { submit = true }) end, mode = { 'n', 'x' }, desc = 'Ask opencode' },
-    { '<C-.>', function() require('opencode').toggle() end, mode = { 'n', 't' }, desc = 'Toggle opencode' },
+    { '<C-a>', function() require('opencode').ask('@this: ', { submit = true }) end, mode = { 'n', 'x' }, desc = '󰚴 Ask opencode' },
+    { '<C-.>', function() require('opencode').toggle() end, mode = { 'n', 't' }, desc = '󰚴 Toggle opencode' },
   },
   config = function()
     vim.g.opencode_opts = {}
@@ -25,7 +25,7 @@ return {
           -- require('opencode').toggle()
         end, 200)
       end,
-      desc = 'Auto-open OpenCode and most recent file from current folder (if any) on startup',
+      desc = '󰚴 Auto-open OpenCode and most recent file from current folder (if any) on startup',
     })
   end,
 }
