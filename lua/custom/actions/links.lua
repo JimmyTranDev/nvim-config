@@ -172,6 +172,22 @@ function M.search_google()
   end)
 end
 
+function M.open_sonarqube()
+  local url = vim.env.ORG_SONARQUBE_URL
+  if not url or url == '' then
+    vim.notify('ORG_SONARQUBE_URL is not set', vim.log.levels.WARN)
+    return
+  end
+  local branch = vim.fn.systemlist('git branch --show-current')[1]
+  if not branch or branch == '' then
+    vim.notify('Could not determine current branch', vim.log.levels.WARN)
+    return
+  end
+  local separator = url:find('?') and '&' or '?'
+  local full_url = url .. separator .. 'branch=' .. branch
+  vim.ui.open(full_url)
+end
+
 function M.open_firefox_container()
   vim.ui.input({ prompt = 'Container name: ' }, function(container)
     if not container or container == '' then return end

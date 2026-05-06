@@ -563,4 +563,14 @@ function M.init_repo_and_push()
   end)
 end
 
+function M.diff_vs_main()
+  local ok, snacks = pcall(require, 'snacks')
+  if ok then snacks.picker.git_diff({ args = { 'main' } }) end
+end
+
+function M.diff_vs_develop()
+  local ok, snacks = pcall(require, 'snacks')
+  if ok then snacks.picker.git_diff({ args = { 'develop' } }) end
+end
+
 return M

@@ -183,4 +183,17 @@ function M.convert_md_to_pdf()
   )
 end
 
+function M.grep_current_file_dir()
+  local dir = vim.fn.expand('%:p:h')
+  if dir == '' then
+    vim.notify('No file open', vim.log.levels.WARN)
+    return
+  end
+  Snacks.picker.grep({ cwd = dir, hidden = true, ignored = true })
+end
+
+function M.find_plan_files()
+  Snacks.picker.files({ cwd = vim.fn.getcwd() .. '/plans' })
+end
+
 return M

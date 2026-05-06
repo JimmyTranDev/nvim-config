@@ -80,14 +80,7 @@ map('n', '<leader>;fw', ':SudaWrite<CR>', { desc = 'Sudo write' })
 map('n', '<leader>;fm', ':Markview<CR>', { desc = 'Toggle Markview' })
 map('n', '<leader>;fW', editor_actions.toggle_wrap, { desc = 'Toggle text wrap' })
 map('n', '<leader>;fr', ':e!<CR>', { desc = 'Reload file from disk' })
-map('n', '<leader>;fg', function()
-  local dir = vim.fn.expand('%:p:h')
-  if dir == '' then
-    vim.notify('No file open', vim.log.levels.WARN)
-    return
-  end
-  Snacks.picker.grep({ cwd = dir, hidden = true, ignored = true })
-end, { desc = 'Grep in current file dir' })
+map('n', '<leader>;fg', file_actions.grep_current_file_dir, { desc = 'Grep in current file dir' })
 
 map('x', '<leader>;Tr', [["zy:%s/\V<C-r>=escape(@z, '/')<CR>//gc<left><left><left>]], { desc = 'Visual search replace' })
 
@@ -171,32 +164,12 @@ map('n', '<Leader>ug', github_actions.list_org_repos_and_open, { desc = 'List Or
 map('n', '<Leader>ui', github_actions.select_org_repo_and_create_issue, { desc = 'Create GitHub issue' })
 map('n', '<Leader>uP', github_actions.pr_review_mode, { desc = 'PR review mode' })
 map('n', '<Leader>uT', github_actions.team_pr_dashboard, { desc = 'Team PR dashboard' })
-map('n', '<Leader>um', function()
-  local ok, snacks = pcall(require, 'snacks')
-  if ok then snacks.picker.git_diff({ args = { 'main' } }) end
-end, { desc = 'Diff vs main' })
-map('n', '<Leader>uM', function()
-  local ok, snacks = pcall(require, 'snacks')
-  if ok then snacks.picker.git_diff({ args = { 'develop' } }) end
-end, { desc = 'Diff vs develop' })
+map('n', '<Leader>um', git_actions.diff_vs_main, { desc = 'Diff vs main' })
+map('n', '<Leader>uM', git_actions.diff_vs_develop, { desc = 'Diff vs develop' })
 map('n', '<Leader>us', link_actions.search_google, { desc = 'Search Google' })
 map('v', '<Leader>us', link_actions.search_google, { desc = 'Search Google (selection)' })
 map('n', '<Leader>uB', branch_actions.stale_branch_cleanup(), { desc = 'Stale branch cleanup' })
-map('n', '<Leader>uS', function()
-  local url = vim.env.ORG_SONARQUBE_URL
-  if not url or url == '' then
-    vim.notify('ORG_SONARQUBE_URL is not set', vim.log.levels.WARN)
-    return
-  end
-  local branch = vim.fn.systemlist('git branch --show-current')[1]
-  if not branch or branch == '' then
-    vim.notify('Could not determine current branch', vim.log.levels.WARN)
-    return
-  end
-  local separator = url:find('?') and '&' or '?'
-  local full_url = url .. separator .. 'branch=' .. branch
-  vim.ui.open(full_url)
-end, { desc = 'Open SonarQube (branch)' })
+map('n', '<Leader>uS', link_actions.open_sonarqube, { desc = 'Open SonarQube (branch)' })
 
 map('n', '<Leader>tny', pnpm_actions.pnpm_link, { desc = 'pnpm link package' })
 map('n', '<Leader>tnY', pnpm_actions.pnpm_unlink, { desc = 'pnpm unlink package' })
@@ -204,9 +177,7 @@ map('n', '<Leader>tnY', pnpm_actions.pnpm_unlink, { desc = 'pnpm unlink package'
 map('n', '<leader>ks', keybinding_tracker_actions.show_keybinding_stats, { desc = 'Show keybinding stats' })
 map('n', '<leader>kr', keybinding_tracker_actions.reset_keybinding_stats, { desc = 'Reset keybinding stats' })
 map('n', '<leader>fp', project_actions.switch_project, { desc = 'Switch project' })
-map('n', '<leader>fP', function()
-  Snacks.picker.files({ cwd = vim.fn.getcwd() .. '/plans' })
-end, { desc = 'Find plan files' })
+map('n', '<leader>fP', file_actions.find_plan_files, { desc = 'Find plan files' })
 
 map('n', '<leader><leader>Ss', session.save, { desc = 'Save session' })
 map('n', '<leader><leader>Sr', session.restore, { desc = 'Restore session' })
