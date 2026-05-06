@@ -1,5 +1,4 @@
 local file_actions = require('custom.actions.files')
-local workspace_symbol_cache = require('custom.utils.workspace_symbol_cache')
 
 local function get_package_json_packages()
   local package_json_path = vim.fn.getcwd() .. '/package.json'
@@ -119,34 +118,89 @@ end
 
 
 local function show_workspace_symbols_with_cache()
-  local cached = workspace_symbol_cache.get(300)
+  local cache = require('custom.utils.workspace_symbol_cache')
+  local cached = cache.get(300)
   if cached then
     return Snacks.picker({
       title = 'LSP Workspace Symbols (Cached)',
       items = cached,
       format = function(item)
-        local filename = item.filename or ''
-        local line = item.lnum and tostring(item.lnum) or ''
+        local kind = item.kind or ''
+        local name = item.name or ''
+        local file = item.file or ''
         return {
-          { vim.fn.fnamemodify(filename, ':t'), 'Comment' },
-          { ':' .. line .. ' ', 'LineNr' },
-          { item.text or '', 'Normal' },
+          { kind .. ' ', 'Type' },
+          { name .. ' ', 'Normal' },
+          { vim.fn.fnamemodify(file, ':~:.'), 'Comment' },
         }
+      end,
+      confirm = function(picker, item)
+        picker:close()
+        if item.file and item.pos then
+          vim.cmd('edit ' .. vim.fn.fnameescape(item.file))
+          pcall(vim.api.nvim_win_set_cursor, 0, { item.pos[1], item.pos[2] })
+        end
       end,
     })
   end
 
-  Snacks.picker.lsp_workspace_symbols({
-    on_select = function(items)
-      if items and #items > 0 then
+  local buf = vim.api.nvim_get_current_buf()
+  local clients = vim.lsp.get_clients({ bufnr = buf, method = 'workspace/symbol' })
+  if #clients == 0 then
+    Snacks.picker.lsp_workspace_symbols()
+    return
+  end
+
+  local all_items = {}
+  local pending = #clients
+
+  for _, client in ipairs(clients) do
+    client:request('workspace/symbol', { query = '' }, function(err, result)
+      if not err and result then
+        local lsp_mod = require('snacks.picker.source.lsp')
+        local items = lsp_mod.results_to_items(client, result, { text_with_file = true })
+        for _, item in ipairs(items) do
+          table.insert(all_items, {
+            text = item.text,
+            file = item.file,
+            pos = item.pos,
+            kind = item.kind,
+            name = item.name,
+          })
+        end
+      end
+
+      pending = pending - 1
+      if pending == 0 then
         vim.schedule(function()
-          if not workspace_symbol_cache.set(items) then
-            vim.notify('Failed to cache workspace symbols', vim.log.levels.WARN)
+          if #all_items > 0 then
+            cache.set(all_items)
           end
+          Snacks.picker({
+            title = 'LSP Workspace Symbols',
+            items = all_items,
+            format = function(item)
+              local kind = item.kind or ''
+              local name = item.name or ''
+              local file = item.file or ''
+              return {
+                { kind .. ' ', 'Type' },
+                { name .. ' ', 'Normal' },
+                { vim.fn.fnamemodify(file, ':~:.'), 'Comment' },
+              }
+            end,
+            confirm = function(picker, item)
+              picker:close()
+              if item.file and item.pos then
+                vim.cmd('edit ' .. vim.fn.fnameescape(item.file))
+                pcall(vim.api.nvim_win_set_cursor, 0, { item.pos[1], item.pos[2] })
+              end
+            end,
+          })
         end)
       end
-    end,
-  })
+    end, buf)
+  end
 end
 
 
@@ -271,7 +325,7 @@ return {
     },
     {
       '<leader>fS',
-      function() show_workspace_symbols_with_cache() end,
+      show_workspace_symbols_with_cache,
       desc = '󰘧 LSP Workspace Symbols (Cached)',
     },
     {
@@ -462,6 +516,11 @@ return {
       file_actions.grep_markdown_headings,
       desc = '󰪶 Find Markdown Headings',
       silent = true,
+    },
+    {
+      '<leader>ft',
+      require('custom.actions.language').fms_key_lookup,
+      desc = '󰗊 FMS Text Lookup',
     },
     -- {
     --   '<leader>fE',

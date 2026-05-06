@@ -418,4 +418,107 @@ function M.create_npm_update_executor(term_id, type)
   return function() vim.cmd((':%dTermExec cmd="%s"'):format(term_id, M.create_npm_update_command(type))) end
 end
 
+function M.fms_key_lookup()
+  local cwd = vim.fn.getcwd()
+  local fallback_path = cwd .. '/src/fms-fallbacks/fallback-no.json'
+
+  if vim.fn.filereadable(fallback_path) ~= 1 then
+    vim.notify('No fallback-no.json found at src/fms-fallbacks/', vim.log.levels.WARN)
+    return
+  end
+
+  local content = vim.fn.readfile(fallback_path)
+  local ok, data = pcall(vim.fn.json_decode, table.concat(content, '\n'))
+  if not ok or not data then
+    vim.notify('Failed to parse fallback-no.json', vim.log.levels.ERROR)
+    return
+  end
+
+  local items = {}
+  for key, value in pairs(data) do
+    table.insert(items, {
+      text = tostring(value),
+      fms_key = key,
+      fms_value = tostring(value),
+    })
+  end
+  table.sort(items, function(a, b) return a.fms_value < b.fms_value end)
+
+  local snacks = require('snacks')
+
+  snacks.picker({
+    title = 'FMS Text Lookup',
+    items = items,
+    format = function(item)
+      return {
+        { item.fms_value, 'String' },
+        { ' ', 'Comment' },
+        { item.fms_key, 'Comment' },
+      }
+    end,
+    confirm = function(picker, item)
+      picker:close()
+      local key = item.fms_key
+      local rg_output = vim.fn.systemlist({
+        'rg', '--no-heading', '--line-number', '--column',
+        '--fixed-strings',
+        '--type=ts', '--type=js',
+        '--glob=!src/fms-fallbacks/**',
+        '--glob=!node_modules/**',
+        '--glob=!**/fmsTypes.ts',
+        '--glob=!**/FmsType.ts',
+        '--glob=!**/FmsTypes.ts',
+        key, cwd,
+      })
+
+      if #rg_output == 0 then
+        vim.notify('No usages found for: ' .. key, vim.log.levels.INFO)
+        return
+      end
+
+      local usage_items = {}
+      for _, line in ipairs(rg_output) do
+        local file, lnum, col, text = line:match('^(.+):(%d+):(%d+):(.*)$')
+        if file then
+          local rel_file = vim.fn.fnamemodify(file, ':.')
+          table.insert(usage_items, {
+            text = rel_file .. ':' .. lnum .. ' ' .. vim.trim(text),
+            file = file,
+            pos = { tonumber(lnum), tonumber(col) - 1 },
+            line = tonumber(lnum),
+            col = tonumber(col),
+          })
+        end
+      end
+
+      if #usage_items == 0 then
+        vim.notify('No usages found for: ' .. key, vim.log.levels.INFO)
+        return
+      end
+
+      snacks.picker({
+        title = 'Usages of: ' .. key,
+        items = usage_items,
+        format = function(usage)
+          local rel = vim.fn.fnamemodify(usage.file, ':.')
+          local icon, hl = snacks.util.icon(rel, 'file')
+          return {
+            { icon, hl },
+            { ' ' },
+            { rel, 'Directory' },
+            { ':' .. usage.line, 'LineNr' },
+            { ' ' },
+            { vim.trim(usage.text:match(':.*$') or usage.text), 'Normal' },
+          }
+        end,
+        confirm = function(inner_picker, usage)
+          inner_picker:close()
+          vim.cmd('edit ' .. vim.fn.fnameescape(usage.file))
+          vim.api.nvim_win_set_cursor(0, { usage.line, (usage.col or 1) - 1 })
+        end,
+      })
+    end,
+  })
+end
+
 return M

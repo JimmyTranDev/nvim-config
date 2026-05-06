@@ -5,7 +5,7 @@ local DEFAULT_TTL = 300
 
 local function get_cache_file()
   local cwd = vim.fn.fnamemodify(vim.fn.getcwd(), ':p')
-  local cwd_hash = vim.fn.sha256(cwd):sub(1, 8)
+  local cwd_hash = vim.fn.sha256(cwd):sub(1, 16)
   return CACHE_DIR .. '/symbols_' .. cwd_hash .. '.json'
 end
 
@@ -13,23 +13,6 @@ local function ensure_cache_dir()
   if vim.fn.isdirectory(CACHE_DIR) == 0 then
     vim.fn.mkdir(CACHE_DIR, 'p')
   end
-end
-
-local function delete_directory_recursively(dir)
-  if vim.fn.isdirectory(dir) == 0 then
-    return true
-  end
-
-  for _, file in ipairs(vim.fn.glob(dir .. '/*', false, true)) do
-    if vim.fn.isdirectory(file) == 1 then
-      delete_directory_recursively(file)
-    else
-      vim.fn.delete(file)
-    end
-  end
-
-  vim.fn.delete(dir)
-  return true
 end
 
 local function read_cache()
@@ -49,11 +32,16 @@ local function read_cache()
     return nil
   end
 
-  if data.timestamp and data.symbols then
-    return data
+  if not data.timestamp or not data.symbols or not data.cwd then
+    return nil
   end
 
-  return nil
+  local current_cwd = vim.fn.fnamemodify(vim.fn.getcwd(), ':p')
+  if data.cwd ~= current_cwd then
+    return nil
+  end
+
+  return data
 end
 
 local function write_cache(symbols)
@@ -61,6 +49,7 @@ local function write_cache(symbols)
   local cache_file = get_cache_file()
   local data = {
     timestamp = os.time(),
+    cwd = vim.fn.fnamemodify(vim.fn.getcwd(), ':p'),
     symbols = symbols,
   }
 
@@ -104,7 +93,8 @@ end
 
 function M.clear_all()
   if vim.fn.isdirectory(CACHE_DIR) == 1 then
-    return delete_directory_recursively(CACHE_DIR)
+    vim.fn.delete(CACHE_DIR, 'rf')
+    return true
   end
   return false
 end
