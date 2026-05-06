@@ -113,6 +113,30 @@ local function cleanup_default_keymaps()
   end
 end
 
+local function setup_workspace_symbol_cache_commands()
+  local ok, cache = pcall(require, 'custom.utils.workspace_symbol_cache')
+  if not ok then
+    vim.notify('Failed to load workspace symbol cache utility', vim.log.levels.WARN)
+    return
+  end
+
+  vim.api.nvim_create_user_command('ClearSymbolCache', function()
+    if cache.clear() then
+      vim.notify('Cleared workspace symbol cache', vim.log.levels.INFO)
+    else
+      vim.notify('Cache already cleared or never created', vim.log.levels.DEBUG)
+    end
+  end, { desc = 'Clear workspace symbols cache for current directory' })
+
+  vim.api.nvim_create_user_command('ClearAllSymbolCache', function()
+    if cache.clear_all() then
+      vim.notify('Cleared all workspace symbol caches', vim.log.levels.INFO)
+    else
+      vim.notify('All caches already cleared or never created', vim.log.levels.DEBUG)
+    end
+  end, { desc = 'Clear all workspace symbols caches' })
+end
+
 local function setup_auto_refresh()
   vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold', 'CursorHoldI' }, {
     group = augroup('auto_refresh'),
@@ -175,6 +199,7 @@ function M.setup()
   setup_lsp_progress()
   setup_auto_refresh()
   setup_toggleterm_whichkey_fix()
+  setup_workspace_symbol_cache_commands()
   cleanup_default_keymaps()
 end
 

@@ -1,4 +1,5 @@
 local file_actions = require('custom.actions.files')
+local workspace_symbol_cache = require('custom.utils.workspace_symbol_cache')
 
 local function get_package_json_packages()
   local package_json_path = vim.fn.getcwd() .. '/package.json'
@@ -115,6 +116,38 @@ local function show_package_json_picker()
   })
 end
 
+
+
+local function show_workspace_symbols_with_cache()
+  local cached = workspace_symbol_cache.get(300)
+  if cached then
+    return Snacks.picker({
+      title = 'LSP Workspace Symbols (Cached)',
+      items = cached,
+      format = function(item)
+        local filename = item.filename or ''
+        local line = item.lnum and tostring(item.lnum) or ''
+        return {
+          { vim.fn.fnamemodify(filename, ':t'), 'Comment' },
+          { ':' .. line .. ' ', 'LineNr' },
+          { item.text or '', 'Normal' },
+        }
+      end,
+    })
+  end
+
+  Snacks.picker.lsp_workspace_symbols({
+    on_select = function(items)
+      if items and #items > 0 then
+        vim.schedule(function()
+          if not workspace_symbol_cache.set(items) then
+            vim.notify('Failed to cache workspace symbols', vim.log.levels.WARN)
+          end
+        end)
+      end
+    end,
+  })
+end
 
 
 return {
@@ -238,8 +271,8 @@ return {
     },
     {
       '<leader>fS',
-      function() Snacks.picker.lsp_workspace_symbols() end,
-      desc = '󰘧 LSP Workspace Symbols',
+      function() show_workspace_symbols_with_cache() end,
+      desc = '󰘧 LSP Workspace Symbols (Cached)',
     },
     {
       'gx',
