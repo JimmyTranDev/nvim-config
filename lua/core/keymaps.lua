@@ -30,65 +30,65 @@ local function maps(mode, mappings)
 end
 
 maps('n', {
-  { '<C-h>', '<C-W><C-H>', 'Move to left window' },
-  { '<C-j>', '<C-W><C-J>', 'Move to bottom window' },
-  { '<C-k>', '<C-W><C-K>', 'Move to top window' },
-  { '<C-l>', '<C-W><C-L>', 'Move to right window' },
-  { ']', ':cnext<CR>', 'Next quickfix item' },
-  { '[', ':cprev<CR>', 'Previous quickfix item' },
+  { '<C-h>', '<C-W><C-H>', '󰖲 Move to left window' },
+  { '<C-j>', '<C-W><C-J>', '󰖲 Move to bottom window' },
+  { '<C-k>', '<C-W><C-K>', '󰖲 Move to top window' },
+  { '<C-l>', '<C-W><C-L>', '󰖲 Move to right window' },
+  { ']', ':cnext<CR>', '󰮯 Next quickfix item' },
+  { '[', ':cprev<CR>', '󰮲 Previous quickfix item' },
 })
 
-map('', '<S-J>', '<C-D>', { desc = 'Scroll down half page' })
-map('', '<S-K>', '<C-U>', { desc = 'Scroll up half page' })
+map('', '<S-J>', '<C-D>', { desc = '󰙲 Scroll down half page' })
+map('', '<S-K>', '<C-U>', { desc = '󰙳 Scroll up half page' })
 
 maps('n', {
-  { '<leader><leader>nh', ':vsplit<CR>', 'Split window vertically (left)' },
-  { '<leader><leader>nj', ':split<CR><C-W>j', 'Split window horizontally (below)' },
-  { '<leader><leader>nk', ':split<CR>', 'Split window horizontally (above)' },
-  { '<leader><leader>nl', ':vsplit<CR><C-W>l', 'Split window vertically (right)' },
-  { '<leader><leader>nn', ':split<CR>', 'Split window horizontally' },
-  { '<leader><leader>nv', ':vsplit<CR>', 'Split window vertically' },
-  { '<leader><leader>nc', '<C-W>c', 'Close current window' },
-  { '<leader><leader>no', '<C-W>o', 'Close all other windows' },
-  { '<A-=>', '<C-W>=', 'Equalize window sizes' },
-  { '<A-Up>', '<C-W>+', 'Increase window height' },
-  { '<A-Down>', '<C-W>-', 'Decrease window height' },
-  { '<A-Right>', '<C-W>>', 'Increase window width' },
-  { '<A-Left>', '<C-W><', 'Decrease window width' },
+  { '<leader><leader>nh', ':vsplit<CR>', '󰖲 Split window vertically (left)' },
+  { '<leader><leader>nj', ':split<CR><C-W>j', '󰖲 Split window horizontally (below)' },
+  { '<leader><leader>nk', ':split<CR>', '󰖲 Split window horizontally (above)' },
+  { '<leader><leader>nl', ':vsplit<CR><C-W>l', '󰖲 Split window vertically (right)' },
+  { '<leader><leader>nn', ':split<CR>', '󰖲 Split window horizontally' },
+  { '<leader><leader>nv', ':vsplit<CR>', '󰖲 Split window vertically' },
+  { '<leader><leader>nc', '<C-W>c', '󰅗 Close current window' },
+  { '<leader><leader>no', '<C-W>o', '󰅗 Close all other windows' },
+  { '<A-=>', '<C-W>=', '󰖲 Equalize window sizes' },
+  { '<A-Up>', '<C-W>+', '󰖲 Increase window height' },
+  { '<A-Down>', '<C-W>-', '󰖲 Decrease window height' },
+  { '<A-Right>', '<C-W>>', '󰖲 Increase window width' },
+  { '<A-Left>', '<C-W><', '󰖲 Decrease window width' },
 })
 
-map('n', '<leader>;df', language_actions.fix_and_organize_typescript_imports, { desc = 'Fix and organize imports (TS)' })
-map('n', '<leader>;dm', language_actions.serve_markdown_folder, { desc = 'Markserve' })
-map('n', '<leader>;ds', ':4TermExec cmd="live-server --port=9090"<CR>', { desc = 'Live Server' })
-map('n', '<leader>;dM', language_actions.compile_mjml_file, { desc = 'Compile Mjml Html' })
+map('n', '<leader>;df', language_actions.fix_and_organize_typescript_imports, { desc = '󰉼 Fix and organize imports (TS)' })
+map('n', '<leader>;dm', language_actions.serve_markdown_folder, { desc = '󰌠 Markserve' })
+map('n', '<leader>;ds', ':4TermExec cmd="live-server --port=9090"<CR>', { desc = '󰌐 Live Server' })
+map('n', '<leader>;dM', language_actions.compile_mjml_file, { desc = '󰈮 Compile Mjml Html' })
 
 -- map('n', '<leader>;fc', file_actions.save_clipboard_to_file, { desc = 'Save clipboard to file' })
 -- map('n', '<leader>;fM', file_actions.convert_md_to_pdf, { desc = 'Convert markdown to PDF' })
-map('n', '<leader>;fs', editor_actions.toggle_spellcheck, { desc = 'Toggle spellcheck' })
--- map('n', '<leader>;fC', ':!rm -r ' .. constants.NEOVIM_STATE_DIR .. '<CR>', { desc = 'Clear swap files' })
--- map('n', '<leader>;fw', ':SudaWrite<CR>', { desc = 'Sudo write' })
--- map('n', '<leader>;fm', ':Markview<CR>', { desc = 'Toggle Markview' })
-map('n', '<leader>;fw', editor_actions.toggle_wrap, { desc = 'Toggle text wrap' })
-map('n', '<leader>;fr', ':e!<CR>', { desc = 'Reload file from disk' })
-map('n', '<leader>fa', file_actions.grep_current_file_dir, { desc = 'Grep in current file dir' })
+map('n', '<leader>;fs', editor_actions.toggle_spellcheck, { desc = '󰓆 Toggle spellcheck' })
+-- map('n', '<leader>;fC', ':!rm -r ' .. constants.NEOVIM_STATE_DIR .. '<CR>', { desc = '󰆑 Clear swap files' })
+-- map('n', '<leader>;fw', ':SudaWrite<CR>', { desc = '󰌾 Sudo write' })
+-- map('n', '<leader>;fm', ':Markview<CR>', { desc = '󰙈 Toggle Markview' })
+map('n', '<leader>;fw', editor_actions.toggle_wrap, { desc = '󰌪 Toggle text wrap' })
+map('n', '<leader>;fr', ':e!<CR>', { desc = '󰔁 Reload file from disk' })
+map('n', '<leader>fa', file_actions.grep_current_file_dir, { desc = '󰊄 Grep in current file dir' })
 
 
-map('x', '<leader>;Tr', [["zy:%s/\V<C-r>=escape(@z, '/')<CR>//gc<left><left><left>]], { desc = 'Visual search replace' })
+map('x', '<leader>;Tr', [["zy:%s/\V<C-r>=escape(@z, '/')<CR>//gc<left><left><left>]], { desc = '󰕈 Visual search replace' })
 
-map('n', '<leader>;vx', language_actions.run_knip_fix_current_folder, { desc = 'Knip fix current folder' })
-map('n', '<leader>;vX', language_actions.run_knip_fix, { desc = 'Knip fix & remove files (global)' })
-map('n', '<leader>;ve', language_actions.run_eslint_picker, { desc = 'ESLint analysis picker' })
-map('n', '<leader>;vK', language_actions.run_knip_unused_files, { desc = 'Knip unused files' })
-map('n', '<leader>;vk', language_actions.run_knip_unused_code, { desc = 'Knip unused code' })
+map('n', '<leader>;vx', language_actions.run_knip_fix_current_folder, { desc = '󰒡 Knip fix current folder' })
+map('n', '<leader>;vX', language_actions.run_knip_fix, { desc = '󰒡 Knip fix & remove files (global)' })
+map('n', '<leader>;ve', language_actions.run_eslint_picker, { desc = '󰒡 ESLint analysis picker' })
+map('n', '<leader>;vK', language_actions.run_knip_unused_files, { desc = '󰒡 Knip unused files' })
+map('n', '<leader>;vk', language_actions.run_knip_unused_code, { desc = '󰒡 Knip unused code' })
 
-map('n', '<leader>;ct', todoist_actions.refresh_todoist_cache(), { desc = 'Refresh Todoist cache' })
-map('n', '<leader>;cw', jira_actions.refresh_jira_cache, { desc = 'Refresh Jira cache' })
+map('n', '<leader>;ct', todoist_actions.refresh_todoist_cache(), { desc = '󰆘 Refresh Todoist cache' })
+map('n', '<leader>;cw', jira_actions.refresh_jira_cache, { desc = '󰆘 Refresh Jira cache' })
 
-map('n', '<leader>;j', jira_actions.copy_ticket_with_title, { desc = 'Copy Jira ticket with title' })
-map('n', '<leader>;J', jira_actions.generate_done_md, { desc = 'Generate this week jira tasks' })
+map('n', '<leader>;j', jira_actions.copy_ticket_with_title, { desc = '󰆓 Copy Jira ticket with title' })
+map('n', '<leader>;J', jira_actions.generate_done_md, { desc = '󰌧 Generate this week jira tasks' })
 
-map('n', '<leader>;p', github_actions.copy_open_prs, { desc = 'Copy open PRs' })
-map('n', '<leader>;P', github_actions.select_and_copy_pr, { desc = 'Select PR to copy' })
+map('n', '<leader>;p', github_actions.copy_open_prs, { desc = '󰆓 Copy open PRs' })
+map('n', '<leader>;P', github_actions.select_and_copy_pr, { desc = '󰆓 Select PR to copy' })
 
 -- map('n', '<leader><leader>ri', replacement_actions.replace_interactive, { desc = 'Interactive replace' })
 -- map('n', '<leader><leader>rb', replacement_actions.replace_buffer, { desc = 'Replace in buffer' })
@@ -102,58 +102,58 @@ map('n', '<leader>;P', github_actions.select_and_copy_pr, { desc = 'Select PR to
 -- map('n', '<leader><leader>rf', replacement_actions.replace_project, { desc = 'Replace in project' })
 -- map('n', '<leader><leader>rF', replacement_actions.replace_project_all, { desc = 'Replace all in project' })
 
-map('n', '<Leader>i', '<C-i>', { desc = 'Jump forward' })
-map('n', '<Leader>o', '<C-o>', { desc = 'Jump backward' })
+map('n', '<Leader>i', '<C-i>', { desc = '󰮯 Jump forward' })
+map('n', '<Leader>o', '<C-o>', { desc = '󰮲 Jump backward' })
 
-map('n', '<Leader>q', ':q<CR>', { desc = 'Quit' })
-map('n', '<Leader>Q', ':qa!<CR>', { desc = 'Force quit all' })
-map('n', '<Leader>w', ':w<CR>', { desc = 'Write' })
-map('n', '<Leader>W', ':wa<CR>', { desc = 'Write all' })
+map('n', '<Leader>q', ':q<CR>', { desc = '󰩈 Quit' })
+map('n', '<Leader>Q', ':qa!<CR>', { desc = '󰩈 Force quit all' })
+map('n', '<Leader>w', ':w<CR>', { desc = '󰆓 Write' })
+map('n', '<Leader>W', ':wa<CR>', { desc = '󰆓 Write all' })
 
-map('n', '<Leader>rt', todoist_actions.log_todoist_task_all_projects(), { desc = 'Log todoist task' })
-map('n', '<Leader>rw', jira_actions.create_jira_task(), { desc = 'Create Jira task' })
-map('n', '<Leader>rW', jira_actions.create_jira_task_with_link(), { desc = 'Create Jira task + open link' })
-map('n', '<Leader>rj', journal_actions.add_journal_entry, { desc = 'Add journal entry' })
-map('n', '<Leader>rJ', journal_actions.open_journal, { desc = 'Open journal' })
-map('n', '<Leader>rp', notes_actions.add_notes_entry, { desc = 'Add notes entry' })
-map('n', '<Leader>rc', jira_actions.add_comment_from_branch, { desc = 'Add Jira comment from branch' })
+map('n', '<Leader>rt', todoist_actions.log_todoist_task_all_projects(), { desc = '󰌱 Log todoist task' })
+map('n', '<Leader>rw', jira_actions.create_jira_task(), { desc = '󰌱 Create Jira task' })
+map('n', '<Leader>rW', jira_actions.create_jira_task_with_link(), { desc = '󰌱 Create Jira task + open link' })
+map('n', '<Leader>rj', journal_actions.add_journal_entry, { desc = '󰌱 Add journal entry' })
+map('n', '<Leader>rJ', journal_actions.open_journal, { desc = '󰌱 Open journal' })
+map('n', '<Leader>rp', notes_actions.add_notes_entry, { desc = '󰌱 Add notes entry' })
+map('n', '<Leader>rc', jira_actions.add_comment_from_branch, { desc = '󰌱 Add Jira comment from branch' })
 
-map('n', '<leader>cl', github_actions.copy_github_line_url, { desc = 'Copy GitHub line URL' })
-map('v', '<leader>cl', github_actions.copy_github_line_url, { desc = 'Copy GitHub line URL' })
+map('n', '<leader>cl', github_actions.copy_github_line_url, { desc = '󰆓 Copy GitHub line URL' })
+map('v', '<leader>cl', github_actions.copy_github_line_url, { desc = '󰆓 Copy GitHub line URL' })
 
 maps('n', {
-  { '<leader>zc', ':Lazy clean<CR>', 'Lazy clean' },
-  { '<leader>zh', ':Lazy health<CR>', 'Lazy health' },
-  { '<leader>zp', ':Lazy profile<CR>', 'Lazy profile' },
-  { '<leader>zr', ':Lazy restore<CR>', 'Lazy restore' },
-  { '<leader>zu', ':Lazy update<CR>', 'Lazy update' },
-  { '<leader>zz', ':Lazy<CR>', 'Open Lazy' },
+  { '<leader>zc', ':Lazy clean<CR>', '󰒲 Lazy clean' },
+  { '<leader>zh', ':Lazy health<CR>', '󰒲 Lazy health' },
+  { '<leader>zp', ':Lazy profile<CR>', '󰒲 Lazy profile' },
+  { '<leader>zr', ':Lazy restore<CR>', '󰒲 Lazy restore' },
+  { '<leader>zu', ':Lazy update<CR>', '󰒲 Lazy update' },
+  { '<leader>zz', ':Lazy<CR>', '󰒲 Open Lazy' },
 })
 
 -- map('n', '<Leader><Leader>tt', ':Typr<CR>', { desc = 'Start typing test' })
 -- map('n', '<Leader><Leader>ts', ':TyprStats<CR>', { desc = 'Show typing stats' })
 
-map('n', '<leader>ca', file_actions.copy_all_files_content, { desc = 'Copy all files content' })
-map('n', '<leader>cf', file_actions.copy_frontend_project_paths, { desc = 'Copy frontend project paths' })
-map('n', '<leader>cr', file_actions.copy_repo_path, { desc = 'Copy repo path' })
-map('n', '<leader>cu', file_actions.copy_current_file_url, { desc = 'Copy current file link' })
-map('n', '<leader>co', file_actions.copy_opencode_link, { desc = 'Copy OpenCode link' })
-map('n', '<leader>ce', errors_actions.copy_diagnostic_under_cursor, { desc = 'Copy diagnostic' })
+map('n', '<leader>ca', file_actions.copy_all_files_content, { desc = '󰆓 Copy all files content' })
+map('n', '<leader>cf', file_actions.copy_frontend_project_paths, { desc = '󰆓 Copy frontend project paths' })
+map('n', '<leader>cr', file_actions.copy_repo_path, { desc = '󰆓 Copy repo path' })
+map('n', '<leader>cu', file_actions.copy_current_file_url, { desc = '󰆓 Copy current file link' })
+map('n', '<leader>co', file_actions.copy_opencode_link, { desc = '󰆓 Copy OpenCode link' })
+map('n', '<leader>ce', errors_actions.copy_diagnostic_under_cursor, { desc = '󰆓 Copy diagnostic' })
 
-map('n', '<Leader>ud', file_actions.open_current_dir, { desc = 'Open directory' })
-map('n', '<Leader>uc', github_actions.open_current_commit_in_github, { desc = 'Open Current Commit in GitHub' })
-map('n', '<Leader>up', git_actions.open_or_create_pull_request, { desc = 'Open existing PR or create new one' })
-map('n', '<Leader>ur', link_actions.open_current_github_repo, { desc = 'Open current GitHub repo' })
-map('n', '<Leader>uR', link_actions.open_current_github_prs, { desc = 'Open GitHub PRs tab' })
-map('n', '<Leader>uj', link_actions.open_jira_ticket, { desc = 'Open Jira ticket' })
-map('n', '<Leader>uo', github_actions.select_own_open_prs, { desc = 'Select own open PR' })
-map('n', '<Leader>uu', link_actions.open_useful_link, { desc = 'Open useful link' })
-map('n', '<Leader>uv', link_actions.open_private_useful_link, { desc = 'Open private useful link' })
-map('n', '<Leader>ug', github_actions.list_org_repos_and_open, { desc = 'List Org Repos' })
-map('n', '<Leader>uv', link_actions.open_private_useful_link, { desc = 'Open private useful link' })
-map('n', '<Leader>ug', github_actions.list_org_repos_and_open, { desc = 'List Org Repos' })
-map('n', '<Leader>us', link_actions.search_google, { desc = 'Search Google' })
-map('v', '<Leader>us', link_actions.search_google, { desc = 'Search Google (selection)' })
+map('n', '<Leader>ud', file_actions.open_current_dir, { desc = '󰦥 Open directory' })
+map('n', '<Leader>uc', github_actions.open_current_commit_in_github, { desc = '󰦥 Open Current Commit in GitHub' })
+map('n', '<Leader>up', git_actions.open_or_create_pull_request, { desc = '󰦥 Open existing PR or create new one' })
+map('n', '<Leader>ur', link_actions.open_current_github_repo, { desc = '󰦥 Open current GitHub repo' })
+map('n', '<Leader>uR', link_actions.open_current_github_prs, { desc = '󰦥 Open GitHub PRs tab' })
+map('n', '<Leader>uj', link_actions.open_jira_ticket, { desc = '󰦥 Open Jira ticket' })
+map('n', '<Leader>uo', github_actions.select_own_open_prs, { desc = '󰦥 Select own open PR' })
+map('n', '<Leader>uu', link_actions.open_useful_link, { desc = '󰦥 Open useful link' })
+map('n', '<Leader>uv', link_actions.open_private_useful_link, { desc = '󰦥 Open private useful link' })
+map('n', '<Leader>ug', github_actions.list_org_repos_and_open, { desc = '󰦥 List Org Repos' })
+map('n', '<Leader>uv', link_actions.open_private_useful_link, { desc = '󰦥 Open private useful link' })
+map('n', '<Leader>ug', github_actions.list_org_repos_and_open, { desc = '󰦥 List Org Repos' })
+map('n', '<Leader>us', link_actions.search_google, { desc = '󰦥 Search Google' })
+map('v', '<Leader>us', link_actions.search_google, { desc = '󰦥 Search Google (selection)' })
 
 -- New
 -- map('n', '<Leader>un', link_actions.open_npm_url, { desc = 'Open NPM link' })
@@ -166,8 +166,8 @@ map('v', '<Leader>us', link_actions.search_google, { desc = 'Search Google (sele
 -- map('n', '<Leader>uB', branch_actions.stale_branch_cleanup(), { desc = 'Stale branch cleanup' })
 -- map('n', '<Leader>uS', link_actions.open_sonarqube, { desc = 'Open SonarQube (branch)' })
 
-map('n', '<Leader>tny', pnpm_actions.pnpm_link, { desc = 'pnpm link package' })
-map('n', '<Leader>tnY', pnpm_actions.pnpm_unlink, { desc = 'pnpm unlink package' })
+map('n', '<Leader>tny', pnpm_actions.pnpm_link, { desc = '󰎙 pnpm link package' })
+map('n', '<Leader>tnY', pnpm_actions.pnpm_unlink, { desc = '󰎙 pnpm unlink package' })
 
 -- map('n', '<leader>ks', keybinding_tracker_actions.show_keybinding_stats, { desc = 'Show keybinding stats' })
 -- map('n', '<leader>kr', keybinding_tracker_actions.reset_keybinding_stats, { desc = 'Reset keybinding stats' })

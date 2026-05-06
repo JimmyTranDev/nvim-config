@@ -5,42 +5,42 @@ return {
   'akinsho/nvim-toggleterm.lua',
   keys = {
 
-    { mode = 'n', '<leader>t1', ':1ToggleTerm<CR>', desc = 'Toggle Terminal 1', silent = true },
-    { mode = 'n', '<leader>t2', ':2ToggleTerm<Cr>', desc = 'Toggle Terminal 2', silent = true },
+    { mode = 'n', '<leader>t1', ':1ToggleTerm<CR>', desc = '󰆍 Toggle Terminal 1', silent = true },
+    { mode = 'n', '<leader>t2', ':2ToggleTerm<Cr>', desc = '󰆍 Toggle Terminal 2', silent = true },
 
-    { mode = 't', '<C-h>', [[<Cmd>wincmd h<CR>]], desc = 'Terminal left window', silent = true },
-    { mode = 't', '<C-j>', [[<Cmd>wincmd j<CR>]], desc = 'Terminal down window', silent = true },
-    { mode = 't', '<C-k>', [[<Cmd>wincmd k<CR>]], desc = 'Terminal up window', silent = true },
-    { mode = 't', '<C-l>', [[<Cmd>wincmd l<CR>]], desc = 'Terminal right window', silent = true },
-    { mode = 't', '<Esc>', [[<C-\><C-n>]], desc = 'Terminal escape to normal mode', silent = true },
+    { mode = 't', '<C-h>', [[<Cmd>wincmd h<CR>]], desc = '󰖲 Terminal left window', silent = true },
+    { mode = 't', '<C-j>', [[<Cmd>wincmd j<CR>]], desc = '󰖲 Terminal down window', silent = true },
+    { mode = 't', '<C-k>', [[<Cmd>wincmd k<CR>]], desc = '󰖲 Terminal up window', silent = true },
+    { mode = 't', '<C-l>', [[<Cmd>wincmd l<CR>]], desc = '󰖲 Terminal right window', silent = true },
+    { mode = 't', '<Esc>', [[<C-\><C-n>]], desc = '󰅁 Terminal escape to normal mode', silent = true },
 
-    { mode = 'n', '<leader>tnum', language_actions.create_npm_update_executor(7, 'minor'), silent = true, desc = 'Npm Update Minor' },
-    { mode = 'n', '<leader>tnun', language_actions.create_npm_update_executor(7, 'major'), silent = true, desc = 'Npm Update Major' },
-    { mode = 'n', '<leader>tnup', language_actions.create_npm_update_executor(7, 'patch'), silent = true, desc = 'Npm Update Patch' },
-    { mode = 'n', '<leader>tnui', language_actions.create_npm_update_executor(7, 'interactive'), silent = true, desc = 'Npm Update Interactive' },
+    { mode = 'n', '<leader>tnum', language_actions.create_npm_update_executor(7, 'minor'), silent = true, desc = '󰎙 Npm Update Minor' },
+    { mode = 'n', '<leader>tnun', language_actions.create_npm_update_executor(7, 'major'), silent = true, desc = '󰎙 Npm Update Major' },
+    { mode = 'n', '<leader>tnup', language_actions.create_npm_update_executor(7, 'patch'), silent = true, desc = '󰎙 Npm Update Patch' },
+    { mode = 'n', '<leader>tnui', language_actions.create_npm_update_executor(7, 'interactive'), silent = true, desc = '󰎙 Npm Update Interactive' },
 
-    { mode = 'n', '<leader>tni', language_actions.create_package_command_runner(8, 'install', true), silent = true, desc = 'Npm Install' },
+    { mode = 'n', '<leader>tni', language_actions.create_package_command_runner(8, 'install', true), silent = true, desc = '󰎙 Npm Install' },
 
-    { mode = 'n', '<leader>tx', toggle_term_actions.kill_all_toggle_term, silent = true, desc = 'Kill All Terminals' },
+    { mode = 'n', '<leader>tx', toggle_term_actions.kill_all_toggle_term, silent = true, desc = '󰅗 Kill All Terminals' },
 
-    { mode = 'n', '<leader>tnm', language_actions.run_multiple_package_scripts(10), silent = true, desc = 'Multi-select Npm Scripts' },
-    { mode = 'n', '<leader>tnM', language_actions.kill_multiple_package_script_terms(10, 6), silent = true, desc = 'Kill Multi-select Scripts' },
+    { mode = 'n', '<leader>tnm', language_actions.run_multiple_package_scripts(10), silent = true, desc = '󰎙 Multi-select Npm Scripts' },
+    { mode = 'n', '<leader>tnM', language_actions.kill_multiple_package_script_terms(10, 6), silent = true, desc = '󰎙 Kill Multi-select Scripts' },
 
-    { mode = 'n', '<leader>tnj', function() language_actions.run_package_script(1) end, silent = true, desc = 'Npm Script 1' },
-    { mode = 'n', '<leader>tnJ', toggle_term_actions.create_kill_toggle_term(1), silent = true, desc = 'Npm Script 1 Exit' },
-    { mode = 'n', '<leader>tnk', function() language_actions.run_package_script(2) end, silent = true, desc = 'Npm Script 2' },
-    { mode = 'n', '<leader>tnK', toggle_term_actions.create_kill_toggle_term(2), silent = true, desc = 'Npm Script 2 Exit' },
-    { mode = 'n', '<leader>tnl', function() language_actions.run_package_script(3) end, silent = true, desc = 'Npm Script 3' },
-    { mode = 'n', '<leader>tnL', toggle_term_actions.create_kill_toggle_term(3), silent = true, desc = 'Npm Script 3 Exit' },
-    { mode = 'n', '<leader>tn;', function() language_actions.run_package_script(4) end, silent = true, desc = 'Npm Script 4' },
-    { mode = 'n', '<leader>tn:', toggle_term_actions.create_kill_toggle_term(4), silent = true, desc = 'Npm Script 4 Exit' },
+    { mode = 'n', '<leader>tnj', function() language_actions.run_package_script(1) end, silent = true, desc = '󰎙 Npm Script 1' },
+    { mode = 'n', '<leader>tnJ', toggle_term_actions.create_kill_toggle_term(1), silent = true, desc = '󰎙 Npm Script 1 Exit' },
+    { mode = 'n', '<leader>tnk', function() language_actions.run_package_script(2) end, silent = true, desc = '󰎙 Npm Script 2' },
+    { mode = 'n', '<leader>tnK', toggle_term_actions.create_kill_toggle_term(2), silent = true, desc = '󰎙 Npm Script 2 Exit' },
+    { mode = 'n', '<leader>tnl', function() language_actions.run_package_script(3) end, silent = true, desc = '󰎙 Npm Script 3' },
+    { mode = 'n', '<leader>tnL', toggle_term_actions.create_kill_toggle_term(3), silent = true, desc = '󰎙 Npm Script 3 Exit' },
+    { mode = 'n', '<leader>tn;', function() language_actions.run_package_script(4) end, silent = true, desc = '󰎙 Npm Script 4' },
+    { mode = 'n', '<leader>tn:', toggle_term_actions.create_kill_toggle_term(4), silent = true, desc = '󰎙 Npm Script 4 Exit' },
 
     {
       mode = 'n',
       '<leader>tnf',
       function() language_actions.create_package_command_runner(9, 'fms:types', true)() end,
       silent = true,
-      desc = 'Npm FMS Types and Gen',
+      desc = '󰎙 Npm FMS Types and Gen',
     },
     {
       mode = 'n',
@@ -51,7 +51,7 @@ return {
         language_actions.create_package_command_runner(7, 'test')()
       end,
       silent = true,
-      desc = 'Npm All (build, lint, test)',
+      desc = '󰎙 Npm All (build, lint, test)',
     },
     {
       mode = 'n',
@@ -62,20 +62,20 @@ return {
         end
       end,
       silent = true,
-      desc = 'Npm Kill All (build, lint, test)',
+      desc = '󰎙 Npm Kill All (build, lint, test)',
     },
 
-    { mode = 'n', '<leader>tmj', language_actions.create_make_command_runner(1), desc = 'Run Makefile Target', silent = true },
-    { mode = 'n', '<leader>tmJ', toggle_term_actions.create_kill_toggle_term(1), desc = 'Makefile Exit', silent = true },
-    { mode = 'n', '<leader>tmk', language_actions.create_make_command_runner(2), desc = 'Run Makefile Target', silent = true },
-    { mode = 'n', '<leader>tmK', toggle_term_actions.create_kill_toggle_term(2), desc = 'Makefile Exit', silent = true },
-    { mode = 'n', '<leader>tmm', language_actions.create_make_command_runner(3), desc = 'Run Makefile Target', silent = true },
-    { mode = 'n', '<leader>tmM', toggle_term_actions.create_kill_toggle_term(3), desc = 'Makefile Exit', silent = true },
-    { mode = 'n', '<leader>tms', ':1TermExec cmd="make start"<CR>', desc = 'Make Start', silent = true },
+    { mode = 'n', '<leader>tmj', language_actions.create_make_command_runner(1), desc = '󰣖 Run Makefile Target', silent = true },
+    { mode = 'n', '<leader>tmJ', toggle_term_actions.create_kill_toggle_term(1), desc = '󰣖 Makefile Exit', silent = true },
+    { mode = 'n', '<leader>tmk', language_actions.create_make_command_runner(2), desc = '󰣖 Run Makefile Target', silent = true },
+    { mode = 'n', '<leader>tmK', toggle_term_actions.create_kill_toggle_term(2), desc = '󰣖 Makefile Exit', silent = true },
+    { mode = 'n', '<leader>tmm', language_actions.create_make_command_runner(3), desc = '󰣖 Run Makefile Target', silent = true },
+    { mode = 'n', '<leader>tmM', toggle_term_actions.create_kill_toggle_term(3), desc = '󰣖 Makefile Exit', silent = true },
+    { mode = 'n', '<leader>tms', ':1TermExec cmd="make start"<CR>', desc = '󰣖 Make Start', silent = true },
 
-    { mode = 'n', '<leader>tvs', language_actions.run_project_jar, desc = 'Start Project (Maven/Node)', silent = true },
-    { mode = 'n', '<leader>tvp', ':3TermExec cmd="mvn package"<CR>', desc = 'Maven Package', silent = true },
-    { mode = 'n', '<leader>tvt', ':3TermExec cmd="mvn clean test -Dmaven.gitcommitid.skip=true"<CR>', desc = 'Maven Test', silent = true },
+    { mode = 'n', '<leader>tvs', language_actions.run_project_jar, desc = '󰫙 Start Project (Maven/Node)', silent = true },
+    { mode = 'n', '<leader>tvp', ':3TermExec cmd="mvn package"<CR>', desc = '󰫙 Maven Package', silent = true },
+    { mode = 'n', '<leader>tvt', ':3TermExec cmd="mvn clean test -Dmaven.gitcommitid.skip=true"<CR>', desc = '󰫙 Maven Test', silent = true },
     {
       mode = 'n',
       '<leader>tvf',
@@ -88,7 +88,7 @@ return {
         local cmd = 'mvn -Dtest="' .. filename .. '" test -Dmaven.gitcommitid.skip=true'
         require('toggleterm').exec(cmd, 3)
       end,
-      desc = 'Maven Test Current File',
+      desc = '󰫙 Maven Test Current File',
       silent = true,
     },
     {
@@ -100,7 +100,7 @@ return {
           3
         )
       end,
-      desc = 'Maven Test Coverage',
+      desc = '󰫙 Maven Test Coverage',
       silent = true,
     },
     {
@@ -125,7 +125,7 @@ return {
         }, ' && ')
         require('toggleterm').exec(cmd, 3)
       end,
-      desc = 'Maven Test Coverage (Changed Tests)',
+      desc = '󰫙 Maven Test Coverage (Changed Tests)',
       silent = true,
     },
     {
@@ -142,10 +142,10 @@ return {
         }, ' ')
         require('toggleterm').exec(cmd, 3)
       end,
-      desc = 'Maven Test Coverage (New Code via diff-cover)',
+      desc = '󰫙 Maven Test Coverage (New Code via diff-cover)',
       silent = true,
     },
-    { mode = 'n', '<leader>tvg', ':3TermExec cmd="gcloud auth application-default login"<CR>', desc = 'GCloud Auth', silent = true },
+    { mode = 'n', '<leader>tvg', ':3TermExec cmd="gcloud auth application-default login"<CR>', desc = '󰫙 GCloud Auth', silent = true },
   },
   config = function()
     require('toggleterm').setup({
