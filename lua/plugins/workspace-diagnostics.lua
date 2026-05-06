@@ -9,7 +9,7 @@ return {
           require('workspace-diagnostics').populate_workspace_diagnostics(client, 0)
         end
       end,
-      desc = 'Workspace Diagnostics',
+      desc = '󰒡 Workspace Diagnostics',
     },
   },
   config = function() require('workspace-diagnostics').setup() end,
