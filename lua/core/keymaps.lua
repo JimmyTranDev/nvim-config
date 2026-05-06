@@ -117,7 +117,9 @@ map('n', '<Leader>rJ', journal_actions.open_journal, { desc = '󰌱 Open journal
 map('n', '<Leader>rp', notes_actions.add_notes_entry, { desc = '󰌱 Add notes entry' })
 map('n', '<Leader>rc', jira_actions.add_comment_from_branch, { desc = '󰌱 Add Jira comment from branch' })
 
-vim.keymap.set('n', '<leader>ac', function() require('opencode').prompt('commit', { submit = true }) end, { desc = 'OpenCode: Auto-commit staged changes' })
+map('n', '<leader>ac', function() require('opencode').prompt('commit', { submit = true }) end, { desc = '󰚴 OpenCode commit' })
+map('n', '<leader>af', function() require('opencode').prompt('fix-check', { submit = true }) end, { desc = '󰚴 OpenCode fix-check' })
+map('n', '<leader>ar', function() require('opencode').prompt('review', { submit = true }) end, { desc = '󰚴 OpenCode review' })
 
 map('n', '<leader>cl', github_actions.copy_github_line_url, { desc = '󰆓 Copy GitHub line URL' })
 map('v', '<leader>cl', github_actions.copy_github_line_url, { desc = '󰆓 Copy GitHub line URL' })
