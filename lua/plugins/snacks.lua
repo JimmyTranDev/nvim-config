@@ -416,7 +416,7 @@ return {
     {
       '<leader>fk',
       function() Snacks.picker.keymaps() end,
-      desc = '⌨ Keymaps',
+      desc = '󰌑 Keymaps',
     },
     {
       '<leader>fP',
