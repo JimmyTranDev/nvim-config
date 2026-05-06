@@ -420,12 +420,14 @@ end
 
 function M.fms_key_lookup()
   local cwd = vim.fn.getcwd()
-  local fallback_path = cwd .. '/src/fms-fallbacks/fallback-no.json'
+  local result = vim.fn.systemlist({ 'fd', 'fallback-no.json', cwd, '--type', 'f', '--max-results', '1', '--exclude', 'node_modules' })
 
-  if vim.fn.filereadable(fallback_path) ~= 1 then
-    vim.notify('No fallback-no.json found at src/fms-fallbacks/', vim.log.levels.WARN)
+  if #result == 0 then
+    vim.notify('No fallback-no.json found in project', vim.log.levels.WARN)
     return
   end
+
+  local fallback_path = result[1]
 
   local content = vim.fn.readfile(fallback_path)
   local ok, data = pcall(vim.fn.json_decode, table.concat(content, '\n'))
