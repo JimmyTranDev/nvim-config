@@ -108,7 +108,7 @@ function M.copy_opencode_link()
     vim.notify('No file is currently open', vim.log.levels.WARN)
     return
   end
-  local link = ('opencode://file?path=%s&line=%d'):format(vim.fn.shellescape(vim.fn.fnamemodify(file, ':.')), vim.fn.line('.'))
+  local link = ('@%s:%d'):format(vim.fn.fnamemodify(file, ':.'), vim.fn.line('.'))
   vim.fn.setreg('+', link)
   vim.notify('Copied: ' .. link, vim.log.levels.INFO)
 end
