@@ -451,7 +451,7 @@ return {
       desc = 'Git Log Line',
     },
     {
-      '<leader>fd',
+      '<leader>fjd',
       function() Snacks.picker.git_status() end,
       desc = 'Git Status',
     },
@@ -461,7 +461,7 @@ return {
       desc = 'Git Stash',
     },
     {
-      '<leader>fjd',
+      '<leader>fd',
       function() Snacks.picker.git_diff() end,
       desc = 'Git Diff (Hunks)',
     },

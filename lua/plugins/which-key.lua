@@ -54,7 +54,7 @@ return {
       { '<leader><leader>r', '󰛔 Replace' },
       { '<leader><leader>S', '󰆓 Session' },
       { '<leader>;c', '󰑓 Cache' },
-      { '<leader>;y', '󰌷 Copy & Quick Access' },
+      { '<leader>c', '󰌷 Copy & Quick Access' },
       { '<leader>;v', '󰉋 Analysis' },
       { '<leader><leader>l', '󰞷 LeetCode' },
       { '<leader><leader>t', '⌨ Typing Test' },
