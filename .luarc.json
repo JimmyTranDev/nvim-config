@@ -1,13 +1,15 @@
 {
-  "diagnostics.globals": [
-    "vim",
-    "Snacks",
-    "engage",
-    "create_buffer_local_mappings"
-  ],
-  "diagnostics.disable": [
-    "missing-fields"
-  ],
+  "diagnostics": {
+    "globals": [
+      "vim",
+      "Snacks",
+      "engage",
+      "create_buffer_local_mappings"
+    ],
+    "disable": [
+      "missing-fields"
+    ]
+  },
   "workspace": {
     "ignoreDir": [
       "yazi/plugins"
