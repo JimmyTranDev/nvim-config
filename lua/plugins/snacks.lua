@@ -413,8 +413,18 @@ return {
     },
     {
       '<leader>fd',
-      function() Snacks.picker.git_diff() end,
-      desc = '󰶟 Git Diff (Hunks)',
+      function()
+        local base = 'main'
+        local branches = vim.fn.systemlist({ 'git', 'branch', '--list' })
+        for _, b in ipairs(branches) do
+          if vim.trim(b) == 'develop' then
+            base = 'develop'
+            break
+          end
+        end
+        Snacks.picker.git_diff({ base = base })
+      end,
+      desc = '󰶟 Git Diff (vs develop/main)',
     },
     {
       '<leader>fjH',

@@ -778,4 +778,69 @@ function M._submit_pr_review(pr_number, review_type)
   end)
 end
 
+function M.redeploy_pr()
+  vim.system(
+    { 'gh', 'pr', 'view', '--json', 'number,comments', '--jq', '.number' },
+    { text = true },
+    vim.schedule_wrap(function(pr_result)
+      if pr_result.code ~= 0 or not pr_result.stdout or pr_result.stdout == '' then
+        vim.notify('No PR found for current branch', vim.log.levels.ERROR)
+        return
+      end
+
+      local pr_number = vim.trim(pr_result.stdout)
+
+      vim.system(
+        { 'gh', 'api', string.format('repos/{owner}/{repo}/issues/%s/comments', pr_number), '--jq', '[.[] | select(.body | test("#deploy")) | {id: .id, author: .user.login}]' },
+        { text = true },
+        vim.schedule_wrap(function(comments_result)
+          if comments_result.code ~= 0 then
+            vim.notify('Failed to fetch PR comments', vim.log.levels.ERROR)
+            return
+          end
+
+          local ok, comments = pcall(vim.fn.json_decode, comments_result.stdout)
+          if not ok then
+            comments = {}
+          end
+
+          local pending = #comments
+
+          local function add_deploy_comment()
+            vim.system(
+              { 'gh', 'pr', 'comment', pr_number, '--body', '#deploy' },
+              { text = true },
+              vim.schedule_wrap(function(result)
+                if result.code == 0 then
+                  vim.notify(string.format('Added #deploy to PR #%s', pr_number), vim.log.levels.INFO)
+                else
+                  vim.notify('Failed to add #deploy comment', vim.log.levels.ERROR)
+                end
+              end)
+            )
+          end
+
+          if pending == 0 then
+            add_deploy_comment()
+            return
+          end
+
+          for _, comment in ipairs(comments) do
+            vim.system(
+              { 'gh', 'api', '--method', 'DELETE', string.format('repos/{owner}/{repo}/issues/comments/%d', comment.id) },
+              { text = true },
+              vim.schedule_wrap(function()
+                pending = pending - 1
+                if pending == 0 then
+                  add_deploy_comment()
+                end
+              end)
+            )
+          end
+        end)
+      )
+    end)
+  )
+end
+
 return M

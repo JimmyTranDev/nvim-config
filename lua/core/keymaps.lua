@@ -118,8 +118,7 @@ map('n', '<Leader>rp', notes_actions.add_notes_entry, { desc = '󰌱 Add notes e
 map('n', '<Leader>rc', jira_actions.add_comment_from_branch, { desc = '󰌱 Add Jira comment from branch' })
 
 map('n', '<leader>ac', function() require('opencode').prompt('commit', { submit = true }) end, { desc = '󰚴 OpenCode commit' })
-map('n', '<leader>af', function() require('opencode').prompt('fix-check', { submit = true }) end, { desc = '󰚴 OpenCode fix-check' })
-map('n', '<leader>ar', function() require('opencode').prompt('review', { submit = true }) end, { desc = '󰚴 OpenCode review' })
+map('n', '<leader>ad', github_actions.redeploy_pr, { desc = '󰚴 Redeploy PR (#deploy)' })
 
 map('n', '<leader>cl', github_actions.copy_github_line_url, { desc = '󰆓 Copy GitHub line URL' })
 map('v', '<leader>cl', github_actions.copy_github_line_url, { desc = '󰆓 Copy GitHub line URL' })
