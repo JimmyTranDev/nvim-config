@@ -74,11 +74,11 @@ map('n', '<leader>fa', file_actions.grep_current_file_dir, { desc = '󰊄 Grep i
 
 map('x', '<leader>;Tr', [["zy:%s/\V<C-r>=escape(@z, '/')<CR>//gc<left><left><left>]], { desc = '󰕈 Visual search replace' })
 
-map('n', '<leader>;vx', language_actions.run_knip_fix_current_folder, { desc = '󰒡 Knip fix current folder' })
-map('n', '<leader>;vX', language_actions.run_knip_fix, { desc = '󰒡 Knip fix & remove files (global)' })
-map('n', '<leader>;ve', language_actions.run_eslint_picker, { desc = '󰒡 ESLint analysis picker' })
-map('n', '<leader>;vK', language_actions.run_knip_unused_files, { desc = '󰒡 Knip unused files' })
-map('n', '<leader>;vk', language_actions.run_knip_unused_code, { desc = '󰒡 Knip unused code' })
+map('n', '<leader>vx', language_actions.run_knip_fix_current_folder, { desc = '󰒡 Knip fix current folder' })
+map('n', '<leader>vX', language_actions.run_knip_fix, { desc = '󰒡 Knip fix & remove files (global)' })
+map('n', '<leader>ve', language_actions.run_eslint_picker, { desc = '󰒡 ESLint analysis picker' })
+map('n', '<leader>vK', language_actions.run_knip_unused_files, { desc = '󰒡 Knip unused files' })
+map('n', '<leader>vk', language_actions.run_knip_unused_code, { desc = '󰒡 Knip unused code' })
 
 map('n', '<leader>;ct', todoist_actions.refresh_todoist_cache(), { desc = '󰆘 Refresh Todoist cache' })
 map('n', '<leader>;cw', jira_actions.refresh_jira_cache, { desc = '󰆘 Refresh Jira cache' })
