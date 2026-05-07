@@ -12,11 +12,13 @@ local notes_actions = require('custom.actions.notes')
 local session = require('custom.utils.session')
 local pnpm_actions = require('custom.actions.pnpm')
 local env_check = require('custom.utils.env_check')
+local stock_prompt = require('custom.utils.stock_prompt')
 
 local tracker = require('custom.utils.keybinding_tracker')
 tracker.init()
 session.setup_autosave()
 vim.defer_fn(env_check.check_env_vars, 2000)
+stock_prompt.setup()
 
 local function map(mode, lhs, rhs, opts)
   opts = vim.tbl_extend('force', { silent = true, noremap = true }, opts or {})

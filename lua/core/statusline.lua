@@ -155,6 +155,16 @@ local function build_config()
     always_visible = true,
   })
 
+  local gh_notifications = require('custom.utils.gh_notifications')
+  right_bubble(
+    function() return { fg = colors.peach, gui = 'bold' } end,
+    '',
+    {
+      gh_notifications.get_count,
+      cond = function() return gh_notifications.get_count() ~= '' end,
+    }
+  )
+
   table.insert(config.sections.lualine_x, {
     'diagnostics',
     sources = { 'nvim_diagnostic', 'nvim_lsp', 'nvim_workspace_diagnostic' },
@@ -213,6 +223,8 @@ function M.setup()
   end
 
   lualine.setup(config)
+
+  require('custom.utils.gh_notifications').setup()
 
   vim.api.nvim_create_autocmd('ColorScheme', {
     pattern = 'catppuccin*',
