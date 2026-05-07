@@ -42,19 +42,19 @@ map('', '<S-J>', '<C-D>', { desc = '󰙲 Scroll down half page' })
 map('', '<S-K>', '<C-U>', { desc = '󰙳 Scroll up half page' })
 
 maps('n', {
-  { '<leader><leader>nh', ':vsplit<CR>', '󰖲 Split window vertically (left)' },
-  { '<leader><leader>nj', ':split<CR><C-W>j', '󰖲 Split window horizontally (below)' },
-  { '<leader><leader>nk', ':split<CR>', '󰖲 Split window horizontally (above)' },
-  { '<leader><leader>nl', ':vsplit<CR><C-W>l', '󰖲 Split window vertically (right)' },
-  { '<leader><leader>nn', ':split<CR>', '󰖲 Split window horizontally' },
-  { '<leader><leader>nv', ':vsplit<CR>', '󰖲 Split window vertically' },
-  { '<leader><leader>nc', '<C-W>c', '󰅗 Close current window' },
-  { '<leader><leader>no', '<C-W>o', '󰅗 Close all other windows' },
-  { '<A-=>', '<C-W>=', '󰖲 Equalize window sizes' },
-  { '<A-Up>', '<C-W>+', '󰖲 Increase window height' },
-  { '<A-Down>', '<C-W>-', '󰖲 Decrease window height' },
-  { '<A-Right>', '<C-W>>', '󰖲 Increase window width' },
-  { '<A-Left>', '<C-W><', '󰖲 Decrease window width' },
+  -- { '<leader><leader>nh', ':vsplit<CR>', '󰖲 Split window vertically (left)' },
+  -- { '<leader><leader>nj', ':split<CR><C-W>j', '󰖲 Split window horizontally (below)' },
+  -- { '<leader><leader>nk', ':split<CR>', '󰖲 Split window horizontally (above)' },
+  -- { '<leader><leader>nl', ':vsplit<CR><C-W>l', '󰖲 Split window vertically (right)' },
+  -- { '<leader><leader>nn', ':split<CR>', '󰖲 Split window horizontally' },
+  -- { '<leader><leader>nv', ':vsplit<CR>', '󰖲 Split window vertically' },
+  -- { '<leader><leader>nc', '<C-W>c', '󰅗 Close current window' },
+  -- { '<leader><leader>no', '<C-W>o', '󰅗 Close all other windows' },
+  -- { '<A-=>', '<C-W>=', '󰖲 Equalize window sizes' },
+  -- { '<A-Up>', '<C-W>+', '󰖲 Increase window height' },
+  -- { '<A-Down>', '<C-W>-', '󰖲 Decrease window height' },
+  -- { '<A-Right>', '<C-W>>', '󰖲 Increase window width' },
+  -- { '<A-Left>', '<C-W><', '󰖲 Decrease window width' },
 })
 
 map('n', '<leader>;df', language_actions.fix_and_organize_typescript_imports, { desc = '󰉼 Fix and organize imports (TS)' })

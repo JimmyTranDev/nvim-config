@@ -44,17 +44,17 @@ return {
           },
         },
 
-        swap = {
-          enable = true,
-          swap_next = {
-            ['<leader><leader>sp'] = '@parameter.inner',
-            ['<leader><leader>sf'] = '@function.outer',
-          },
-          swap_previous = {
-            ['<leader><leader>sP'] = '@parameter.inner',
-            ['<leader><leader>sF'] = '@function.outer',
-          },
-        },
+        -- swap = {
+        --   enable = true,
+        --   swap_next = {
+        --     ['<leader><leader>sp'] = '@parameter.inner',
+        --     ['<leader><leader>sf'] = '@function.outer',
+        --   },
+        --   swap_previous = {
+        --     ['<leader><leader>sP'] = '@parameter.inner',
+        --     ['<leader><leader>sF'] = '@function.outer',
+        --   },
+        -- },
       },
     })
   end,

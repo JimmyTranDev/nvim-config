@@ -3,34 +3,34 @@ return {
   dependencies = 'MunifTanjim/nui.nvim',
   ft = { 'json' },
   keys = {
-    {
-      mode = 'n',
-      '<leader><leader>ps',
-      function() require('package-info').show() end,
-      silent = true,
-      desc = '󰎡 NPM Show',
-    },
-    {
-      mode = 'n',
-      '<leader><leader>pd',
-      function() require('package-info').delete() end,
-      silent = true,
-      desc = '󰎡 Npm Delete',
-    },
-    {
-      mode = 'n',
-      '<leader><leader>pc',
-      function() require('package-info').change_version() end,
-      silent = true,
-      desc = '󰎡 Npm Change',
-    },
-    {
-      mode = 'n',
-      '<leader><leader>pi',
-      function() require('package-info').install() end,
-      silent = true,
-      desc = '󰎡 Npm Install',
-    },
+    -- {
+    --   mode = 'n',
+    --   '<leader><leader>ps',
+    --   function() require('package-info').show() end,
+    --   silent = true,
+    --   desc = '󰎡 NPM Show',
+    -- },
+    -- {
+    --   mode = 'n',
+    --   '<leader><leader>pd',
+    --   function() require('package-info').delete() end,
+    --   silent = true,
+    --   desc = '󰎡 Npm Delete',
+    -- },
+    -- {
+    --   mode = 'n',
+    --   '<leader><leader>pc',
+    --   function() require('package-info').change_version() end,
+    --   silent = true,
+    --   desc = '󰎡 Npm Change',
+    -- },
+    -- {
+    --   mode = 'n',
+    --   '<leader><leader>pi',
+    --   function() require('package-info').install() end,
+    --   silent = true,
+    --   desc = '󰎡 Npm Install',
+    -- },
   },
   config = function()
     local language_utils = require('custom.utils.language')
