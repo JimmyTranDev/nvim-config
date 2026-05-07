@@ -368,7 +368,18 @@ return {
     },
     {
       '<leader>fn',
-      function() Snacks.picker.notifications({ preview = false }) end,
+      function()
+        Snacks.picker.notifications({
+          preview = false,
+          confirm = function(picker, item)
+            picker:close()
+            if item and item.text then
+              vim.fn.setreg('+', item.text)
+              Snacks.notify('Copied to clipboard')
+            end
+          end,
+        })
+      end,
       desc = '󰓕 Notification History',
     },
     {
@@ -481,7 +492,7 @@ return {
           vim.notify('Could not determine origin branch', vim.log.levels.ERROR)
           return
         end
-        Snacks.picker.git_diff({ args = { ref } })
+        Snacks.picker.git_diff({ base = ref })
       end,
       desc = '󰶟 Git Diff vs Origin',
     },
