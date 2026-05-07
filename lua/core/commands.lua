@@ -135,6 +135,56 @@ local function setup_workspace_symbol_cache_commands()
       vim.notify('All caches already cleared or never created', vim.log.levels.DEBUG)
     end
   end, { desc = 'Clear all workspace symbols caches' })
+
+  local prewarm_done = {}
+
+  vim.api.nvim_create_autocmd('LspAttach', {
+    group = augroup('workspace_symbol_prewarm'),
+    callback = function(ev)
+      local cwd = vim.fn.fnamemodify(vim.fn.getcwd(), ':p')
+      if prewarm_done[cwd] then return end
+
+      local cached = cache.get(300)
+      if cached then
+        prewarm_done[cwd] = true
+        return
+      end
+
+      local client = vim.lsp.get_client_by_id(ev.data.client_id)
+      if not client or not client:supports_method('workspace/symbol') then return end
+
+      prewarm_done[cwd] = true
+
+      vim.defer_fn(function()
+        local buf = ev.buf
+        if not vim.api.nvim_buf_is_valid(buf) then return end
+
+        client:request('workspace/symbol', { query = '' }, function(err, result)
+          if err or not result then return end
+
+          local ok_lsp, lsp_mod = pcall(require, 'snacks.picker.source.lsp')
+          if not ok_lsp then return end
+
+          local items = lsp_mod.results_to_items(client, result, { text_with_file = true })
+          local cache_items = {}
+          for _, item in ipairs(items) do
+            table.insert(cache_items, {
+              text = item.text,
+              file = item.file,
+              pos = item.pos,
+              kind = item.kind,
+              name = item.name,
+            })
+          end
+
+          if #cache_items > 0 then
+            cache.set(cache_items)
+          end
+        end, buf)
+      end, 3000)
+    end,
+    desc = 'Pre-warm workspace symbols cache on LSP attach',
+  })
 end
 
 local function setup_auto_refresh()

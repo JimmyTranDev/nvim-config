@@ -1,6 +1,7 @@
 local github_utils = require('custom.utils.github')
 local file_utils = require('custom.utils.files')
 local async_utils = require('custom.utils.async')
+local frequency_cache = require('custom.utils.frequency_cache')
 
 local M = {}
 
@@ -443,6 +444,8 @@ function M.list_org_repos_and_open()
 
   table.sort(items, function(a, b) return a.text < b.text end)
 
+  frequency_cache.sort_by_frequency('org_repos', items, function(item) return item.org .. '/' .. item.name end)
+
   if #items == 0 then
     vim.notify('No repositories found in ~/Programming', vim.log.levels.ERROR)
     return
@@ -457,6 +460,7 @@ function M.list_org_repos_and_open()
     format = function(item) return { { item.text, 'Normal' } } end,
     confirm = function(picker, item)
       picker:close()
+      frequency_cache.record('org_repos', item.org .. '/' .. item.name)
       file_utils.open(item.url)
       vim.notify('Opened ' .. item.name .. ' in browser', vim.log.levels.INFO)
     end,

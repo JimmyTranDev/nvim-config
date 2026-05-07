@@ -5,8 +5,26 @@ return {
   'akinsho/nvim-toggleterm.lua',
   keys = {
 
-    { mode = 'n', '<leader>t1', ':1ToggleTerm<CR>', desc = '󰆍 Toggle Terminal 1', silent = true },
-    { mode = 'n', '<leader>t2', ':2ToggleTerm<Cr>', desc = '󰆍 Toggle Terminal 2', silent = true },
+    {
+      mode = 'n',
+      '<leader>t1',
+      function()
+        local id = toggle_term_actions.get_next_free_terminal(1)
+        vim.cmd(id .. 'ToggleTerm')
+      end,
+      desc = '󰆍 Toggle Terminal (next free from 1)',
+      silent = true,
+    },
+    {
+      mode = 'n',
+      '<leader>t2',
+      function()
+        local id = toggle_term_actions.get_next_free_terminal(2)
+        vim.cmd(id .. 'ToggleTerm')
+      end,
+      desc = '󰆍 Toggle Terminal (next free from 2)',
+      silent = true,
+    },
 
     { mode = 't', '<C-h>', [[<Cmd>wincmd h<CR>]], desc = '󰖲 Terminal left window', silent = true },
     { mode = 't', '<C-j>', [[<Cmd>wincmd j<CR>]], desc = '󰖲 Terminal down window', silent = true },
@@ -162,5 +180,7 @@ return {
 
     vim.keymap.set('n', [[<c-\>]], [[<Cmd>execute v:count1 . "ToggleTerm"<CR>]], { silent = true })
     vim.keymap.set('i', [[<c-\>]], [[<Esc><Cmd>execute v:count1 . "ToggleTerm"<CR>]], { silent = true })
+
+    toggle_term_actions.setup_floating_labels()
   end,
 }

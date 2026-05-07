@@ -513,6 +513,23 @@ function M.fms_key_lookup()
             { vim.trim(usage.text:match(':.*$') or usage.text), 'Normal' },
           }
         end,
+        actions = {
+          copy_opencode_link = function(inner_picker, usage_item)
+            if not usage_item then return end
+            local rel = vim.fn.fnamemodify(usage_item.file, ':.')
+            local link = ('@%s:%d'):format(rel, usage_item.line)
+            vim.fn.setreg('+', link)
+            inner_picker:close()
+            vim.notify('Copied: ' .. link, vim.log.levels.INFO)
+          end,
+        },
+        win = {
+          input = {
+            keys = {
+              ['<C-y>'] = { 'copy_opencode_link', desc = 'Copy OpenCode link', mode = { 'n', 'i' } },
+            },
+          },
+        },
         confirm = function(inner_picker, usage)
           inner_picker:close()
           vim.cmd('edit ' .. vim.fn.fnameescape(usage.file))
