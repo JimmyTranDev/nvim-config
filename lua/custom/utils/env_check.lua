@@ -16,11 +16,7 @@ local REQUIRED_VARS = {
     features = 'GitHub: filter PRs by team members (comma-separated team slugs)',
     get = function() return vim.env.GITHUB_PR_FILTER_TEAMS end,
   },
-  {
-    name = 'GITHUB_TEAM_REPOS',
-    features = 'GitHub: team PR dashboard cross-repo view',
-    get = function() return vim.env.GITHUB_TEAM_REPOS end,
-  },
+
   {
     name = 'ORG_JIRA_TICKET_LINK',
     features = 'Jira: ticket URL construction',
@@ -46,11 +42,7 @@ local REQUIRED_VARS = {
     features = 'Todoist: API authentication',
     get = function() return vim.env.PRI_TODOIST_API_TOKEN or vim.env.TODOIST_API_TOKEN end,
   },
-  {
-    name = 'ORG_SONARQUBE_URL',
-    features = 'SonarQube: branch coverage dashboard',
-    get = function() return vim.env.ORG_SONARQUBE_URL end,
-  },
+
 }
 
 local REQUIRED_TOOLS = {
