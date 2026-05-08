@@ -425,17 +425,9 @@ return {
     {
       '<leader>fd',
       function()
-        local base = 'main'
-        local branches = vim.fn.systemlist({ 'git', 'branch', '--list' })
-        for _, b in ipairs(branches) do
-          if vim.trim(b) == 'develop' then
-            base = 'develop'
-            break
-          end
-        end
-        Snacks.picker.git_diff({ base = base })
+        Snacks.picker.git_status()
       end,
-      desc = '󰶟 Git Diff (vs develop/main)',
+      desc = '󰶟 Git Status (uncommitted changes)',
     },
     {
       '<leader>fjH',

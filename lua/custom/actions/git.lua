@@ -573,4 +573,39 @@ function M.diff_vs_develop()
   if ok then snacks.picker.git_diff({ args = { 'develop' } }) end
 end
 
+function M.create_pr_from_branch()
+  local branch = git_utils.get_current_branch()
+  if not branch or branch == '' then
+    vim.notify('Could not determine current branch', vim.log.levels.ERROR)
+    return
+  end
+
+  local pr_url = get_pr_for_branch(branch)
+  if pr_url then
+    file_utils.open(pr_url)
+    vim.notify('Opened existing PR for branch: ' .. branch, vim.log.levels.INFO)
+    return
+  end
+
+  local jira_ticket = git_utils.extract_jira_ticket(branch)
+  local description = branch:gsub('^[^/]+/', '')
+  if jira_ticket ~= '' then
+    description = description:gsub('^' .. jira_ticket:gsub('%-', '%%-') .. '[_%-]?', '')
+  end
+  description = description:gsub('[_%-]', ' ')
+
+  local title = jira_ticket ~= '' and (jira_ticket .. ' ' .. description) or description
+
+  local base_candidates = get_base_branch_candidates()
+  local base = base_candidates[1]
+
+  local result = vim.fn.system({ 'gh', 'pr', 'create', '--title', title, '--body', '', '--base', base, '--web' })
+
+  if vim.v.shell_error == 0 then
+    vim.notify('PR created for branch: ' .. branch, vim.log.levels.INFO)
+  else
+    vim.notify('Failed to create PR: ' .. result, vim.log.levels.ERROR)
+  end
+end
+
 return M

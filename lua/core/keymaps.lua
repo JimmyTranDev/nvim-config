@@ -72,6 +72,7 @@ map('n', '<leader>;fs', editor_actions.toggle_spellcheck, { desc = '󰓆 Toggle 
 -- map('n', '<leader>;fm', ':Markview<CR>', { desc = '󰙈 Toggle Markview' })
 map('n', '<leader>;fw', editor_actions.toggle_wrap, { desc = '󰌪 Toggle text wrap' })
 map('n', '<leader>;fr', ':e!<CR>', { desc = '󰔁 Reload file from disk' })
+map('n', '<leader>;r', editor_actions.switch_repo_by_zellij_tab, { desc = '󰖲 Switch repo + rename Zellij tab' })
 map('n', '<leader>fa', file_actions.grep_current_file_dir, { desc = '󰊄 Grep in current file dir' })
 
 map('x', '<leader>;Tr', [["zy:%s/\V<C-r>=escape(@z, '/')<CR>//gc<left><left><left>]], { desc = '󰕈 Visual search replace' })
@@ -85,11 +86,12 @@ map('n', '<leader>vk', language_actions.run_knip_unused_code, { desc = '󰒡 Kni
 map('n', '<leader>;ct', todoist_actions.refresh_todoist_cache(), { desc = '󰆘 Refresh Todoist cache' })
 map('n', '<leader>;cw', jira_actions.refresh_jira_cache, { desc = '󰆘 Refresh Jira cache' })
 
-map('n', '<leader>;j', jira_actions.copy_ticket_with_title, { desc = '󰆓 Copy Jira ticket with title' })
+map('n', '<leader>cj', jira_actions.copy_ticket_with_title, { desc = '󰆓 Copy Jira ticket with title' })
+map('n', '<leader>ct', jira_actions.copy_testable_message, { desc = '󰆓 Copy testable Slack message' })
 map('n', '<leader>;J', jira_actions.generate_done_md, { desc = '󰌧 Generate this week jira tasks' })
 
-map('n', '<leader>;p', github_actions.copy_open_prs, { desc = '󰆓 Copy open PRs' })
-map('n', '<leader>;P', github_actions.select_and_copy_pr, { desc = '󰆓 Select PR to copy' })
+map('n', '<leader>cp', github_actions.copy_open_prs, { desc = '󰆓 Copy open PRs' })
+map('n', '<leader>cP', github_actions.select_and_copy_pr, { desc = '󰆓 Select PR to copy' })
 
 -- map('n', '<leader><leader>ri', replacement_actions.replace_interactive, { desc = 'Interactive replace' })
 -- map('n', '<leader><leader>rb', replacement_actions.replace_buffer, { desc = 'Replace in buffer' })
@@ -112,6 +114,7 @@ map('n', '<Leader>w', ':w<CR>', { desc = '󰆓 Write' })
 map('n', '<Leader>W', ':wa<CR>', { desc = '󰆓 Write all' })
 
 map('n', '<Leader>rt', todoist_actions.log_todoist_task_all_projects(), { desc = '󰌱 Log todoist task' })
+map('n', '<Leader>rT', todoist_actions.edit_recent_task_title, { desc = '󰌱 Edit recent Todoist task title' })
 map('n', '<Leader>rw', jira_actions.create_jira_task(), { desc = '󰌱 Create Jira task' })
 map('n', '<Leader>rW', jira_actions.create_jira_task_with_link(), { desc = '󰌱 Create Jira task + open link' })
 map('n', '<Leader>rj', journal_actions.add_journal_entry, { desc = '󰌱 Add journal entry' })
@@ -156,6 +159,7 @@ map('n', '<Leader>uv', link_actions.open_private_useful_link, { desc = '󰦥 Ope
 map('n', '<Leader>ug', github_actions.list_org_repos_and_open, { desc = '󰦥 List Org Repos' })
 map('n', '<Leader>uv', link_actions.open_private_useful_link, { desc = '󰦥 Open private useful link' })
 map('n', '<Leader>ug', github_actions.list_org_repos_and_open, { desc = '󰦥 List Org Repos' })
+map('n', '<Leader>ut', link_actions.open_technical_link, { desc = '󰦥 Open technical link' })
 map('n', '<Leader>us', link_actions.search_google, { desc = '󰦥 Search Google' })
 map('v', '<Leader>us', link_actions.search_google, { desc = '󰦥 Search Google (selection)' })
 

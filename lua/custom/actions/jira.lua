@@ -24,7 +24,6 @@ local CONFIG = {
   LIMIT = 50,
   AUTO_TRANSITION = true,
   TRANSITION_STATUSES = { 'In Progress Concept', 'Done Concept', 'Prioritised Issues Development' },
-  EXCLUDED_EPIC_STATUSES = { 'Received', 'Closed' },
 }
 
 local ISSUE_TYPES = {
@@ -66,14 +65,6 @@ local function load_parents_cache()
     end
   end
   return nil
-end
-
-local function build_status_exclusion_jql()
-  local exclusions = {}
-  for _, status in ipairs(CONFIG.EXCLUDED_EPIC_STATUSES) do
-    table.insert(exclusions, 'status != "' .. status .. '"')
-  end
-  return table.concat(exclusions, ' AND ')
 end
 
 local function get_current_user_email()
@@ -173,13 +164,11 @@ local function fetch_parent_issues(callback, force_refresh)
     table.insert(jql_parts, 'issuekey in (' .. keys .. ')')
   end
 
-  local status_exclusion = build_status_exclusion_jql()
   local jql_query = 'project = "'
     .. CONFIG.DEFAULT_PROJECT
     .. '" AND ('
     .. table.concat(jql_parts, ' OR ')
-    .. ') AND issuetype in (Initiative, Epic) AND '
-    .. status_exclusion
+    .. ') AND issuetype in (Initiative, Epic)'
     .. ' ORDER BY parent'
   local cmd = string.format('acli jira workitem search --jql "%s" --fields "key,summary,status" --limit %d --csv', jql_query, CONFIG.LIMIT)
 
@@ -471,34 +460,59 @@ M.copy_ticket_with_title = function()
     return
   end
 
-  local cmd = string.format("acli jira workitem view --key '%s' --fields 'summary' --csv", jira_ticket)
+  local jira_link = link_utils.get_jira_link_with_ticket(jira_ticket)
 
-  vim.notify('Fetching ticket title...', vim.log.levels.INFO)
-
+  local cmd = string.format('acli jira workitem view --key "%s" --fields "summary" --csv', jira_ticket)
   vim.system(
     { 'sh', '-c', cmd },
     { text = true },
     vim.schedule_wrap(function(result)
-      if result.code ~= 0 then
-        local error_msg = result.stderr ~= '' and result.stderr or result.stdout
-        vim.notify('Failed to fetch ticket: ' .. error_msg, vim.log.levels.ERROR)
-        return
+      local title = ''
+      if result.code == 0 then
+        local lines = vim.split(result.stdout, '\n', { trimempty = true })
+        if #lines >= 2 then
+          local fields = parse_csv_line(lines[2])
+          if #fields >= 1 then title = fields[1] end
+        end
       end
 
-      local lines = vim.split(result.stdout, '\n', { trimempty = true })
-      if #lines < 2 then
-        vim.notify('No ticket data found', vim.log.levels.WARN)
-        return
+      if title == '' then
+        local title_part = branch_name:match(jira_ticket:gsub('%-', '%%-') .. '[_%-](.+)') or ''
+        title = title_part:gsub('[_%-]', ' ')
       end
 
-      local fields = parse_csv_line(lines[2])
-      local summary = fields[1] or ''
-      local ticket_with_title = string.format('%s: %s', jira_ticket, summary)
+      local ticket_with_title = jira_link
+        and string.format('<%s|%s> - %s', jira_link, jira_ticket, title)
+        or string.format('%s - %s', jira_ticket, title)
 
       vim.fn.setreg('+', ticket_with_title)
       vim.notify('Copied: ' .. ticket_with_title, vim.log.levels.INFO)
     end)
   )
+end
+
+M.copy_testable_message = function()
+  local branch_name = git_utils.get_current_branch()
+  if not branch_name or branch_name == '' then
+    vim.notify('Not in a git repository or no branch found', vim.log.levels.WARN)
+    return
+  end
+
+  local jira_ticket = git_utils.extract_jira_ticket(branch_name)
+  if not jira_ticket or jira_ticket == '' then
+    vim.notify('No JIRA ticket found in branch name: ' .. branch_name, vim.log.levels.WARN)
+    return
+  end
+
+  local title_part = branch_name:match(jira_ticket:gsub('%-', '%%-') .. '[_%-](.+)') or ''
+  local title = title_part:gsub('[_%-]', ' ')
+
+  local jira_link = link_utils.get_jira_link_with_ticket(jira_ticket)
+  local url = jira_link or jira_ticket
+  local message = string.format('This Jira is now testable:\n%s - %s :hourglass:', url, title)
+
+  vim.fn.setreg('+', message)
+  vim.notify('Copied testable message', vim.log.levels.INFO)
 end
 
 function M.add_comment_from_branch()

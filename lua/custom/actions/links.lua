@@ -54,7 +54,7 @@ function M.open_current_github_repo()
     vim.notify('Failed to get repository info. Make sure you are in a git repository and gh CLI is authenticated.', vim.log.levels.ERROR)
     return
   end
-  open_url(repo_info.url, 'Current GitHub repository')
+  open_url(repo_info.url .. '/pulls', 'GitHub pull requests')
 end
 
 function M.open_current_github_prs()
@@ -63,7 +63,7 @@ function M.open_current_github_prs()
     vim.notify('Failed to get repository info. Make sure you are in a git repository and gh CLI is authenticated.', vim.log.levels.ERROR)
     return
   end
-  open_url(repo_info.url .. '/pulls', 'GitHub pull requests')
+  open_url(repo_info.url .. '/pulls?q=is:pr+is:open+author:@me', 'My GitHub pull requests')
 end
 
 function M.open_dev_server() language_utils.open_server_url('dev') end
@@ -186,6 +186,38 @@ function M.open_sonarqube()
   local separator = url:find('?') and '&' or '?'
   local full_url = url .. separator .. 'branch=' .. branch
   vim.ui.open(full_url)
+end
+
+function M.open_technical_link()
+  local project_names = vim.deepcopy(link_constants.project_names)
+  if #project_names == 0 then
+    vim.notify('No technical links configured', vim.log.levels.WARN)
+    return
+  end
+
+  table.sort(project_names)
+
+  ui_utils.safe_select(project_names, { prompt = 'Select project:' }, function(project_name)
+    local routes = link_constants.project_name_to_route_object[project_name]
+    if not routes then
+      vim.notify('No routes found for: ' .. project_name, vim.log.levels.WARN)
+      return
+    end
+
+    local route_names = {}
+    for key in pairs(routes) do
+      table.insert(route_names, key)
+    end
+    table.sort(route_names)
+
+    ui_utils.safe_select(route_names, { prompt = 'Select link type:' }, function(route_name)
+      local url = routes[route_name]
+      if url then
+        record_link_usage(project_name .. ':' .. route_name)
+        open_url(url, project_name .. ' (' .. route_name .. ')')
+      end
+    end)
+  end)
 end
 
 function M.open_firefox_container()

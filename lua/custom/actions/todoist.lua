@@ -257,4 +257,66 @@ function M.refresh_todoist_cache()
   end
 end
 
+function M.edit_recent_task_title()
+  local async_utils = require('custom.utils.async')
+
+  async_utils.execute({ 'td', 'task', 'list', '--json', '--full', '--limit', '20', '--all' }, function(success, stdout, stderr)
+    if not success then
+      vim.schedule(function() vim.notify('Failed to fetch tasks: ' .. stderr, vim.log.levels.ERROR) end)
+      return
+    end
+
+    local ok, data = pcall(vim.fn.json_decode, stdout)
+    if not ok or not data then
+      vim.schedule(function() vim.notify('Failed to parse Todoist response', vim.log.levels.ERROR) end)
+      return
+    end
+
+    local tasks = data.results or data
+    if #tasks == 0 then
+      vim.schedule(function() vim.notify('No recent tasks found', vim.log.levels.WARN) end)
+      return
+    end
+
+    table.sort(tasks, function(a, b)
+      local a_date = a.addedAt or a.added_at or ''
+      local b_date = b.addedAt or b.added_at or ''
+      return a_date > b_date
+    end)
+
+    local items = {}
+    for i, task in ipairs(tasks) do
+      if task.id and task.content and i <= 20 then
+        table.insert(items, { id = tostring(task.id), content = task.content })
+      end
+    end
+
+    vim.schedule(function()
+      vim.ui.select(items, {
+        prompt = 'Select task to edit (most recent first):',
+        format_item = function(item) return item.content end,
+      }, function(selected)
+        if not selected then return end
+
+        vim.ui.input({ prompt = 'New title: ', default = selected.content }, function(new_title)
+          if not new_title or new_title == '' or new_title == selected.content then return end
+
+          async_utils.execute(
+            { 'td', 'task', 'update', 'id:' .. selected.id, '--content', new_title },
+            function(update_success, _, update_stderr)
+              vim.schedule(function()
+                if update_success then
+                  vim.notify('Task title updated: ' .. new_title, vim.log.levels.INFO)
+                else
+                  vim.notify('Failed to update task: ' .. update_stderr, vim.log.levels.ERROR)
+                end
+              end)
+            end
+          )
+        end)
+      end)
+    end)
+  end)
+end
+
 return M
