@@ -655,6 +655,12 @@ function M._open_pr_review(pr_number, pr_title, repo_slug)
     snacks.picker({
       title = string.format('PR #%d: %s (%d files)', pr_number, pr_title, #files),
       items = file_items,
+      preview = function(ctx)
+        local diff = file_diffs[ctx.item.filename] or 'No diff available'
+        local lines = vim.split(diff, '\n')
+        vim.api.nvim_buf_set_lines(ctx.buf, 0, -1, false, lines)
+        vim.bo[ctx.buf].filetype = 'diff'
+      end,
       format = function(item) return { { item.text, 'Normal' } } end,
       confirm = function(picker, item)
         picker:close()

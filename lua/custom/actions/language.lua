@@ -248,6 +248,7 @@ function M.run_eslint_picker()
   snacks.picker({
     title = 'ESLint Results',
     items = items,
+    preview = 'file',
     format = function(item)
       local icon, hl = snacks.util.icon(item.file, 'file')
       return { { icon, hl }, { ' ' }, { item.text } }
@@ -298,6 +299,7 @@ local function show_knip_picker(items, title)
   snacks.picker({
     title = title,
     items = items,
+    preview = 'file',
     format = function(item)
       local icon, hl = snacks.util.icon(item.file or '', 'file')
       return { { icon, hl }, { ' ' }, { item.text } }
@@ -315,7 +317,7 @@ function M.run_knip_unused_files()
   run_knip('--reporter json', 'Knip Unused Files', function(result)
     local items = {}
     for _, file in ipairs(result.files or {}) do
-      table.insert(items, { file = file, line = 1, text = file .. ' (orphaned)' })
+      table.insert(items, { file = file, line = 1, pos = { 1, 0 }, text = file .. ' (orphaned)' })
     end
     show_knip_picker(items, 'Knip Unused Files')
   end)
@@ -327,10 +329,10 @@ function M.run_knip_unused_code()
     for _, issue in ipairs(result.issues or {}) do
       local file = issue.file
       for _, export in ipairs(issue.exports or {}) do
-        table.insert(items, { file = file, line = export.line or 1, text = ('%s:%d - export: %s'):format(file, export.line or 1, export.name or '?') })
+        table.insert(items, { file = file, line = export.line or 1, pos = { export.line or 1, 0 }, text = ('%s:%d - export: %s'):format(file, export.line or 1, export.name or '?') })
       end
       for _, typ in ipairs(issue.types or {}) do
-        table.insert(items, { file = file, line = typ.line or 1, text = ('%s:%d - type: %s'):format(file, typ.line or 1, typ.name or '?') })
+        table.insert(items, { file = file, line = typ.line or 1, pos = { typ.line or 1, 0 }, text = ('%s:%d - type: %s'):format(file, typ.line or 1, typ.name or '?') })
       end
     end
     show_knip_picker(items, 'Knip Unused Code')
@@ -501,6 +503,7 @@ function M.fms_key_lookup()
       snacks.picker({
         title = 'Usages of: ' .. key,
         items = usage_items,
+        preview = 'file',
         format = function(usage)
           local rel = vim.fn.fnamemodify(usage.file, ':.')
           local icon, hl = snacks.util.icon(rel, 'file')
