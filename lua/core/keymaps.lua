@@ -164,6 +164,7 @@ map('n', '<Leader>us', link_actions.search_google, { desc = '󰦥 Search Google'
 map('v', '<Leader>us', link_actions.search_google, { desc = '󰦥 Search Google (selection)' })
 map('n', '<Leader>un', github_actions.show_notifications, { desc = '󰦥 GitHub Notifications' })
 map('n', '<Leader>uO', github_actions.select_open_prs_by_people, { desc = '󰦥 Open PRs by team' })
+map('n', '<Leader>uR', github_actions.refresh_team_members_cache, { desc = '󰦥 Refresh team members cache' })
 
 -- New
 -- map('n', '<Leader>un', link_actions.open_npm_url, { desc = 'Open NPM link' })

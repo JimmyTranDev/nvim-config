@@ -312,6 +312,160 @@ function M.select_org_repo_and_create_issue()
   end)
 end
 
+local cached_team_members = {}
+
+local function fetch_team_members_for_slug(org_name, team_slug, callback)
+  vim.system(
+    { 'gh', 'api', '/orgs/' .. org_name .. '/teams/' .. team_slug .. '/members', '--jq', '.[].login' },
+    { text = true },
+    vim.schedule_wrap(function(members_result)
+      local members = {}
+      if members_result.code == 0 and members_result.stdout and members_result.stdout ~= '' then
+        for login in members_result.stdout:gmatch('[^\n]+') do
+          local trimmed = login:match('^%s*(.-)%s*$')
+          if trimmed ~= '' then table.insert(members, trimmed) end
+        end
+      end
+      cached_team_members[team_slug] = members
+      callback(members)
+    end)
+  )
+end
+
+local function get_team_members_for_slugs(org_name, team_slugs, callback)
+  local all_usernames = {}
+  local seen = {}
+  local pending = #team_slugs
+
+  for _, slug in ipairs(team_slugs) do
+    if cached_team_members[slug] then
+      for _, login in ipairs(cached_team_members[slug]) do
+        if not seen[login] then
+          seen[login] = true
+          table.insert(all_usernames, login)
+        end
+      end
+      pending = pending - 1
+      if pending == 0 then callback(all_usernames) end
+    else
+      fetch_team_members_for_slug(org_name, slug, function(members)
+        for _, login in ipairs(members) do
+          if not seen[login] then
+            seen[login] = true
+            table.insert(all_usernames, login)
+          end
+        end
+        pending = pending - 1
+        if pending == 0 then callback(all_usernames) end
+      end)
+    end
+  end
+end
+
+function M.refresh_team_members_cache()
+  local teams_str = vim.env.GITHUB_PR_FILTER_TEAMS
+  if not teams_str or teams_str == '' then
+    vim.notify('GITHUB_PR_FILTER_TEAMS not set', vim.log.levels.ERROR)
+    return
+  end
+
+  local org_name = vim.env.ORG_GITHUB_NAME
+  if not org_name or org_name == '' then
+    vim.notify('ORG_GITHUB_NAME not set', vim.log.levels.ERROR)
+    return
+  end
+
+  local team_slugs = {}
+  for slug in teams_str:gmatch('[^,]+') do
+    local trimmed = slug:match('^%s*(.-)%s*$')
+    if trimmed ~= '' then table.insert(team_slugs, trimmed) end
+  end
+
+  cached_team_members = {}
+  vim.notify('Refreshing team members cache...', vim.log.levels.INFO)
+  get_team_members_for_slugs(org_name, team_slugs, function(members)
+    vim.notify('Cached ' .. #members .. ' team members', vim.log.levels.INFO)
+  end)
+end
+
+local function fetch_and_show_prs(org_name, usernames)
+  if #usernames == 0 then
+    vim.notify('No members found', vim.log.levels.ERROR)
+    return
+  end
+
+  vim.notify('Fetching open PRs for ' .. #usernames .. ' team members...', vim.log.levels.INFO)
+
+  local all_prs = {}
+  local pending = #usernames
+
+  for _, username in ipairs(usernames) do
+    vim.system(
+      {
+        'gh',
+        'search',
+        'prs',
+        '--owner',
+        org_name,
+        '--state',
+        'open',
+        '--author',
+        username,
+        '--json',
+        'number,title,repository,url',
+        '--limit',
+        '100',
+      },
+      { text = true },
+      vim.schedule_wrap(function(result)
+        if result.code == 0 and result.stdout and result.stdout ~= '' then
+          local ok, prs = pcall(vim.fn.json_decode, result.stdout)
+          if ok and type(prs) == 'table' then
+            for _, pr in ipairs(prs) do
+              local repo_name = pr.repository and pr.repository.nameWithOwner or ''
+              table.insert(all_prs, {
+                text = string.format('[%s] #%d %s [%s]', username, pr.number, pr.title, repo_name),
+                number = pr.number,
+                title = pr.title,
+                url = pr.url,
+                repo = repo_name,
+                author = username,
+              })
+            end
+          end
+        end
+
+        pending = pending - 1
+        if pending > 0 then return end
+
+        if #all_prs == 0 then
+          vim.notify('No open PRs found for team members', vim.log.levels.INFO)
+          return
+        end
+
+        table.sort(all_prs, function(a, b)
+          if a.author ~= b.author then return a.author < b.author end
+          return a.repo < b.repo
+        end)
+
+        local snacks_ok, snacks = pcall(require, 'snacks')
+        if not snacks_ok then return end
+
+        snacks.picker({
+          title = 'Open PRs by People',
+          items = all_prs,
+          format = function(item) return { { item.text, 'Normal' } } end,
+          confirm = function(picker, item)
+            picker:close()
+            file_utils.open(item.url)
+            vim.notify('Opened PR #' .. item.number .. ' in browser', vim.log.levels.INFO)
+          end,
+        })
+      end)
+    )
+  end
+end
+
 function M.select_open_prs_by_people()
   local teams_str = vim.env.GITHUB_PR_FILTER_TEAMS
   if not teams_str or teams_str == '' then
@@ -336,108 +490,21 @@ function M.select_open_prs_by_people()
     return
   end
 
-  vim.notify('Fetching members for ' .. #team_slugs .. ' teams...', vim.log.levels.INFO)
-
-  local all_usernames = {}
-  local seen_usernames = {}
-  local teams_pending = #team_slugs
-
-  for _, team_slug in ipairs(team_slugs) do
-    vim.system(
-      { 'gh', 'api', '/orgs/' .. org_name .. '/teams/' .. team_slug .. '/members', '--jq', '.[].login' },
-      { text = true },
-      vim.schedule_wrap(function(members_result)
-        if members_result.code == 0 and members_result.stdout and members_result.stdout ~= '' then
-          for login in members_result.stdout:gmatch('[^\n]+') do
-            local trimmed = login:match('^%s*(.-)%s*$')
-            if trimmed ~= '' and not seen_usernames[trimmed] then
-              seen_usernames[trimmed] = true
-              table.insert(all_usernames, trimmed)
-            end
-          end
-        end
-
-        teams_pending = teams_pending - 1
-        if teams_pending > 0 then return end
-
-        if #all_usernames == 0 then
-          vim.notify('No members found across teams', vim.log.levels.ERROR)
-          return
-        end
-
-        vim.notify('Fetching open PRs for ' .. #all_usernames .. ' team members...', vim.log.levels.INFO)
-
-        local all_prs = {}
-        local pending = #all_usernames
-
-        for _, username in ipairs(all_usernames) do
-          vim.system(
-            {
-              'gh',
-              'search',
-              'prs',
-              '--owner',
-              org_name,
-              '--state',
-              'open',
-              '--author',
-              username,
-              '--json',
-              'number,title,repository,url',
-              '--limit',
-              '100',
-            },
-            { text = true },
-            vim.schedule_wrap(function(result)
-              if result.code == 0 and result.stdout and result.stdout ~= '' then
-                local ok, prs = pcall(vim.fn.json_decode, result.stdout)
-                if ok and type(prs) == 'table' then
-                  for _, pr in ipairs(prs) do
-                    local repo_name = pr.repository and pr.repository.nameWithOwner or ''
-                    table.insert(all_prs, {
-                      text = string.format('[%s] #%d %s [%s]', username, pr.number, pr.title, repo_name),
-                      number = pr.number,
-                      title = pr.title,
-                      url = pr.url,
-                      repo = repo_name,
-                      author = username,
-                    })
-                  end
-                end
-              end
-
-              pending = pending - 1
-              if pending > 0 then return end
-
-              if #all_prs == 0 then
-                vim.notify('No open PRs found for team members', vim.log.levels.INFO)
-                return
-              end
-
-              table.sort(all_prs, function(a, b)
-                if a.author ~= b.author then return a.author < b.author end
-                return a.repo < b.repo
-              end)
-
-              local snacks_ok, snacks = pcall(require, 'snacks')
-              if not snacks_ok then return end
-
-              snacks.picker({
-                title = 'Open PRs by People',
-                items = all_prs,
-                format = function(item) return { { item.text, 'Normal' } } end,
-                confirm = function(picker, item)
-                  picker:close()
-                  file_utils.open(item.url)
-                  vim.notify('Opened PR #' .. item.number .. ' in browser', vim.log.levels.INFO)
-                end,
-              })
-            end)
-          )
-        end
-      end)
-    )
+  local choices = {}
+  for _, slug in ipairs(team_slugs) do
+    table.insert(choices, { text = slug, slugs = { slug } })
   end
+  table.insert(choices, { text = 'All teams', slugs = team_slugs })
+
+  vim.ui.select(choices, {
+    prompt = 'Select team:',
+    format_item = function(item) return item.text end,
+  }, function(choice)
+    if not choice then return end
+    get_team_members_for_slugs(org_name, choice.slugs, function(usernames)
+      fetch_and_show_prs(org_name, usernames)
+    end)
+  end)
 end
 
 function M.list_org_repos_and_open()
