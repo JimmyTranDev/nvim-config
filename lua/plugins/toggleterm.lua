@@ -1,4 +1,5 @@
 local language_actions = require('custom.actions.language')
+local pnpm_actions = require('custom.actions.pnpm')
 local toggle_term_actions = require('custom.actions.toggleterm')
 
 return {
@@ -82,6 +83,9 @@ return {
       silent = true,
       desc = '󰎙 Npm Kill All (build, lint, test)',
     },
+
+    { mode = 'n', '<leader>tny', pnpm_actions.pnpm_link, silent = true, desc = '󰎙 pnpm link package' },
+    { mode = 'n', '<leader>tnY', pnpm_actions.pnpm_unlink, silent = true, desc = '󰎙 pnpm unlink package' },
 
     { mode = 'n', '<leader>tmj', language_actions.create_make_command_runner(1), desc = '󰣖 Run Makefile Target', silent = true },
     { mode = 'n', '<leader>tmJ', toggle_term_actions.create_kill_toggle_term(1), desc = '󰣖 Makefile Exit', silent = true },

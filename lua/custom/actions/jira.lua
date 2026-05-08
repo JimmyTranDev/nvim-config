@@ -482,7 +482,7 @@ M.copy_ticket_with_title = function()
       end
 
       local ticket_with_title = jira_link
-        and string.format('<%s|%s> - %s', jira_link, jira_ticket, title)
+        and string.format('%s - %s', jira_link, title)
         or string.format('%s - %s', jira_ticket, title)
 
       vim.fn.setreg('+', ticket_with_title)

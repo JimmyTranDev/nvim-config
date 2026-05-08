@@ -10,7 +10,6 @@ local editor_actions = require('custom.actions.editor')
 local journal_actions = require('custom.actions.journal')
 local notes_actions = require('custom.actions.notes')
 local session = require('custom.utils.session')
-local pnpm_actions = require('custom.actions.pnpm')
 local env_check = require('custom.utils.env_check')
 local stock_prompt = require('custom.utils.stock_prompt')
 
@@ -175,8 +174,7 @@ map('n', '<Leader>uR', github_actions.refresh_team_members_cache, { desc = '󰦥
 -- map('n', '<Leader>uM', git_actions.diff_vs_develop, { desc = 'Diff vs develop' })
 -- map('n', '<Leader>uB', branch_actions.stale_branch_cleanup(), { desc = 'Stale branch cleanup' })
 
-map('n', '<Leader>tny', pnpm_actions.pnpm_link, { desc = '󰎙 pnpm link package' })
-map('n', '<Leader>tnY', pnpm_actions.pnpm_unlink, { desc = '󰎙 pnpm unlink package' })
+
 
 -- map('n', '<leader>ks', keybinding_tracker_actions.show_keybinding_stats, { desc = 'Show keybinding stats' })
 -- map('n', '<leader>kr', keybinding_tracker_actions.reset_keybinding_stats, { desc = 'Reset keybinding stats' })

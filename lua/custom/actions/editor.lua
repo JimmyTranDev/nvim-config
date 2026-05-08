@@ -10,7 +10,8 @@ function M.switch_repo_by_zellij_tab()
     return
   end
 
-  local base_dir = vim.fn.expand('~/Programming/JimmyTranDev')
+  local cwd = vim.fn.getcwd()
+  local base_dir = vim.fn.fnamemodify(cwd, ':h')
   local entries = {}
   local handle = vim.uv.fs_scandir(base_dir)
   if not handle then
