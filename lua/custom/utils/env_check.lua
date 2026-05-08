@@ -12,9 +12,9 @@ local REQUIRED_VARS = {
     get = function() return vim.env.PRI_GITHUB_USERNAME end,
   },
   {
-    name = 'GITHUB_PR_FILTER_USERNAMES',
-    features = 'GitHub: filter PRs by team members',
-    get = function() return vim.env.GITHUB_PR_FILTER_USERNAMES end,
+    name = 'GITHUB_PR_FILTER_TEAMS',
+    features = 'GitHub: filter PRs by team members (comma-separated team slugs)',
+    get = function() return vim.env.GITHUB_PR_FILTER_TEAMS end,
   },
   {
     name = 'GITHUB_TEAM_REPOS',

@@ -162,17 +162,16 @@ map('n', '<Leader>ug', github_actions.list_org_repos_and_open, { desc = '󰦥 Li
 map('n', '<Leader>ut', link_actions.open_technical_link, { desc = '󰦥 Open technical link' })
 map('n', '<Leader>us', link_actions.search_google, { desc = '󰦥 Search Google' })
 map('v', '<Leader>us', link_actions.search_google, { desc = '󰦥 Search Google (selection)' })
+map('n', '<Leader>un', github_actions.show_notifications, { desc = '󰦥 GitHub Notifications' })
 
 -- New
 -- map('n', '<Leader>un', link_actions.open_npm_url, { desc = 'Open NPM link' })
 -- map('n', '<Leader>uO', github_actions.select_open_prs_by_people, { desc = 'Open PRs by people' })
 -- map('n', '<Leader>ui', github_actions.select_org_repo_and_create_issue, { desc = 'Create GitHub issue' })
 -- map('n', '<Leader>uP', github_actions.pr_review_mode, { desc = 'PR review mode' })
--- map('n', '<Leader>uT', github_actions.team_pr_dashboard, { desc = 'Team PR dashboard' })
 -- map('n', '<Leader>um', git_actions.diff_vs_main, { desc = 'Diff vs main' })
 -- map('n', '<Leader>uM', git_actions.diff_vs_develop, { desc = 'Diff vs develop' })
 -- map('n', '<Leader>uB', branch_actions.stale_branch_cleanup(), { desc = 'Stale branch cleanup' })
--- map('n', '<Leader>uS', link_actions.open_sonarqube, { desc = 'Open SonarQube (branch)' })
 
 map('n', '<Leader>tny', pnpm_actions.pnpm_link, { desc = '󰎙 pnpm link package' })
 map('n', '<Leader>tnY', pnpm_actions.pnpm_unlink, { desc = '󰎙 pnpm unlink package' })
