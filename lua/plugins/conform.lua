@@ -30,8 +30,9 @@ return {
         xml = { 'prettier' },
         yaml = { 'prettier' },
 
-        -- bash = { "shfmt" },
-        -- sh = { "shfmt" },
+        bash = { 'shfmt' },
+        sh = { 'shfmt' },
+        zsh = { 'shfmt' },
       },
     })
   end,
