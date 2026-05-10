@@ -5,9 +5,10 @@ local ui_utils = require('custom.utils.ui')
 local M = {}
 
 local PRIORITY_OPTIONS = {
-  { name = 'Priority None', value = 'p4' },
-  { name = 'Priority Medium', value = 'p3' },
-  { name = 'Priority High', value = 'p2' },
+  { name = 'Priority Medium', value = 'p2' },
+  { name = 'Priority Low', value = 'p3' },
+  { name = 'Priority Lowest', value = 'p4' },
+  { name = 'Priority None', value = nil },
   { name = 'Priority Top', value = 'p1' },
 }
 
