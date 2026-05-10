@@ -25,7 +25,7 @@ return {
         jsonc = { 'prettier' },
         html = { 'prettier' },
         css = { 'prettier' },
-        -- markdown = { "prettier" },
+        markdown = { 'prettier' },
         xhtml = { 'prettier' },
         xml = { 'prettier' },
         yaml = { 'prettier' },
