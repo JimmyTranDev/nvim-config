@@ -4,6 +4,8 @@ function M.toggle_spellcheck() vim.cmd('set spell!') end
 
 function M.toggle_wrap() vim.opt.wrap = not vim.opt.wrap:get() end
 
+function M.toggle_markview() vim.cmd('Markview Toggle') end
+
 function M.switch_repo_by_zellij_tab()
   if not vim.env.ZELLIJ then
     vim.notify('Not running inside a Zellij session', vim.log.levels.ERROR)
