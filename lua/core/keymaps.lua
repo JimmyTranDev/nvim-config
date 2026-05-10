@@ -114,6 +114,7 @@ map('n', '<Leader>W', ':wa<CR>', { desc = '󰆓 Write all' })
 
 map('n', '<Leader>rt', todoist_actions.log_todoist_task_all_projects(), { desc = '󰌱 Log todoist task' })
 map('n', '<Leader>rT', todoist_actions.edit_recent_task_title, { desc = '󰌱 Edit recent Todoist task title' })
+  map('n', '<Leader>rD', todoist_actions.delete_recent_task, { desc = '󰌱 Delete recent Todoist task' })
 map('n', '<Leader>rw', jira_actions.create_jira_task(), { desc = '󰌱 Create Jira task' })
 map('n', '<Leader>rW', jira_actions.create_jira_task_with_link(), { desc = '󰌱 Create Jira task + open link' })
 map('n', '<Leader>rj', journal_actions.add_journal_entry, { desc = '󰌱 Add journal entry' })

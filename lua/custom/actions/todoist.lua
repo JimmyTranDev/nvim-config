@@ -5,10 +5,10 @@ local ui_utils = require('custom.utils.ui')
 local M = {}
 
 local PRIORITY_OPTIONS = {
-  { name = 'Priority Top', value = 'p1' },
-  { name = 'Priority High', value = 'p2' },
-  { name = 'Priority Medium', value = 'p3' },
   { name = 'Priority None', value = 'p4' },
+  { name = 'Priority Medium', value = 'p3' },
+  { name = 'Priority High', value = 'p2' },
+  { name = 'Priority Top', value = 'p1' },
 }
 
 local RECENT_PROJECTS_FILE = vim.fn.stdpath('data') .. '/todoist_recent_projects.json'
@@ -309,6 +309,70 @@ function M.edit_recent_task_title()
                   vim.notify('Task title updated: ' .. new_title, vim.log.levels.INFO)
                 else
                   vim.notify('Failed to update task: ' .. update_stderr, vim.log.levels.ERROR)
+                end
+              end)
+            end
+          )
+        end)
+      end)
+    end)
+  end)
+end
+
+function M.delete_recent_task()
+  local async_utils = require('custom.utils.async')
+
+  async_utils.execute({ 'td', 'task', 'list', '--json', '--full', '--limit', '20', '--all' }, function(success, stdout, stderr)
+    if not success then
+      vim.schedule(function() vim.notify('Failed to fetch tasks: ' .. stderr, vim.log.levels.ERROR) end)
+      return
+    end
+
+    local ok, data = pcall(vim.fn.json_decode, stdout)
+    if not ok or not data then
+      vim.schedule(function() vim.notify('Failed to parse Todoist response', vim.log.levels.ERROR) end)
+      return
+    end
+
+    local tasks = data.results or data
+    if #tasks == 0 then
+      vim.schedule(function() vim.notify('No recent tasks found', vim.log.levels.WARN) end)
+      return
+    end
+
+    table.sort(tasks, function(a, b)
+      local a_date = a.addedAt or a.added_at or ''
+      local b_date = b.addedAt or b.added_at or ''
+      return a_date > b_date
+    end)
+
+    local items = {}
+    for i, task in ipairs(tasks) do
+      if task.id and task.content and i <= 20 then
+        table.insert(items, { id = tostring(task.id), content = task.content })
+      end
+    end
+
+    vim.schedule(function()
+      vim.ui.select(items, {
+        prompt = 'Select task to delete (most recent first):',
+        format_item = function(item) return item.content end,
+      }, function(selected)
+        if not selected then return end
+
+        vim.ui.select({ 'Yes', 'No' }, {
+          prompt = 'Delete "' .. selected.content .. '"?',
+        }, function(confirm)
+          if confirm ~= 'Yes' then return end
+
+          async_utils.execute(
+            { 'td', 'task', 'delete', 'id:' .. selected.id },
+            function(delete_success, _, delete_stderr)
+              vim.schedule(function()
+                if delete_success then
+                  vim.notify('Task deleted: ' .. selected.content, vim.log.levels.INFO)
+                else
+                  vim.notify('Failed to delete task: ' .. delete_stderr, vim.log.levels.ERROR)
                 end
               end)
             end
