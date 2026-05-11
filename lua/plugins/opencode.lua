@@ -18,7 +18,10 @@ return {
           for _, file in ipairs(vim.v.oldfiles or {}) do
             local abs_file = vim.fn.fnamemodify(file, ':p')
             if vim.fn.filereadable(abs_file) == 1 and vim.startswith(vim.fn.fnamemodify(abs_file, ':h'), cwd) then
-              vim.cmd('edit ' .. vim.fn.fnameescape(abs_file))
+              vim.cmd('noautocmd edit ' .. vim.fn.fnameescape(abs_file))
+              vim.schedule(function()
+                vim.api.nvim_exec_autocmds('BufReadPost', { buffer = 0 })
+              end)
               break
             end
           end
