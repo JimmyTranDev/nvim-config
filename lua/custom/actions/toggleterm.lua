@@ -87,10 +87,10 @@ function M.setup_floating_labels()
 end
 
 function M.get_next_free_terminal(start_id)
-  local Terminal = require('toggleterm.terminal').Terminal
+  local terminals = require('toggleterm.terminal')
   local id = start_id or 1
   for _ = 1, 20 do
-    local term = Terminal.get(id)
+    local term = terminals.get(id)
     if not term or not term:is_open() then
       return id
     end
