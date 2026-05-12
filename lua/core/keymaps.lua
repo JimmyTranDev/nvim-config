@@ -120,6 +120,8 @@ map('n', '<Leader>rW', jira_actions.create_jira_task_with_link(), { desc = '󰌱
 map('n', '<Leader>rj', journal_actions.add_journal_entry, { desc = '󰌱 Add journal entry' })
 map('n', '<Leader>rJ', journal_actions.open_journal, { desc = '󰌱 Open journal' })
 map('n', '<Leader>rp', notes_actions.add_notes_entry, { desc = '󰌱 Add notes entry' })
+map('n', '<Leader>rn', notes_actions.add_sentence, { desc = '󰌱 Add sentence to notes' })
+map('n', '<Leader>rN', notes_actions.save_task, { desc = '󰌱 Save task to notes' })
 map('n', '<Leader>rc', jira_actions.add_comment_from_branch, { desc = '󰌱 Add Jira comment from branch' })
 
 map('n', '<leader>ac', function() require('opencode').prompt('commit', { submit = true }) end, { desc = '󰚴 OpenCode commit' })
