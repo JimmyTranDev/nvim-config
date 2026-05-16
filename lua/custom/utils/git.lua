@@ -22,14 +22,13 @@ function M.sync_notes_repo()
       local week = tonumber(os.date('%W'))
       local year = tonumber(os.date('%Y'))
       local last_log = (log_result.stdout or ''):gsub('%s+$', '')
-      local expected_prefix = 'journal: week '
+      local expected_msg = string.format('journal: week %d %d', week, year)
 
       local commit_args
-      if last_log:sub(1, #expected_prefix) == expected_prefix then
+      if last_log == expected_msg then
         commit_args = { 'git', '-C', repo, 'commit', '--amend', '--no-edit' }
       else
-        local msg = string.format('journal: week %d %d', week, year)
-        commit_args = { 'git', '-C', repo, 'commit', '-m', msg }
+        commit_args = { 'git', '-C', repo, 'commit', '-m', expected_msg }
       end
 
       vim.system(commit_args, {}, function(commit_result)

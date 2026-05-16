@@ -1,6 +1,7 @@
 local todoist_utils = require('custom.utils.todoist')
 local json_utils = require('custom.utils.json')
 local ui_utils = require('custom.utils.ui')
+local async_utils = require('custom.utils.async')
 
 local M = {}
 
@@ -258,9 +259,148 @@ function M.refresh_todoist_cache()
   end
 end
 
-function M.edit_recent_task_title()
-  local async_utils = require('custom.utils.async')
+local EDIT_FIELD_OPTIONS = {
+  { name = 'Edit title', field = 'title' },
+  { name = 'Change priority', field = 'priority' },
+  { name = 'Set due date', field = 'due' },
+  { name = 'Add/edit labels', field = 'labels' },
+  { name = 'Add description', field = 'description' },
+  { name = 'Complete task', field = 'complete' },
+}
 
+local function edit_task_field(task, on_done)
+  ui_utils.safe_select(EDIT_FIELD_OPTIONS, {
+    prompt = 'Edit "' .. task.content .. '":',
+    format_item = function(item) return item.name end,
+  }, function(selected)
+    if selected.field == 'title' then
+      vim.ui.input({ prompt = 'New title: ', default = task.content }, function(new_title)
+        if not new_title or new_title == '' or new_title == task.content then
+          on_done()
+          return
+        end
+        async_utils.execute(
+          { 'td', 'task', 'update', 'id:' .. task.id, '--content', new_title },
+          function(success, _, stderr)
+            vim.schedule(function()
+              if success then
+                task.content = new_title
+                vim.notify('Title updated', vim.log.levels.INFO)
+              else
+                vim.notify('Failed: ' .. stderr, vim.log.levels.ERROR)
+              end
+              on_done()
+            end)
+          end
+        )
+      end)
+    elseif selected.field == 'priority' then
+      vim.ui.select(PRIORITY_OPTIONS, {
+        prompt = 'Select priority:',
+        format_item = function(item) return item.name end,
+      }, function(priority)
+        if not priority then
+          on_done()
+          return
+        end
+        local args = { 'td', 'task', 'update', 'id:' .. task.id, '--priority', priority.value or 'p4' }
+        async_utils.execute(args, function(success, _, stderr)
+          vim.schedule(function()
+            if success then
+              vim.notify('Priority updated', vim.log.levels.INFO)
+            else
+              vim.notify('Failed: ' .. stderr, vim.log.levels.ERROR)
+            end
+            on_done()
+          end)
+        end)
+      end)
+    elseif selected.field == 'due' then
+      vim.ui.input({ prompt = 'Due date (e.g. tomorrow, 2026-05-20): ' }, function(due)
+        if not due or due == '' then
+          on_done()
+          return
+        end
+        async_utils.execute(
+          { 'td', 'task', 'update', 'id:' .. task.id, '--due', due },
+          function(success, _, stderr)
+            vim.schedule(function()
+              if success then
+                vim.notify('Due date set: ' .. due, vim.log.levels.INFO)
+              else
+                vim.notify('Failed: ' .. stderr, vim.log.levels.ERROR)
+              end
+              on_done()
+            end)
+          end
+        )
+      end)
+    elseif selected.field == 'labels' then
+      vim.ui.input({ prompt = 'Labels (comma-separated): ' }, function(labels)
+        if not labels or labels == '' then
+          on_done()
+          return
+        end
+        async_utils.execute(
+          { 'td', 'task', 'update', 'id:' .. task.id, '--labels', labels },
+          function(success, _, stderr)
+            vim.schedule(function()
+              if success then
+                vim.notify('Labels updated', vim.log.levels.INFO)
+              else
+                vim.notify('Failed: ' .. stderr, vim.log.levels.ERROR)
+              end
+              on_done()
+            end)
+          end
+        )
+      end)
+    elseif selected.field == 'description' then
+      ui_utils.multiline_input({ title = 'Task description' }, function(desc)
+        if not desc or desc == '' then
+          on_done()
+          return
+        end
+        async_utils.execute(
+          { 'td', 'task', 'update', 'id:' .. task.id, '--description', desc },
+          function(success, _, stderr)
+            vim.schedule(function()
+              if success then
+                vim.notify('Description updated', vim.log.levels.INFO)
+              else
+                vim.notify('Failed: ' .. stderr, vim.log.levels.ERROR)
+              end
+              on_done()
+            end)
+          end
+        )
+      end)
+    elseif selected.field == 'complete' then
+      vim.ui.select({ 'Yes', 'No' }, {
+        prompt = 'Complete "' .. task.content .. '"?',
+      }, function(confirm)
+        if confirm ~= 'Yes' then
+          on_done()
+          return
+        end
+        async_utils.execute(
+          { 'td', 'task', 'complete', 'id:' .. task.id },
+          function(success, _, stderr)
+            vim.schedule(function()
+              if success then
+                vim.notify('Task completed: ' .. task.content, vim.log.levels.INFO)
+              else
+                vim.notify('Failed: ' .. stderr, vim.log.levels.ERROR)
+              end
+            end)
+          end
+        )
+      end)
+    end
+  end)
+end
+
+function M.edit_recent_task()
   async_utils.execute({ 'td', 'task', 'list', '--json', '--full', '--limit', '20', '--all' }, function(success, stdout, stderr)
     if not success then
       vim.schedule(function() vim.notify('Failed to fetch tasks: ' .. stderr, vim.log.levels.ERROR) end)
@@ -299,22 +439,10 @@ function M.edit_recent_task_title()
       }, function(selected)
         if not selected then return end
 
-        vim.ui.input({ prompt = 'New title: ', default = selected.content }, function(new_title)
-          if not new_title or new_title == '' or new_title == selected.content then return end
-
-          async_utils.execute(
-            { 'td', 'task', 'update', 'id:' .. selected.id, '--content', new_title },
-            function(update_success, _, update_stderr)
-              vim.schedule(function()
-                if update_success then
-                  vim.notify('Task title updated: ' .. new_title, vim.log.levels.INFO)
-                else
-                  vim.notify('Failed to update task: ' .. update_stderr, vim.log.levels.ERROR)
-                end
-              end)
-            end
-          )
-        end)
+        local function show_field_picker()
+          edit_task_field(selected, function() show_field_picker() end)
+        end
+        show_field_picker()
       end)
     end)
   end)

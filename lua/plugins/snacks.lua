@@ -337,7 +337,7 @@ return {
 
     {
       '<leader>ff',
-      function() Snacks.picker.smart({ hidden = true, filter = { cwd = true } }) end,
+      function() Snacks.picker.smart({ hidden = true, ignored = true, filter = { cwd = true } }) end,
       desc = '󰈙 Smart Find Files',
     },
     {
@@ -389,8 +389,21 @@ return {
     },
     {
       '<leader>fp',
-      function() Snacks.picker.files({ cwd = vim.fn.getcwd() .. '/plans' }) end,
-      desc = '󰈙 Find Plan Files',
+      function()
+        local cwd = vim.fn.getcwd()
+        local dirs = {}
+        for _, dir in ipairs({ 'plans', 'updates' }) do
+          if vim.fn.isdirectory(cwd .. '/' .. dir) == 1 then
+            table.insert(dirs, dir)
+          end
+        end
+        if #dirs == 0 then
+          vim.notify('No plans/ or updates/ directory in ' .. cwd, vim.log.levels.WARN)
+          return
+        end
+        Snacks.picker.files({ dirs = dirs, ignored = true })
+      end,
+      desc = '󰈙 Find Plan & Update Files',
     },
     {
       '<leader>fjt',

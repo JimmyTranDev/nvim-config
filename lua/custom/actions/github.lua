@@ -101,6 +101,24 @@ function M.select_repo_and_open_pr(org_name)
   end)
 end
 
+function M.open_current_repo_in_browser()
+  local remote_url = vim.fn.system('git remote get-url origin 2>/dev/null'):gsub('%s+$', '')
+  if vim.v.shell_error ~= 0 or remote_url == '' then
+    vim.notify('No git remote found', vim.log.levels.WARN)
+    return
+  end
+
+  local org, repo = remote_url:match('github%.com[:/]([^/]+)/([^/%.]+)')
+  if not org or not repo then
+    vim.notify('Could not parse GitHub URL from: ' .. remote_url, vim.log.levels.WARN)
+    return
+  end
+
+  local url = string.format('https://github.com/%s/%s', org, repo)
+  file_utils.open(url)
+  vim.notify('Opened ' .. org .. '/' .. repo, vim.log.levels.INFO)
+end
+
 function M.open_current_commit_in_github()
   local commit_hash = vim.fn.system('git rev-parse HEAD 2>/dev/null'):gsub('%s+', '')
   if vim.v.shell_error ~= 0 or not commit_hash or commit_hash == '' then

@@ -162,4 +162,32 @@ function M.save_task()
   end)
 end
 
+local NOTE_TYPE_OPTIONS = {
+  { name = 'Journal entry', action = 'journal' },
+  { name = 'Person note', action = 'person' },
+  { name = 'Topic note', action = 'sentence' },
+  { name = 'Task', action = 'task' },
+}
+
+function M.quick_note()
+  local journal_actions = require('custom.actions.journal')
+
+  vim.ui.select(NOTE_TYPE_OPTIONS, {
+    prompt = 'Quick note:',
+    format_item = function(item) return item.name end,
+  }, function(selected)
+    if not selected then return end
+
+    if selected.action == 'journal' then
+      journal_actions.add_journal_entry()
+    elseif selected.action == 'person' then
+      M.add_notes_entry()
+    elseif selected.action == 'sentence' then
+      M.add_sentence()
+    elseif selected.action == 'task' then
+      M.save_task()
+    end
+  end)
+end
+
 return M
