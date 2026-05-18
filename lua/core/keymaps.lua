@@ -43,6 +43,8 @@ maps('n', {
 
 map('', '<S-J>', '<C-D>', { desc = '󰙲 Scroll down half page' })
 map('', '<S-K>', '<C-U>', { desc = '󰙳 Scroll up half page' })
+map('n', 'gJ', 'J', { desc = '󰗈 Join lines' })
+map('n', 'gK', 'K', { desc = '󰋼 Keyword lookup' })
 
 maps('n', {
   -- { '<leader><leader>nh', ':vsplit<CR>', '󰖲 Split window vertically (left)' },
@@ -162,8 +164,6 @@ map('n', '<Leader>uh', github_actions.open_current_repo_in_browser, { desc = '�
 map('n', '<Leader>uj', link_actions.open_jira_ticket, { desc = '󰦥 Open Jira ticket' })
 map('n', '<Leader>uo', github_actions.select_own_open_prs, { desc = '󰦥 Select own open PR' })
 map('n', '<Leader>uu', link_actions.open_useful_link, { desc = '󰦥 Open useful link' })
-map('n', '<Leader>uv', link_actions.open_private_useful_link, { desc = '󰦥 Open private useful link' })
-map('n', '<Leader>ug', github_actions.list_org_repos_and_open, { desc = '󰦥 List Org Repos' })
 map('n', '<Leader>uv', link_actions.open_private_useful_link, { desc = '󰦥 Open private useful link' })
 map('n', '<Leader>ug', github_actions.list_org_repos_and_open, { desc = '󰦥 List Org Repos' })
 map('n', '<Leader>ut', link_actions.open_technical_link, { desc = '󰦥 Open technical link' })
