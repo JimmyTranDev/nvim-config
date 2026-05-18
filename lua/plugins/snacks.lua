@@ -66,6 +66,18 @@ local function show_package_json_picker()
   Snacks.picker({
     title = 'Package.json Packages',
     items = packages,
+    preview = function(ctx)
+      local pkg_path = vim.fn.getcwd() .. '/package.json'
+      local pkg_lines = vim.fn.readfile(pkg_path)
+      vim.api.nvim_buf_set_lines(ctx.buf, 0, -1, false, pkg_lines)
+      vim.bo[ctx.buf].filetype = 'json'
+      for i, line in ipairs(pkg_lines) do
+        if line:find('"' .. ctx.item.name .. '"') then
+          vim.api.nvim_win_set_cursor(ctx.win, { i, 0 })
+          break
+        end
+      end
+    end,
     format = function(item) return format_package_item(item) end,
     confirm = function(picker, item)
       picker:close()
@@ -124,6 +136,7 @@ local function show_workspace_symbols_with_cache()
     return Snacks.picker({
       title = 'LSP Workspace Symbols (Cached)',
       items = cached,
+      preview = 'file',
       format = function(item)
         local kind = item.kind or ''
         local name = item.name or ''
@@ -179,6 +192,7 @@ local function show_workspace_symbols_with_cache()
           Snacks.picker({
             title = 'LSP Workspace Symbols',
             items = all_items,
+            preview = 'file',
             format = function(item)
               local kind = item.kind or ''
               local name = item.name or ''
@@ -367,6 +381,11 @@ return {
       mode = { 'n', 'x' },
     },
     {
+      '<leader>fT',
+      require('custom.actions.text_search').search_user_text,
+      desc = '󰗊 Search User-Facing Text',
+    },
+    {
       '<leader>fn',
       function()
         Snacks.picker.notifications({
@@ -459,6 +478,7 @@ return {
 
         local items = {}
         local bufnr = vim.api.nvim_get_current_buf()
+        local filepath = vim.api.nvim_buf_get_name(bufnr)
         local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
 
         for i, hunk in ipairs(hunks) do
@@ -468,6 +488,8 @@ return {
           table.insert(items, {
             idx = i,
             text = string.format('%s L%d: %s', type_indicator, start_line, preview_line:sub(1, 60)),
+            file = filepath,
+            pos = { start_line, 0 },
             line = start_line,
             hunk = hunk,
           })
@@ -476,6 +498,7 @@ return {
         Snacks.picker({
           title = 'Git Hunks (Current Buffer)',
           items = items,
+          preview = 'file',
           format = function(item) return { { item.text, 'Normal' } } end,
           confirm = function(picker, item)
             picker:close()
