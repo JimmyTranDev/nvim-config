@@ -242,7 +242,13 @@ return {
       },
     },
     explorer = { enabled = false },
-    indent = { enabled = true },
+    indent = {
+      enabled = true,
+      filter = function(buf)
+        local ft = vim.bo[buf].filetype
+        return ft ~= 'markdown' and ft ~= 'mdx'
+      end,
+    },
     input = { enabled = true },
     picker = {
       enabled = true,
@@ -276,7 +282,13 @@ return {
     },
     notifier = { enabled = true },
     quickfile = { enabled = true },
-    scope = { enabled = true },
+    scope = {
+      enabled = true,
+      filter = function(buf)
+        local ft = vim.bo[buf].filetype
+        return ft ~= 'markdown' and ft ~= 'mdx'
+      end,
+    },
     scroll = { enabled = false },
     statuscolumn = { enabled = false },
     words = { enabled = false },
