@@ -16,7 +16,7 @@ return {
           if vim.fn.filereadable(abs_file) == 1 and vim.startswith(vim.fn.fnamemodify(abs_file, ':h'), cwd) then
             vim.defer_fn(function()
               vim.cmd('noautocmd edit ' .. vim.fn.fnameescape(abs_file))
-              vim.treesitter.start()
+              pcall(vim.treesitter.start)
               vim.defer_fn(function()
                 pcall(vim.api.nvim_exec_autocmds, 'BufReadPost', { buffer = 0 })
                 pcall(vim.api.nvim_exec_autocmds, 'FileType', { buffer = 0 })
