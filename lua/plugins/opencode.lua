@@ -9,26 +9,6 @@ return {
     { '<C-.>', function() require('opencode').toggle() end, mode = { 'n', 't' }, desc = '󰚴 Toggle opencode' },
   },
   config = function()
-    vim.g.opencode_opts = {}
-
-    vim.api.nvim_create_autocmd('VimEnter', {
-      callback = function()
-        vim.defer_fn(function()
-          local cwd = vim.fn.getcwd()
-          for _, file in ipairs(vim.v.oldfiles or {}) do
-            local abs_file = vim.fn.fnamemodify(file, ':p')
-            if vim.fn.filereadable(abs_file) == 1 and vim.startswith(vim.fn.fnamemodify(abs_file, ':h'), cwd) then
-              vim.cmd('noautocmd edit ' .. vim.fn.fnameescape(abs_file))
-              vim.schedule(function()
-                vim.api.nvim_exec_autocmds('BufReadPost', { buffer = 0 })
-              end)
-              break
-            end
-          end
-          -- require('opencode').toggle()
-        end, 200)
-      end,
-      desc = '󰚴 Auto-open OpenCode and most recent file from current folder (if any) on startup',
-    })
+    vim.g.opencode_opts = {} -- Required by opencode.nvim plugin
   end,
 }
